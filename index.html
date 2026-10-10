@@ -1,0 +1,57 @@
+<title>Parlance</title>
+<!--
+  Parlance — German & Spanish course.  Source layout (see docs/ARCHITECTURE.md):
+    styles/tokens.css       design tokens: the one place for colors, type, radii, motion, layers
+    styles/*.css            base building blocks, components, art, film, features
+    js/config.js            version, release notes, XP economy, quests, badges, Talk scenarios, media
+    media/                  the theme song (AAC for Safari/iPhone, Opus fallback)
+    js/core/*.js            text checking, content assembly, state + sync, audio, engine, live updates
+    content/*.js            lessons, stories, cast and glossary (pure data)
+    js/ui/*.js              one file per screen
+    js/main.js              boot
+  Scripts are classic (non-module) and load in this order; later files may use anything defined earlier.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/art.css">
+<link rel="stylesheet" href="styles/components.css">
+<link rel="stylesheet" href="styles/film.css">
+<link rel="stylesheet" href="styles/features.css">
+<main id="app" class="app"><p class="boot-msg">Loading Parlance…</p></main>
+<nav id="tabs" class="tabs" aria-label="Sections"></nav>
+<div id="toast" class="toast" role="status" hidden></div>
+<script src="js/config.js"></script>
+<script src="js/core/util.js"></script>
+<script src="js/core/text.js"></script>
+<script src="js/core/content.js"></script>
+<script src="content/cast.js"></script>
+<script src="content/glossary.js"></script>
+<script src="content/de-1-basics.js"></script>
+<script src="content/de-2-advanced.js"></script>
+<script src="content/de-3-more.js"></script>
+<script src="content/es-1-basics.js"></script>
+<script src="content/es-2-advanced.js"></script>
+<script src="content/es-3-more.js"></script>
+<script src="content/stories-de.js"></script>
+<script src="content/stories-es.js"></script>
+<script src="js/core/art.js"></script>
+<script src="js/core/state.js"></script>
+<script src="js/core/caps.js"></script>
+<script src="js/core/audio.js"></script>
+<script src="js/core/engine.js"></script>
+<script src="js/core/remote.js"></script>
+<script src="js/ui/shell.js"></script>
+<script src="js/ui/learn.js"></script>
+<script src="js/ui/review.js"></script>
+<script src="js/ui/stories.js"></script>
+<script src="js/ui/talk.js"></script>
+<script src="js/ui/me.js"></script>
+<script src="js/ui/runner.js"></script>
+<script src="js/ui/onboarding.js"></script>
+<script src="js/ui/film.js"></script>
+<script src="js/ui/feedback.js"></script>
+<script src="js/ui/studio.js"></script>
+<script src="js/main.js"></script>

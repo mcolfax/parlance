@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Parlance Style Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/art.css">
+<link rel="stylesheet" href="styles/components.css">
+<link rel="stylesheet" href="styles/features.css">
+<style>
+  html,body{height:auto}
+  body{margin:0;padding-top:env(safe-area-inset-top,0px)}
+  .sg{max-width:980px;margin:0 auto;padding-inline:16px;padding-block:20px 80px;display:flex;flex-direction:column;gap:28px}
+  .sg header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px}
+  .sg header h1{font:var(--type-h1);margin:0}
+  .sg h2{font:var(--type-title);margin:0 0 10px}
+  .sg section{display:flex;flex-direction:column;gap:12px}
+  .sg .note{max-width:65ch;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .sw{border:1px solid var(--hair);border-radius:var(--r-md);overflow:hidden;background:var(--surface)}
+  .sw i{display:block;height:54px}
+  .sw div{padding:8px 10px;font:var(--type-small);display:flex;flex-direction:column}
+  .sw code,.tok code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);word-break:break-all}
+  .tok{display:flex;align-items:baseline;gap:14px;padding:8px 0;border-bottom:1px solid var(--hair-2);flex-wrap:wrap}
+  .tok code{min-width:140px}
+  .demo-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .box{width:72px;height:72px;background:var(--line);display:grid;place-items:center;color:var(--line-ink);font:var(--type-label)}
+  .anim{animation:sgmove 1.8s infinite alternate}
+  @keyframes sgmove{to{transform:translateX(140px)}}
+  .art-row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+  .art-row figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;font:var(--type-small);color:var(--muted)}
+  .scenes{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+  .scenes figure{margin:0;display:flex;flex-direction:column;gap:4px;font:var(--type-small);color:var(--muted)}
+  .controls{margin-left:auto}
+</style>
+</head>
+<body>
+<div class="sg" id="sg"></div>
+<script src="js/config.js"></script>
+<script src="js/core/util.js"></script>
+<script src="js/core/text.js"></script>
+<script src="js/core/content.js"></script>
+<script src="content/cast.js"></script>
+<script src="js/core/art.js"></script>
+<script src="js/core/state.js"></script>
+<script src="js/core/audio.js"></script>
+<script>
+"use strict";
+/* The living style guide. Everything below is rendered from styles/tokens.css and the art functions in
+   js/core/art.js, so it always shows the system exactly as the app uses it. */
+const Run = { active: false }, Talk = { open: false }, Onb = { open: false }, Story = { open: false }, Film = { open: false }, Studio = { open: false };
+const root = document.documentElement;
+const css = n => getComputedStyle(root).getPropertyValue(n).trim();
+const COLORS = ['--bg', '--surface', '--surface-2', '--ink', '--muted', '--hair', '--hair-2', '--line', '--line-soft', '--line-text', '--de', '--es', '--ok', '--ok-bg', '--bad', '--bad-bg', '--warn', '--warn-bg', '--der', '--die', '--das', '--pl', '--gold', '--pip-accent', '--pip-accent-2', '--pip-beak', '--film-bg', '--film-card'];
+const TYPES = ['--type-h1', '--type-h2', '--type-title', '--type-title-s', '--type-body', '--type-button', '--type-label', '--type-small', '--type-eyebrow', '--type-num'];
+const RADII = ['--r-xs', '--r-sm', '--r-md', '--r', '--r-lg', '--r-xl', '--r-pill'];
+const SPACE = ['--sp-1', '--sp-2', '--sp-3', '--sp-4', '--sp-5', '--sp-6'];
+const LAYERS = ['--z-tabs', '--z-overlay', '--z-sheet', '--z-toast', '--z-pop', '--z-banner', '--z-fx'];
+function draw(){
+  const sg = document.getElementById('sg');
+  const sec = (title, note, ...kids) => h('section', null, h('h2', null, title), note ? h('p', { class: 'note' }, note) : null, ...kids);
+  sg.replaceChildren(
+    h('header', null, h('div', null, h('span', { class: 'eyebrow' }, 'Parlance ' + APP_VERSION), h('h1', null, 'Style guide')),
+      h('div', { class: 'controls demo-row' },
+        h('div', { class: 'seg', role: 'group', 'aria-label': 'Theme' }, ['light', 'dark'].map(t => h('button', { type: 'button', 'aria-pressed': String((root.dataset.theme || 'light') === t), onclick: () => { root.dataset.theme = t; draw(); } }, t))),
+        h('div', { class: 'seg', role: 'group', 'aria-label': 'Language line' }, ['de', 'es'].map(l => h('button', { type: 'button', 'aria-pressed': String((root.dataset.lang || 'de') === l), onclick: () => { root.dataset.lang = l; draw(); } }, LANGS[l].native))))),
+    h('p', { class: 'note' }, 'Every value here comes from styles/tokens.css. Change a token, reload, and this page and every screen in the app change together. The line color (petrol for German, saffron for Spanish) flows through --line.'),
+    sec('Color', null, h('div', { class: 'grid' }, COLORS.map(c => h('div', { class: 'sw' }, h('i', { style: 'background:var(' + c + ')' }), h('div', null, h('b', null, c.slice(2)), h('code', null, css(c))))))),
+    sec('Type roles', 'Use font: var(--type-…) instead of writing sizes by hand.', TYPES.map(t => h('div', { class: 'tok' }, h('code', null, t), h('span', { style: 'font:var(' + t + ')' }, t === '--type-num' ? '1,216' : 'Guten Morgen, Ana. ¿Qué tal?')))),
+    sec('Radii, spacing, layers', null,
+      h('div', { class: 'demo-row' }, RADII.map(r => h('div', { class: 'box', style: 'border-radius:var(' + r + ')' }, r.slice(4) || 'r'))),
+      h('div', { class: 'demo-row' }, SPACE.map(s => h('div', { class: 'tok' }, h('code', null, s), h('i', { style: 'display:inline-block;height:12px;background:var(--line);width:var(' + s + ')' })))),
+      h('div', { class: 'demo-row' }, LAYERS.map(z => h('span', { class: 'chip static' }, z.slice(4) + ' ' + css(z))))),
+    sec('Motion', '--ease for movement, --spring for things that pop. Durations: --dur-fast, --dur, --dur-slow.', h('div', { class: 'demo-row' }, h('div', { class: 'box anim', style: 'animation-timing-function:var(--ease)' }, 'ease'), h('div', { class: 'box anim', style: 'animation-timing-function:var(--spring)' }, 'spring'))),
+    sec('Buttons, chips, fields', null,
+      h('div', { class: 'demo-row' }, h('button', { class: 'btn btn-primary' }, 'Primary'), h('button', { class: 'btn btn-ghost' }, 'Ghost'), h('button', { class: 'btn btn-quiet' }, 'Quiet'), h('button', { class: 'btn btn-primary btn-sm' }, 'Small'), h('button', { class: 'btn btn-primary shine' }, 'Hero CTA'), h('button', { class: 'linkish' }, 'Link')),
+      h('div', { class: 'chips' }, h('button', { class: 'chip', 'aria-pressed': 'true' }, 'Selected'), h('button', { class: 'chip' }, 'Chip'), h('span', { class: 'chip static ok' }, ic('check'), 'Done'), h('span', { class: 'lvl-badge' }, 'B1'), h('span', { class: 'cefr' }, 'C2')),
+      h('div', { class: 'demo-row' }, h('input', { class: 'input', placeholder: 'Input', style: 'max-width:260px' }), h('span', { class: 'toggle' }, h('input', { type: 'checkbox', checked: true, 'aria-label': 'Toggle' }), h('span')), h('div', { class: 'stat', style: 'width:140px' }, h('span', { class: 'num' }, ic('flame', 'flame'), '12'), h('span', { class: 'lbl' }, 'day streak')))),
+    sec('Pip the parrot', 'Six moods. Tap one to hear it. Classes: happy, cheer, think, oops, sleep, wow; add fly or hop for motion.', h('div', { class: 'art-row' }, ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow'].map(m => h('figure', null, pip(m, 96, { lang: root.dataset.lang || 'de' }), m)), h('figure', null, pip('happy', 96, { cls: 'fly' }), 'fly'))),
+    sec('Cast', null, h('div', { class: 'art-row' }, Object.keys(CAST).map(id => h('figure', null, avatar(id, 64), CAST[id].name)))),
+    sec('Unit signs', null, h('div', { class: 'art-row' }, Object.keys(UNIT_ART).map(t => h('figure', { title: t }, unitSign(t, 52), t.length > 16 ? t.slice(0, 15) + '…' : t)))),
+    sec('Badges and chest', null, h('div', { class: 'art-row' }, Object.keys(BADGE_ART).map((k, i) => h('figure', null, medal(k, i % 3 !== 2, 64), k)), h('figure', null, h('span', { class: 'chest ready', html: chestSVG() }), 'chest'))),
+    sec('Story scenes', null, h('div', { class: 'scenes' }, Object.keys(SCENES).map(k => h('figure', null, sceneArt(k, '', root.dataset.lang || 'de'), k)))),
+    sec('Sound library', 'Every effect is synthesized live (js/core/audio.js, SOUNDS). Tap to hear.', h('div', { class: 'chips' }, Object.keys(SOUNDS).map(n => h('button', { class: 'chip', type: 'button', onclick: () => playSound(n, 0.8) }, ic('speaker'), n)))),
+    sec('Theme song', 'MEDIA.song in js/config.js. It scores the intro film and loops softly on the home screen.', h('div', { class: 'chips' }, h('button', { class: 'chip', type: 'button', onclick: e => { const playing = Song.el && !Song.el.paused && Song.vol > 0; if (playing) songStop(0.4); else songStart(null, 0.6, 0.4); e.currentTarget.replaceChildren(ic(playing ? 'music' : 'musicOff'), playing ? 'Play “' + MEDIA.song.title + '”' : 'Stop'); } }, ic('music'), 'Play “' + MEDIA.song.title + '”')))
+  );
+}
+draw();
+</script>
+</body>
+</html>

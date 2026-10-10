@@ -1,0 +1,25 @@
+"use strict";
+/* Common words for tap-to-translate (lesson vocabulary is added automatically). */
+const COMMON_GLOSS = {
+  de: { ich: 'I', du: 'you', er: 'he', sie: 'she · they · you (formal)', es: 'it', wir: 'we', ihr: 'you all · her', mich: 'me', dich: 'you', mir: 'me · to me', dir: 'you · to you', uns: 'us', ihm: 'him · to him', ihn: 'him', sich: 'oneself · each other',
+    mein: 'my', meine: 'my', meinen: 'my', meiner: 'my', dein: 'your', deine: 'your', sein: 'his · to be', seine: 'his', unser: 'our', unsere: 'our',
+    der: 'the', die: 'the', das: 'the · that', den: 'the', dem: 'the', des: 'of the', ein: 'a · an', eine: 'a · an', einen: 'a · an', einem: 'a · an', einer: 'a · an', kein: 'no · not a', keine: 'no · not a', keinen: 'no · not a',
+    nicht: 'not', und: 'and', aber: 'but', oder: 'or', denn: 'because · then', weil: 'because', dass: 'that', wenn: 'if · when', als: 'when · than · as', ob: 'whether',
+    mit: 'with', ohne: 'without', für: 'for', von: 'from · of', zu: 'to · too', nach: 'to · after', bei: 'at · with', aus: 'from · out of', in: 'in · into', im: 'in the', auf: 'on', an: 'at · on', am: 'at the · on the', um: 'at · around', über: 'over · about', unter: 'under', vor: 'before · in front of · ago', hinter: 'behind', neben: 'next to', zum: 'to the', zur: 'to the', ins: 'into the', seit: 'since · for',
+    ist: 'is', bin: 'am', bist: 'are', sind: 'are', seid: 'are', war: 'was', waren: 'were', hat: 'has', habe: 'have', hast: 'have', haben: 'have · to have', hatte: 'had', wird: 'will · becomes', werden: 'will · to become',
+    kann: 'can', kannst: 'can', können: 'can · to be able to', muss: 'must · has to', musst: 'must · have to', will: 'want(s) to', möchte: 'would like', möchtest: 'would like', soll: 'should · is supposed to', darf: 'may · is allowed to', gibt: 'gives · there is', geht: 'goes', gehen: 'to go',
+    ja: 'yes', nein: 'no', doch: 'yes (contradicting) · after all', auch: 'also · too', noch: 'still · yet', schon: 'already', sehr: 'very', gern: 'gladly · like to', gerne: 'gladly · like to', viel: 'a lot · much', mehr: 'more', nur: 'only · just', ganz: 'quite · whole',
+    hier: 'here', da: 'there · then', dort: 'there', jetzt: 'now', heute: 'today', morgen: 'tomorrow · morning', gestern: 'yesterday', immer: 'always', nie: 'never', oft: 'often', wieder: 'again', dann: 'then', danach: 'afterwards', bald: 'soon',
+    was: 'what', wer: 'who', wie: 'how', wo: 'where', wann: 'when', warum: 'why', welche: 'which', welcher: 'which', alles: 'everything', nichts: 'nothing', etwas: 'something', man: 'one · you', so: 'so · like this', also: 'so · well', mal: 'just · once', eigentlich: 'actually',
+    gut: 'good · well', toll: 'great', klar: 'sure · clear', bitte: 'please · you’re welcome', danke: 'thanks', herr: 'Mr. · sir', frau: 'Mrs. · woman', uhr: 'o’clock · clock', euro: 'euro(s)', na: 'well', oh: 'oh', okay: 'okay' },
+  es: { yo: 'I', 'tú': 'you', tu: 'your', 'él': 'he', el: 'the', ella: 'she', nosotros: 'we', ustedes: 'you all', ellos: 'they', ellas: 'they', usted: 'you (formal)',
+    me: 'me · myself', te: 'you · yourself', se: 'himself · herself · themselves', le: 'him · her · you (to)', les: 'them (to)', lo: 'it · him', la: 'the · her · it', los: 'the · them', las: 'the · them', nos: 'us · ourselves',
+    un: 'a · an', una: 'a · an', mi: 'my', 'mí': 'me', mis: 'my', tus: 'your', su: 'his · her · their · your', sus: 'his · her · their',
+    y: 'and', o: 'or', pero: 'but', porque: 'because', que: 'that · than', 'qué': 'what', si: 'if', 'sí': 'yes', ni: 'nor', como: 'like · as', 'cómo': 'how',
+    con: 'with', sin: 'without', para: 'for · in order to', por: 'for · by · through', de: 'of · from', del: 'of the', a: 'to · at', al: 'to the', en: 'in · on · at', hasta: 'until', desde: 'since · from', entre: 'between',
+    es: 'is', son: 'are', soy: 'am', eres: 'are', somos: 'are', 'está': 'is', 'estás': 'are', estoy: 'am', 'están': 'are', fue: 'was · went', era: 'was', estaba: 'was',
+    tengo: 'I have', tiene: 'has', tienes: 'you have', tienen: 'they have', hay: 'there is · there are', voy: 'I go · I’m going', va: 'goes', vamos: 'let’s go · we go', vas: 'you go', puedo: 'I can', puedes: 'you can', puede: 'can', quiero: 'I want', quieres: 'you want',
+    no: 'no · not', muy: 'very', 'más': 'more', menos: 'less', 'también': 'also · too', ya: 'already · now', 'todavía': 'still', aquí: 'here', 'ahí': 'there', 'allí': 'there', hoy: 'today', 'mañana': 'tomorrow · morning', ayer: 'yesterday', siempre: 'always', nunca: 'never', luego: 'then · later', entonces: 'then · so', 'después': 'afterwards · after',
+    'dónde': 'where', 'cuándo': 'when', 'quién': 'who', 'quiénes': 'who', 'cuál': 'which', 'cuánto': 'how much', todo: 'everything · all', todos: 'everyone · all', nada: 'nothing', algo: 'something', bien: 'well · good', bueno: 'good · well', buena: 'good', claro: 'sure · of course', gracias: 'thanks',
+    'señor': 'sir · Mr.', 'señora': 'ma’am · Mrs.', 'doña': 'title of respect for an older woman', mijo: 'my son · sweetie', pesos: 'pesos', 'ay': 'oh', uf: 'phew', pues: 'well · so' }
+};

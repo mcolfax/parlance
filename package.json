@@ -1,0 +1,16 @@
+{
+  "name": "parlance",
+  "private": true,
+  "description": "Parlance: a German and Latin American Spanish course, published as a multi-file Claude artifact.",
+  "scripts": {
+    "test": "node dev/test.js index.html",
+    "preview": "python3 dev/preview.py",
+    "files": "node dev/files.js"
+  },
+  "devDependencies": {
+    "jsdom": "24.1.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

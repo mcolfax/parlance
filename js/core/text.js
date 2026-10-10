@@ -1,0 +1,168 @@
+"use strict";
+/* ===================== TEXT NORMALIZATION & CHECKING ===================== */
+const PUNCT = /[.,!?;:"“”„«»()\[\]¿¡…–—\-\/]/g;
+const NUMW = new Map(Object.entries({ zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90, hundred: 100 }));
+const CONTR = new Map(Object.entries({
+  "i'm": 'i am', "you're": 'you are', "we're": 'we are', "they're": 'they are', "he's": 'he is', "she's": 'she is', "it's": 'it is',
+  "that's": 'that is', "what's": 'what is', "where's": 'where is', "here's": 'here is', "there's": 'there is', "who's": 'who is',
+  "how's": 'how is', "name's": 'name is', "don't": 'do not', "doesn't": 'does not', "didn't": 'did not', "isn't": 'is not',
+  "aren't": 'are not', "wasn't": 'was not', "weren't": 'were not', "can't": 'can not', cannot: 'can not', "won't": 'will not',
+  "i'll": 'i will', "you'll": 'you will', "we'll": 'we will', "they'll": 'they will', "it'll": 'it will', "he'll": 'he will', "she'll": 'she will',
+  "i'd": 'i would', "you'd": 'you would', "we'd": 'we would', "they'd": 'they would', "he'd": 'he would', "she'd": 'she would', "that'd": 'that would',
+  "i've": 'i have', "you've": 'you have', "we've": 'we have', "they've": 'they have',
+  "let's": 'let us', "haven't": 'have not', "hasn't": 'has not', "hadn't": 'had not', "shouldn't": 'should not', "wouldn't": 'would not', "couldn't": 'could not',
+  okay: 'ok'
+}));
+function norm(s, lang){
+  let x = String(s ?? '').normalize('NFC').toLowerCase().replace(/[’‘`´]/g, "'").replace(/(\d):(\d)/g, '$1 $2').replace(PUNCT, ' ');
+  let toks = x.split(/\s+/).filter(Boolean);
+  if (lang === 'en') toks = toks.flatMap(t => (CONTR.get(t) || t).split(' '));
+  toks = toks.map(t => t.replace(/'/g, '')).filter(Boolean);
+  if (lang === 'en'){
+    toks = toks.map(t => NUMW.has(t) ? String(NUMW.get(t)) : t);
+    const out = [];
+    for (let i = 0; i < toks.length; i++){
+      const t = toks[i], nx = toks[i + 1];
+      if (/^[2-9]0$/.test(t) && /^[1-9]$/.test(nx || '')){ out.push(String(+t + +nx)); i++; continue; }
+      if ((t === 'a' || t === '1') && nx === '100'){ out.push('100'); i++; continue; }
+      out.push(t);
+    }
+    toks = out;
+  }
+  return toks.join(' ');
+}
+function fold(s){ return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ß/g, 'ss'); }
+function fold2(s){ return fold(s.replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')); }
+function dispTokens(s){ return String(s).normalize('NFC').replace(/(\d):(\d)/g, '$1 $2').split(/[\s\-–—\/]+/).map(w => w.replace(/^[¿¡"“„«(\[]+|[.,!?;:"”»)\]…]+$/g, '')).filter(Boolean); }
+function tileTokens(s){ return String(s).normalize('NFC').split(/\s+/).map(w => w.replace(/^[¿¡"“„«(]+|[.,!?;:"”»)…]+$/g, '')).filter(Boolean); }
+function osa(a, b){
+  const m = a.length, n = b.length; if (Math.abs(m - n) > 1) return 2;
+  const d = []; for (let i = 0; i <= m; i++){ d.push(new Array(n + 1).fill(0)); d[i][0] = i; }
+  for (let j = 0; j <= n; j++) d[0][j] = j;
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++){
+    const c = a[i - 1] === b[j - 1] ? 0 : 1;
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + c);
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[m][n];
+}
+let KNOWN = { de: new Set(), es: new Set(), en: new Set() };
+let NOUNS = new Map();
+const COMMON = {
+  de: 'der die das den dem des ein eine einen einem einer eines kein keine keinen mein meine meinen meinem meiner dein deine deinen sein seine seinen ihr ihre ihren unser unsere unseren ich du er sie es wir mich dich mir dir ihm ihn uns euch bin bist ist sind seid habe hast hat haben habt war waren wird werden kann kannst können muss nicht noch auch aber oder und mit nach von bei aus zum zur',
+  es: 'el la los las un una unos unas mi mis tu tus su sus yo tú él ella nosotros nosotras ellos ellas usted ustedes es son está están estoy estás soy eres somos tengo tiene tienes tienen hay muy más pero porque para por con sin del al que qué',
+  en: 'he she his her him the a an is are was were me my you your we our they their them it its this that these those in on at to for of from with and or but not no yes there where were here hear have has had will would can could do does did'
+};
+function reindex(){
+  KNOWN = { de: new Set(), es: new Set(), en: new Set() };
+  NOUNS = new Map();
+  const addT = (lang, s) => fold(norm(s, lang)).split(' ').forEach(w => w && KNOWN[lang].add(w));
+  for (const lang of ['de', 'es']){
+    COMMON[lang].split(' ').forEach(w => KNOWN[lang].add(fold(w)));
+    for (const l of allLessons(lang)){
+      for (const v of l.vocab){
+        [v.t, ...v.alt].forEach(s => addT(lang, s)); v.e.forEach(s => addT('en', s));
+        if (lang === 'de' && v.g){ const parts = v.t.split(' '); if (LANGS.de.articles.includes(parts[0].toLowerCase()) && parts.length > 1) NOUNS.set(parts.slice(1).join(' '), v.g); }
+      }
+      for (const s of l.sentences){ [s.t, ...s.alt].forEach(x => addT(lang, x)); s.e.forEach(x => addT('en', x)); }
+      for (const b of l.blanks){ b.o.forEach(o => addT(lang, b.t.replace('___', o))); if (b.e) addT('en', b.e); }
+    }
+  }
+  COMMON.en.split(' ').forEach(w => KNOWN.en.add(w));
+  GLOSS = { de: { exact: new Map(), fold: new Map() }, es: { exact: new Map(), fold: new Map() } };
+  for (const lang of ['de', 'es']){
+    for (const l of allLessons(lang)) for (const v of l.vocab){
+      const val = v.e.slice(0, 2).join(' · ');
+      for (const t of [v.t, ...v.alt]){
+        const parts = t.split(' ');
+        addGloss(lang, v.g && LANGS[lang].articles.includes(parts[0].toLowerCase()) && parts.length > 1 ? parts.slice(1).join(' ') : t, val);
+      }
+    }
+    for (const [k, v] of Object.entries(COMMON_GLOSS[lang])) addGloss(lang, k, v, true);
+  }
+}
+let GLOSS = { de: { exact: new Map(), fold: new Map() }, es: { exact: new Map(), fold: new Map() } };
+function addGloss(lang, key, val, over){
+  const k = norm(key, lang); if (!k) return; const G = GLOSS[lang];
+  if (over || !G.exact.has(k)) G.exact.set(k, val);
+  const f = fold(k); if (over || !G.fold.has(f)) G.fold.set(f, val);
+}
+function glossLookup(word, lang){
+  const G = GLOSS[lang]; if (!G) return null;
+  const k = norm(word, lang); if (!k) return null;
+  const hit = G.exact.get(k) || G.fold.get(fold(k));
+  if (hit) return { val: hit };
+  const tries = lang === 'de' ? ['n', 'en', 'e', 's', 'es', 'er', 'nen'].map(x => k.endsWith(x) ? k.slice(0, -x.length) : null)
+    : [k.endsWith('es') ? k.slice(0, -2) : null, k.endsWith('s') ? k.slice(0, -1) : null, k.endsWith('as') ? k.slice(0, -2) + 'o' : null, k.endsWith('a') ? k.slice(0, -1) + 'o' : null];
+  for (const b of tries){ if (!b || b.length < 3) continue; const v = G.exact.get(b) || G.fold.get(fold(b)); if (v) return { val: v, base: b }; }
+  return null;
+}
+function check(input, accepted, lang, opt = {}){
+  const typo = opt.typo !== false;
+  const ua = norm(input, lang);
+  if (!ua) return { ok: false, level: 'empty', match: accepted[0] };
+  const nas = accepted.filter(Boolean).map(a => [a, norm(a, lang)]);
+  for (const [a, na] of nas) if (na === ua) return { ok: true, level: 'exact', match: a };
+  const fu = fold(ua);
+  for (const [a, na] of nas) if (fold(na) === fu || fold2(na) === fu) return { ok: true, level: 'accent', match: a, note: accentNote(input, a, lang) };
+  if (typo) for (const [a, na] of nas){
+    const t = typoMatch(fu, fold(na), lang);
+    if (t) return { ok: true, level: 'typo', match: a, note: typoNote(a, t, lang) };
+  }
+  return { ok: false, level: 'wrong', match: accepted[0] };
+}
+function typoMatch(u, a, lang){
+  if (u.replace(/ /g, '') === a.replace(/ /g, '')) return { index: -1 };
+  const tu = u.split(' '), ta = a.split(' ');
+  if (tu.length !== ta.length) return null;
+  let idx = -1;
+  for (let i = 0; i < ta.length; i++) if (tu[i] !== ta[i]){ if (idx !== -1) return null; idx = i; }
+  if (idx === -1) return null;
+  const x = tu[idx], y = ta[idx];
+  if (y.length < 4 || osa(x, y) !== 1) return null;
+  if (KNOWN[lang] && KNOWN[lang].has(x)) return null;
+  if (x.slice(0, -1) === y.slice(0, -1) || x === y.slice(0, -1) || y === x.slice(0, -1)) return null;
+  return { index: idx };
+}
+function typoNote(a, t, lang){
+  if (t.index < 0) return 'Watch the spacing: ' + a;
+  const disp = dispTokens(a), nt = norm(a, lang).split(' ');
+  const word = (lang !== 'en' && disp.length === nt.length) ? disp[t.index] : nt[t.index];
+  return 'Watch the spelling: ' + word;
+}
+function accentNote(input, a, lang){
+  const ua = norm(input, lang).split(' '), na = norm(a, lang).split(' '), da = dispTokens(a);
+  const words = [];
+  if (ua.length === na.length && na.length === da.length) for (let i = 0; i < na.length; i++) if (ua[i] !== na[i]) words.push(da[i]);
+  const list = words.length ? words.join(', ') : a;
+  if (lang === 'de'){
+    if (/ß/.test(list) && !/[äöüÄÖÜ]/.test(list)) return 'Watch the ß: ' + list;
+    if (/[äöüÄÖÜ]/.test(list)) return 'Watch the umlaut: ' + list;
+    return 'Watch the spelling: ' + list;
+  }
+  if (lang === 'es') return 'Watch the accent: ' + list;
+  return 'Watch the spelling: ' + list;
+}
+function lcsTokens(u, t){
+  const m = u.length, n = t.length; const d = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  const eq = (x, y) => x === y || (y.length >= 4 && osa(x, y) <= 1);
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = eq(u[i - 1], t[j - 1]) ? d[i - 1][j - 1] + 1 : Math.max(d[i - 1][j], d[i][j - 1]);
+  return d[m][n];
+}
+function speechScore(heard, accepted, lang){
+  const u = fold(norm(heard, lang)).split(' ').filter(Boolean);
+  let best = 0;
+  for (const a of accepted){ const t = fold(norm(a, lang)).split(' ').filter(Boolean); if (!t.length) continue; best = Math.max(best, lcsTokens(u, t) / Math.max(t.length, u.length)); }
+  return best;
+}
+function englishVariants(item){
+  const out = new Set();
+  for (const e of item.e){
+    out.add(e); const l = e.toLowerCase();
+    if (l.startsWith('to ')) out.add(e.slice(3));
+    if (item.g){ if (l.startsWith('the ')) out.add(e.slice(4)); else out.add('the ' + e); }
+  }
+  return [...out];
+}
+function hintFor(answer){ return tileTokens(answer).map(w => w.length <= 2 ? w[0] + '·'.repeat(w.length - 1) : w[0] + '·'.repeat(w.length - 1)).join('  '); }
+

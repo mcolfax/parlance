@@ -1,0 +1,50 @@
+/* ===================== FEATURES: feedback, Studio, updates =====================
+   Feedback sheet and ratings, the owner's Studio, the update banner, announcements and What's new.
+   ============================================================================= */
+.fb-sheet .chips{gap:6px}
+.fb-ctx{display:flex;gap:8px;align-items:flex-start;line-height:1.35}
+.fb-ctx input{margin-top:3px;accent-color:var(--line)}
+.fb-report{align-self:flex-start;color:inherit;opacity:.75;text-decoration-thickness:1px;padding:4px 0 0}
+.fb-report .ic svg{width:14px;height:14px}
+.rate{display:flex;flex-direction:column;align-items:center;gap:8px}
+.rate-thanks{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center}
+.about .about-actions{display:flex;flex-wrap:wrap;gap:8px}
+.about .about-actions .btn{flex:1 1 auto}
+.studio-entry{border-style:dashed;border-color:var(--line)}
+.studio-entry .ic svg{width:28px;height:28px;color:var(--line-text)}
+.update-banner{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:var(--z-banner);max-width:540px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--hair);box-shadow:var(--shadow-lg);font-size:15px;animation:toastin .45s var(--spring) both}
+.announce,.whatsnew{display:flex;flex-direction:column;gap:12px}
+.announce{align-items:center;text-align:center}
+.wn-pip{align-self:center}
+.wn-rel{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2)}
+.wn-rel h4{margin:0;font:var(--type-title-s)}
+.wn-rel ul,.wn-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+/* Studio */
+.overlay.studio .ov-body-in{gap:14px}
+.studio-tabs{margin:0;align-self:stretch;display:grid;grid-template-columns:repeat(4,1fr)}
+.studio-tabs button{padding:8px 4px;font-size:13px}
+.mini-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:var(--line);color:var(--line-ink);font:800 11px var(--body)}
+.studio-sec{display:flex;flex-direction:column;gap:12px}
+.studio-hero .btn{margin-top:4px}
+.fb-item{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:6px;animation:rise .3s var(--ease) both}
+.fb-item.new{border-left:4px solid var(--line)}
+.fb-type{font-size:12px;padding:3px 9px}
+.fb-type.t-bug{border-color:var(--bad);color:var(--bad)}
+.fb-type.t-content{border-color:var(--warn);color:var(--warn)}
+.fb-type.t-love{border-color:var(--ok);color:var(--ok)}
+.rating-table{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,48px);gap:6px 10px;font-size:14px;font-variant-numeric:tabular-nums}
+.rt-h{font:var(--type-eyebrow);color:var(--muted)}
+.bad-t{color:var(--bad);font-weight:800}
+.proposal{gap:10px}
+.proposal h3{font-size:20px}
+.proposal details{font-size:15px}
+.proposal summary{cursor:pointer;font-weight:700;color:var(--line-text)}
+.proposal.k-content{border-left:4px solid var(--ok)}
+.proposal.k-code{border-left:4px solid var(--der)}
+.proposal.k-design{border-left:4px solid var(--pl)}
+.proposal.k-copy{border-left:4px solid var(--warn)}
+.dots3{display:inline-flex;gap:3px;margin-right:6px}
+.dots3 i{width:7px;height:7px;border-radius:50%;background:var(--hair)}
+.dots3 i.on{background:var(--line)}
+.ev-list{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+.pack-list{display:flex;flex-direction:column;gap:6px}

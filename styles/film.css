@@ -1,0 +1,66 @@
+/* ===================== INTRO FILM =====================
+   The film stage is always dark (a little cinema), in both themes. Colors come from --film-* tokens.
+   ====================================================== */
+.overlay.film{background:var(--film-bg);color:var(--film-ink)}
+.overlay.film .ov-head{color:var(--film-ink)}
+.overlay.film .icon-btn.plain{color:var(--film-muted)}
+.overlay.film .ov-body{overflow:hidden}
+.overlay.film .ov-body-in{height:100%;padding:0 12px;max-width:520px}
+.film-wrap{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;height:100%;cursor:pointer}
+.film-stage{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.film-svg{width:100%;height:100%;max-height:100%;display:block}
+.film-cap{position:absolute;left:12px;right:12px;bottom:14px;text-align:center;font:700 17px/1.35 var(--body);color:var(--film-ink);text-shadow:0 2px 12px rgb(0 0 0 / .6);opacity:0;transform:translateY(6px);transition:opacity .35s var(--ease),transform .35s var(--ease);pointer-events:none;text-wrap:balance}
+.film-cap.on{opacity:1;transform:none}
+.film-big{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;border:0;background:rgb(255 255 255 / .16);color:#fff;display:grid;place-items:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 0 0 6px rgb(255 255 255 / .08)}
+.film-big svg{margin-left:4px}
+.film-foot{background:var(--film-bg);border-color:rgb(255 255 255 / .08)}
+.f-controls{display:flex;align-items:center;gap:12px}
+.f-play{background:rgb(255 255 255 / .12);color:#fff}
+.f-time{font:700 13px var(--body);color:var(--film-muted);font-variant-numeric:tabular-nums;min-width:78px;text-align:right}
+.f-mute{background:transparent;color:var(--film-ink);border-color:rgb(255 255 255 / .2)}
+.f-mute[aria-pressed="false"]{opacity:.6}
+.f-mute[aria-pressed="true"]{background:transparent;color:var(--film-ink);border-color:rgb(255 255 255 / .35)}
+.f-range{flex:1;min-width:0;accent-color:var(--line);height:28px}
+.btn.pulse-cta{animation:ctapulse 1.6s ease-in-out infinite}
+@keyframes ctapulse{50%{box-shadow:0 0 0 8px var(--line-glow)}}
+/* stage art */
+.f-bg{fill:var(--film-bg)}
+.f-stars circle{fill:#fff;animation:twinkle 2.6s ease-in-out infinite}
+.f-h1{font:800 54px var(--display);fill:var(--film-ink);text-anchor:middle;letter-spacing:-.03em}
+.f-sub{font:600 16px var(--body);fill:var(--film-muted);text-anchor:middle}
+.f-line{fill:none;stroke:#2FA3AE;stroke-width:10;stroke-linecap:round}
+.f-st{fill:var(--film-bg);stroke:#fff;stroke-width:5}
+.f-sky-de rect,.f-sky-de circle{fill:#2FA3AE;opacity:.85}
+.f-sky-de path{stroke:#2FA3AE;stroke-width:6;stroke-linecap:round;fill:none}
+.f-sky-es .h1{fill:#F0B42C}.f-sky-es .h2{fill:#E4572E}.f-sky-es .h3{fill:#3FA77A}
+.f-string{fill:none;stroke:var(--film-muted);stroke-width:1.5}
+.pp0{fill:#E4572E}.pp1{fill:#F0B42C}.pp2{fill:#3FA77A}.pp3{fill:#E25E9A}
+.f-city{font:800 18px var(--display);text-anchor:middle}
+.f-city.de{fill:#5CC3CD}.f-city.es{fill:#F4C657}
+.f-bub{fill:#fff}
+.f-bub-t{font:800 14px var(--display);fill:#13262B;text-anchor:middle}
+.f-card{fill:var(--film-card);stroke:rgb(255 255 255 / .08)}
+.f-card-ic{fill:#2FA3AE}
+#f-card1 .f-card-ic{fill:#F0B42C}#f-card2 .f-card-ic{fill:#E4572E}#f-card3 .f-card-ic{fill:#3FA77A}
+.f-card-a{font:800 17px var(--display);fill:var(--film-ink)}
+.f-card-b{font:500 13px var(--body);fill:var(--film-muted)}
+.f-coin{fill:#F2C14E;stroke:#B8860B;stroke-width:2}
+.f-num{font:800 44px var(--display);fill:var(--film-ink)}
+.f-num-l{font:600 14px var(--body);fill:var(--film-muted)}
+.f-route{fill:none;stroke:url(#f-grad);stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
+.f-rst{fill:var(--film-bg);stroke:#fff;stroke-width:4;transition:fill .3s}
+.f-rst.lit{fill:#F0B42C}
+.f-rlb{font:800 15px var(--body);fill:var(--film-ink)}
+.cf0{fill:#F0B42C}.cf1{fill:#2FA3AE}.cf2{fill:#E4572E}.cf3{fill:#fff}
+.f-end{font:800 32px var(--display);text-anchor:middle}
+.f-end.de{fill:#5CC3CD}.f-end.es{fill:#F4C657}.f-end.en{font-size:22px;fill:var(--film-ink)}
+/* Pip in the film takes the German line color for its body */
+.film-svg .pip{--line:#2FA3AE;--pip-belly:color-mix(in srgb, #2FA3AE 36%, #fff);--pip-wing:color-mix(in srgb, #2FA3AE 72%, #000)}
+/* onboarding film card */
+.film-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;padding:12px 14px;border-radius:var(--r-lg);background:var(--film-bg);color:var(--film-ink);font:inherit;box-shadow:var(--shadow);transition:transform .15s var(--ease)}
+.film-card:active{transform:scale(.98)}
+.fc-thumb{position:relative;display:grid;place-items:center;width:72px;height:64px;border-radius:var(--r-md);background:radial-gradient(circle at 50% 60%, rgb(47 163 174 / .45), transparent 70%)}
+.fc-play{position:absolute;right:-4px;bottom:-4px;width:28px;height:28px;border-radius:50%;background:#fff;color:var(--film-bg);display:grid;place-items:center}
+.fc-play svg{width:14px;height:14px;margin-left:2px}
+.fc-text{display:flex;flex-direction:column;gap:2px}
+.fc-text .muted{color:var(--film-muted)}
