@@ -4,6 +4,8 @@ Parlance is Matt's own German and Latin American Spanish course, a replacement f
 
 **https://claude.ai/artifact/8ZNHqMUCms2THTSfDkTp72**
 
+Design options Matt is reviewing (styles, Pip, cast) are in Claude Design: https://claude.ai/artifact/Qzi2d6c6LteToAfVtkPqJd, with notes and concept-art sources in `design/`.
+
 Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and explains live content, the feedback loop and the theme song.
 
 ## Ground rules
