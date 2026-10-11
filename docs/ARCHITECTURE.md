@@ -23,7 +23,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `js/core/remote.js` | Live content packs, update banner, announcements, What's new, sharing a lesson | change live updates |
 | `js/core/host.js` | The web version's accounts and database: the same `window.claude.use()` surface, backed by Supabase | change how the web version signs in or stores data |
 | `js/core/rig.js`, `js/core/bird.js`, `js/core/pip.js` | Pip's rig: the SVG runtime (blending, moves, blinks, springs, the head turn), the shared bird (skeleton, poses, faces, moods, moves) and Pip's part sheet traced from the model sheet. `design/rig/` holds the Blender file, the tracing tools and the review pages | change how Pip looks or moves (read `design/rig/README.md` first) |
-| `js/core/art.js` | `pip()` (a live Pip that hops and talks when tapped) and `pipSVG()` (a still), cast portraits, unit signs, scenes, chest, medals (pure SVG) | change illustrations |
+| `js/core/art.js` | `pip()` (a live Pip that moves and talks when tapped and looks where you touch) and `pipSVG()` (a still), cast portraits, unit signs, scenes, chest, medals (pure SVG) | change illustrations |
 | `content/*.js` | Lessons, stories, cast, glossary (data only) | add or fix built-in content |
 | `js/ui/*.js` | One file per screen: learn, review, stories, talk, me, runner (lessons), onboarding, film, feedback, studio | change a screen |
 | `js/main.js` | Boot order | rarely |

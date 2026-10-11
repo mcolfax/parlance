@@ -12,7 +12,7 @@ function viewReview(){
         h('span', { class: 'eyebrow' }, 'Spaced repetition · ' + LANGS[lang].name),
         h('h2', null, due ? due + ' ' + plural(due, 'item') + ' ready' : 'You’re all caught up'),
         h('p', { class: 'muted' }, due ? 'Each item returns just before you’d forget it. Get it right and it waits longer next time.' : (all.length ? 'Coming up: ' + tomorrow + ' tomorrow, ' + week + ' this week.' : 'Finish a lesson and its words and phrases land here.'))),
-      pip(due ? 'happy' : all.length ? 'sleep' : 'think', 72, { cls: 'hero-pip', say: due ? null : all.length ? 'Zzz…' : null })),
+      pip(due ? 'ready' : all.length ? 'sleep' : 'think', 72, { cls: 'hero-pip', say: due ? null : all.length ? 'Zzz…' : null })),
     due ? h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => startReview(false) }, 'Review ' + Math.min(due, 20) + ' ' + plural(Math.min(due, 20), 'item')) : null,
     all.length ? h('button', { class: 'btn btn-ghost btn-wide', type: 'button', onclick: () => startReview(true) }, 'Practice my weakest items') : null));
   const counts = { new: 0, learning: 0, strong: 0 };
@@ -45,7 +45,7 @@ function fillWords(list){
   } else rows = learnedEntries(lang, UI.wordFilter).map(e => ({ item: e.item, card: e.card, lesson: e.lesson }));
   if (q) rows = rows.filter(r => fold(norm(r.item.t, lang)).includes(q) || r.item.e.some(e => fold(norm(e, 'en')).includes(q)));
   const t = today();
-  if (!rows.length){ list.replaceChildren(h('div', { class: 'empty' }, pip('think', 64, { tap: false }), h('p', { class: 'muted' }, UI.wordFilter === 'all' ? 'No words match that search.' : q ? 'Nothing saved matches that search.' : 'Finish a lesson and its ' + (UI.wordFilter === 's' ? 'phrases' : 'words') + ' show up here.'))); return; }
+  if (!rows.length){ list.replaceChildren(h('div', { class: 'empty' }, pip(UI.wordFilter === 'all' || q ? 'shrug' : 'think', 64, { tap: false }), h('p', { class: 'muted' }, UI.wordFilter === 'all' ? 'No words match that search.' : q ? 'Nothing saved matches that search.' : 'Finish a lesson and its ' + (UI.wordFilter === 's' ? 'phrases' : 'words') + ' show up here.'))); return; }
   const shown = rows.slice(0, UI.wordLimit || 150);
   const more = rows.length > shown.length ? h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => { UI.wordLimit = (UI.wordLimit || 150) + 300; fillWords(list); } }, 'Show more (' + (rows.length - shown.length) + ')') : null;
   list.replaceChildren(h('p', { class: 'small muted' }, rows.length + ' ' + plural(rows.length, UI.wordFilter === 's' ? 'phrase' : 'word')), ...shown.map(r => {

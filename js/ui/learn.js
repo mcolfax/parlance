@@ -59,11 +59,14 @@ function heroCard(){
   const started = Object.keys(S.langs[lang].done).length > 0;
   const mood = pipMoodNow();
   const say = mood === 'wow' ? (lang === 'de' ? 'Deine Serie!' : '¡Tu racha!') : mood === 'cheer' ? pickSay(lang, 'cheer') : pipHello(lang);
+  // Pip waves hello and mouths its line when you come to Learn, and through the redraws right after (sync, profile), not on every redraw
+  if (UI.animate) UI.helloAt = Date.now();
+  const arriving = Date.now() - UI.helloAt < 1500;
   return h('section', { class: 'hero' },
     h('div', { class: 'hero-art', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')),
     h('div', { class: 'hero-top' },
       h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Next stop · ' + nx.level + ' ' + LEVEL_NAME[nx.level]), h('h2', null, nx.title), h('p', { class: 'muted' }, where + ' · about ' + minutesFor(nx) + ' min')),
-      pip(mood, 80, { cls: 'hero-pip', say })),
+      pip(mood, 80, { cls: 'hero-pip', say, mouth: arriving && mood !== 'sleep', wave: arriving && mood === 'happy' })),
     h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => startLesson(nx.id) }, started ? 'Continue' : 'Start your first lesson'));
 }
 function questCard(){
@@ -130,7 +133,7 @@ function stationList(lessons, lang){
   }));
 }
 function confirmLocked(l){
-  sheet('Jump ahead?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('think', 56, { tap: false }), h('p', { class: 'grow' }, '“' + l.title + '” is further along your route. You can take it now; nothing is skipped for good.')),
+  sheet('Jump ahead?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('point', 56, { tap: false }), h('p', { class: 'grow' }, '“' + l.title + '” is further along your route. You can take it now; nothing is skipped for good.')),
     [{ label: 'Not now' }, { label: 'Start lesson', primary: true, run: () => { startLesson(l.id); } }]);
 }
 function levelSection(lang, lv){

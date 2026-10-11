@@ -1,6 +1,6 @@
 "use strict";
 /* ===================== UI SHELL ===================== */
-const UI = { tab: 'learn', justDone: null, wordFilter: 'v', wordQuery: '', talkLevel: null, genLevel: null, genTopic: '', genBusy: false, genStatus: '', genCtl: null, open: new Set(), openLang: null, animate: true };
+const UI = { tab: 'learn', justDone: null, wordFilter: 'v', wordQuery: '', talkLevel: null, genLevel: null, genTopic: '', genBusy: false, genStatus: '', genCtl: null, open: new Set(), openLang: null, animate: true, helloAt: 0 };
 function applyLang(){ document.documentElement.setAttribute('data-lang', S.settings.lang); }
 function setLang(lang){ if (S.settings.lang === lang) return; S.settings.lang = lang; UI.talkLevel = null; UI.genLevel = null; UI.open = new Set(); touchSettings(); applyLang(); UI.animate = true; render(); window.scrollTo(0, 0); }
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; t.classList.remove('in'); void t.offsetWidth; t.classList.add('in'); clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2800); }

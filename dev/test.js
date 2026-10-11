@@ -131,6 +131,11 @@ function fakeSupabase(store, opts = {}){
 function storageOf(w){ const o = {}; for (let i = 0; i < w.localStorage.length; i++){ const k = w.localStorage.key(i); o[k] = w.localStorage.getItem(k); } return o; }
 
 async function main(){
+  /* ---------- 0. the style guide's own script parses (it isn't loaded by the app) ---------- */
+  for (const [, code] of fs.readFileSync(path.join(ROOT, 'styleguide.html'), 'utf8').matchAll(/<script>([\s\S]*?)<\/script>/g)){
+    let err = null; try { new (require('vm').Script)(code); } catch (e) { err = e.message; }
+    ok(!err, 'styleguide.html script parses' + (err ? ': ' + err : ''));
+  }
   /* ---------- 1. content engine: every lesson ---------- */
   const A = await makeDom();
   A.P.S.settings.onboarded = true;
@@ -620,11 +625,17 @@ async function main(){
     ok(G.P.S.settings.filmSeen && !G.E('Film.open'), 'film closes and is remembered');
     ok(G.w.document.querySelector('.hero .pip [data-s="beak"]') && G.w.document.querySelector('.hero .pip [data-s="crest2"]'), 'Pip is a parrot');
     ok(G.E('Rig.validate(PIP).length') === 0, 'Pip rig validates: ' + G.E('Rig.validate(PIP).join("; ")'));
-    for (const m of ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow']){
+    for (const m of G.E('PIP_MOODS')){
       ok(G.E('!!PIP.moods[' + JSON.stringify(m) + ']'), 'the rig has the mood ' + m);
       const s = G.E('pipSVG(' + JSON.stringify(m) + ')'); ok(s.includes('data-s="wingL"') && !/NaN|undefined/.test(s), 'pip mood ' + m);
     }
     { const el = G.E('(() => { const e = pip("oops", 60); document.body.append(e); setPipMood(e, "cheer"); return e.rig.mood; })()'); ok(el === 'cheer', 'a live Pip changes mood ' + el); }
+    { const r = G.E('(() => { pipTaps = 0; const e = pip("happy", 60, { lang: "de" }); document.body.append(e); e.click(); const hop = e.rig.playing("hop"); e.click(); return [hop, e.rig.mood, e.rig.home]; })()');
+      ok(r[0] && r[1] === 'wave' && r[2] === 'happy', 'tapping Pip takes turns: a hop, then a wave ' + JSON.stringify(r)); }
+    { const r = G.E('(() => { const e = pip("sleep", 60, { lang: "de" }); document.body.append(e); e.click(); return e.rig.mood; })()'); ok(r === 'wow', 'a sleeping Pip wakes with a start when tapped: ' + r); }
+    { const r = G.E('(() => { const e = pip("dance", 60, { tap: false, moveFor: 1 }); document.body.append(e); return e.rig.playing("dance"); })()'); await sleep(40);
+      ok(r && !G.E('[...document.querySelectorAll(".pip")].pop().rig.playing("dance")'), 'moveFor ends a looping move'); }
+    if (G.E('pipMoodNow()') === 'happy'){ G.E('UI.tab = "learn"; UI.animate = true; render()'); await sleep(400); ok(G.E('document.querySelector(".hero .pip").rig.mood') === 'wave', 'Pip waves hello on Learn'); }
     console.log('page errors (G):', G.errors.length ? G.errors.slice(0, 5) : 'none'); ok(!G.errors.length, 'no page errors G');
     G.dom.window.close();
   }
@@ -706,6 +717,8 @@ async function main(){
     W1.P.S.langs.de.done['de-1-1'] = { at: '2026-10-11', acc: 1, times: 1 }; W1.E('touch("de")');
     W1.E('UI.tab="me"; render()');
     ok(W1.w.document.querySelector('#sync-status').textContent.includes('Sign in to sync'), 'web sync copy when signed out');
+    { const av = W1.w.document.querySelector('.profile .avatar'), link = [...W1.w.document.querySelectorAll('.profile button')].find(b => b.textContent === 'Sign in');
+      ok(av && av.querySelector('svg') && !av.textContent.trim() && link, 'signed out with no name: a person in the avatar, not a letter, and a way to sign in'); }
     // email sign-in is off for now (WEB.email): the sheet offers Google only
     W1.w.document.querySelector('.web-acct button').click(); await sleep(40);
     { const s0 = W1.w.document.querySelector('.sheet'), shown = el => !el.closest('[hidden]'), bs = [...s0.querySelectorAll('button')], g = bs.find(b => b.textContent === 'Continue with Google');
@@ -744,6 +757,7 @@ async function main(){
     ok(W2.E('Me.name') === 'Ana' && sb.profiles.get(uid) === 'Ana', 'name comes from the account');
     W2.E('UI.tab="me"; render()');
     ok(W2.w.document.querySelector('.web-acct').textContent.includes('ana@example.com') && W2.w.document.querySelector('#sync-status').textContent.includes('Parlance account'), 'Me shows the account');
+    ok(W2.w.document.querySelector('.profile .avatar').textContent === 'A' && W2.w.document.querySelector('.profile h1').textContent === 'Ana' && ![...W2.w.document.querySelectorAll('.profile button')].length, 'signed in: your initial and name, no sign-in link');
     await W2.E('queueFeedback({ id: "fw1", at: 1, type: "idea", text: "More food words", ctx: {} })');
     ok(store.get('feedback/' + uid) && store.get('feedback/' + uid).items[0].text === 'More food words', 'feedback reaches the database');
     let denied = null; try { await W2.E('Live.db.doc("content/x").set({ kind: "pack" })'); } catch (e) { denied = e; }
@@ -771,12 +785,16 @@ async function main(){
     ok(outs === 1 && !W3.E('Web.session') && !W3.w.localStorage.getItem('parlance.web.session'), 'signing out forgets the session');
     ok(!W3.errors.length, 'no page errors W3 ' + JSON.stringify(W3.errors.slice(0, 3)));
     W3.dom.window.close();
-    // coming back from Google: the session arrives in the URL fragment
-    const t = sb.issue(uid);
+    // coming back from Google: the session arrives in the URL fragment, and Google's photo becomes the avatar
+    const t = sb.issue(uid); sb.users.get(uid).meta.avatar_url = 'https://lh3.googleusercontent.com/a/ana';
     const W4 = await makeDom({ web: sb, hash: '#access_token=' + t.access_token + '&expires_in=3600&refresh_token=' + t.refresh_token + '&token_type=bearer' });
     for (let i = 0; i < 60 && W4.E('Remote.status') !== 'synced'; i++) await sleep(25);
     ok(W4.E('Remote.status') === 'synced' && W4.E('Web.session.user.id') === uid && W4.w.location.hash === '', 'Google sign-in lands signed in, URL cleaned');
     ok(W4.P.S.langs.de.done['de-1-1'], 'account progress loads on a new device');
+    W4.E('UI.tab="me"; render()');
+    { const img = W4.w.document.querySelector('.profile img.avatar'); ok(img && img.getAttribute('src') === 'https://lh3.googleusercontent.com/a/ana' && img.getAttribute('referrerpolicy') === 'no-referrer', 'Google photo as the avatar');
+      if (img) img.dispatchEvent(new W4.w.Event('error'));
+      ok(W4.w.document.querySelector('.profile .avatar').textContent === 'A', 'a photo that won’t load falls back to your initial'); }
     // changing your name, and saving a backup file
     W4.E('openWebName()'); await sleep(20);
     const nameSheet = [...W4.w.document.querySelectorAll(".sheet")].pop(), newNameIn = nameSheet.querySelector("input");

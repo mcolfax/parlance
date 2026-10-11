@@ -17,11 +17,11 @@ function viewMe(){
   const lang = S.settings.lang; const st = streakInfo(); const L = S.langs[lang];
   const v = h('div', { class: 'view' }, topBar());
   const lessonsDone = Object.keys(L.done).length; const words = learnedEntries(lang, 'v').length;
-  const initials = (Me.name || 'You').split(/\s+/).map(x => x[0]).slice(0, 2).join('').toUpperCase();
-  v.append(h('section', { class: 'profile' },
-    Me.avatar ? h('img', { class: 'avatar', src: Me.avatar, alt: '' }) : h('span', { class: 'avatar', 'aria-hidden': 'true' }, initials),
-    h('div', { class: 'grow' }, h('h1', null, Me.name || 'Your progress'), h('p', { class: 'muted small' }, 'Learning ' + LANGS[lang].name + ' · now on ' + currentLevel(lang) + ' ' + LEVEL_NAME[currentLevel(lang)])),
-    pip(st.todayMet ? 'cheer' : 'happy', 56, { cls: 'me-pip' })));
+  const signedOut = Web.on && !(Web.session && Web.session.user);
+  v.append(h('section', { class: 'profile' }, profileAvatar(),
+    h('div', { class: 'grow' }, h('h1', null, Me.name || 'Your progress'), h('p', { class: 'muted small' }, 'Learning ' + LANGS[lang].name + ' · now on ' + currentLevel(lang) + ' ' + LEVEL_NAME[currentLevel(lang)]),
+      signedOut ? h('button', { class: 'linkish small', type: 'button', onclick: () => openWebSignIn('in') }, 'Sign in') : null),
+    pip(st.todayMet ? 'proud' : 'happy', 56, { cls: 'me-pip' })));
   const storiesRead = Object.keys(L.stories).length;
   v.append(h('div', { class: 'stats four' },
     h('div', { class: 'stat' }, h('span', { class: 'num' }, ic('flame', 'flame'), st.count), h('span', { class: 'lbl' }, 'day streak')),
@@ -60,7 +60,7 @@ function viewMe(){
         oninput: e => { S.settings.musicVol = +e.target.value; previewSong(); clearTimeout(viewMe.mt); viewMe.mt = setTimeout(() => touchSettings(), 250); } }), h('span', { class: 'small muted' }, 'Loud')),
       h('p', { class: 'small muted' }, 'Also sets the music in the intro film.')) : null));
   v.append(h('section', { class: 'card about' },
-    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('happy', 58, { cls: 'about-pip' }), h('div', { class: 'grow' }, h('h3', null, 'Parlance ' + APP_VERSION), h('p', { class: 'small muted' }, 'Tell Pip what to improve. Every note is read, grouped and turned into updates.'))),
+    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('love', 58, { cls: 'about-pip' }), h('div', { class: 'grow' }, h('h3', null, 'Parlance ' + APP_VERSION), h('p', { class: 'small muted' }, 'Tell Pip what to improve. Every note is read, grouped and turned into updates.'))),
     h('div', { class: 'about-actions' },
       h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openFeedback() }, ic('heart'), 'Send feedback'),
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => openFilm() }, ic('play'), 'Watch the intro film'),
@@ -89,6 +89,13 @@ function viewMe(){
     h('button', { class: 'linkish danger', type: 'button', onclick: resetLang }, 'Reset ' + LANGS[lang].name + ' progress')));
   v.append(h('p', { class: 'small muted center' }, 'German is ' + LANGS.de.variety + '. Spanish is ' + LANGS.es.variety + ' (ustedes, no vosotros).'));
   return v;
+}
+/* your account's photo, else your initials, else a person: never a letter that isn't yours */
+function profileAvatar(){
+  const initials = Me.name.split(/\s+/).filter(Boolean).map(x => [...x][0]).slice(0, 2).join('').toUpperCase();
+  const own = () => h('span', { class: 'avatar', 'aria-hidden': 'true', html: initials ? null : IC.me }, initials || null);
+  if (!Me.avatar) return own();
+  return h('img', { class: 'avatar', alt: '', referrerpolicy: 'no-referrer', onerror: e => e.target.replaceWith(own()), src: Me.avatar });
 }
 function streakCalendar(st){
   const t = today(); const base = parseDay(t);
@@ -256,7 +263,7 @@ function openWebSignIn(mode){
 }
 function resetLang(){
   const lang = S.settings.lang;
-  sheet('Reset ' + LANGS[lang].name + '?', h('p', null, 'This clears finished lessons, review items and XP for ' + LANGS[lang].name + '. Lessons your tutor wrote stay. This can’t be undone, so copy a backup code first if you might want it back.'),
+  sheet('Reset ' + LANGS[lang].name + '?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('sad', 56, { tap: false }), h('p', { class: 'grow' }, 'This clears finished lessons, review items and XP for ' + LANGS[lang].name + '. Lessons your tutor wrote stay. This can’t be undone, so copy a backup code first if you might want it back.')),
     [{ label: 'Cancel' }, { label: 'Reset', primary: true, run: () => { const keep = S.langs[lang].start; S.langs[lang] = newLang(); S.langs[lang].start = keep; S.langs[lang].startTs = Date.now(); touch(lang); render(); toast(LANGS[lang].name + ' progress reset'); } }]);
 }
 

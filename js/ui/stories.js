@@ -9,7 +9,7 @@ function viewStories(){
   const v = h('div', { class: 'view' }, topBar(),
     h('section', { class: 'stories-intro' },
       h('div', { class: 'grow' }, h('h1', null, 'Stories'), h('p', { class: 'muted' }, 'Short scenes from ' + (lang === 'de' ? 'a Berlin street' : 'a Mexico City neighborhood') + '. Tap any word for its meaning, hear every line, and answer as you go.')),
-      pip('think', 70, { cls: 'stories-pip' })),
+      pip('listen', 70, { cls: 'stories-pip' })),
     h('div', { class: 'cast-row' }, castOf(lang).map((id, i) => h('div', { class: 'cast-chip', style: '--i:' + i }, avatar(id, 46), h('div', { class: 'cc-text' }, h('b', null, CAST[id].name), h('span', { class: 'small muted' }, CAST[id].role))))),
     h('div', { class: 'row' }, h('span', { class: 'eyebrow' }, read + ' of ' + list.length + ' read'), h('span', { class: 'spacer' }), h('span', { class: 'bar-mini wide', 'aria-hidden': 'true' }, h('i', { style: 'width:' + Math.round(read / list.length * 100) + '%' }))));
   const grid = h('div', { class: 'story-grid' });
@@ -26,7 +26,7 @@ function viewStories(){
   return v;
 }
 function confirmStory(st){
-  sheet('A bit ahead of you', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('think', 56, { tap: false }), h('p', { class: 'grow' }, '“' + st.title + '” is a ' + st.level + ' story. Give it a try. Tap any word for help, and every line has a translation.')),
+  sheet('A bit ahead of you', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('point', 56, { tap: false }), h('p', { class: 'grow' }, '“' + st.title + '” is a ' + st.level + ' story. Give it a try. Tap any word for help, and every line has a translation.')),
     [{ label: 'Not now' }, { label: 'Read it', primary: true, run: () => { openStory(st.id); } }]);
 }
 function openStory(id){

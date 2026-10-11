@@ -2,10 +2,12 @@
 /* ===================== ART: Pip, cast portraits, unit signs, story scenes ===================== */
 /* Pip is a parrot: a chatty travel buddy who repeats after you. Pip is drawn by the rig (rig.js) from the shared bird
    (bird.js) and Pip's part sheet (pip.js), traced from the model sheet; design/rig/ has the Blender file, the tools and
-   the review pages. pip() is alive: it breathes, blinks, glances, plays each mood's move, hops when tapped and moves
-   its beak while it talks. pipSVG() is a still for small places and the intro film. Colors are the --pip-* tokens.
-   Screens ask for these moods; the rig has more (wave, love, sad, dance, fly…), and any of them works here too. */
-const PIP_MOODS = ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow'];
+   the review pages. pip() is alive: it breathes, blinks, glances, plays each mood's move, mouths its speech bubble,
+   looks where you touch the screen, does a different move each time it's tapped and moves its beak while it talks.
+   pipSVG() is a still for small places and the intro film. Colors are the --pip-* tokens. Any mood the rig has
+   (bird.js) works here: happy, cheer, think, oops, sleep, wow, wave, point, sad, laugh, shrug, proud, love, listen,
+   fly, dance, ready. */
+const PIP_MOODS = Object.keys(PIP.moods);
 const PIP_VIEW = [-8, 14, 256, 244];     // Pip's frame in rig units: the 120 x 114 box the screens are laid out for
 const PIP_HEAD = [38, 18, 164, 164];     // head and shoulders, for avatars
 const pipMood = mood => (PIP.moods[mood] ? mood : 'happy');
@@ -23,23 +25,46 @@ const PIP_SAYS = {
   es: { cheer: ['¡Genial!', '¡Muy bien!', '¡Excelente!', '¡Increíble!', '¡Así se hace!', '¡Bravo!'], oops: ['¡Casi!', '¡No pasa nada!', '¡Ya casi!', '¡Otra vez!'], hello: ['¡Hola!', '¡Vámonos!', '¡Todos a bordo!', '¿Listos?', '¡Buen viaje!'], sleep: ['¡Buenas noches!'] }
 };
 function pickSay(lang, kind){ const l = PIP_SAYS[lang] || PIP_SAYS.de; const a = l[kind] || l.hello; return a[Math.floor(Math.random() * a.length)]; }
-/* pip(mood, size, {say, sayPos, lang, tap, cls}) -> element. A live rig; tapping Pip makes it hop and say something
-   in the target language. With cls "fly-in" Pip flies in on spread wings and lands in its mood. */
+/* a mood for a little while, then back to the Pip's own mood (rig.home) */
+function pipBriefly(rig, mood, ms){
+  rig.set(mood); clearTimeout(rig.settle);
+  rig.settle = setTimeout(() => { if (rig.mood === mood) rig.set(rig.home); }, ms);
+}
+/* what Pip does when tapped, taking turns: a hop, a wave, a look round, a little dance, a bow, a nod.
+   A sleeping Pip wakes with a start, then nods off again. */
+const PIP_TAPS = [{ move: 'hop' }, { mood: 'wave', ms: 1800 }, { move: 'lookAround' }, { mood: 'dance', ms: 2000 }, { move: 'bow' }, { move: 'nod' }];
+let pipTaps = 0;
+function pipTap(rig){
+  if (rig.home === 'sleep') return pipBriefly(rig, 'wow', 1600);
+  const t = PIP_TAPS[pipTaps++ % PIP_TAPS.length];
+  if (t.mood && rig.mood === rig.home) pipBriefly(rig, t.mood, t.ms); else rig.play(t.move || 'hop');
+}
+/* pip(mood, size, {say, sayPos, mouth, wave, moveFor, lang, tap, cls}) -> element. A live rig; tapping Pip makes it move
+   and say something in the target language. With say and mouth, Pip mouths the line as its bubble pops up; with wave,
+   Pip waves hello first; moveFor (ms) ends a looping move, like dance, after a while. With cls "fly-in" Pip flies in on
+   spread wings and lands in its mood. */
 function pip(mood, size, opts = {}){
   size = size || 72; mood = mood || 'happy';
   const el = h('span', { class: 'pip ' + mood + (opts.cls ? ' ' + opts.cls : ''), style: '--pip:' + size + 'px', 'aria-hidden': opts.say ? null : 'true' });
   pipCSS();
   const flyIn = /(^|\s)fly-in(\s|$)/.test(opts.cls || '');
   const rig = Rig.create(PIP, { mood: flyIn ? 'fly' : pipMood(mood), size, view: PIP_VIEW, cls: 'pip-svg' });
+  rig.home = pipMood(mood);
   el.rig = rig; el.append(rig.el);
-  if (flyIn) setTimeout(() => rig.set(pipMood(mood)), 1500);   // the fly-in in art.css takes 1.6s from 0.2s
-  if (opts.say){ el.append(h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : ''), role: 'note' }, opts.say)); }
+  const land = () => (opts.wave ? pipBriefly(rig, 'wave', 2200) : rig.set(rig.home));
+  if (flyIn) setTimeout(land, 1500);   // the fly-in in art.css takes 1.6s from 0.2s
+  else if (opts.wave) setTimeout(land, 300);
+  if (opts.moveFor) setTimeout(() => rig.stop(), opts.moveFor);
+  if (opts.say){
+    el.append(h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : ''), role: 'note' }, opts.say));
+    if (opts.mouth) rig.say(opts.say, { delay: flyIn ? 1.7 : 0.45 });   // the bubble pops up at 0.35s
+  }
   if (opts.tap !== false){
     el.addEventListener('click', e => {
       e.stopPropagation();
       const lang = opts.lang || (typeof S !== 'undefined' ? S.settings.lang : 'de');
-      const line = pickSay(lang, mood === 'oops' ? 'oops' : mood === 'cheer' ? 'cheer' : 'hello');
-      rig.hop();
+      const m = rig.home, line = pickSay(lang, ['oops', 'cheer', 'sleep'].includes(m) ? m : 'hello');
+      pipTap(rig);
       const b = el.querySelector('.pip-say') || h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : '') });
       b.textContent = line; if (!b.parentNode) el.append(b);
       b.classList.remove('pop'); void b.getBoundingClientRect(); b.classList.add('pop');
@@ -52,8 +77,16 @@ function pip(mood, size, opts = {}){
 function setPipMood(el, mood){
   if (!el) return;
   el.classList.remove(...PIP_MOODS); el.classList.add(mood);
-  if (el.rig) el.rig.set(pipMood(mood));
+  if (el.rig){ clearTimeout(el.rig.settle); el.rig.home = pipMood(mood); el.rig.set(el.rig.home); }
 }
+/* live Pips glance at where you touch the screen, then go back to looking where their mood looks */
+if (typeof document !== 'undefined') document.addEventListener('pointerdown', e => {
+  for (const el of document.querySelectorAll('.pip')){
+    const rig = el.rig; if (!rig || el.contains(e.target)) continue;
+    rig.lookAtPoint(e.clientX, e.clientY); clearTimeout(rig.lookBack);
+    rig.lookBack = setTimeout(() => rig.look(null), 1400);
+  }
+}, { passive: true });
 
 /* ----- cast portraits ----- */
 const HAIR = {

@@ -93,6 +93,7 @@ p{margin:0}
 .profile{display:flex;align-items:center;gap:14px;padding-top:6px}
 .profile h1{font-size:26px}
 .avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--line);color:var(--line-ink);font:700 20px var(--display);object-fit:cover;flex:none;box-shadow:0 0 0 4px var(--line-soft)}
+.avatar svg{width:28px;height:28px}
 .setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0}
 .set-l{font-weight:700}
 .toggle{position:relative;width:52px;height:32px;flex:none}

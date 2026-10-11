@@ -387,6 +387,7 @@ li.locked .st-title{color:var(--muted)}
 .legend .lg-ice{background:var(--ice)}
 .stats.four{grid-template-columns:repeat(2,minmax(0,1fr))}
 .profile .me-pip{margin-left:auto}
+.profile .linkish{padding:4px 0}
 
 /* stories list */
 .stories-intro{display:flex;gap:10px;align-items:flex-start;padding-top:4px}

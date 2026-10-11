@@ -57,7 +57,7 @@ function openFeedback(opts = {}){
   const ctxLine = h('label', { class: 'fb-ctx small muted' }, h('input', { type: 'checkbox', checked: true, onchange: e => { withCtx = e.target.checked; } }),
     ' Include where I was: ' + [LANGS[ctx.lang].name, ctx.lessonId || ctx.storyId || ctx.screen, ctx.exType, 'v' + APP_VERSION].filter(Boolean).join(' · '));
   sheet(opts.title || 'Help shape Parlance', h('div', { class: 'field fb-sheet' },
-    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('think', 54, { tap: false }), h('p', { class: 'small muted grow' }, 'Pip reads every note. Ideas are grouped, reviewed and turned into updates, so the more specific, the better.')),
+    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('listen', 54, { tap: false }), h('p', { class: 'small muted grow' }, 'Pip reads every note. Ideas are grouped, reviewed and turned into updates, so the more specific, the better.')),
     chips, ta, ctxLine),
     [{ label: 'Cancel' }, { label: 'Send', primary: true, run: async close => {
       const text = ta.value.trim();

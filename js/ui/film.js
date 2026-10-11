@@ -141,7 +141,7 @@ function filmActors(){
   A['f-bubble'] = { x: [[6.3, 205], [9.0, 205]], y: 300, o: fade(6.7, 7.0, 8.7, 9.0), s: [[6.7, 0.6], [7.1, 1, 'back']] };
   return A;
 }
-const FILM_PIP = [[0, 'happy', ''], [4.4, 'happy', 'fly'], [6.2, 'happy', ''], [6.8, 'cheer', ''], [8.0, 'happy', ''], [9.4, 'happy', 'fly'], [10.2, 'think', ''], [15.0, 'happy', 'fly'], [15.6, 'cheer', ''], [21.0, 'happy', 'fly'], [21.6, 'wow', ''], [23.2, 'cheer', ''], [26.2, 'happy', 'fly'], [30.2, 'cheer', 'fly'], [31.4, 'happy', 'fly'], [32.2, 'cheer', '']];
+const FILM_PIP = [[0, 'happy', ''], [4.4, 'happy', 'fly'], [6.2, 'happy', ''], [6.8, 'wave', ''], [8.0, 'happy', ''], [9.4, 'happy', 'fly'], [10.2, 'think', ''], [15.0, 'happy', 'fly'], [15.6, 'cheer', ''], [21.0, 'happy', 'fly'], [21.6, 'wow', ''], [23.2, 'cheer', ''], [26.2, 'happy', 'fly'], [30.2, 'cheer', 'fly'], [31.4, 'happy', 'fly'], [32.2, 'cheer', '']];
 
 const Film = { open: false, t: 0, playing: false, raf: 0, muted: false, prev: 0 };
 function openFilm(opts = {}){
