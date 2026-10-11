@@ -3,9 +3,13 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.1.0';
+const APP_VERSION = '4.2.0';
 const SCHEMA_VERSION = 4;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 const RELEASES = [
+  { v: '4.2.0', date: '2026-10-11', title: 'Answers that count now tell you why', notes: [
+    'When an answer counts but isn’t word for word, you’ll see why, with your answer next to the expected one and the differences highlighted.',
+    'When your tutor accepts a different wording, it now lists what’s different, like a more casual word or a small change in meaning.',
+    'Speaking exercises say how many words came through and mark the ones to try again.'] },
   { v: '4.1.0', date: '2026-10-10', title: 'Parlance has a theme song', notes: [
     'The intro film now plays our own theme song, “ABC Adventure”.',
     'The song plays softly on the home screen. Tap the music button on Learn, or go to Me → Sound, to turn it off or change the volume.'] },
