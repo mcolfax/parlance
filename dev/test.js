@@ -1099,6 +1099,9 @@ async function main(){
     ok(WB.E('UI.tab') === 'friends', 'Bo lands on Friends');
     await WA.E('Remote.db.collection(inboxPath(Remote.uid, S.social.secret)).get().then(s => readInbox(s.docs, Social.inboxKey))');
     ok(WA.E('friendIds().join()') === bo && ![...store.keys()].some(k => k.startsWith('inbox/')), 'Ana adds Bo back and clears her inbox');
+    WA.E('Social.blocked = true; UI.tab = "friends"; render()');
+    ok(WA.E('socialState()') === 'notready' && WA.w.document.querySelector('.fr-hero .notice').textContent.includes('isn’t ready on the web version'), 'if the web database can’t take cards yet, Friends says so');
+    WA.E('Social.blocked = false');
     for (const X of [WA, WB]){ ok(!X.errors.length, 'no page errors (web friends) ' + JSON.stringify(X.errors.slice(0, 3))); X.dom.window.close(); }
   }
   console.log('PASS', passes, 'FAIL', fails);

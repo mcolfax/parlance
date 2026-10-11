@@ -17,7 +17,12 @@ const DAY_MS = 86400000;
 
 function socialHome(){ return typeof Web !== 'undefined' && Web.on ? 'w' : 'c'; }
 function socialOn(){ return !!(Remote.db && Remote.uid && !Remote.readOnly && !Social.blocked); }
-function socialState(){ if (!Remote.ready) return 'checking'; if (!Remote.db || !Remote.uid) return 'signedout'; if (Remote.readOnly || Social.blocked) return 'readonly'; return 'ok'; }
+function socialState(){
+  if (!Remote.ready) return 'checking'; if (!Remote.db || !Remote.uid) return 'signedout';
+  if (Social.blocked && !Remote.readOnly && socialHome() === 'w') return 'notready';   // the web database doesn't have the Friends rules yet
+  if (Remote.readOnly || Social.blocked) return 'readonly';
+  return 'ok';
+}
 function socialRandom(n){
   const abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; let s = '';
   try { const a = new Uint8Array(n); crypto.getRandomValues(a); for (const x of a) s += abc[x % 62]; return s; } catch (e) {}

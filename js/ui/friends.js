@@ -75,6 +75,7 @@ function friendsIntro(st){
     else sec.append(h('p', { class: 'notice' }, 'Friends needs your Claude account. Open Parlance in the Claude app or on claude.ai while signed in.'));
   }
   else if (st === 'readonly') sec.append(h('p', { class: 'notice' }, 'This copy of Parlance can only be viewed, so it can’t save a friends card. Ask whoever shared it with you for access to use it.'));
+  else if (st === 'notready') sec.append(h('p', { class: 'notice' }, 'Friends isn’t ready on the web version yet. Check back soon. Your progress is safe.'));
   else {
     sec.append(h('div', { class: 'fr-actions' },
       h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => invite ? offerInvite(true) : openInvite() }, ic('addFriend'), invite ? 'Accept your invite' : 'Invite a friend'),
