@@ -8,7 +8,11 @@ opencv-python-headless, pillow and potracer, and work in `work/` (set `TRACE_DIR
 2. Run `trace_cheer.py` (it saves the cheer torso), `trace_neutral.py`, then `trace_cheer.py` again. `trace_neutral.py` traces the neutral drawing, the setup pose: fills reach the middle of the ink, outlines are
    strokes only where the sheet has ink, and parts hidden by others are completed (the body from the cheer drawing's
    torso, feathers carried on under the body). `trace_cheer.py` traces the raised wings, happy eyes and wide beak.
-3. `build_pip.py` writes `pip.js` from both traces plus the hand-drawn states (blink, sad and surprised beaks…).
-4. `compose.js`, `cmp.py` and `zoomgrid.py` check the result against the sheet: concept, render and onion skin.
+3. `fit_far_wing.py` fits the far wing's open drawing (the near wing, mirrored and opened to 70% of its width) onto
+   the traced far wing, and `fit_pupil_room.py` measures how far each pupil can move inside its eye white. Both read
+   `trace_neutral.py`'s masks.
+4. `build_pip.py` writes `pip.js` from both traces, those two fits, and the hand-drawn states (blink, sad and
+   surprised beaks…).
+5. `compose.js`, `cmp.py` and `zoomgrid.py` check the result against the sheet: concept, render and onion skin.
 
 `TRACE_TOL` and `TRACE_EPS` trade path size for precision (0.8 and 3.0 gave a 50 KB `pip.js`).

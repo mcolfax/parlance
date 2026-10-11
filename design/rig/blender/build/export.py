@@ -140,6 +140,10 @@ def run(out_json=None):
     scene['pip3d'] = json.dumps(build_cfg(scene, arm))
     ad = arm.animation_data
     keep_action = ad.action if ad else None
+    # the mirror drivers (see build_blend.py) stay out of the export: the player mirrors from the ctl_ bones
+    muted = [d for d in (ad.drivers if ad else []) if not d.mute]
+    for d in muted:
+        d.mute = True
     tmp = os.path.join(tempfile.mkdtemp(), 'pip.glb')
     bpy.ops.export_scene.gltf(
         filepath=tmp, export_format='GLB', export_animations=True, export_animation_mode='ACTIONS',
@@ -149,6 +153,8 @@ def run(out_json=None):
         export_optimize_animation_keep_anim_armature=False, export_optimize_animation_keep_anim_object=False)
     if ad:
         ad.action = keep_action
+    for d in muted:
+        d.mute = False
     text = compact(open(tmp, 'rb').read())
     open(out_json, 'w').write(text)
     print('exported', out_json, len(text), 'bytes')

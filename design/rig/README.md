@@ -21,15 +21,17 @@ Blender file is the source for poses and moves, and a small three.js player show
 
 ## How it works
 
-1. **Part sheet.** Each bird is drawn once, front-facing, in a shared *setup space*: 240 units wide, centre x 120, ground at y 250. Every body part is a separate closed shape that tucks under its neighbor (wing roots under the head, legs under the body) so joints never gap when they rotate. Paired parts are drawn on the left and mirrored.
-2. **Skeleton.** 28 bones with pivots at the joints: neck, shoulders, crest roots, eyes, beak, jaw and so on. A bone's transform is a rotation, scale and offset around its pivot, and children follow their parents.
-3. **Slots and swaps.** The draw order is a list of slots. Each slot hangs on a bone and shows one drawing at a time, so eyes (open, happy, closed, wide, lidded, heart…), mouths and wing shapes (folded, spread) are swaps, not new rigs. Every wing shape shares one rest angle, so a wing can change shape mid-swing.
+1. **Part sheet.** Each bird is drawn once, as on its model sheet (turned a little to the viewer's right), in a shared *setup space*: 240 units wide, centre x 120, ground at y 250. Every body part is a separate closed shape that tucks under its neighbor (wing roots under the head, legs under the body) so joints never gap when they rotate. Paired parts are drawn on the left and mirrored.
+2. **Skeleton.** 29 bones with pivots at the joints: neck, shoulders, crest roots, eyes, beak, jaw and so on. A bone's transform is a rotation, scale and offset around its pivot, and children follow their parents.
+3. **Slots and swaps.** The draw order is a list of slots. Each slot hangs on a bone and shows one drawing at a time, so eyes (open, happy, closed, wide, lidded, heart…), mouths and wing shapes (folded, open, spread) are swaps, not new rigs. Every wing shape shares one rest angle, so a wing can change shape mid-swing. Some swaps follow a bone's angle (`swaps` in `bird.js`): the far wing hangs against the body as a sliver and opens into a whole wing once it swings more than 15° away.
 4. **Poses, faces, moods.** A *pose* sets body bones, a *face* sets expression slots and brow bones, and a *mood* is a pose plus a face plus an optional move. Screens ask for moods (`happy`, `cheer`, `oops`…), and changing mood blends from wherever the bird is.
 5. **Moves (clips).** Keyframed tracks on bone channels, params and slots, layered on top of the pose (additive by default). Hop, cheer, wobble, wave, dance, flap, nod, shake, bow and more.
 6. **Alive between moves.** Procedural layers run on top: breathing, a slow head drift, blinks, quick glances, and springs on the crest feathers and tail. Those springs give follow-through and overlapping action for free.
-7. **A head that turns (2.5D).** Face parts ride an invisible sphere. Turning (`turn`, −1…1) slides each feature by its angle on the sphere and foreshortens it, so the near eye grows and the far one narrows. The torso twists the other way, the far wing narrows, and the tail flips to the far side. One drawing set covers front to near-profile.
-8. **Talking.** Text becomes a viseme script (vowels open the beak, m/b/p close it). With speech synthesis the beak babbles while the voice plays.
-9. **Line weight that reads at any size.** The outline is about 1.35 screen pixels, kept within a range of rig units, so a 40 px avatar and a 300 px hero both look inked.
+7. **A head that turns (2.5D).** Face parts ride an invisible sphere. Turning (`turn`) slides each feature by its angle on the sphere and foreshortens it, so the near eye grows and the far one narrows. The torso twists the other way, the far wing narrows, and the tail tucks behind the body toward the front view. Turns stop at `turn.max` either side of the front (the body between `bodyMin` and `bodyMax`), where the drawing still holds up.
+8. **Facing the other way is a mirror.** Past the front (turn below 0) the head mirrors, so the beak, eyes and crest always point the way Pip looks, and `facing: -1` mirrors the whole bird, as on the model sheet's oops drawing. Poses are written for a bird facing right and follow the mirror; effects that would read backwards (?, !, notes) stay the right way round (`mirror` in `bird.js`).
+9. **Eyes that stay in their whites.** Pupils move within the room measured for each one from the trace (`look.room`); the sheet draws them converged, so the far pupil has no room toward the back of the head. The head's outline is its own slot (`headLine`), drawn over the eyes, so an eye turned out to the edge tucks under it.
+10. **Talking.** Text becomes a viseme script (vowels open the beak, m/b/p close it). With speech synthesis the beak babbles while the voice plays.
+11. **Line weight that reads at any size.** The outline is about 1.35 screen pixels, kept within a range of rig units, so a 40 px avatar and a 300 px hero both look inked.
 
 ## Files
 
@@ -53,19 +55,20 @@ feature's angle on the head's sphere comes from where it is drawn (x 120 is the 
 
 | Bone | Parent | Pivot | Role |
 |---|---|---|---|
-| root | | 114, 250 | Whole bird: position, hops, squash and stretch around the feet |
-| shadow | | 120, 251 | Ground shadow; follows root x and shrinks as the bird lifts |
+| facing | | 120, 250 | Mirrors the whole bird (`facing: -1`) |
+| root | facing | 114, 250 | Whole bird: position, hops, squash and stretch around the feet |
+| shadow | facing | 114, 252 | Ground shadow; follows root x and shrinks as the bird lifts |
 | legL, legR | root | 95.8/129.4, 231 | Legs stay planted when the body leans (turn) |
 | body | root | 113, 236 | Lean and breathing, pivoting at the bottom |
 | torso | body | 118, 170 | Body shape, belly, wings, tail; twists a little against a head turn |
 | tail | torso | 110, 206 | Spring; shortens toward front view and flips to the far side past it |
 | belly | torso | 126, 195 | Turn |
 | wingL, wingR | torso | 97/150, 165/164 | Shoulders. Rest angle is hanging down; positive r raises the left wing |
-| head | body | 120, 158 | Neck |
+| head | body | 120, 158 | Neck; mirrors when the head turns past the front |
 | crest | head | 123, 62 | Crest root (turn); crest1–3 are springs, drawn in front of the head |
 | eyeL/R → pupilL/R, browL/R | head | 95.9/156.3, 118.6/114.6 | Eye patch (turn, foreshortens), pupil (look-at), brow (lifts and tilts) |
 | beak → jaw | head | 128.7, 124 / 134 | Upper beak (turn); jaw drops while talking |
-| cheekL/R, sweat, fxHead | head | | Blush, sweat drop, head effects |
+| cheekL/R, sweat, fxHead | head | | Blush, sweat drop (at the back of the head), head effects |
 | fx | root | 120, 110 | Body effects (sparkles, notes) |
 
 ## Drawing a new bird (the part-sheet spec)
@@ -74,11 +77,12 @@ A bird file calls `Bird.make({ id, name, palette, parts, pivots })`. Use `pip.js
 
 1. **Start from the concept sheet** in `reference/`, at 1 px = 0.5 unit with the head centred on x 120 and the ground on y 250. Pip is traced straight from it with the scripts in `tools/trace/` (see its README): the neutral drawing is the setup pose, turned a little to the viewer's right (`turn.setup` 0.22, so turn 0 still faces front), and outlines are strokes (`ol`, `ol2` for the beak) only where the sheet has ink. The belly and eye patches have no outline, the head runs into the chest without a chin line, and the crest sits in front of the crown.
 2. **Draw every slot below.** Missing drawings fail `check.js`, because shared poses ask for them.
-   - `head.on`, `body.on`, `belly.on`, `tail.fan`, `crest1/2/3.on`, `patchL/R.on`
+   - `head.on`, `body.on`, `belly.on`, `tail.fan`, `crest1/2/3.on`, `patchL/R.on`, and `headLine.on` (the head's outline, drawn over the eyes; optional)
    - `pupilL/R`: open, wide, wet, happy, closed, blink, lidded, squeeze, heart
    - `browL/R.arc`
    - `beak`: closed, open, up (the raised upper beak for wide mouths). `mouth`: closed, smile, frown, grin, open, wide, o. Closed mouths (closed, smile, frown, o) are whole beaks; open ones are the lower beak under the upper one
-   - `wingL/R`: folded, spread, both at the hanging rest angle around the shoulder pivot. Author the spread wing raised and wrap it in `rotate(-132 86 164)`, as Pip does.
+   - `wingL/R`: folded, spread, both at the hanging rest angle around the shoulder pivot. Author the spread wing raised and wrap it in `rotate(-132 86 164)`, as Pip does. `wingR.open` is the far wing once it swings away from the body: Pip's is the near wing mirrored and foreshortened with `Bird.draw.xform`, which bakes a matrix into the path points so outlines keep their weight.
+   - `look.room`: how far each pupil can move and stay in its eye white, `[right, left, down, up]` (`tools/trace/fit_pupil_room.py` measures it)
    - `legL/R`: stand, tuck
 3. **Species extras** are extra bones and slots: Kakadu's five-feather crest, Rojo's face patch lines, Kiwi's cere and throat dots. Pass `bones` (after their parents) and `slots` (a function that edits the shared draw order).
 4. **Palette roles.** Fill classes are `k-<role>`, strokes are `s-<role>`, and a rim on a filled shape is `t-<role>`. Add `o` for the ink outline, `ln` for feature lines and `ln2` for fine detail. Every bird needs `ink, body, body2, belly, face, beak, beak2, mouth, tongue, crest, crest2, tail, tail2, feet`. Effect colors default in `bird.js`.

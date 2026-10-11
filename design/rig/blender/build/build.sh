@@ -12,7 +12,7 @@ W=$(mktemp -d)
 node -e "
 const Rig = require('$RIG/rig.js'); const PIP = require('$RIG/pip.js');
 const out = { palette: PIP.palette, lines: PIP.lines, view: PIP.view, turn: PIP.turn, bones: PIP.bones, slots: PIP.slots, look: PIP.look,
-  idle: PIP.idle, springs: PIP.springs, mouth: PIP.mouth, visemes: PIP.visemes, shadow: PIP.shadow,
+  idle: PIP.idle, springs: PIP.springs, mouth: PIP.mouth, visemes: PIP.visemes, shadow: PIP.shadow, swaps: PIP.swaps, mirror: PIP.mirror, clip: PIP.clip,
   parts: Rig.parts(PIP).map(p => ({ slot: p.slot, name: p.name, bone: p.bone, markup: p.markup })) };
 require('fs').writeFileSync('$W/drawings.json', JSON.stringify(out));"
 "$PY" "$HERE/flatten.py" "$W" | head -1

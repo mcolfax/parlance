@@ -29,7 +29,8 @@ const Rig = (() => {
   };
   const CH = ['x', 'y', 'r', 'sx', 'sy', 'a'];
   const REST = { x: 0, y: 0, r: 0, sx: 1, sy: 1, a: 1 };
-  const PARAMS = ['turn', 'bodyTurn', 'lookX', 'lookY'];
+  const PARAMS = ['turn', 'bodyTurn', 'lookX', 'lookY', 'facing'];
+  const PARAM0 = { facing: 1 };   // defaults other than 0
   const MULT = { sx: 1, sy: 1, a: 1 };   // channels that combine by multiplying; the rest add
   const NS = 'http://www.w3.org/2000/svg';
   const RMQ = typeof matchMedia === 'function' ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -79,7 +80,12 @@ const Rig = (() => {
       const s = def.springs[id], n = Math.hypot(s.dir[0], s.dir[1]) || 1;
       return { id, bone: byId[id].i, len: s.len, dx: s.dir[0] / n, dy: s.dir[1] / n, k: s.k || 160, d: s.d || 12, limit: s.limit || 30, squash: s.squash || 0, g: s.g || 0 };
     });
-    return (def._c = { bones, byId, slots, slotById, springs });
+    const swaps = (def.swaps || []).map(w => {
+      if (!slotById[w.slot] || !byId[w.bone]) throw new Error('Rig: swap on a missing slot or bone ' + w.slot + '/' + w.bone);
+      return { slot: slotById[w.slot].i, bone: byId[w.bone].i, from: w.from, to: w.to, deg: w.deg || 15 };
+    });
+    const upright = new Set(((def.mirror || {}).upright || []).filter(id => byId[id]).map(id => byId[id].i));
+    return (def._c = { bones, byId, slots, slotById, springs, swaps, upright });
   }
 
   /* ----- poses: { bones: {id: {ch: v}}, slots: {id: att|null}, params: {name: v}, z: {slotId: 'front'|'back'|n}, idle, glance } ----- */
@@ -121,7 +127,7 @@ const Rig = (() => {
     const z = c.slots.map(sl => sl.z);
     const front = c.slots.length + 10;
     for (const id in p.z){ const sl = c.slotById[id]; if (!sl) continue; const v = p.z[id]; z[sl.i] = v === 'front' ? front + sl.i : v === 'back' ? -10 + sl.i : v; }
-    const pr = {}; PARAMS.forEach(k => { pr[k] = p.params[k] !== undefined ? p.params[k] : (def.rest && def.rest[k]) || 0; });
+    const pr = {}; PARAMS.forEach(k => { pr[k] = p.params[k] !== undefined ? p.params[k] : def.rest && def.rest[k] != null ? def.rest[k] : PARAM0[k] || 0; });
     pr.bodyTurnSet = p.params.bodyTurn !== undefined;
     return { b, s, z, p: pr, idle: p.idle || null, glance: p.glance !== false, blink: p.blink !== false };
   }
@@ -138,12 +144,21 @@ const Rig = (() => {
 
   /* ----- evaluate a frame: channels → world matrices → springs ----- */
   function addCh(c, ch, v, w) { if (MULT[ch]) c[ch] *= 1 + (v - 1) * w; else c[ch] += v * w; }
+  /* the head mirrors once it turns past the front (turn below 0); then it is the mirrored drawing turned by -turn */
+  const headSign = (def, turn) => (turn < 0 && def.mirror && def.mirror.head ? -1 : 1);
+  /* a blended facing (between 1 and -1 in a fade) as a scale: its sign, never narrower than 0.72, so the bird
+     squashes a little as it turns round instead of shrinking to nothing */
+  const faceScale = f => (f < 0 ? -1 : 1) * Math.max(Math.abs(f == null ? 1 : f), 0.72);
   function drivers(c, def, chans, params) {
     const T = def.turn || { head: 35, body: 0.6 };
+    const Mi = def.mirror || {}, H = headSign(def, params.turn);
+    const lim = (v, a, b) => clamp(v, a == null ? -9 : a, b == null ? 9 : b);
     /* turn 0 faces front; the drawings were made at turn T.setup, so features move by the difference */
     const kb = T.body == null ? 0.6 : T.body, s0 = T.setup || 0;
-    const th = (params.turn - s0) * T.head;
-    const thb = ((params.bodyTurnSet ? params.bodyTurn : params.turn * kb) - s0 * kb) * T.head;
+    const th = (lim(params.turn * H, T.max == null ? null : -T.max, T.max) - s0) * T.head;
+    const thb = (lim(params.bodyTurnSet ? params.bodyTurn : params.turn * kb, T.bodyMin, T.bodyMax) - s0 * kb) * T.head;
+    if (Mi.facing && c.byId[Mi.facing]) chans[c.byId[Mi.facing].i].sx *= faceScale(params.facing);
+    if (H < 0 && c.byId[Mi.head]) chans[c.byId[Mi.head].i].sx *= -1;
     for (const b of c.bones){
       const s = b.turn; if (!s) continue;
       const ch = chans[b.i], t = s.body ? thb : th, abs = t + (s.body ? s0 * kb : s0) * T.head;
@@ -165,8 +180,10 @@ const Rig = (() => {
     const sp = {};
     if (springs) for (const s of springs) sp[s.bone] = s;
     for (const b of c.bones){
-      const ch = chans[b.i];
+      let ch = chans[b.i];
       const parent = b.parent >= 0 ? W[b.parent] : [1, 0, 0, 1, 0, 0];
+      /* effects that would read backwards (a question mark, notes) stay the right way round under a mirror */
+      if (c.upright && c.upright.has(b.i) && parent[0] * parent[3] - parent[1] * parent[2] < 0) ch = Object.assign({}, ch, { sx: -ch.sx });
       let m = mul(parent, local(b, ch));
       const s = sp[b.i];
       if (s && live){
@@ -235,15 +252,39 @@ const Rig = (() => {
     const c = compile(def);
     const d = dense(c, def, resolve(def, spec || def.restMood || {}));
     const chans = d.b.map(o => Object.assign({}, o));
+    swapByAngle(c, chans, d.s);
     drivers(c, def, chans, d.p);
     applyLook(c, def, chans, d.p);
     const { W, A } = world(c, chans, null, 0, false);
     return { c, d, chans, W, A };
   }
+  /* lookX follows the bird; a mirrored head turns it round. A pupil stays inside its eye white (look.room). */
   function applyLook(c, def, chans, p) {
-    const L = def.look || {};
-    for (const id of L.pupils || []){ const b = c.byId[id]; if (b){ chans[b.i].x += p.lookX * (L.x || 5); chans[b.i].y += p.lookY * (L.y || 5); } }
+    const L = def.look || {}, H = headSign(def, p.turn);
+    for (const id of L.pupils || []){
+      const b = c.byId[id]; if (!b) continue;
+      const ch = chans[b.i];
+      ch.x += p.lookX * (L.x || 5) * H; ch.y += p.lookY * (L.y || 5);
+      if (L.room && L.room[id]){ const q = inRoom(ch.x, ch.y, L.room[id]); ch.x = q[0]; ch.y = q[1]; }
+    }
     for (const id of L.brows || []){ const b = c.byId[id]; if (b) chans[b.i].y += p.lookY * (L.brow || 1.5); }
+  }
+  /* an offset kept inside a quarter-ellipse per quadrant: room = [right, left, down, up] */
+  function inRoom(dx, dy, room) {
+    dx = clamp(dx, -room[1], room[0]); dy = clamp(dy, -room[3], room[2]);
+    const ax = Math.max(dx >= 0 ? room[0] : room[1], 1e-3), ay = Math.max(dy >= 0 ? room[2] : room[3], 1e-3);
+    const q = (dx / ax) * (dx / ax) + (dy / ay) * (dy / ay);
+    return q > 1 ? [dx / Math.sqrt(q), dy / Math.sqrt(q)] : [dx, dy];
+  }
+  /* drawings chosen by a bone's angle (def.swaps): either drawing of the pair, by how far the bone has turned from
+     rest; `on` keeps a live rig from flickering at the threshold */
+  function swapByAngle(c, chans, S, on) {
+    c.swaps.forEach((w, k) => {
+      if (S[w.slot] !== w.from && S[w.slot] !== w.to) return;
+      const sw = Math.abs(chans[w.bone].r) >= (on && on[k] ? w.deg - 3 : w.deg);
+      if (on) on[k] = sw;
+      S[w.slot] = sw ? w.to : w.from;
+    });
   }
 
   /* Rig.svg(def, spec, {size, style, cls, debug}) -> static SVG string */
@@ -340,6 +381,7 @@ const Rig = (() => {
     let clips = [], blinkAt = 1.5 + Math.random() * 2, blinkT = -1, glanceAt = 2.5 + Math.random() * 3, glance = { x: 0, y: 0, tx: 0, ty: 0, until: 0 };
     let talk = null, babble = false, babbleNext = 0, babbleV = null, lookTarget = null, cur = null;
     const springs = c.springs.map(s => Object.assign({}, s));
+    const swapOn = c.swaps.map(() => false);
 
     function baseNow(t) {
       const w = bdur > 0 ? bease(clamp((t - b0) / bdur, 0, 1)) : 1;
@@ -474,8 +516,9 @@ const Rig = (() => {
       const gk = Math.min(1, dt * 9);
       glance.x += ((lookTarget ? lookTarget.x : glance.tx) - glance.x) * gk;
       glance.y += ((lookTarget ? lookTarget.y : glance.ty) - glance.y) * gk;
-      P.lookX = clamp(P.lookX + glance.x, -1, 1); P.lookY = clamp(P.lookY + glance.y, -1, 1);
-      if (lookTarget && def.look && def.look.head){ const hb = c.byId[def.look.head]; if (hb) chans[hb.i].r += glance.x * (def.look.headR || 3); P.turn += glance.x * (def.look.turn || 0.2); }
+      const F = P.facing < 0 ? -1 : 1;   // a look is on screen; lookX, turn and the head's tilt follow the bird
+      P.lookX = clamp(P.lookX + glance.x * F, -1, 1); P.lookY = clamp(P.lookY + glance.y, -1, 1);
+      if (lookTarget && def.look && def.look.head){ const hb = c.byId[def.look.head]; if (hb) chans[hb.i].r += glance.x * F * (def.look.headR || 3); P.turn += glance.x * F * (def.look.turn || 0.2); }
       // overrides from puppet controls (absolute)
       const O = R.override;
       for (const id in O.bones){ const bo = c.byId[id]; if (bo) Object.assign(chans[bo.i], O.bones[id]); }
@@ -511,6 +554,7 @@ const Rig = (() => {
         if (M.beak){ const bs = c.slotById[M.beak.slot]; if (bs) S[bs.i] = M.beak.open.includes(mv) ? M.beak.openAtt : M.beak.closedAtt; }
         if (M.jaw){ const jb = c.byId[M.jaw.bone]; if (jb && M.jaw.drop[mv]) chans[jb.i].y += M.jaw.drop[mv]; }
       }
+      swapByAngle(c, chans, S, swapOn);
       drivers(c, def, chans, P);
       applyLook(c, def, chans, P);
       const { W, A } = world(c, chans, rm ? null : springs, dt, !rm);
@@ -575,11 +619,14 @@ const Rig = (() => {
       }
     }
     for (const sl of c.slots) if (sl.att != null && !sl.parts[sl.att]) errs.push('slot ' + sl.id + ': default drawing ' + sl.att + ' is missing');
+    for (const w of def.swaps || []){ const sl = c.slotById[w.slot]; for (const a of [w.from, w.to]) if (sl && !sl.parts[a]) errs.push('swap on ' + w.slot + ': no drawing ' + a); }
+    const Mi = def.mirror || {};
+    for (const id of [Mi.facing, Mi.head].concat(Mi.upright || [])) if (id && !c.byId[id]) errs.push('mirror: no bone ' + id);
     const V = def.visemes || {}, ms = def.mouth && c.slotById[def.mouth.slot];
     if (ms) for (const k in V) if (V[k] != null && !ms.parts[V[k]]) errs.push('viseme ' + k + ': mouth has no drawing ' + V[k]);
     return errs;
   }
 
-  return { create, svg, parts, validate, resolve, compile, css, lineWidth, EASE, staticFrame, version: '1.0.0' };
+  return { create, svg, parts, validate, resolve, compile, css, lineWidth, EASE, staticFrame, inRoom, version: '1.0.0' };
 })();
 if (typeof module !== 'undefined') module.exports = Rig;

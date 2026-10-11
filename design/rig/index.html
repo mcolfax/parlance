@@ -134,10 +134,10 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
 
 <div class="page">
   <header>
-    <span class="eyebrow">Parlance · Pip · round 3 · Blender rig</span>
+    <span class="eyebrow">Parlance · Pip · round 4 · Blender rig</span>
     <h1>Pip, rigged in Blender</h1>
     <p class="lede">This is Pip's Blender rig, playing in the browser with three.js. The drawing is traced from your model sheet, and it now hangs on real bones: wings curl and bend, the crest and tail swing after every move, and one mood blends into the next. Tap Pip to hop, pick a mood or a move, or let Pip follow your finger.</p>
-    <div class="facts"><span><b id="f-bones">96</b> bones</span><span><b id="f-moods">17</b> moods</span><span><b id="f-moves">11</b> moves</span><span><b>Blender 5.2</b> source file</span><span><b>three.js 0.185</b> player</span></div>
+    <div class="facts"><span><b id="f-bones">103</b> bones</span><span><b id="f-moods">17</b> moods</span><span><b id="f-moves">11</b> moves</span><span><b>Blender 5.2</b> source file</span><span><b>three.js 0.185</b> player</span></div>
   </header>
 
   <div class="layout">
@@ -208,13 +208,14 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
             <li>Open <code>design/rig/blender/pip.blend</code> from the Parlance repo. Press <span class="kbd">1</span> on the number pad (or View › Viewpoint › Front) to see Pip from the front.</li>
             <li>Click Pip's bones, switch to Pose Mode, and open the Dope Sheet's Action Editor. Each mood is an action there: pick one, scrub the timeline, and rotate a bone with <span class="kbd">R</span> to change a pose. Keys go in with <span class="kbd">I</span>.</li>
             <li>Which eyes, beak or wings show is a set of small <code>show_…</code> bones: scale 1 shows a drawing, 0 hides it.</li>
+            <li>Two control bones beside Pip turn it round: move <code>ctl_facing</code> to X −2 cm and the whole bird faces left; <code>ctl_head</code> does the same for the head alone.</li>
             <li>Save, then export with <code>design/rig/blender/build/export.py</code> (Blender's Scripting tab › Open › Run Script), or ask Claude to re-export Pip. The player picks up the new <code>pip.gltf.json</code>.</li>
           </ol>
           <button class="cbtn" type="button" data-comment>Comment</button>
         </div>
         <div class="cols">
-          <div class="fact"><h3>In the Blender file</h3><p>The drawing, 96 bones, the wing, crest and tail chains that bend, and every mood and move as an action.</p></div>
-          <div class="fact"><h3>Added by the player</h3><p>Breathing, blinking, quick glances, looking at your finger, talking, and the springy follow-through on the crest, tail and wing tips.</p></div>
+          <div class="fact"><h3>In the Blender file</h3><p>The drawing, its bones, the wing, crest and tail chains that bend, the controls that turn Pip round, and every mood and move as an action.</p></div>
+          <div class="fact"><h3>Added by the player</h3><p>Breathing, blinking, quick glances, looking at your finger, talking, the far wing opening as it swings out, and the springy follow-through on the crest, tail and wing tips.</p></div>
         </div>
       </section>
 
@@ -224,10 +225,10 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
           <h2 id="new-h">What changed</h2>
         </div>
         <ul class="plain">
-          <li>Pip is traced from your model sheet, so at rest the rig matches the concept line for line.</li>
-          <li>The rig is a Blender file with real bones. Wings bend through bone chains instead of swinging as stiff pieces.</li>
-          <li>The sad and surprised beaks are redrawn: a closed beak with a soft downturned line, and a small round opening.</li>
-          <li>Moods blend into each other. Moves like hop and nod layer on top of whatever mood Pip is in.</li>
+          <li>Pip's far wing opens into a whole wing as soon as it swings away from the body (shrug, wow, think, a hop), instead of the thin sliver that hangs against the body.</li>
+          <li>Oops turns Pip to face left, like the worried drawing on your model sheet: wings held together, eyes up, the sweat drop behind the head.</li>
+          <li>When Pip looks past the front, the head turns round with it, so the beak, eyes and crest point the way Pip is looking. Try Look around.</li>
+          <li>Turns stop where the drawing holds up, so the eyes stay on the head and the belly on the body. Pupils stay inside the eye whites, and the head's outline sits over the eyes.</li>
         </ul>
         <button class="cbtn" type="button" data-comment>Comment</button>
       </section>
@@ -265,7 +266,7 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
   const CROPS = [
     { key: 'happy', label: 'Neutral', img: 'reference/pip-happy.webp', alt: 'Concept art of Pip, neutral pose', view: [23.5, -10, 185, 304] },
     { key: 'cheer', label: 'Cheer', img: 'reference/pip-cheer.webp', alt: 'Concept art of Pip, cheering', view: [32.25, -10, 185, 304] },
-    { key: 'oops', label: 'Worried', img: 'reference/pip-oops.webp', alt: 'Concept art of Pip, worried', view: [29, -10, 185, 304] }
+    { key: 'oops', label: 'Worried', img: 'reference/pip-oops.webp', alt: 'Concept art of Pip, worried', view: [34.5, -9, 180.5, 296.6] }
   ];
   let pip = null, mood = 'happy';
 

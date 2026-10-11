@@ -88,6 +88,13 @@ const Pip3D = (() => {
     return { keys: out, dur: t + 0.05 };
   }
   const step = (keys, t) => { let v = keys[0][1]; for (const k of keys) if (t >= k[0]) v = k[1]; return v; };
+  /* a pupil's offset kept inside its eye white: a quarter-ellipse per quadrant, room = [right, left, down, up] */
+  const inRoom = (dx, dy, room) => {
+    dx = clamp(dx, -room[1], room[0]); dy = clamp(dy, -room[3], room[2]);
+    const ax = Math.max(dx >= 0 ? room[0] : room[1], 1e-3), ay = Math.max(dy >= 0 ? room[2] : room[3], 1e-3);
+    const q = (dx / ax) * (dx / ax) + (dy / ay) * (dy / ay);
+    return q > 1 ? [dx / Math.sqrt(q), dy / Math.sqrt(q)] : [dx, dy];
+  };
 
   async function create(el, opts = {}) {
     const { T, GLTFLoader } = await lib(opts);
@@ -107,11 +114,18 @@ const Pip3D = (() => {
       o.frustumCulled = false;
     });
 
+    /* pupils tuck under the edge of their eye white: the white marks the stencil, the pupil draws only inside it */
+    const drawn = (slot, att) => { const out = []; root.traverse(o => { const u = o.userData; if (u && u.slot === slot && (!att || u.drawing === att)) o.traverse(m => { if (m.isMesh) out.push(m); }); }); return out; };
+    (cfg.clip || []).forEach((k, i) => {
+      for (const m of drawn(k.by)) { Object.assign(m.material, { stencilWrite: true, stencilRef: i + 1, stencilFunc: T.AlwaysStencilFunc, stencilZPass: T.ReplaceStencilOp }); m.renderOrder = 1; }
+      for (const a of k.drawings) for (const m of drawn(k.slot, a)) { Object.assign(m.material, { stencilWrite: true, stencilRef: i + 1, stencilFunc: T.EqualStencilFunc, stencilZPass: T.KeepStencilOp }); m.renderOrder = 2; }
+    });
+
     /* camera framing the rig's view box (x 120 / ground y 250 of the part sheet are the origin) */
     let view = opts.view || cfg.view;
     const cam = new T.OrthographicCamera(-1, 1, 1, -1, 0.01, 20);
     cam.position.set(0, 0, 5);
-    const renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new T.WebGLRenderer({ antialias: true, alpha: true, stencil: true });
     renderer.setClearColor(0x000000, 0);
     const canvas = renderer.domElement;
     canvas.style.cssText = 'display:block;width:100%;height:100%';
@@ -153,6 +167,22 @@ const Pip3D = (() => {
     const touched = new Set(), base = new Map();
     const T_ = b => { if (b && !touched.has(b)) { touched.add(b); base.set(b, [b.position.clone(), b.quaternion.clone(), b.scale.clone()]); } return b; };
     for (const id of ['body', 'head', 'wingL', 'wingR', 'jaw', 'root'].concat(cfg.look.pupils, cfg.look.brows)) T_(bones[id]);
+
+    /* mirrors: the facing bone mirrors the whole bird (oops faces left), the head bone mirrors the head once it turns
+       past the front. The animations carry them on control bones (ctl_facing, ctl_head: 0, or -2 cm to mirror),
+       since a negative scale doesn't survive the glTF export. In a fade a control runs between the two, so the bone
+       takes its sign, never narrower than 0.72: the bird squashes a little as it turns round. Upright parts
+       (a question mark, notes) never read backwards. */
+    const MI = cfg.mirror || {};
+    const flips = [MI.facing, MI.head].filter(id => bones[id] && node('ctl_' + id)).map(id => ({ b: T_(bones[id]), c: node('ctl_' + id) }));
+    for (const f of flips) f.x0 = rest.get(f.c)[0].x;
+    const upright = (MI.upright || []).map(id => bones[id]).filter(Boolean).map(T_);
+    const side = b => (b && b.parent && b.parent.matrixWorld.determinant() < 0 ? -1 : 1);   // -1 under a mirror
+
+    /* drawings chosen by a bone's angle: the far wing is a sliver against the body and opens once it swings away */
+    const swaps = (cfg.swaps || []).filter(w => bones[w.bone]).map(w => Object.assign({ b: bones[w.bone], r0: rest.get(bones[w.bone])[1].clone().invert(), on: false }, w));
+    const qa = new T.Quaternion();
+    const angleOf = w => { qa.copy(w.r0).multiply(w.b.quaternion); return 2 * Math.atan2(Math.hypot(qa.x, qa.y, qa.z), Math.abs(qa.w)) / DEG; };
     const add = (b, ch, v) => {
       if (!b) return;
       if (ch === 'x') b.position.x += v * U; else if (ch === 'y') b.position.y -= v * U;
@@ -172,7 +202,7 @@ const Pip3D = (() => {
       springOn(b, b.worldToLocal(tipW.clone()), { k: s.k, d: s.d, limit: s.limit, squash: s.squash || 0, len: s.len * U });
     }
     root.traverse(o => {
-      if (!o.isBone || !/_(bend|folded|spread)_[23]$/.test(o.name)) return;
+      if (!o.isBone || !/_(bend|folded|open|spread)_[23]$/.test(o.name)) return;
       // the bone's tip: its child bone, or (the last bone of a chain) as far along as its parent is long
       const c = o.children.find(x => x.isBone);
       const here = o.getWorldPosition(new T.Vector3());
@@ -226,6 +256,7 @@ const Pip3D = (() => {
       for (const b of touched) { const r = base.get(b); b.position.copy(r[0]); b.quaternion.copy(r[1]); b.scale.copy(r[2]); }
       mixer.update(rm ? 0 : dt);
       for (const b of touched) { const r = base.get(b); r[0].copy(b.position); r[1].copy(b.quaternion); r[2].copy(b.scale); }
+      for (const f of flips) { const v = 1 + (f.c.position.x - f.x0) / U; f.b.scale.x = (v < 0 ? -1 : 1) * Math.max(Math.abs(v), 0.72); }
       // drawings switch 30% into a fade; wing shapes wait until the wing is most of the way round
       const st = slotsAt(mood, moodT);
       if (from) for (const sid in st) if (moodT < fade * (SWITCH[sid] || 0.3)) st[sid] = from[sid];
@@ -241,10 +272,16 @@ const Pip3D = (() => {
       const gk = Math.min(1, dt * 9);
       glance.x += ((lookTarget ? lookTarget.x : glance.tx) - glance.x) * gk;
       glance.y += ((lookTarget ? lookTarget.y : glance.ty) - glance.y) * gk;
+      // a look is on screen: under a mirror its x runs the other way
+      root.updateMatrixWorld(true);
       const L = cfg.look;
-      for (const id of L.pupils) { add(bones[id], 'x', glance.x * L.x); add(bones[id], 'y', glance.y * L.y); }
+      for (const id of L.pupils) {
+        const b = bones[id]; if (!b) continue;
+        add(b, 'x', glance.x * L.x * side(b)); add(b, 'y', glance.y * L.y);
+        if (L.room && L.room[id]) { const r0 = rest.get(b)[0], q = inRoom((b.position.x - r0.x) / U, (r0.y - b.position.y) / U, L.room[id]); b.position.x = r0.x + q[0] * U; b.position.y = r0.y - q[1] * U; }
+      }
       for (const id of L.brows) add(bones[id], 'y', glance.y * (L.brow || 1.5));
-      if (lookTarget && L.head) add(bones[L.head], 'r', glance.x * (L.headR || 3));
+      if (lookTarget && L.head) add(bones[L.head], 'r', glance.x * (L.headR || 3) * side(bones[L.head]));
       // blinks: the open eyes squash shut and swap to the blink drawing at the bottom
       if (!calm && m.blink !== false && blinkT < 0 && time > blinkAt) { blinkT = time; blinkAt = time + 2.2 + Math.random() * 3.8 + (Math.random() < 0.2 ? -1.9 : 0); }
       if (blinkT >= 0) {
@@ -269,7 +306,14 @@ const Pip3D = (() => {
         if (M.beak) S[M.beak.slot] = M.beak.open.includes(mv) ? M.beak.openAtt : M.beak.closedAtt;
         if (M.jaw && M.jaw.drop[mv]) add(bones[M.jaw.bone], 'y', M.jaw.drop[mv]);
       }
+      for (const w of swaps) {
+        if (S[w.slot] !== w.from && S[w.slot] !== w.to) continue;
+        w.on = angleOf(w) >= (w.on ? w.deg - 3 : w.deg);
+        S[w.slot] = w.on ? w.to : w.from;
+      }
       applySlots(S);
+      root.updateMatrixWorld(true);
+      for (const b of upright) { const s = Math.abs(b.scale.x); b.scale.x = side(b) < 0 ? -s : s; }
       // springs, last, on the posed skeleton
       root.updateMatrixWorld(true);
       if (!calm) for (const s of springs) {

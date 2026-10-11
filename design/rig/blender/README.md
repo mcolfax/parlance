@@ -13,7 +13,7 @@ swinging as stiff pieces.
 
 | File | What it is |
 |---|---|
-| `pip.blend` | The rig: Pip's drawings as flat meshes, 96 bones, and every mood and move as an action. Edit this. |
+| `pip.blend` | The rig: Pip's drawings as flat meshes, 103 bones, and every mood and move as an action. Edit this. |
 | `pip.gltf.json` | What the player loads. Made from `pip.blend` by `build/export.py`; don't edit it by hand. |
 | `pip3d.js` | The player: mood blends, moves layered on top, drawing swaps, and the live parts (below). |
 | `build/export.py` | Exports `pip.blend` to `pip.gltf.json`. Run it after every edit. |
@@ -38,6 +38,11 @@ swinging as stiff pieces.
    whether it loops (`loop`) and whether Pip blinks and glances in it (`blink`, `glance`).
 5. **Order changes** (wings behind the body in cheer, a wing in front of the face in think) are the wing bone moving
    in depth, keyed in the action.
+6. **Mirrors are controls.** Two bones beside Pip turn it round: `ctl_facing` mirrors the whole bird (oops faces left,
+   as on the model sheet) and `ctl_head` mirrors the head once it turns past the front, so the beak and eyes point
+   the way Pip looks. Location X 0 is normal and -2 cm is mirrored; a driver sets the `facing` or `head` bone's
+   X scale from it. A negative scale keyed on a bone doesn't survive the glTF export (it comes out as a half-turn
+   plus a flipped scale on every axis), so the export mutes the drivers and the player mirrors from the controls.
 
 ## Editing Pip
 
@@ -67,7 +72,14 @@ Pip3D.stills([{ mood: 'oops' }], { src })   // PNG data URLs from one hidden ren
 
 The player adds what Blender doesn't hold: breathing, blinks, quick glances, looking at a point, talking (the
 viseme script from the SVG rig), and spring follow-through on the crest, tail and wing-tip bones. Drawing swaps
-happen 30% into a blend (wing shapes at 62%, once the wing is most of the way round). Live rigs share one animation
+happen 30% into a blend (wing shapes at 62%, once the wing is most of the way round). It also:
+
+- mirrors the bird and the head from the `ctl_` bones. In a blend a control passes between its two values, so the
+  bone takes its sign and never gets narrower than 0.72: Pip squashes a little as it turns round. A question
+  mark or music notes stay the right way round under a mirror.
+- opens the far wing: it shows the `open` drawing whenever the wing is more than 15° from rest, in any mood or move.
+- keeps each pupil inside its eye white (the room in the settings), and clips it to the white with a stencil, so a
+  pupil at the edge tucks under it. Live rigs share one animation
 frame loop, sleep off screen and in background tabs, and hold still for people who ask for reduced motion.
 
 A page can keep only a few WebGL canvases alive, so use one live Pip per screen and `Pip3D.stills` (or the SVG

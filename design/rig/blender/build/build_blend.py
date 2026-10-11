@@ -57,7 +57,7 @@ slot_index = {s['id']: i for i, s in enumerate(slots)}
 atts = {}
 for key in SH:
     s, a = key.split('/'); atts.setdefault(s, []).append(a)
-CHAIN_ATTS = {('wingL', 'folded'), ('wingL', 'spread'), ('wingR', 'folded'), ('wingR', 'spread')}
+CHAIN_ATTS = {('wingL', 'folded'), ('wingL', 'spread'), ('wingR', 'folded'), ('wingR', 'open'), ('wingR', 'spread')}
 
 def extent_tip(key, pivot):
     """farthest drawn point from the pivot"""
@@ -85,6 +85,14 @@ def add_bone(name, head, tail, parent=None):
     return b
 for b in D['bones']:
     add_bone(b['id'], (b['x'], b['y']), (b['x'], b['y'] - UP), b.get('parent'))
+# mirror controls, beside the bird: ctl_facing turns the whole bird round (oops faces left), ctl_head the head once it
+# turns past the front. Location X is 0, or -2 cm to mirror; a driver mirrors the bone from it. (A negative scale
+# keyed on the bone itself doesn't survive the glTF export, so export.py mutes the drivers and the player reads
+# the controls.)
+MIRROR = D.get('mirror') or {}
+CTLS = [(MIRROR[k], 'ctl_' + MIRROR[k]) for k in ('facing', 'head') if MIRROR.get(k)]
+for i, (_, name) in enumerate(CTLS):
+    add_bone(name, (226, 246 - i * 10), (226, 246 - i * 10 - UP))
 chains = {}                  # (slot, att) or bone id -> [bone names along the chain]
 def chain(name, parent, pts, deform=True):
     names = []
@@ -119,6 +127,13 @@ tb = bones['tail']; tpiv = (tb['x'], tb['y']); ttip = extent_tip('tail/fan', tpi
 chains[('tail', 'fan')] = chain('tail_bend', 'tail', [tpiv, lerp(tpiv, ttip, 0.45), lerp(tpiv, ttip, 0.75), ttip])
 bpy.ops.object.mode_set(mode='OBJECT')
 bone_len = {b.name: b.length for b in arm_data.bones}
+for target, name in CTLS:
+    drv = arm.pose.bones[target].driver_add('scale', 0).driver
+    drv.type = 'SCRIPTED'
+    var = drv.variables.new(); var.name = 'm'; var.type = 'TRANSFORMS'
+    t = var.targets[0]; t.id = arm; t.bone_target = name; t.transform_type = 'LOC_X'; t.transform_space = 'LOCAL_SPACE'
+    drv.expression = '(1 if m > -0.01 else -1) * max(abs(1 + m * 100), 0.72)'   # never narrower than 0.72 mid-turn
+    print('driver', target, 'simple' if drv.is_simple_expression else 'python')
 
 # ---------------- meshes ----------------
 coll = bpy.data.collections.new('Pip parts'); scene.collection.children.link(coll)

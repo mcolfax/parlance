@@ -6,6 +6,9 @@
    Write a pose here once and every bird can do it. README.md has the drawing spec for a new bird.
    Setup space: 240 wide, centre x 120 (the middle of the head), ground at y 250. A bird is drawn turned a little
    to the viewer's right, as on its model sheet; turn.setup says how far, and turn 0 faces front.
+   Facing the other way is a mirror, as on the model sheet's oops drawing: the param facing -1 mirrors the whole bird
+   across x 120, and a head turned past the front (turn below 0) mirrors the head, so the beak, eyes and crest
+   always face the way the head turns. Poses are written for a bird facing right; lookX follows the bird.
    ============================================================ */
 const Bird = (() => {
   /* ----- drawing helpers for part sheets ----- */
@@ -22,6 +25,19 @@ const Bird = (() => {
   };
   /* strokes with an ink rim, for legs and toes: a wide ink stroke under a narrower colored one */
   const rim = (k, d, w) => p('s-ink', d, 'stroke-width:calc(' + w + 'px + var(--rig-lw,2) * 2px)') + p('s-' + k, d, 'stroke-width:' + w + 'px');
+  /* a drawing moved by the matrix [a b c d e f] (SVG order), baked into its path points so its outlines keep their
+     weight (a transform attribute would thin them where it squashes). Paths only, in absolute M L C Q Z commands. */
+  const xform = (s, m) => {
+    if (/<(ellipse|circle|rect|line|poly)/.test(s)) throw new Error('xform: paths only');
+    return s.replace(/ d="([^"]+)"/g, (_, d) => {
+      if (/[^MLCQZ\d\s.,-]/.test(d)) throw new Error('xform: absolute M L C Q Z commands only');
+      return ' d="' + d.replace(/([MLCQ])([^MLCQZ]*)/g, (__, k, nums) => {
+        const v = nums.trim().split(/[\s,]+/).map(Number), o = [];
+        for (let i = 0; i + 1 < v.length; i += 2) o.push(r2(m[0] * v[i] + m[2] * v[i + 1] + m[4]) + ' ' + r2(m[1] * v[i] + m[3] * v[i + 1] + m[5]));
+        return k + o.join(' ') + ' ';
+      }).replace(/ (?=Z|$)/g, '') + '"';
+    });
+  };
   /* symmetric pose helper: {wing: {r: 30}} -> {wingL: {r: 30}, wingR: {r: -30}} */
   const sym = o => { const out = {}; for (const k in o){ const v = o[k]; out[k + 'L'] = Object.assign({}, v); const m = Object.assign({}, v); if (m.r) m.r = -m.r; if (m.x) m.x = -m.x; out[k + 'R'] = m; } return out; };
   const both = (k, v) => ({ [k + 'L']: v, [k + 'R']: v });
@@ -35,7 +51,7 @@ const Bird = (() => {
     shadow: { on: e('k-shadow', 120, 251, 50, 8) },
     cheekL: { blush: e('k-blush', 79, 141, 8, 4.4) },
     cheekR: { blush: e('k-blush', 161, 141, 8, 4.4) },
-    sweat: { drop: p('k-sweat t-sweat2', 'M154 80 C156.6 85 159.2 88.6 159.2 91.8 C159.2 94.9 156.9 97 154 97 C151.1 97 148.8 94.9 148.8 91.8 C148.8 88.6 151.4 85 154 80 Z', 'stroke-width:1.2px') + gloss('M151.7 91 Q151.8 88.8 153 87.2', 1.8) },
+    sweat: { drop: p('k-sweat t-sweat2', 'M86 80 C88.6 85 91.2 88.6 91.2 91.8 C91.2 94.9 88.9 97 86 97 C83.1 97 80.8 94.9 80.8 91.8 C80.8 88.6 83.4 85 86 80 Z', 'stroke-width:1.2px') + gloss('M83.7 91 Q83.8 88.8 85 87.2', 1.8) },
     tear: { drop: p('k-sweat t-sweat2', 'M80 132 C82 136 84 138.8 84 141.3 C84 143.7 82.2 145.3 80 145.3 C77.8 145.3 76 143.7 76 141.3 C76 138.8 78 136 80 132 Z', 'stroke-width:1.1px') },
     fxHead: {
       zzz: Z(162, 52, 1) + Z(174, 36, 1.3) + Z(190, 16, 1.6),
@@ -58,12 +74,16 @@ const Bird = (() => {
     view: [18, 2, 204, 258],
     /* outlines are about 1.35 screen px, and never thinner than the model sheet's 2.6 units; ol2 (the beak) is half */
     lines: { px: 1.35, min: 2.6, max: 4.6, feature: 1, detail: 0.6, thin: 0.5, grow: 0.6 },
-    turn: { head: 35, body: 0.6, setup: 0.22 },
-    rest: { turn: 0.22 },
+    /* the drawing holds up to turn max either side of the front, and the body between bodyMin and bodyMax */
+    turn: { head: 35, body: 0.6, setup: 0.22, max: 0.36, bodyMin: 0, bodyMax: 0.24 },
+    rest: { turn: 0.22, facing: 1 },
+    /* what mirrors: the whole bird (facing), the head (turned past the front), and parts that never read backwards */
+    mirror: { facing: 'facing', head: 'head', upright: ['fxHead', 'fx'] },
     restMood: 'happy',
     bones: [
-      { id: 'root', x: 114, y: 250 },
-      { id: 'shadow', x: 114, y: 252 },
+      { id: 'facing', x: 120, y: 250 },
+      { id: 'root', parent: 'facing', x: 114, y: 250 },
+      { id: 'shadow', parent: 'facing', x: 114, y: 252 },
       { id: 'legL', parent: 'root', x: 95.8, y: 231, turn: { body: true, dx: -40 } },
       { id: 'legR', parent: 'root', x: 129.4, y: 231, turn: { body: true, dx: -40 } },
       { id: 'body', parent: 'root', x: 113, y: 236 },
@@ -71,7 +91,7 @@ const Bird = (() => {
       { id: 'torso', parent: 'body', x: 118, y: 170, turn: { body: true, rot: 10 } },
       /* the tail shortens as the body comes round to face front, and shows on the far side past it */
       { id: 'tail', parent: 'torso', x: 110, y: 206, turn: { body: true, flip: 4.6 } },
-      { id: 'belly', parent: 'torso', x: 126, y: 195, turn: { body: true, R: 90 } },
+      { id: 'belly', parent: 'torso', x: 126, y: 195, turn: { body: true, R: 70 } },
       { id: 'wingL', parent: 'torso', x: 97, y: 165, turn: { body: true, near: 0.06, wx: 0.5 } },
       { id: 'wingR', parent: 'torso', x: 150, y: 164, turn: { body: true, near: -0.06, wx: -1.2 } },
       { id: 'head', parent: 'body', x: 120, y: 158 },
@@ -89,7 +109,8 @@ const Bird = (() => {
       { id: 'jaw', parent: 'beak', x: 128.7, y: 134 },
       { id: 'cheekL', parent: 'head', x: 81, y: 142, turn: { R: 56, squash: true } },
       { id: 'cheekR', parent: 'head', x: 165, y: 136, turn: { R: 56, squash: true } },
-      { id: 'sweat', parent: 'head', x: 166, y: 94, turn: { R: 56 } },
+      /* the worried sweat drop sits at the back of the head, as on the model sheet */
+      { id: 'sweat', parent: 'head', x: 82, y: 88, turn: { R: 56 } },
       { id: 'fxHead', parent: 'head', x: 176, y: 44, turn: { R: 10, phi: 0 } },
       { id: 'fx', parent: 'root', x: 120, y: 110 }
     ],
@@ -103,16 +124,18 @@ const Bird = (() => {
       { id: 'wingL', bone: 'wingL', att: 'folded' },
       { id: 'wingR', bone: 'wingR', att: 'folded' },
       { id: 'head', bone: 'head', att: 'on' },
-      /* the crest sits on the crown, in front of the head's line */
-      { id: 'crest1', bone: 'crest1', att: 'on' },
-      { id: 'crest3', bone: 'crest3', att: 'on' },
-      { id: 'crest2', bone: 'crest2', att: 'on' },
       { id: 'patchL', bone: 'eyeL', att: 'on' },
       { id: 'patchR', bone: 'eyeR', att: 'on' },
       { id: 'cheekL', bone: 'cheekL', att: null },
       { id: 'cheekR', bone: 'cheekR', att: null },
       { id: 'pupilL', bone: 'pupilL', att: 'open', blink: { from: ['open', 'wide', 'wet'], to: 'blink' } },
       { id: 'pupilR', bone: 'pupilR', att: 'open', blink: { from: ['open', 'wide', 'wet'], to: 'blink' } },
+      /* the head's line goes over the eyes, so an eye turned out to the edge of the head tucks under it */
+      { id: 'headLine', bone: 'head', att: 'on' },
+      /* the crest sits on the crown, in front of the head's line */
+      { id: 'crest1', bone: 'crest1', att: 'on' },
+      { id: 'crest3', bone: 'crest3', att: 'on' },
+      { id: 'crest2', bone: 'crest2', att: 'on' },
       { id: 'tear', bone: 'eyeL', att: null },
       { id: 'browL', bone: 'browL', att: 'arc' },
       { id: 'browR', bone: 'browR', att: 'arc' },
@@ -129,7 +152,12 @@ const Bird = (() => {
       crest3: { len: 30, dir: [0.54, -0.84], k: 170, d: 9, limit: 24 },
       tail: { len: 58, dir: [-1, -0.2], k: 120, d: 9, limit: 12 }
     },
-    look: { pupils: ['pupilL', 'pupilR'], brows: ['browL', 'browR'], x: 5.4, y: 6, brow: 1.6, head: 'head', headR: 4, turn: 0.35 },
+    look: { pupils: ['pupilL', 'pupilR'], brows: ['browL', 'browR'], x: 5.4, y: 6, brow: 1.6, head: 'head', headR: 4, turn: 0.2 },
+    /* a drawing that changes with a bone's angle: the far wing is a sliver while it hangs against the body, and opens
+       into a whole wing once it swings more than deg away (either way) */
+    swaps: [{ slot: 'wingR', bone: 'wingR', from: 'folded', to: 'open', deg: 15 }],
+    /* pupils tuck under the edge of their eye white (the 3D player clips them), so an eye can look right to its edge */
+    clip: [{ slot: 'pupilL', by: 'patchL', drawings: ['open', 'wide', 'wet'] }, { slot: 'pupilR', by: 'patchR', drawings: ['open', 'wide', 'wet'] }],
     idle: {
       body: { sy: [0.014, 3.2, 0], sx: [-0.006, 3.2, 0] },
       head: { y: [0.9, 3.2, -0.7], r: [1.3, 6.4, 0] },
@@ -146,13 +174,14 @@ const Bird = (() => {
       stand: { params: { turn: 0.22 } },
       /* raised wings tuck in behind the body, as on the cheer drawing */
       cheer: { slots: both('wing', 'spread'), bones: { wingL: { r: 98.2 }, wingR: { r: -107.1 }, body: { sy: 1.03 }, head: { r: -2 }, tail: { y: 4, r: -4 } }, z: { wingL: 3.5, wingR: 3.6 }, params: { turn: 0.15 } },
-      cover: { bones: Object.assign(sym({ wing: { r: -12, x: 6, y: 2, sy: 1.05 } }), { head: { y: 3.5, r: 1.5 }, body: { sy: 0.975 }, torso: { sx: 0.96 } }), params: { turn: -0.32, bodyTurn: -0.13 } },
+      /* turned away to the viewer's left, as on the model sheet's oops drawing */
+      cover: { bones: Object.assign(sym({ wing: { r: -28, x: 9, y: 3, sy: 1.04 } }), { head: { y: 4, r: -5 }, body: { sy: 0.975 }, torso: { sx: 0.96 } }), params: { facing: -1, turn: 0.3 } },
       think: { bones: { wingR: { r: 112, sx: 0.9, sy: 0.9, x: -2 }, wingL: { r: -6 }, head: { r: -7, y: -1 } }, z: { wingR: 'front' }, params: { turn: 0.38 } },
       wave: { slots: { wingR: 'spread' }, bones: { wingR: { r: -102 }, wingL: { r: 4 }, head: { r: -5 } }, z: { wingR: 3.6 }, params: { turn: 0.32 } },
       point: { slots: { wingR: 'spread' }, bones: { wingR: { r: -58 }, head: { r: -3 } }, z: { wingR: 3.6 }, params: { turn: 0.55, lookX: 0.7 } },
       wow: { bones: Object.assign(sym({ wing: { r: 24 } }), { crest1: { r: -10, sx: 1.06, sy: 1.12 }, crest3: { r: 10, sx: 1.06, sy: 1.12 }, crest2: { sy: 1.14 }, body: { sy: 1.04 }, head: { y: -2 } }), params: { turn: 0 } },
       sleep: { bones: Object.assign(sym({ wing: { r: -8 } }), { head: { r: 9, y: 4 }, body: { sy: 0.97 }, crest1: { r: -12 }, crest3: { r: 10 }, crest2: { r: 8 } }), params: { turn: 0.12 } },
-      sad: { bones: Object.assign(sym({ wing: { r: 5 } }), { crest1: { r: -24, sy: 0.9 }, crest3: { r: 22, sy: 0.9 }, crest2: { r: -12, sy: 0.88 }, head: { y: 5, r: -3 }, body: { sy: 0.965 } }), params: { turn: -0.12 } },
+      sad: { bones: Object.assign(sym({ wing: { r: 5 } }), { crest1: { r: -24, sy: 0.9 }, crest3: { r: 22, sy: 0.9 }, crest2: { r: -12, sy: 0.88 }, head: { y: 5, r: -3 }, body: { sy: 0.965 } }), params: { turn: 0.1 } },
       laugh: { bones: { wingL: { r: -34 }, wingR: { r: -10 }, head: { r: -8, y: -2 }, body: { r: -2 } }, params: { turn: 0.2 } },
       shrug: { bones: Object.assign(sym({ wing: { r: 46 } }), { head: { r: 8, y: 1 }, body: { y: -1 } }), params: { turn: 0.18 } },
       proud: { bones: Object.assign(sym({ wing: { r: 14 } }), { crest1: { r: -8 }, crest3: { r: 8 }, body: { sx: 1.04, sy: 1.02 }, head: { r: -6, y: -3 } }), params: { turn: 0.05 } },
@@ -166,7 +195,7 @@ const Bird = (() => {
       happy: { slots: { pupilL: 'open', pupilR: 'open', mouth: 'grin', beak: 'open' } },
       smile: { slots: { pupilL: 'open', pupilR: 'open', mouth: 'smile', beak: 'closed' } },
       joy: { slots: { pupilL: 'happy', pupilR: 'happy', mouth: 'wide', beak: 'up' }, bones: sym({ brow: { y: -3 } }) },
-      worried: { slots: { pupilL: 'wet', pupilR: 'wet', mouth: 'frown', beak: 'closed', sweat: 'drop' }, bones: { browL: { r: -24, y: -1.5 }, browR: { r: 24, y: -1.5 }, pupilL: { x: 1.6 }, pupilR: { x: -1.6 } }, params: { lookY: -0.55 }, glance: false },
+      worried: { slots: { pupilL: 'wet', pupilR: 'wet', mouth: 'frown', beak: 'closed', sweat: 'drop' }, bones: { browL: { r: -20, y: 4, sx: 1.2, sy: 1.35 }, browR: { r: 20, y: 4, sx: 1.2, sy: 1.35 } }, params: { lookX: 0.35, lookY: -0.5 }, glance: false },
       think: { slots: { pupilL: 'open', pupilR: 'open', mouth: 'closed', beak: 'closed', fxHead: 'question' }, bones: { browL: { y: 1.5 }, browR: { y: -5, r: 6 } }, params: { lookX: 0.45, lookY: -0.75 }, glance: false },
       surprised: { slots: { pupilL: 'wide', pupilR: 'wide', mouth: 'o', beak: 'closed', fxHead: 'exclaim' }, bones: sym({ brow: { y: -6 } }) },
       sleepy: { slots: { pupilL: 'closed', pupilR: 'closed', mouth: 'closed', beak: 'closed', fxHead: 'zzz' }, bones: sym({ brow: { y: 2 } }), blink: false, glance: false },
@@ -267,11 +296,13 @@ const Bird = (() => {
         'slot.fxBody': [[0, 'notes']], 'fx.y': [[0, 0], [0.5, -4, 'sine'], [1, 0, 'sine']] } },
       nod: { dur: 0.7, tracks: {
         'head.r': [[0, 0], [0.15, 5], [0.3, -1], [0.45, 4], [0.7, 0]], 'head.y': [[0, 0], [0.15, 2.5], [0.3, 0], [0.45, 2], [0.7, 0]] } },
+      /* turns are offsets from the mood's turn: a shake swings either side of the rest turn, front to three-quarter */
       shake: { dur: 0.75, tracks: {
-        'param.turn': [[0, 0], [0.12, -0.5], [0.28, 0.45], [0.44, -0.35], [0.6, 0.15], [0.75, 0]],
+        'param.turn': [[0, 0], [0.12, -0.22], [0.28, 0.2], [0.44, -0.18], [0.6, 0.1], [0.75, 0]],
         'head.r': [[0, 0], [0.12, -3], [0.28, 3], [0.44, -2], [0.6, 1], [0.75, 0]] } },
       lookAround: { dur: 2.2, tracks: {
-        'param.turn': [[0, 0], [0.45, -0.85, 'inOut'], [1.0, -0.85], [1.5, 0.6, 'inOut'], [1.85, 0.6], [2.2, 0, 'inOut']],
+        /* past the front to the left, where the head mirrors, then round to the right */
+        'param.turn': [[0, 0], [0.45, -0.52, 'inOut'], [1.0, -0.52], [1.5, 0.2, 'inOut'], [1.85, 0.2], [2.2, 0, 'inOut']],
         'param.lookX': [[0, 0], [0.35, -0.7, 'out'], [1.0, -0.7], [1.35, 0.7, 'out'], [1.85, 0.7], [2.2, 0]] } },
       bow: { dur: 1.4, tracks: {
         'head.y': [[0, 0], [0.4, 10, 'inOut'], [0.95, 10], [1.4, 0, 'inOut']],
@@ -293,14 +324,14 @@ const Bird = (() => {
     return merge(BIRD, {
       id: skin.id, name: skin.name,
       palette: merge(FX_PALETTE, skin.palette),
-      rest: merge(BIRD.rest, skin.rest), turn: merge(BIRD.turn, skin.turn), lines: merge(BIRD.lines, skin.lines),
+      rest: merge(BIRD.rest, skin.rest), turn: merge(BIRD.turn, skin.turn), lines: merge(BIRD.lines, skin.lines), look: merge(BIRD.look, skin.look),
       bones, parts,
-      slots: typeof skin.slots === 'function' ? skin.slots(BIRD.slots.slice()) : skin.slots || BIRD.slots,
+      slots: (typeof skin.slots === 'function' ? skin.slots(BIRD.slots.slice()) : skin.slots || BIRD.slots).filter(sl => sl.att === null || Object.keys(parts[sl.id] || {}).length),
       springs: merge(BIRD.springs, skin.springs),
       poses: merge(BIRD.poses, skin.poses), faces: merge(BIRD.faces, skin.faces), moods: merge(BIRD.moods, skin.moods), clips: merge(BIRD.clips, skin.clips)
     });
   }
 
-  return { make, BIRD, sym, both, draw: { mirror: M, path: p, ellipse: e, circle: ci, gloss, rim, taper, star: STAR, heart: HEART, note: NOTE, z: Z } };
+  return { make, BIRD, sym, both, draw: { mirror: M, path: p, ellipse: e, circle: ci, gloss, rim, taper, xform, star: STAR, heart: HEART, note: NOTE, z: Z } };
 })();
 if (typeof module !== 'undefined') module.exports = Bird;

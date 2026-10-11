@@ -23,11 +23,19 @@ function track(keys, t) {
   }
   return keys[keys.length - 1][1];
 }
-/* the SVG rig's turn drivers, from rig.js */
+/* the SVG rig's turn drivers and mirrors, from rig.js */
+const Mi = def.mirror || {};
+const CTL = [Mi.facing, Mi.head].filter(Boolean).map(id => 'ctl_' + id);   // control bones the bake adds
+const headSign = turn => (turn < 0 && Mi.head ? -1 : 1);
+const lim = (v, a, b) => clamp(v, a == null ? -9 : a, b == null ? 9 : b);
 function drive(chans, params) {
-  const T = def.turn, kb = T.body == null ? 0.6 : T.body, s0 = T.setup || 0;
-  const th = (params.turn - s0) * T.head;
-  const thb = ((params.bodyTurnSet ? params.bodyTurn : params.turn * kb) - s0 * kb) * T.head;
+  const T = def.turn, kb = T.body == null ? 0.6 : T.body, s0 = T.setup || 0, H = headSign(params.turn);
+  const th = (lim(params.turn * H, T.max == null ? null : -T.max, T.max) - s0) * T.head;
+  const thb = (lim(params.bodyTurnSet ? params.bodyTurn : params.turn * kb, T.bodyMin, T.bodyMax) - s0 * kb) * T.head;
+  // mirrors go on control bones (ctl_facing, ctl_head: 0, or -2 for mirrored): Blender drivers and the player
+  // mirror the bones from them, since a negative scale doesn't survive the glTF export
+  if (Mi.facing) chans['ctl_' + Mi.facing].x = (params.facing < 0 ? -1 : 1) - 1;
+  if (Mi.head) chans['ctl_' + Mi.head].x = H - 1;
   for (const b of c.bones) {
     const s = b.turn; if (!s) continue;
     const ch = chans[b.id], t = s.body ? thb : th, abs = t + (s.body ? s0 * kb : s0) * T.head;
@@ -39,7 +47,7 @@ function drive(chans, params) {
     if (s.rot) ch.r += s.rot * (t / T.head);
   }
   const L = def.look || {};
-  for (const id of L.pupils || []) { chans[id].x += params.lookX * (L.x || 5); chans[id].y += params.lookY * (L.y || 5); }
+  for (const id of L.pupils || []) { const ch = chans[id]; ch.x += params.lookX * (L.x || 5) * H; ch.y += params.lookY * (L.y || 5); if (L.room && L.room[id]) [ch.x, ch.y] = Rig.inRoom(ch.x, ch.y, L.room[id]); }
   for (const id of L.brows || []) chans[id].y += params.lookY * (L.brow || 1.5);
   const sh = def.shadow;
   if (sh) { const fo = chans[sh.follow], ch = chans[sh.bone]; const lift = clamp(-fo.y / (sh.lift || 90), 0, 0.7); ch.x += fo.x; ch.sx *= 1 - lift * 0.6; ch.sy *= 1 - lift * 0.6; }
@@ -48,8 +56,10 @@ function drive(chans, params) {
 function evaluate(pose, clip, t, withPose = true) {
   const chans = {};
   for (const b of c.bones) chans[b.id] = Object.assign({ x: 0, y: 0, r: 0, sx: 1, sy: 1, a: 1 }, withPose ? pose.bones[b.id] || {} : {});
+  for (const id of CTL) chans[id] = { x: 0, y: 0, r: 0, sx: 1, sy: 1, a: 1 };
   const params = {};
-  for (const k of ['turn', 'bodyTurn', 'lookX', 'lookY']) params[k] = pose.params[k] !== undefined ? pose.params[k] : (withPose ? (def.rest && def.rest[k]) || 0 : (k === 'turn' ? def.turn.setup : 0));
+  const dflt = k => (k === 'facing' ? 1 : k === 'turn' && !withPose ? def.turn.setup : 0);
+  for (const k of ['turn', 'bodyTurn', 'lookX', 'lookY', 'facing']) params[k] = pose.params[k] !== undefined ? pose.params[k] : withPose && def.rest && def.rest[k] != null ? def.rest[k] : dflt(k);
   params.bodyTurnSet = pose.params.bodyTurn !== undefined;
   const slots = Object.assign({}, pose.slots);
   if (clip) for (const key in clip.tracks) {
@@ -57,6 +67,11 @@ function evaluate(pose, clip, t, withPose = true) {
     if (kind === 'slot') slots[name] = v;
     else if (kind === 'param') params[name] += v;
     else if (chans[kind]) { if (MULT[name]) chans[kind][name] *= v; else chans[kind][name] += v; }
+  }
+  // drawings chosen by a bone's angle (the far wing opens once it swings away), as the player does it
+  for (const w of def.swaps || []) {
+    const cur = slots[w.slot] !== undefined ? slots[w.slot] : c.slotById[w.slot].att;
+    if (cur === w.from || cur === w.to) slots[w.slot] = Math.abs(chans[w.bone].r) >= w.deg ? w.to : w.from;
   }
   drive(chans, params);
   for (const id in chans) { const ch = chans[id]; if (ch.a !== 1) { ch.sx *= ch.a; ch.sy *= ch.a; } delete ch.a; }
@@ -74,6 +89,7 @@ for (const b of c.bones) if (b.turn) { DRIVEN[b.id + '.x'] = 1; DRIVEN[b.id + '.
 for (const id of (def.look.pupils || [])) { DRIVEN[id + '.x'] = 1; DRIVEN[id + '.y'] = 1; }
 for (const id of (def.look.brows || [])) DRIVEN[id + '.y'] = 1;
 DRIVEN['shadow.x'] = DRIVEN['shadow.sx'] = DRIVEN['shadow.sy'] = 1;
+for (const id of CTL) DRIVEN[id + '.x'] = 1;
 
 function bake(pose, clip, withPose) {
   const dur = clip ? clip.dur : 1;
@@ -81,14 +97,15 @@ function bake(pose, clip, withPose) {
   const paramKeys = Object.keys(kt).filter(k => k.startsWith('param.')).flatMap(k => kt[k]);
   const rootKeys = Object.keys(kt).filter(k => k.startsWith('root.')).flatMap(k => kt[k]);
   const res = { loop: !!(clip && clip.loop), dur, bones: {}, slots: {} };
+  const dense = []; for (let f = 1; f < Math.round(dur * 30); f++) dense.push([f / 30, 'linear']);
   const base = evaluate(pose, clip, 0, withPose);
-  for (const b of c.bones) {
+  for (const b of c.bones.concat(CTL.map(id => ({ id })))) {
     for (const ch of ['x', 'y', 'r', 'sx', 'sy']) {
       const id = b.id + '.' + ch;
       let times = [[0, 'inOut']];
       if (kt[id]) times = kt[id].slice();
       if (kt[b.id + '.a'] && (ch === 'sx' || ch === 'sy')) times = times.concat(kt[b.id + '.a']);
-      if (DRIVEN[id] && paramKeys.length) times = times.concat(paramKeys);
+      if (DRIVEN[id] && paramKeys.length) times = times.concat(paramKeys, dense);   // the drivers aren't linear: sample them every frame
       if (b.id === 'shadow' && rootKeys.length) times = times.concat(rootKeys);
       const seen = new Map();
       for (const [t, e] of times) if (!seen.has(t) || seen.get(t) === 'inOut') seen.set(t, e);
@@ -96,13 +113,15 @@ function bake(pose, clip, withPose) {
       const keys = ts.map(t => [Math.round(t * 1000) / 1000, Math.round(evaluate(pose, clip, t, withPose).chans[b.id][ch] * 10000) / 10000, seen.get(t)]);
       const restv = MULT[ch] ? 1 : 0;
       const constant = keys.every(k => Math.abs(k[1] - keys[0][1]) < 1e-4);
-      if (constant && Math.abs(keys[0][1] - restv) < 1e-4) continue;
+      // (the mirror controls are always keyed, so opening any action in Blender sets them)
+      if (constant && Math.abs(keys[0][1] - restv) < 1e-4 && !CTL.includes(b.id)) continue;
       (res.bones[b.id] = res.bones[b.id] || {})[ch] = constant ? [keys[0]] : keys;
     }
   }
   // which drawing each slot shows over time
   const slotTimes = new Set([0]);
   if (clip) for (const key in clip.tracks) if (key.startsWith('slot.')) clip.tracks[key].forEach(k => slotTimes.add(k[0]));
+  if (clip) for (const w of def.swaps || []) (clip.tracks[w.bone + '.r'] || []).forEach(k => slotTimes.add(k[0]));
   for (const sl of c.slots) {
     const seq = [...slotTimes].sort((a, b2) => a - b2).map(t => [t, evaluate(pose, clip, t, withPose).slots[sl.id] !== undefined ? evaluate(pose, clip, t, withPose).slots[sl.id] : sl.att]);
     const comp = seq.filter((k, i) => i === 0 || k[1] !== seq[i - 1][1]);

@@ -96,6 +96,10 @@ BENDS = {
     'point': {'wingR_spread_2': -10, 'wingR_spread_3': -14},
     'cheer': {'wingL_spread_3': 8, 'wingR_spread_3': -8},
 }
+# the far wing's open drawing bends like its folded one
+for bends in BENDS.values():
+    for bone, r in list(bends.items()):
+        if bone.startswith('wingR_folded_'): bends[bone.replace('_folded_', '_open_')] = r
 def bend_keys(act, name):
     for bone, r in BENDS.get(name, {}).items():
         if bone not in pb: continue
@@ -138,6 +142,7 @@ scene['pip3d_base'] = json.dumps({
     'version': 1, 'view': D['view'], 'unit': S, 'fps': FPS,
     'slots': {s['id']: {'bone': s['bone'], 'att': s.get('att'), 'atts': atts.get(s['id'], []), 'blink': s.get('blink')} for s in D['slots']},
     'look': D['look'], 'idle': D['idle'], 'springs': D['springs'], 'mouth': D['mouth'], 'visemes': D['visemes'],
+    'swaps': D.get('swaps', []), 'mirror': D.get('mirror', {}), 'clip': D.get('clip', []),
     'bones': {b['id']: [b['x'], b['y']] for b in D['bones']},
 })
 bpy.ops.wm.save_as_mainfile(filepath=BLEND)

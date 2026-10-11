@@ -3,6 +3,8 @@ import os, json, re, math
 SP = os.environ.get('TRACE_DIR', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'work'))
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'pip.js')
 A = json.load(open(SP + '/trace/t2.json')); C = json.load(open(SP + '/trace/t2c.json'))
+FARWING = json.load(open(SP + '/trace/farwing.json'))['matrix']   # from fit_far_wing.py
+ROOM = json.load(open(SP + '/trace/room.json'))                    # from fit_pupil_room.py
 P, D, M = A['parts'], A['D'], A['meta']
 PC = C['parts']
 
@@ -20,8 +22,12 @@ for s_ in 'LR':
     RAISE[s_] = round(a, 1)
 print('cheer raise angles', RAISE)
 
+# the head's fill and its line go in two slots, so the line can sit over the eyes
+_hp = re.findall(r'<path [^>]*/>', P['head']['on'])
+HEAD = (''.join(p for p in _hp if 'class="k-body"' in p or 'class="k-gloss"' in p), ''.join(p for p in _hp if 'class="ol"' in p or 'class="k-ink"' in p))
+assert sum(map(len, HEAD)) == len(P['head']['on']), 'head: unexpected drawing parts'
 T = {
-    'head': P['head']['on'], 'body': P['body']['on'], 'belly': P['belly']['on'], 'tail': P['tail']['fan'],
+    'head': HEAD[0], 'headLine': HEAD[1], 'body': P['body']['on'], 'belly': P['belly']['on'], 'tail': P['tail']['fan'],
     'crest1': P['crest1']['on'], 'crest2': P['crest2']['on'], 'crest3': P['crest3']['on'],
     'wingL': P['wingL']['folded'], 'wingR': P['wingR']['folded'], 'wingLUp': PC['wingL']['spread'], 'wingRUp': PC['wingR']['spread'],
     'legL': P['legL']['stand'], 'legR': P['legR']['stand'],
@@ -33,7 +39,8 @@ T = {
     'wide': PC['mouth']['wide'], 'upperUp': PC['beak']['up'],
 }
 NOTES = {
-    'head': 'no chin line: the head runs into the chest; its line ends in two tapered strokes where it meets the wings',
+    'head': 'the head and its gloss; its line is headLine, drawn over the eyes',
+    'headLine': 'no chin line: the head runs into the chest; the line ends in two tapered strokes where it meets the wings',
     'body': 'the line runs on under the folded wings, so it is there when they lift',
     'belly': 'no outline, as on the model sheet',
     'wingLUp': 'raised, from the cheer drawing; turned back down to the hanging rest angle below',
@@ -117,6 +124,11 @@ __TRACED__
      can change shape mid-swing. The cheer pose in bird.js raises the wings by these angles. ----- */
   const RAISE = __RAISE__;
   const wingUp = s => '<g transform="rotate(' + -RAISE[s] + ' ' + (s === 'L' ? '97 165' : '150 164') + ')">' + T['wing' + s + 'Up'] + '</g>';
+  /* The far wing hangs against the body as a sliver. Once it swings away (bird.js swaps), it opens into a whole
+     wing: the near wing, mirrored, at 70% of its width on the far shoulder, set where the sliver was
+     (tools/trace/fit_far_wing.py). Its gloss stays off: the light comes from the near side. */
+  const FAR = __FAR__;
+  const wingOpen = B.draw.xform(T.wingL.replace(/<path class="k-gloss"[^>]*\/>/, ''), FAR);
   const leg = s => ({ stand: T['leg' + s], tuck: at(s === 'L' ? 95.8 : 129.4, 231, 'scale(0.86 0.6)', T['leg' + s]) });
 
   const parts = {
@@ -124,20 +136,23 @@ __TRACED__
     tail: { fan: T.tail },
     legL: leg('L'), legR: leg('R'),
     body: { on: T.body }, belly: { on: T.belly },
-    wingL: { folded: T.wingL, spread: wingUp('L') }, wingR: { folded: T.wingR, spread: wingUp('R') },
-    head: { on: T.head },
+    wingL: { folded: T.wingL, spread: wingUp('L') }, wingR: { folded: T.wingR, open: wingOpen, spread: wingUp('R') },
+    head: { on: T.head }, headLine: { on: T.headLine },
     crest1: { on: T.crest1 }, crest2: { on: T.crest2 }, crest3: { on: T.crest3 },
     patchL: { on: T.patchL }, patchR: { on: T.patchR },
     pupilL: pupil('L'), pupilR: pupil('R'),
     browL: { arc: T.browL }, browR: { arc: T.browR },
     mouth, beak,
     cheekL: { blush: e('k-blush', 81, 142, 7.6, 4) }, cheekR: { blush: e('k-blush', 165, 136, 6.4, 3.8) },
-    sweat: { drop: p('k-sweat t-sweat2', 'M166 85.5 C168.5 90 170.9 93.4 170.9 96.4 C170.9 99.2 168.7 101.2 166 101.2 C163.3 101.2 161.1 99.2 161.1 96.4 C161.1 93.4 163.5 90 166 85.5 Z', 'stroke-width:1.1px') + e('k-glint', 164.2, 96.6, 1.1, 2) },
+    sweat: { drop: p('k-sweat t-sweat2', 'M80 79.5 C82.5 84 84.9 87.4 84.9 90.4 C84.9 93.2 82.7 95.2 80 95.2 C77.3 95.2 75.1 93.2 75.1 90.4 C75.1 87.4 77.5 84 80 79.5 Z', 'stroke-width:1.1px') + e('k-glint', 78.2, 90.6, 1.1, 2) },
     tear: { drop: p('k-sweat t-sweat2', 'M80 133 C82 137 84 139.8 84 142.3 C84 144.7 82.2 146.3 80 146.3 C77.8 146.3 76 144.7 76 142.3 C76 139.8 78 137 80 133 Z', 'stroke-width:1.1px') }
   };
 
   return B.make({
     id: 'pip', name: 'Pip',
+    /* how far each pupil can move from where it's drawn and stay in its eye white: [right, left, down, up]
+       (tools/trace/fit_pupil_room.py). The sheet draws them converged, so the far pupil has no room to the left. */
+    look: { room: __ROOM__ },
     palette: {
       ink: '#0B2A1E', body: '#06777C', body2: '#056C70', belly: '#F9EFD6', face: '#FCF7E9',
       beak: '#F6B340', beak2: '#E39A2E', mouth: '#3E2519', tongue: '#F3674E',
@@ -150,5 +165,7 @@ __TRACED__
 if (typeof module !== 'undefined') module.exports = PIP;
 '''
 js = js.replace('__TRACED__', traced).replace('__EYE__', EYE).replace('__RAISE__', '{ L: %s, R: %s }' % (RAISE['L'], RAISE['R']))
+js = js.replace('__FAR__', '[' + ', '.join('%g' % v for v in FARWING) + ']')
+js = js.replace('__ROOM__', '{ ' + ', '.join('%s: [%s]' % (k, ', '.join('%g' % v for v in ROOM[k])) for k in sorted(ROOM)) + ' }')
 open(OUT, 'w').write(js)
 print('wrote', OUT, len(js), 'bytes')
