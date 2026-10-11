@@ -55,24 +55,9 @@ const PIP = (() => {
     upperUp: '<path class="k-beak" d="M118.1 134.2 C117.9 134.1 117.8 133.9 117.8 133.6 C117.8 132.7 116.8 131.9 115.6 131.9 C113.9 131.9 114.0 130.6 116.0 126.1 C121.8 113.5 131.4 110.8 138.3 119.8 C139.2 120.8 140.5 123.2 140.9 124.2 C141.4 125.5 141.7 126.5 141.8 127.0 C141.8 127.2 142.0 128.1 142.2 128.8 C142.8 130.8 142.7 130.9 140.4 130.8 C138.8 130.7 138.8 130.7 138.5 131.8 C138.3 132.9 137.3 132.9 137.3 131.8 C137.3 130.6 135.7 130.2 133.8 130.9 C127.8 133.1 124.4 133.8 121.3 133.5 C119.7 133.3 119.5 133.4 119.3 134.0 C119.0 134.5 118.6 134.6 118.1 134.2 Z"/><path class="ol2" d="M131.7 114.8 C130.9 114.8 128.5 114.3 126.8 114.8 C125.2 115.2 123.4 116.0 121.8 117.5 C120.2 119.0 118.2 122.0 117.1 123.8 C116.0 125.5 115.5 126.8 115.1 128.0 C114.6 129.3 114.4 130.8 114.3 131.4"/><path class="k-ink" d="M118.3 134.4 C117.9 134.2 117.9 134.2 117.8 133.6 C117.7 132.8 117.6 132.6 117.0 132.3 C116.4 132.0 116.2 131.7 116.5 131.4 C116.7 131.3 116.7 131.2 117.0 131.4 C117.1 131.5 117.4 131.5 117.6 131.5 C117.8 131.5 118.1 131.6 118.3 131.7 C120.3 132.7 125.8 132.4 129.6 131.0 C130.1 130.8 130.7 130.6 131.0 130.5 C131.3 130.4 131.7 130.3 131.8 130.2 C132.0 130.1 132.5 130.0 132.8 129.9 C133.2 129.9 133.7 129.7 133.9 129.7 C134.7 129.3 137.3 129.5 138.1 129.9 C138.9 130.3 139.0 130.5 138.8 130.9 C138.7 131.1 138.6 131.5 138.5 131.9 C138.3 132.9 137.3 132.9 137.3 131.9 C137.3 130.5 135.9 130.1 133.7 130.9 C127.5 133.2 124.4 133.8 121.2 133.5 C119.5 133.3 119.4 133.4 119.2 134.1 C119.1 134.5 118.9 134.6 118.3 134.4 Z"/><path class="k-gloss2" d="M132.7 121.2 C132.4 121.0 131.6 120.7 131.0 120.4 C130.4 120.1 129.6 119.7 129.2 119.6 C127.9 118.9 127.6 118.5 128.1 117.7 C129.2 115.8 134.2 117.4 134.7 119.9 C135.0 121.2 134.3 121.7 132.7 121.2 Z"/>'
   };
 
-  /* ----- eyes: the traced pupil, and the states the sheet doesn't draw. Pupil centre and radii: ----- */
+  /* ----- eyes: the traced pupil and happy arc; the states the sheet doesn't draw come from bird.js. Pupil centre and radii: ----- */
   const EYE = { L: [100.8, 120.7, 11.2, 15.2], R: [151.8, 117.3, 9.2, 14.3] };
-  const eyes = {
-    open: s => T['pupil' + s],
-    wide: s => { const [x, y, rx, ry] = EYE[s]; return at(x, y, 'scale(1.1)', T['pupil' + s]) + ci('k-glint', r2(x - rx * 0.4), r2(y + ry * 0.5), 1.6); },
-    wet: s => { const [x, y, rx, ry] = EYE[s]; return T['pupil' + s] + ci('k-glint', r2(x - rx * 0.4), r2(y + ry * 0.48), 2.5) + ci('k-glint', r2(x + rx * 0.52), r2(y + ry * 0.1), 1.2); },
-    happy: s => T['happy' + s],
-    closed: s => { const [x, y, rx] = EYE[s], w = rx * 1.02; return taper(x - w, y - 1.5, x, y + 9, x + w, y - 1.5, 2.8); },
-    blink: s => { const [x, y, rx] = EYE[s], w = rx * 1.08; return taper(x - w, y + 1, x, y + 4.4, x + w, y + 1, 2.6); },
-    lidded: s => {
-      const [x, y, rx, ry] = EYE[s], yc = r2(y - ry * 0.12), hw = r2(rx * Math.sqrt(1 - 0.0144));
-      return p('k-ink', 'M' + r2(x - hw) + ' ' + yc + ' A' + rx + ' ' + ry + ' 0 1 0 ' + r2(x + hw) + ' ' + yc + 'Z') + ci('k-glint', r2(x + rx * 0.25), r2(y + ry * 0.22), 2.6) +
-        taper(x - rx - 3.5, yc + 0.8, x, yc - 1.4, x + rx + 3.5, yc + 0.8, 2.6);
-    },
-    squeeze: s => { const [x, y] = EYE[s], k = s === 'L' ? 1 : -1; return p('ln', 'M' + (x - 7 * k) + ' ' + (y - 8.5) + ' L' + (x + 6 * k) + ' ' + y + ' L' + (x - 7 * k) + ' ' + (y + 8.5), 'stroke-width:calc(var(--rig-lw,2) * 1.15px)'); },
-    heart: s => { const [x, y] = EYE[s]; return at(x, y, 'scale(' + (s === 'L' ? 1.05 : 0.92) + ' 1.05)', B.draw.heart(x, y + 1.5, 1.45)) + ci('k-glint', r2(x + 5.5), r2(y - 6), 2.2); }
-  };
-  const pupil = s => { const o = {}; for (const k in eyes) o[k] = eyes[k](s); return o; };
+  const pupil = s => B.eyes(s, EYE[s], T['pupil' + s], T['happy' + s]);
 
   /* ----- beak. Closed mouths are the whole beak with a line or an opening on it; the open ones are the lower
      beak, with the upper beak (the beak slot) over it. Sad is a soft downturned line, surprised a small round

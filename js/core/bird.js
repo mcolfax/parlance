@@ -314,13 +314,21 @@ const Bird = (() => {
   };
 
   /* A bird: the shared skeleton plus its own part sheet, palette and pivot tweaks. Extra bones (a longer crest,
-     say) go after their parents; `slots` may be a function that edits the shared draw order. */
+     say) go after their parents; a bone with a shared bone's id changes that bone instead (its turn, say). `slots`
+     may be a function that edits the shared draw order. A bird without some of the shared drawings (no crest, no
+     eye whites) simply leaves those slots out; `swaps` and `clip` then say what it has instead. */
   function make(skin) {
     const pv = skin.pivots || {};
     const merge = (a, b) => Object.assign({}, a, b);
-    const bones = BIRD.bones.map(b => (pv[b.id] ? merge(b, { x: pv[b.id][0], y: pv[b.id][1] }) : b)).concat(skin.bones || []);
+    const own = {}; for (const b of skin.bones || []) own[b.id] = b;
+    const bones = BIRD.bones.map(b => {
+      let o = pv[b.id] ? merge(b, { x: pv[b.id][0], y: pv[b.id][1] }) : b;
+      if (own[b.id]) o = merge(o, own[b.id]);
+      return o;
+    }).concat((skin.bones || []).filter(b => !BIRD.bones.some(s => s.id === b.id)));
     const parts = {};
     for (const id of Object.keys(FX_PARTS).concat(Object.keys(skin.parts))) parts[id] = merge(FX_PARTS[id], skin.parts[id]);
+    const pick = k => (skin[k] !== undefined ? skin[k] : BIRD[k]);
     return merge(BIRD, {
       id: skin.id, name: skin.name,
       palette: merge(FX_PALETTE, skin.palette),
@@ -328,10 +336,33 @@ const Bird = (() => {
       bones, parts,
       slots: (typeof skin.slots === 'function' ? skin.slots(BIRD.slots.slice()) : skin.slots || BIRD.slots).filter(sl => sl.att === null || Object.keys(parts[sl.id] || {}).length),
       springs: merge(BIRD.springs, skin.springs),
+      swaps: pick('swaps'), clip: pick('clip'), idle: pick('idle'), mouth: pick('mouth'), visemes: pick('visemes'), view: pick('view'),
       poses: merge(BIRD.poses, skin.poses), faces: merge(BIRD.faces, skin.faces), moods: merge(BIRD.moods, skin.moods), clips: merge(BIRD.clips, skin.clips)
     });
   }
 
-  return { make, BIRD, sym, both, draw: { mirror: M, path: p, ellipse: e, circle: ci, gloss, rim, taper, xform, star: STAR, heart: HEART, note: NOTE, z: Z } };
+  /* The eye drawings every bird has, from its traced open eye and happy arc: wide, wet, closed, blink, lidded,
+     squeeze and heart, drawn in the sheets' brush style. s is 'L' or 'R', E the eye's centre and radii [x, y, rx, ry].
+     o.ink is the class of the drawn marks (k-ink), o.line of the squeezed eye's stroke (ln); o.front draws the hearts
+     the same size for a bird that faces front (a turned bird's far heart is narrower). */
+  function eyes(s, E, open, happy, o = {}) {
+    const [x, y, rx, ry] = E, k = o.ink || 'k-ink';
+    const at = (t, m) => '<g transform="translate(' + x + ' ' + y + ') ' + t + ' translate(' + -x + ' ' + -y + ')">' + m + '</g>';
+    const yc = r2(y - ry * 0.12), hw = r2(rx * Math.sqrt(1 - 0.0144)), sq = s === 'L' ? 1 : -1;
+    return {
+      open,
+      wide: at('scale(1.1)', open) + ci('k-glint', r2(x - rx * 0.4), r2(y + ry * 0.5), 1.6),
+      wet: open + ci('k-glint', r2(x - rx * 0.4), r2(y + ry * 0.48), 2.5) + ci('k-glint', r2(x + rx * 0.52), r2(y + ry * 0.1), 1.2),
+      happy,
+      closed: taper(x - rx * 1.02, y - 1.5, x, y + 9, x + rx * 1.02, y - 1.5, 2.8, k),
+      blink: taper(x - rx * 1.08, y + 1, x, y + 4.4, x + rx * 1.08, y + 1, 2.6, k),
+      lidded: p(k, 'M' + r2(x - hw) + ' ' + yc + ' A' + rx + ' ' + ry + ' 0 1 0 ' + r2(x + hw) + ' ' + yc + 'Z') + ci('k-glint', r2(x + rx * 0.25), r2(y + ry * 0.22), 2.6) +
+        taper(x - rx - 3.5, yc + 0.8, x, yc - 1.4, x + rx + 3.5, yc + 0.8, 2.6, k),
+      squeeze: p(o.line || 'ln', 'M' + (x - 7 * sq) + ' ' + (y - 8.5) + ' L' + (x + 6 * sq) + ' ' + y + ' L' + (x - 7 * sq) + ' ' + (y + 8.5), 'stroke-width:calc(var(--rig-lw,2) * 1.15px)'),
+      heart: at('scale(' + (s === 'L' || o.front ? 1.05 : 0.92) + ' 1.05)', HEART(x, y + 1.5, 1.45)) + ci('k-glint', r2(x + 5.5), r2(y - 6), 2.2)
+    };
+  }
+
+  return { make, BIRD, sym, both, eyes, draw: { mirror: M, path: p, ellipse: e, circle: ci, gloss, rim, taper, xform, star: STAR, heart: HEART, note: NOTE, z: Z } };
 })();
 if (typeof module !== 'undefined') module.exports = Bird;

@@ -1,5 +1,5 @@
 """Helpers: class masks, components, morphology, potrace -> SVG path in rig units."""
-import os, numpy as np, cv2, potrace
+import os, json, numpy as np, cv2, potrace
 TOL = float(os.environ.get("TRACE_TOL", 0.3)); EPS = float(os.environ.get("TRACE_EPS", 1.6))
 from scipy import ndimage
 NAMES = ['bg', 'ink', 'teal', 'gloss', 'cream', 'white', 'gold', 'goldhi', 'red', 'coral', 'mouth', 'gray', 'blue']
@@ -7,7 +7,8 @@ S = 4
 class Crop:
     def __init__(self, prefix, x0, cx):
         self.cls = np.load(prefix + '-cls.npy'); self.x0 = x0; self.cx = cx
-    def m(self, *names): return np.isin(self.cls, [NAMES.index(n) for n in names])
+        self.names = json.load(open(prefix + '-names.json')) if os.path.exists(prefix + '-names.json') else NAMES
+    def m(self, *names): return np.isin(self.cls, [self.names.index(n) for n in names])
     def px(self, ux, uy):   # rig units -> 4x pixel
         return (int(round((((ux - 120) / 0.5) + self.cx - self.x0) * S)), int(round((((uy - 250) / 0.5) + 520) * S)))
     off = (0.0, 0.0)        # added to every traced unit coordinate (to place a part from another pose into setup space)

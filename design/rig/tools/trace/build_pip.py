@@ -83,24 +83,9 @@ const PIP = (() => {
 __TRACED__
   };
 
-  /* ----- eyes: the traced pupil, and the states the sheet doesn't draw. Pupil centre and radii: ----- */
+  /* ----- eyes: the traced pupil and happy arc; the states the sheet doesn't draw come from bird.js. Pupil centre and radii: ----- */
   const EYE = __EYE__;
-  const eyes = {
-    open: s => T['pupil' + s],
-    wide: s => { const [x, y, rx, ry] = EYE[s]; return at(x, y, 'scale(1.1)', T['pupil' + s]) + ci('k-glint', r2(x - rx * 0.4), r2(y + ry * 0.5), 1.6); },
-    wet: s => { const [x, y, rx, ry] = EYE[s]; return T['pupil' + s] + ci('k-glint', r2(x - rx * 0.4), r2(y + ry * 0.48), 2.5) + ci('k-glint', r2(x + rx * 0.52), r2(y + ry * 0.1), 1.2); },
-    happy: s => T['happy' + s],
-    closed: s => { const [x, y, rx] = EYE[s], w = rx * 1.02; return taper(x - w, y - 1.5, x, y + 9, x + w, y - 1.5, 2.8); },
-    blink: s => { const [x, y, rx] = EYE[s], w = rx * 1.08; return taper(x - w, y + 1, x, y + 4.4, x + w, y + 1, 2.6); },
-    lidded: s => {
-      const [x, y, rx, ry] = EYE[s], yc = r2(y - ry * 0.12), hw = r2(rx * Math.sqrt(1 - 0.0144));
-      return p('k-ink', 'M' + r2(x - hw) + ' ' + yc + ' A' + rx + ' ' + ry + ' 0 1 0 ' + r2(x + hw) + ' ' + yc + 'Z') + ci('k-glint', r2(x + rx * 0.25), r2(y + ry * 0.22), 2.6) +
-        taper(x - rx - 3.5, yc + 0.8, x, yc - 1.4, x + rx + 3.5, yc + 0.8, 2.6);
-    },
-    squeeze: s => { const [x, y] = EYE[s], k = s === 'L' ? 1 : -1; return p('ln', 'M' + (x - 7 * k) + ' ' + (y - 8.5) + ' L' + (x + 6 * k) + ' ' + y + ' L' + (x - 7 * k) + ' ' + (y + 8.5), 'stroke-width:calc(var(--rig-lw,2) * 1.15px)'); },
-    heart: s => { const [x, y] = EYE[s]; return at(x, y, 'scale(' + (s === 'L' ? 1.05 : 0.92) + ' 1.05)', B.draw.heart(x, y + 1.5, 1.45)) + ci('k-glint', r2(x + 5.5), r2(y - 6), 2.2); }
-  };
-  const pupil = s => { const o = {}; for (const k in eyes) o[k] = eyes[k](s); return o; };
+  const pupil = s => B.eyes(s, EYE[s], T['pupil' + s], T['happy' + s]);
 
   /* ----- beak. Closed mouths are the whole beak with a line or an opening on it; the open ones are the lower
      beak, with the upper beak (the beak slot) over it. Sad is a soft downturned line, surprised a small round
