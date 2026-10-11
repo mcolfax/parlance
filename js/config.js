@@ -14,6 +14,8 @@ const RELEASES = [
     'Pip is redrawn from the character sheet and is now alive: Pip breathes, blinks, glances around and moves with every mood, cheering when you get one right and looking worried when you miss.',
     'Tap Pip to make Pip hop and say something in your language. Pip’s beak moves while it talks.',
     'The web version’s Home Screen icon shows the new Pip.'] },
+  { v: '4.4.2', date: '2026-10-11', title: 'Sign in with Google', notes: [
+    'On the web version, Continue with Google now comes first. It’s the easiest way in, with no password to remember.'] },
   { v: '4.4.1', date: '2026-10-11', title: 'Easier to spot das', notes: [
     'German “das” words are now teal, so they stand out from the green buttons and from blue “der” words.'] },
   { v: '4.4.0', date: '2026-10-11', title: 'A fresh new look', notes: [
