@@ -701,6 +701,14 @@ async function main(){
     W1.P.S.langs.de.done['de-1-1'] = { at: '2026-10-11', acc: 1, times: 1 }; W1.E('touch("de")');
     W1.E('UI.tab="me"; render()');
     ok(W1.w.document.querySelector('#sync-status').textContent.includes('Sign in to sync'), 'web sync copy when signed out');
+    // email sign-in is off for now (WEB.email): the sheet offers Google only
+    W1.w.document.querySelector('.web-acct button').click(); await sleep(40);
+    { const s0 = W1.w.document.querySelector('.sheet'), shown = el => !el.closest('[hidden]'), bs = [...s0.querySelectorAll('button')], g = bs.find(b => b.textContent === 'Continue with Google');
+      ok(g && shown(g) && g.classList.contains('btn-primary') && [...s0.querySelectorAll('input')].every(i => !shown(i)) && !bs.some(b => shown(b) && /^(Sign in|Create account|New here\? Create an account|Forgot your password\?)$/.test(b.textContent)) && !shown(s0.querySelector('.web-or')), 'with email off, sign-in is Google only');
+      bs.find(b => b.textContent === 'Not now').click(); await sleep(200); }
+    ok(!W1.w.document.querySelector('.sheet'), 'sheet closed');
+    // the email code stays, behind the switch
+    W1.E('WEB.email = true');
     W1.w.document.querySelector('.web-acct button').click(); await sleep(40);
     const sh = W1.w.document.querySelector('.sheet'), btn = t => [...sh.querySelectorAll('button')].find(b => b.textContent === t), [nameIn, emailIn, passIn] = sh.querySelectorAll('input');
     ok(btn('Continue with Google') && !btn('Continue with Google').hidden, 'Google button shows when the project has it on');

@@ -216,9 +216,12 @@ function openWebSignIn(mode){
       : webSignInError(er); }
   } }, 'Forgot your password?');
   // With Google on, it leads: there's no password to forget (we have no email service for reset links).
-  const google = h('button', { class: 'btn btn-quiet btn-wide', type: 'button', hidden: true, onclick: () => { msg.textContent = 'Opening Google…'; saveLocal(); webGoogle(); } }, 'Continue with Google');
+  // WEB.email (config.js) turns the email form off entirely; Google is then the way in.
+  const emailOn = WEB.email !== false;
+  const google = h('button', { class: 'btn ' + (emailOn ? 'btn-quiet' : 'btn-primary') + ' btn-wide', type: 'button', hidden: emailOn, onclick: () => { msg.textContent = 'Opening Google…'; saveLocal(); webGoogle(); } }, 'Continue with Google');
   const or = h('div', { class: 'web-or', hidden: true }, 'or use email');
-  const form = h('div', { class: 'field' }, name, email, pass, go, forgot);
+  const form = h('div', { class: 'field', hidden: !emailOn }, name, email, pass, go, forgot);
+  swap.hidden = !emailOn;
   const draw = () => {
     name.hidden = !up; forgot.hidden = up; pass.autocomplete = up ? 'new-password' : 'current-password'; pass.placeholder = up ? 'Password (8 or more characters)' : 'Password';
     go.textContent = up ? 'Create account' : 'Sign in'; swap.textContent = up ? 'I already have an account' : 'New here? Create an account'; msg.textContent = '';
@@ -244,9 +247,11 @@ function openWebSignIn(mode){
     google, or, form, msg, swap), [{ label: 'Not now' }]);
   webSettings().then(st => {
     const ext = (st && st.external) || {};
-    hasGoogle = !!ext.google; google.hidden = !hasGoogle; or.hidden = !hasGoogle || ext.email === false;
+    const useEmail = emailOn && ext.email !== false;
+    hasGoogle = !!ext.google; google.hidden = !hasGoogle; or.hidden = !hasGoogle || !useEmail;
     if (hasGoogle){ google.classList.replace('btn-quiet', 'btn-primary'); go.classList.replace('btn-primary', 'btn-quiet'); }
-    if (ext.email === false){ form.hidden = true; swap.hidden = true; }
+    if (!useEmail){ form.hidden = true; swap.hidden = true; }
+    if (!hasGoogle && !useEmail) msg.textContent = 'Signing in isn’t available right now. Try again later.';
   }, () => {});
 }
 function resetLang(){

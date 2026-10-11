@@ -3,13 +3,17 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.4.2';
+const APP_VERSION = '4.4.3';
 const SCHEMA_VERSION = 4;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
-   functions that apply the same access rules as the artifact (dev/supabase.sql). */
-const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000 };
+   functions that apply the same access rules as the artifact (dev/supabase.sql).
+   email: whether the sign-in sheet offers email and password. Off for now: with no email service there are no
+   password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
+const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.4.3', date: '2026-10-11', title: 'Google sign-in only, for now', notes: [
+    'The web version signs in with Google only for now. If you used an email and password before, Continue with Google with the same address opens your account.'] },
   { v: '4.4.2', date: '2026-10-11', title: 'Sign in with Google', notes: [
     'On the web version, Continue with Google now comes first. It’s the easiest way in, with no password to remember.'] },
   { v: '4.4.1', date: '2026-10-11', title: 'Easier to spot das', notes: [
