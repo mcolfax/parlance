@@ -13,7 +13,7 @@
   --es:#FF8A1F; --es-ink:#2A1600; --es-text:#9A4A00; --es-soft:#FFE9D2; --es-glow:rgb(255 138 31 / .28); --es-edge:#C9640A; --es-soft-edge:#F5CFA8;
   --ok:#11643A; --ok-bg:#DDF4E4; --bad:#A3231B; --bad-bg:#FFE3DE; --warn:#7A5A00; --warn-bg:#FFF3C4;
   --flame:#E8412C; --sun:#FFD23F;
-  --der:#2360C6; --die:#C22E29; --das:#1A8448; --pl:#7847B3;
+  --der:#2360C6; --die:#C22E29; --das:#00737D; --pl:#7847B3;
   --gold:#B8860B;
   --pip-face:#FBFEFD; --pip-ink:#13262B; --ice:#CFE6F7;
   --sc-warm:#E9A23B; --sc-red:#D9604C; --sc-sage:#7FB5A0; --sc-night:#1C2D3B; --sc-house:#C9D6D4; --sc-glow:rgb(255 214 120 / .38); --sc-glowbox:#FFE9B8; --sc-crate:#B98A5A; --sc-moon:#F5E7B5;
@@ -58,7 +58,7 @@
     --es:#FF9D45; --es-ink:#2A1600; --es-text:#FFB877; --es-soft:#3A2510; --es-glow:rgb(255 157 69 / .26); --es-edge:#C9640A; --es-soft-edge:#2A1A0A;
     --ok:#6BD99A; --ok-bg:#103222; --bad:#FF8C7F; --bad-bg:#3A1714; --warn:#F5CF5B; --warn-bg:#332A0E;
     --flame:#FF6A4D; --sun:#FFD84F;
-    --der:#7BA8FF; --die:#FF7C75; --das:#5FD48F; --pl:#C49CFF; --gold:#E8B84A;
+    --der:#7BA8FF; --die:#FF7C75; --das:#4FD1D9; --pl:#C49CFF; --gold:#E8B84A;
     --pip-face:#EAF3F2; --pip-ink:#0D1B1F; --ice:#1D3A52;
     --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
     --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(0 0 0 / .3);
@@ -72,7 +72,7 @@
   --es:#FF9D45; --es-ink:#2A1600; --es-text:#FFB877; --es-soft:#3A2510; --es-glow:rgb(255 157 69 / .26); --es-edge:#C9640A; --es-soft-edge:#2A1A0A;
   --ok:#6BD99A; --ok-bg:#103222; --bad:#FF8C7F; --bad-bg:#3A1714; --warn:#F5CF5B; --warn-bg:#332A0E;
   --flame:#FF6A4D; --sun:#FFD84F;
-  --der:#7BA8FF; --die:#FF7C75; --das:#5FD48F; --pl:#C49CFF; --gold:#E8B84A;
+  --der:#7BA8FF; --die:#FF7C75; --das:#4FD1D9; --pl:#C49CFF; --gold:#E8B84A;
   --pip-face:#EAF3F2; --pip-ink:#0D1B1F; --ice:#1D3A52;
   --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
   --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(0 0 0 / .3);

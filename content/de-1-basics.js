@@ -97,7 +97,7 @@ U('Numbers & time', 'A1', [
 ]),
 U('Food & ordering', 'A1', [
   L('de-3-1', 'Food basics',
-    T('Every noun has a gender', 'German nouns are **der** (masculine), **die** (feminine) or **das** (neuter), and they’re always capitalized. The gender is often unpredictable, so learn each noun with its article. The colors help: der is blue, die is red, das is green.',
+    T('Every noun has a gender', 'German nouns are **der** (masculine), **die** (feminine) or **das** (neuter), and they’re always capitalized. The gender is often unpredictable, so learn each noun with its article. The colors help: der is blue, die is red, das is teal.',
       [['der Apfel, die Milch, das Brot', 'the apple, the milk, the bread'], ['Der Käse ist gut.', 'The cheese is good.']]),
     [['das Brot', 'bread', 'n'], ['der Käse', 'cheese', 'm'], ['die Milch', 'milk', 'f'], ['das Wasser', 'water', 'n'],
      ['der Apfel', 'apple', 'm'], ['das Ei', 'egg', 'n'], ['der Fisch', 'fish', 'm'], ['das Fleisch', 'meat', 'n']],
