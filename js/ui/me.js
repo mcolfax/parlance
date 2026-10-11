@@ -72,7 +72,7 @@ function viewMe(){
     h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Daily goal'), h('div', { class: 'chips' }, [[10, 'Casual'], [20, 'Regular'], [30, 'Serious']].map(([g, n]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(S.settings.goal === g), onclick: () => { S.settings.goal = g; const d = S.days[today()]; if (d && d.xp >= g) d.met = true; touchSettings(); render(); } }, n + ' · ' + g + ' XP')))),
     h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Starting level for ' + LANGS[lang].name), h('div', { class: 'chips' }, LEVELS.map(lv => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(L.start === lv), onclick: () => { L.start = lv; L.startTs = Date.now(); touch(lang); UI.open = new Set(); render(); toast('Route starts at ' + lv + ' now'); } }, lv)))),
     toggleRow('Speaking exercises', 'speaking', 'Say sentences out loud during lessons.'),
-    toggleRow('Tutor grading', 'aiGrade', 'If a typed answer doesn’t match, Claude checks whether it’s still right.')));
+    toggleRow('Tutor grading', 'aiGrade', 'If a typed answer doesn’t match, Claude checks whether it’s still right and explains what’s different.')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Tutor access'),
     h('p', { class: 'small muted' }, !AI.ready ? 'Checking…' : aiOn() ? 'Claude is available for conversations, new lessons and grading. Each use counts toward your own Claude usage.' : AI.denied ? 'Claude access is turned off for this page.' : 'Claude isn’t available in this view. Open the page in the Claude app or on claude.ai while signed in.'),
     AI.denied ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: manageAccess }, 'Manage permissions') : null));

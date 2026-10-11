@@ -142,6 +142,34 @@ async function main(){
   T('Wenn ich du waere, wuerde ich gehen', ['Wenn ich du wäre, würde ich gehen.'], 'de', true, 'accent');
   T('Si tuviera dinero, compraria una casa', ['Si tuviera dinero, compraría una casa.'], 'es', true, 'accent');
   T('Si tenía dinero, compraría una casa', ['Si tuviera dinero, compraría una casa.'], 'es', false);
+  /* answers that count without matching exactly say why, and what differs */
+  {
+    ok(/^Only the ß differs \(heiße\), so it counts\.$/.test(P.check('Ich heisse Matt', ['Ich heiße Matt.'], 'de').note), 'accent note says why it counts');
+    ok(/^Only the accent differs \(estés\)/.test(P.check('Espero que estes bien', ['Espero que estés bien.'], 'es').note), 'Spanish accent note');
+    ok(/^Only one letter is off \(boston\), so it counts\.$/i.test(P.check('I live in Bostn', ['I live in Boston.'], 'en').note), 'typo note says why it counts');
+    const d = P.answerDiff('Das ist schon gut', 'Das ist schön gut.', 'de');
+    ok(d.changes.length === 1 && d.changes[0].kind === 'accent' && d.changes[0].yours === 'schon' && d.changes[0].answer === 'schön' && d.yours.join() === ',,accent,' && d.answer.join() === ',,accent,', 'diff marks the umlaut ' + JSON.stringify(d));
+    const e = P.answerDiff('I’m very tired', 'I am tired.', 'en');
+    ok(e.changes.length === 1 && e.changes[0].yours === 'very' && !e.changes[0].answer && e.yours.join() === ',word,' && e.caught === 3 && e.total === 3, 'diff finds an extra word ' + JSON.stringify(e));
+    const s = P.answerDiff('Ich habe einen Hut', 'Ich habe einen Hund.', 'de');
+    ok(s.changes.length === 1 && s.changes[0].kind === 'word' && s.changes[0].yours === 'Hut' && s.changes[0].answer === 'Hund' && s.caught === 3 && s.total === 4, 'diff pairs a swapped word ' + JSON.stringify(s));
+    ok(P.answerDiff('Wenn ich du waere', 'Wenn ich du wäre.', 'de').changes.map(c => c.kind).join() === 'accent', 'ae counts as ä in the diff');
+    ok(P.answerDiff('Ich wohne in Berlinn', 'Ich wohne in Berlin.', 'de').changes.map(c => c.kind).join() === 'spelling', 'diff spots a typo');
+    ok(P.answerDiff('It’s 7:30', 'It is seven thirty.', 'en').changes.length === 0, 'diff ignores contractions and numbers');
+    const sp = P.evaluate({ type: 'speak', lang: 'de', accepted: ['Ich habe heute keine Zeit.'] }, 'ich habe heute keine');
+    ok(sp.ok && sp.level === 'typo' && /^We caught 4 of 5 words, so it counts\./.test(sp.note) && sp.match === 'Ich habe heute keine Zeit.', 'speech says how much came through ' + JSON.stringify(sp));
+    const sp2 = P.evaluate({ type: 'speak', lang: 'de', accepted: ['Ich habe heute keine Zeit.'] }, 'ich habe heute keine Zeit mehr');
+    ok(sp2.ok && /^Every word came through/.test(sp2.note), 'speech with an extra word ' + JSON.stringify(sp2));
+    const L = A.E('coreOrder("de")').find(l => l.vocab.some(v => v.alt.length)), vi = L.vocab.findIndex(v => v.alt.length);
+    const ax = A.E('makeEx("type-e2t", coreOrder("de").find(l => l.id === ' + JSON.stringify(L.id) + '), "v", ' + vi + ')');
+    const ar = P.evaluate(ax, L.vocab[vi].alt[0]);
+    ok(ar.ok && ar.level === 'exact' && ar.alt && ar.note === 'That’s another right way to say it.', 'alternate answer says so ' + JSON.stringify(ar));
+    ok(!P.evaluate(ax, L.vocab[vi].t).alt, 'main answer is not an alternate');
+    const gl = A.E('coreOrder("de")').find(l => l.vocab.some(v => v.g)), gi = gl.vocab.findIndex(v => v.g);
+    const gx = A.E('makeEx("type-t2e", coreOrder("de").find(l => l.id === ' + JSON.stringify(gl.id) + '), "v", ' + gi + ')');
+    const ge = gl.vocab[gi].e[0];
+    ok(!P.evaluate(gx, /^the /i.test(ge) ? ge.slice(4) : 'the ' + ge).alt, 'adding or dropping “the” is not an alternate');
+  }
 
   /* ---------- 3. merge + backup ---------- */
   {
@@ -365,6 +393,54 @@ async function main(){
     console.log('page errors (D):', D.errors.length ? D.errors.slice(0, 5) : 'none');
     ok(!D.errors.length, 'no page errors D');
     D.dom.window.close();
+  }
+  /* ---------- 6b. answers that count explain why, and what differs (fake tutor) ---------- */
+  {
+    const prompts = [];
+    const sample = async () => ({ text: '' });
+    sample.json = async (input) => { prompts.push(input); return { correct: true, note: 'Nice.', why: 'Both greet someone and ask how they are.', differences: [{ yours: 'Hey', expected: 'Hallo', note: 'more casual' }, 'junk', { note: 'no words' }] }; };
+    const X = await makeDom({ claude: { use: async n => n === 'sample' ? sample : null }, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+    for (let i = 0; i < 40 && !X.E('AI.ready'); i++) await sleep(20);
+    const D = X.w.document, foot = () => D.querySelector('.overlay:not(.out) .ov-foot'), q = s => foot().querySelector(s), qa = s => [...foot().querySelectorAll(s)];
+    const cont = () => qa('button').find(b => b.textContent === 'Continue').click();
+    X.E('startLesson("de-1-1")'); qa('button').find(b => b.textContent === 'Start exercises').click();
+    const l = X.E('Run.lesson');
+    const drive = async (type, kind, i, value) => { X.E('Run.queue[Run.pos] = makeEx(' + JSON.stringify(type) + ', Run.lesson, ' + JSON.stringify(kind) + ', ' + i + '); nextEx()'); const R = X.E('Run'); R.value = value; R.canCheck = true; await X.E('doCheck()'); };
+    // the tutor accepts a different wording: why it counts, both answers side by side, and its list of differences
+    const si = l.sentences.findIndex(s => /^Hallo, wie/.test(s.t));
+    await drive('type-e2t', 's', si, 'Hey, wie geht es dir heute?');
+    ok(foot().classList.contains('ok') && q('.fb-title').textContent.includes('Accepted'), 'tutor accepted');
+    ok(typeof prompts[0] === 'string' && prompts[0].includes('"differences"') && prompts[0].includes('"why"'), 'grading prompt asks why and what differs');
+    ok(q('.fb-note') && q('.fb-note').textContent === 'Both greet someone and ask how they are.', 'shows why it counts: ' + (q('.fb-note') && q('.fb-note').textContent));
+    ok(q('.fb-cmp') && q('.fb-cmp').textContent.includes('You wrote') && q('.fb-cmp').textContent.includes('Expected'), 'answers side by side');
+    ok(qa('.fb-yours mark.dif').map(m => m.textContent).includes('Hey,') && qa('.fb-yours mark.dif').map(m => m.textContent).includes('heute?'), 'your extra words are marked ' + qa('.fb-yours mark.dif').map(m => m.textContent));
+    ok(qa('.fb-diffs li').length === 1 && /Hey → Hallo · more casual/.test(q('.fb-diffs li').textContent), 'tutor’s differences listed, junk dropped ' + qa('.fb-diffs li').map(x => x.textContent));
+    ok(q('.fb-report'), 'report link stays for tutor-accepted answers');
+    cont();
+    // an umlaut typed as ue counts, says why, and marks the word
+    const vi = l.vocab.findIndex(v => v.t === 'Tschüss');
+    await drive('type-e2t', 'v', vi, 'Tschuess');
+    ok(foot().classList.contains('ok') && /^Only the umlaut differs \(Tschüss\)/.test(q('.fb-note').textContent), 'umlaut note ' + q('.fb-note').textContent);
+    ok(qa('.fb-ans .w.dif').map(x => x.textContent).join() === 'Tschüss' && qa('.fb-yours mark.dif').map(x => x.textContent).join() === 'Tschuess' && !q('.fb-diffs'), 'umlaut word marked on both sides');
+    cont();
+    // another listed answer is right, and the main one is shown
+    await drive('type-e2t', 'v', vi, 'Tschüs');
+    ok(foot().classList.contains('ok') && q('.fb-note').textContent === 'That’s another right way to say it.' && q('.fb-ans').textContent.includes('Tschüss'), 'alternate answer shows the main one');
+    cont();
+    // an exact answer stays simple
+    await drive('type-e2t', 'v', vi, 'Tschüss');
+    ok(foot().classList.contains('ok') && !q('.fb-cmp') && !q('.fb-note'), 'exact answer has no comparison');
+    cont();
+    // speech that is close enough says how much came through and marks what didn't
+    const pi = l.sentences.findIndex(s => P.tileTokens(s.t).length >= 4), said = P.tileTokens(l.sentences[pi].t).slice(0, -1).join(' ');
+    X.E('S.settings.speaking = true');
+    await drive('speak', 's', pi, said);
+    ok(foot().classList.contains('ok') && /^We caught \d+ of \d+ words, so it counts\./.test(q('.fb-note').textContent), 'speech note ' + q('.fb-note').textContent);
+    ok(q('.fb-k').textContent === 'Heard' && !q('.heard') && qa('.fb-ans .w.dif').length === 1, 'heard vs expected, missing word marked');
+    cont();
+    X.E('endRun()');
+    console.log('page errors (X):', X.errors.length ? X.errors.slice(0, 5) : 'none'); ok(!X.errors.length, 'no page errors X');
+    X.dom.window.close();
   }
   /* ---------- 7. update safety: stable keys, migrations, live packs, banner ---------- */
   {

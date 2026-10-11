@@ -14,7 +14,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `styleguide.html` | Living style guide rendered from the tokens and art functions | review the design system |
 | `js/config.js` | Version, release notes, XP economy, daily quests, badges, Talk scenarios | tune the game or ship a version |
 | `js/core/util.js` | DOM helper `h()`, dates, hashing, icons, particles, haptics | add an icon or helper |
-| `js/core/text.js` | Answer normalization, typo/accent tolerance, glossary index | change how answers are checked |
+| `js/core/text.js` | Answer normalization, typo/accent tolerance, word-by-word comparison of an answer that counts with the expected one, glossary index | change how answers are checked |
 | `js/core/content.js` | Content helpers, course assembly, live pack validation, stable review keys | change how content is organized |
 | `js/core/state.js` | Saved state, migrations, merging, account sync, backup codes | change what is saved |
 | `js/core/audio.js` | Speech, the synthesized sound library (`SOUNDS`), the music sequencer, the theme-song player (`Song`) | add or tune a sound, change how music behaves |

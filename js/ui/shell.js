@@ -46,6 +46,7 @@ function flash(el){ el.classList.add('flash'); setTimeout(() => el.classList.rem
 function coreWord(part){ return part.replace(/^[¿¡"“„«(]+|[.,!?;:"”»)…]+$/g, ''); }
 function sayText(text, lang, opts = {}){
   const wrap = h('span', { class: 'say', lang: LANGS[lang] ? LANGS[lang].tts : 'en' });
+  let k = 0;
   for (const part of String(text).split(/(\s+)/)){
     if (!part) continue;
     if (/^\s+$/.test(part)){ wrap.append(part); continue; }
@@ -53,6 +54,8 @@ function sayText(text, lang, opts = {}){
     const span = h('span', { class: 'w' }, part);
     if (lang === 'de' && NOUNS.has(core)) span.classList.add('g-' + NOUNS.get(core));
     if (opts.miss && core && fold(norm(core, lang)).split(' ').some(w => w && !opts.miss.has(w))) span.classList.add('miss');
+    if (opts.marks && opts.marks[k]) span.classList.add('dif');
+    k++;
     span.addEventListener('click', e => { e.stopPropagation(); if (opts.gloss) showGloss(span, core || part, lang); else { speak(core || part, lang, false, opts.voice); flash(span); } });
     wrap.append(span);
   }

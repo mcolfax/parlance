@@ -158,6 +158,11 @@ p{margin:0}
 .fb-label{font:800 12px var(--body);letter-spacing:.08em;text-transform:uppercase;margin-top:4px;opacity:.8}
 .fb-ans{font:700 19px/1.35 var(--body)}
 .fb-sub{font-size:15px;color:var(--muted)}
+.fb-cmp{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;align-items:baseline;margin-top:4px}
+.fb-k{font:800 11px var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+.fb-yours{font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+.fb-diffs{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-direction:column;gap:3px;font-size:15px;line-height:1.35}
+mark.dif,.w.dif{background:var(--warn-bg);color:inherit;border-radius:4px;padding:0 2px;box-shadow:inset 0 -2px 0 var(--warn)}
 mark.miss,.w.miss{background:color-mix(in srgb, var(--bad) 18%, transparent);color:inherit;border-radius:4px;padding:0 2px;text-decoration:underline wavy color-mix(in srgb, var(--bad) 70%, transparent) 1.5px;text-underline-offset:4px}
 @keyframes rise{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
 
