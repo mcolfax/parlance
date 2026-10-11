@@ -33,7 +33,7 @@ async function makeDom(opts = {}){
   const vc = new VirtualConsole();
   vc.on('jsdomError', e => { if (!/Could not load link|stylesheet/i.test(String(e && e.message))) errors.push('jsdom: ' + (e && (e.stack || e.message))); });
   const dom = new JSDOM('<!doctype html><html><head><meta charset="utf-8"></head><body>' + page + '</body></html>', {
-    url: BASE + 'index.html', runScripts: 'dangerously', resources: new LocalOnly(), pretendToBeVisual: true, virtualConsole: vc,
+    url: BASE + 'index.html' + (opts.hash || ''), runScripts: 'dangerously', resources: new LocalOnly(), pretendToBeVisual: true, virtualConsole: vc,
     beforeParse(w){
       w.matchMedia = () => ({ matches: false, addEventListener(){}, removeEventListener(){} });
       w.scrollTo = () => {}; w.Element.prototype.scrollIntoView = function(){}; w.Element.prototype.scrollTo = function(){};
@@ -41,6 +41,10 @@ async function makeDom(opts = {}){
       w.onerror = (m, s, l, c, e) => errors.push(String(m) + (e && e.stack ? '\n' + e.stack : ''));
       w.addEventListener('unhandledrejection', ev => errors.push('unhandled: ' + (ev.reason && (ev.reason.stack || ev.reason.message || JSON.stringify(ev.reason)))));
       if (opts.seed) for (const [k, v] of Object.entries(opts.seed)) w.localStorage.setItem(k, JSON.stringify(v));
+      if (opts.storage) for (const [k, v] of Object.entries(opts.storage)) w.localStorage.setItem(k, v);
+      if (opts.web){ w.PARLANCE_WEB = true; w.fetch = opts.web.fetch; }   // the web version, as dev/web.js builds it
+      if (opts.ua) Object.defineProperty(w.navigator, 'userAgent', { configurable: true, get: () => opts.ua });
+      if (opts.standalone) Object.defineProperty(w.navigator, 'standalone', { configurable: true, get: () => true });
       if (opts.claude) w.claude = opts.claude;
       if (opts.audio !== false) fakeAudio(w);
       if (opts.node){ w.Blob = Blob; w.Response = Response; w.CompressionStream = CompressionStream; w.DecompressionStream = DecompressionStream; }
@@ -69,6 +73,59 @@ function fakeClaude(store, opts = {}){
   const user = { async id(){ return opts.uid || 'u_test'; }, async me(){ return { id: opts.uid || 'u_test', name: opts.name || 'Matt Colfax', avatarUrl: '' }; }, async isOwner(){ return !!opts.owner; }, async profiles(ids){ const o = {}; ids.forEach(i => o[i] = { name: i === 'u_learner' ? 'Ana' : '' }); return o; } };
   return { use: async n => n === 'db' ? db : n === 'user' ? user : n === 'sample' ? (opts.sample || null) : null };
 }
+/* fake Supabase (Auth + the SQL functions in dev/supabase.sql, with the same access rules) for the web version */
+function fakeSupabase(store, opts = {}){
+  const users = new Map(), tokens = new Map(), refresh = new Map(), owners = new Set(), profiles = new Map(), recovers = []; let n = 0;
+  const pub = u => ({ id: u.id, email: u.email, user_metadata: u.meta });
+  const issue = id => { const at = 'at' + (++n), rt = 'rt' + n; tokens.set(at, id); refresh.set(rt, id); return { access_token: at, refresh_token: rt, token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: pub(users.get(id)) }; };
+  const canRead = (p, me) => { const s = p.split('/'); if (s[0] === 'content' && s.length === 2) return true; if (!me) return false;
+    if (s[0] === 'data' && s[1] === 'users' && s.length === 4 && s[2] === me) return true; if (s[0] === 'feedback' && s.length === 2 && s[1] === me) return true;
+    return ['proposals', 'feedback'].includes(s[0]) && s.length === 2 && owners.has(me); };
+  const canWrite = (p, me) => { if (!me) return false; const s = p.split('/');
+    if (s[0] === 'data' && s[1] === 'users' && s.length === 4 && s[2] === me) return true; if (s[0] === 'feedback' && s.length === 2 && s[1] === me) return true;
+    return ['content', 'proposals', 'feedback'].includes(s[0]) && s.length === 2 && owners.has(me); };
+  const res = (status, body) => ({ ok: status >= 200 && status < 300, status, text: async () => body === undefined ? '' : JSON.stringify(body) });
+  const denied = p => res(403, { code: '42501', message: 'not allowed ' + p });
+  async function fetch(url, init = {}){
+    const u = new URL(url), H = init.headers || {}, a = init.body ? JSON.parse(init.body) : {};
+    if (!/^sb_publishable_/.test(H.apikey || '')) return res(401, { message: 'No API key found in request' });
+    const bearer = (H.Authorization || '').replace(/^Bearer /, ''), me = bearer ? tokens.get(bearer) : null;
+    if (bearer && !me) return res(401, { code: 'PGRST301', message: 'JWT expired' });
+    if (u.pathname === '/auth/v1/settings') return res(200, { external: { email: true, google: !!opts.google } });
+    if (u.pathname === '/auth/v1/signup'){
+      if ([...users.values()].some(x => x.email === a.email)) return res(422, { code: 422, error_code: 'user_already_exists', msg: 'User already registered' });
+      const id = '0000000' + (++n) + '-0000-4000-8000-000000000000'; users.set(id, { id, email: a.email, password: a.password, meta: a.data || {} }); return res(200, issue(id));
+    }
+    if (u.pathname === '/auth/v1/token' && u.searchParams.get('grant_type') === 'password'){
+      const x = [...users.values()].find(x => x.email === a.email && x.password === a.password);
+      return x ? res(200, issue(x.id)) : res(400, { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
+    }
+    if (u.pathname === '/auth/v1/token'){ const id = refresh.get(a.refresh_token); if (!id) return res(400, { code: 400, error_code: 'refresh_token_not_found', msg: 'Invalid Refresh Token' }); refresh.delete(a.refresh_token); return res(200, issue(id)); }
+    if (u.pathname === '/auth/v1/user'){
+      if (!me) return res(401, { code: 401, error_code: 'no_authorization', msg: 'No token' });
+      const x = users.get(me);
+      if (init.method === 'PUT'){
+        if (a.password !== undefined){ if (a.password === x.password) return res(422, { code: 422, error_code: 'same_password', msg: 'New password should be different' }); x.password = a.password; }
+        if (a.data) x.meta = { ...x.meta, ...a.data };
+      }
+      return res(200, pub(x));
+    }
+    if (u.pathname === '/auth/v1/recover'){ recovers.push({ email: a.email, redirect: u.searchParams.get('redirect_to') }); return res(200, {}); }
+    if (u.pathname === '/auth/v1/logout'){ tokens.delete(bearer); return res(204); }
+    switch (u.pathname.replace('/rest/v1/rpc/', '')){
+      case 'doc_get': return canRead(a.p, me) ? res(200, store.has(a.p) ? store.get(a.p) : null) : denied(a.p);
+      case 'doc_list': return res(200, [...store.keys()].filter(k => k.slice(0, k.lastIndexOf('/')) === a.c && canRead(k, me)).sort().map(k => ({ path: k, data: store.get(k) })));
+      case 'doc_set': if (!canWrite(a.p, me)) return denied(a.p); store.set(a.p, JSON.parse(JSON.stringify(a.d))); return res(204);
+      case 'doc_update': if (!canWrite(a.p, me)) return denied(a.p); if (!store.has(a.p)) return res(400, { code: 'P0002', message: 'no document' }); store.set(a.p, { ...store.get(a.p), ...a.d }); return res(204);
+      case 'is_owner': return res(200, !!me && owners.has(me));
+      case 'profile_set': if (!me) return denied('profile'); profiles.set(me, a.n); return res(204);
+      case 'profile_names': return res(200, me && owners.has(me) ? a.ids.filter(i => profiles.has(i)).map(i => ({ id: i, name: profiles.get(i) })) : []);
+    }
+    return res(404, { message: 'not found' });
+  }
+  return { fetch, users, owners, profiles, recovers, issue };
+}
+function storageOf(w){ const o = {}; for (let i = 0; i < w.localStorage.length; i++){ const k = w.localStorage.key(i); o[k] = w.localStorage.getItem(k); } return o; }
 
 async function main(){
   /* ---------- 1. content engine: every lesson ---------- */
@@ -142,6 +199,34 @@ async function main(){
   T('Wenn ich du waere, wuerde ich gehen', ['Wenn ich du wäre, würde ich gehen.'], 'de', true, 'accent');
   T('Si tuviera dinero, compraria una casa', ['Si tuviera dinero, compraría una casa.'], 'es', true, 'accent');
   T('Si tenía dinero, compraría una casa', ['Si tuviera dinero, compraría una casa.'], 'es', false);
+  /* answers that count without matching exactly say why, and what differs */
+  {
+    ok(/^Only the ß differs \(heiße\), so it counts\.$/.test(P.check('Ich heisse Matt', ['Ich heiße Matt.'], 'de').note), 'accent note says why it counts');
+    ok(/^Only the accent differs \(estés\)/.test(P.check('Espero que estes bien', ['Espero que estés bien.'], 'es').note), 'Spanish accent note');
+    ok(/^Only one letter is off \(boston\), so it counts\.$/i.test(P.check('I live in Bostn', ['I live in Boston.'], 'en').note), 'typo note says why it counts');
+    const d = P.answerDiff('Das ist schon gut', 'Das ist schön gut.', 'de');
+    ok(d.changes.length === 1 && d.changes[0].kind === 'accent' && d.changes[0].yours === 'schon' && d.changes[0].answer === 'schön' && d.yours.join() === ',,accent,' && d.answer.join() === ',,accent,', 'diff marks the umlaut ' + JSON.stringify(d));
+    const e = P.answerDiff('I’m very tired', 'I am tired.', 'en');
+    ok(e.changes.length === 1 && e.changes[0].yours === 'very' && !e.changes[0].answer && e.yours.join() === ',word,' && e.caught === 3 && e.total === 3, 'diff finds an extra word ' + JSON.stringify(e));
+    const s = P.answerDiff('Ich habe einen Hut', 'Ich habe einen Hund.', 'de');
+    ok(s.changes.length === 1 && s.changes[0].kind === 'word' && s.changes[0].yours === 'Hut' && s.changes[0].answer === 'Hund' && s.caught === 3 && s.total === 4, 'diff pairs a swapped word ' + JSON.stringify(s));
+    ok(P.answerDiff('Wenn ich du waere', 'Wenn ich du wäre.', 'de').changes.map(c => c.kind).join() === 'accent', 'ae counts as ä in the diff');
+    ok(P.answerDiff('Ich wohne in Berlinn', 'Ich wohne in Berlin.', 'de').changes.map(c => c.kind).join() === 'spelling', 'diff spots a typo');
+    ok(P.answerDiff('It’s 7:30', 'It is seven thirty.', 'en').changes.length === 0, 'diff ignores contractions and numbers');
+    const sp = P.evaluate({ type: 'speak', lang: 'de', accepted: ['Ich habe heute keine Zeit.'] }, 'ich habe heute keine');
+    ok(sp.ok && sp.level === 'typo' && /^We caught 4 of 5 words, so it counts\./.test(sp.note) && sp.match === 'Ich habe heute keine Zeit.', 'speech says how much came through ' + JSON.stringify(sp));
+    const sp2 = P.evaluate({ type: 'speak', lang: 'de', accepted: ['Ich habe heute keine Zeit.'] }, 'ich habe heute keine Zeit mehr');
+    ok(sp2.ok && /^Every word came through/.test(sp2.note), 'speech with an extra word ' + JSON.stringify(sp2));
+    const L = A.E('coreOrder("de")').find(l => l.vocab.some(v => v.alt.length)), vi = L.vocab.findIndex(v => v.alt.length);
+    const ax = A.E('makeEx("type-e2t", coreOrder("de").find(l => l.id === ' + JSON.stringify(L.id) + '), "v", ' + vi + ')');
+    const ar = P.evaluate(ax, L.vocab[vi].alt[0]);
+    ok(ar.ok && ar.level === 'exact' && ar.alt && ar.note === 'That’s another right way to say it.', 'alternate answer says so ' + JSON.stringify(ar));
+    ok(!P.evaluate(ax, L.vocab[vi].t).alt, 'main answer is not an alternate');
+    const gl = A.E('coreOrder("de")').find(l => l.vocab.some(v => v.g)), gi = gl.vocab.findIndex(v => v.g);
+    const gx = A.E('makeEx("type-t2e", coreOrder("de").find(l => l.id === ' + JSON.stringify(gl.id) + '), "v", ' + gi + ')');
+    const ge = gl.vocab[gi].e[0];
+    ok(!P.evaluate(gx, /^the /i.test(ge) ? ge.slice(4) : 'the ' + ge).alt, 'adding or dropping “the” is not an alternate');
+  }
 
   /* ---------- 3. merge + backup ---------- */
   {
@@ -366,6 +451,54 @@ async function main(){
     ok(!D.errors.length, 'no page errors D');
     D.dom.window.close();
   }
+  /* ---------- 6b. answers that count explain why, and what differs (fake tutor) ---------- */
+  {
+    const prompts = [];
+    const sample = async () => ({ text: '' });
+    sample.json = async (input) => { prompts.push(input); return { correct: true, note: 'Nice.', why: 'Both greet someone and ask how they are.', differences: [{ yours: 'Hey', expected: 'Hallo', note: 'more casual' }, 'junk', { note: 'no words' }] }; };
+    const X = await makeDom({ claude: { use: async n => n === 'sample' ? sample : null }, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+    for (let i = 0; i < 40 && !X.E('AI.ready'); i++) await sleep(20);
+    const D = X.w.document, foot = () => D.querySelector('.overlay:not(.out) .ov-foot'), q = s => foot().querySelector(s), qa = s => [...foot().querySelectorAll(s)];
+    const cont = () => qa('button').find(b => b.textContent === 'Continue').click();
+    X.E('startLesson("de-1-1")'); qa('button').find(b => b.textContent === 'Start exercises').click();
+    const l = X.E('Run.lesson');
+    const drive = async (type, kind, i, value) => { X.E('Run.queue[Run.pos] = makeEx(' + JSON.stringify(type) + ', Run.lesson, ' + JSON.stringify(kind) + ', ' + i + '); nextEx()'); const R = X.E('Run'); R.value = value; R.canCheck = true; await X.E('doCheck()'); };
+    // the tutor accepts a different wording: why it counts, both answers side by side, and its list of differences
+    const si = l.sentences.findIndex(s => /^Hallo, wie/.test(s.t));
+    await drive('type-e2t', 's', si, 'Hey, wie geht es dir heute?');
+    ok(foot().classList.contains('ok') && q('.fb-title').textContent.includes('Accepted'), 'tutor accepted');
+    ok(typeof prompts[0] === 'string' && prompts[0].includes('"differences"') && prompts[0].includes('"why"'), 'grading prompt asks why and what differs');
+    ok(q('.fb-note') && q('.fb-note').textContent === 'Both greet someone and ask how they are.', 'shows why it counts: ' + (q('.fb-note') && q('.fb-note').textContent));
+    ok(q('.fb-cmp') && q('.fb-cmp').textContent.includes('You wrote') && q('.fb-cmp').textContent.includes('Expected'), 'answers side by side');
+    ok(qa('.fb-yours mark.dif').map(m => m.textContent).includes('Hey,') && qa('.fb-yours mark.dif').map(m => m.textContent).includes('heute?'), 'your extra words are marked ' + qa('.fb-yours mark.dif').map(m => m.textContent));
+    ok(qa('.fb-diffs li').length === 1 && /Hey → Hallo · more casual/.test(q('.fb-diffs li').textContent), 'tutor’s differences listed, junk dropped ' + qa('.fb-diffs li').map(x => x.textContent));
+    ok(q('.fb-report'), 'report link stays for tutor-accepted answers');
+    cont();
+    // an umlaut typed as ue counts, says why, and marks the word
+    const vi = l.vocab.findIndex(v => v.t === 'Tschüss');
+    await drive('type-e2t', 'v', vi, 'Tschuess');
+    ok(foot().classList.contains('ok') && /^Only the umlaut differs \(Tschüss\)/.test(q('.fb-note').textContent), 'umlaut note ' + q('.fb-note').textContent);
+    ok(qa('.fb-ans .w.dif').map(x => x.textContent).join() === 'Tschüss' && qa('.fb-yours mark.dif').map(x => x.textContent).join() === 'Tschuess' && !q('.fb-diffs'), 'umlaut word marked on both sides');
+    cont();
+    // another listed answer is right, and the main one is shown
+    await drive('type-e2t', 'v', vi, 'Tschüs');
+    ok(foot().classList.contains('ok') && q('.fb-note').textContent === 'That’s another right way to say it.' && q('.fb-ans').textContent.includes('Tschüss'), 'alternate answer shows the main one');
+    cont();
+    // an exact answer stays simple
+    await drive('type-e2t', 'v', vi, 'Tschüss');
+    ok(foot().classList.contains('ok') && !q('.fb-cmp') && !q('.fb-note'), 'exact answer has no comparison');
+    cont();
+    // speech that is close enough says how much came through and marks what didn't
+    const pi = l.sentences.findIndex(s => P.tileTokens(s.t).length >= 4), said = P.tileTokens(l.sentences[pi].t).slice(0, -1).join(' ');
+    X.E('S.settings.speaking = true');
+    await drive('speak', 's', pi, said);
+    ok(foot().classList.contains('ok') && /^We caught \d+ of \d+ words, so it counts\./.test(q('.fb-note').textContent), 'speech note ' + q('.fb-note').textContent);
+    ok(q('.fb-k').textContent === 'Heard' && !q('.heard') && qa('.fb-ans .w.dif').length === 1, 'heard vs expected, missing word marked');
+    cont();
+    X.E('endRun()');
+    console.log('page errors (X):', X.errors.length ? X.errors.slice(0, 5) : 'none'); ok(!X.errors.length, 'no page errors X');
+    X.dom.window.close();
+  }
   /* ---------- 7. update safety: stable keys, migrations, live packs, banner ---------- */
   {
     // legacy index keys from v2/v3 saves migrate to stable text keys and keep their schedule
@@ -551,6 +684,129 @@ async function main(){
     ok(!N2.E('Song.failed') && !N2.E('Song.local') && /media\/abc-adventure\.mp4$/.test(N2.E('Song.el.getAttribute("src")')), 'if the local copy is refused, it plays the file directly');
     ok(!N.errors.length && !N2.errors.length, 'no page errors N ' + JSON.stringify(N.errors.concat(N2.errors).slice(0, 3)));
     N.dom.window.close(); N2.dom.window.close();
+  }
+  /* ---------- 11. the web version: accounts and the database through Supabase (fake server) ---------- */
+  {
+    const store = new Map([['content/config', { kind: 'config', latest: '99.0.0' }]]);
+    const sb = fakeSupabase(store, { google: true });
+    // signed out: live content still arrives, progress stays in this browser, the tutor stays Claude-only
+    const W1 = await makeDom({ web: sb, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+    for (let i = 0; i < 60 && !W1.w.document.getElementById('update-banner'); i++) await sleep(25);
+    ok(W1.E('Web.on') && W1.E('Remote.ready') && W1.E('Remote.status') === 'local', 'web version runs signed out: ' + W1.E('Remote.status'));
+    ok(W1.w.document.getElementById('update-banner'), 'live content reaches signed-out visitors');
+    ok(!W1.E('aiOn()'), 'the tutor stays Claude-only on the web');
+    W1.P.S.langs.de.done['de-1-1'] = { at: '2026-10-11', acc: 1, times: 1 }; W1.E('touch("de")');
+    W1.E('UI.tab="me"; render()');
+    ok(W1.w.document.querySelector('#sync-status').textContent.includes('Sign in to sync'), 'web sync copy when signed out');
+    W1.w.document.querySelector('.web-acct button').click(); await sleep(40);
+    const sh = W1.w.document.querySelector('.sheet'), btn = t => [...sh.querySelectorAll('button')].find(b => b.textContent === t), [nameIn, emailIn, passIn] = sh.querySelectorAll('input');
+    ok(btn('Continue with Google') && !btn('Continue with Google').hidden, 'Google button shows when the project has it on');
+    emailIn.value = 'ana@example.com'; passIn.value = 'wrong password'; btn('Sign in').click(); await sleep(40);
+    ok(sh.querySelector('.web-msg').textContent.includes('don’t match'), 'wrong password explained: ' + sh.querySelector('.web-msg').textContent);
+    btn('Forgot your password?').click(); await sleep(40);
+    ok(sb.recovers.length === 1 && sb.recovers[0].email === 'ana@example.com' && /^https:\/\/parlance\.test\//.test(sb.recovers[0].redirect) && sh.querySelector('.web-msg').textContent.includes('on its way'), 'forgot password sends a reset link back to Parlance ' + JSON.stringify(sb.recovers));
+    btn('New here? Create an account').click();
+    ok(!nameIn.hidden && btn('Create account'), 'create-account mode asks for a name');
+    nameIn.value = 'Ana'; passIn.value = 'short'; btn('Create account').click(); await sleep(20);
+    ok(sh.querySelector('.web-msg').textContent.includes('8 or more'), 'password length checked');
+    let reloads = 0; W1.w.webReload = () => { reloads++; };
+    passIn.value = 'correct horse battery'; btn('Create account').click(); await sleep(450);
+    ok(reloads === 1 && sb.users.size === 1, 'account created, page reloads');
+    const keep1 = storageOf(W1.w);
+    ok(keep1['parlance.web.session'] && JSON.parse(keep1['parlance.v2']).langs.de.done['de-1-1'], 'session and progress kept in this browser');
+    ok(!W1.errors.length, 'no page errors W1 ' + JSON.stringify(W1.errors.slice(0, 3)));
+    W1.dom.window.close();
+    // after the reload: signed in, synced, named; what was done before signing in moves into the account
+    const uid = [...sb.users.keys()][0];
+    const W2 = await makeDom({ web: sb, storage: keep1 });
+    for (let i = 0; i < 60 && W2.E('Remote.status') !== 'synced'; i++) await sleep(25);
+    ok(W2.E('Remote.status') === 'synced' && W2.E('Remote.uid') === uid, 'signed in and synced: ' + W2.E('Remote.status'));
+    ok(store.has('data/users/' + uid + '/de') && JSON.parse(store.get('data/users/' + uid + '/de').blob).done['de-1-1'], 'progress from before signing in went to the account');
+    ok(W2.E('Me.name') === 'Ana' && sb.profiles.get(uid) === 'Ana', 'name comes from the account');
+    W2.E('UI.tab="me"; render()');
+    ok(W2.w.document.querySelector('.web-acct').textContent.includes('ana@example.com') && W2.w.document.querySelector('#sync-status').textContent.includes('Parlance account'), 'Me shows the account');
+    await W2.E('queueFeedback({ id: "fw1", at: 1, type: "idea", text: "More food words", ctx: {} })');
+    ok(store.get('feedback/' + uid) && store.get('feedback/' + uid).items[0].text === 'More food words', 'feedback reaches the database');
+    let denied = null; try { await W2.E('Live.db.doc("content/x").set({ kind: "pack" })'); } catch (e) { denied = e; }
+    ok(denied && denied.code === 'invalid_argument' && !store.has('content/x'), 'learners can’t write live content: ' + JSON.stringify(denied));
+    ok(!W2.E('Live.owner') && !W2.E('studioAvailable()'), 'no Studio for learners');
+    const oldToken = W2.E('Web.session.access_token'); W2.E('Web.session.expires_at = 0');
+    W2.P.S.langs.de.xp = (W2.P.S.langs.de.xp || 0) + 5; W2.E('touch("de")'); await W2.E('syncNow()');
+    ok(W2.E('Web.session.access_token') !== oldToken && W2.E('Remote.status') === 'synced' && JSON.parse(store.get('data/users/' + uid + '/de').blob).xp >= 5, 'an expired session renews itself');
+    const keep2 = storageOf(W2.w);
+    ok(!W2.errors.length, 'no page errors W2 ' + JSON.stringify(W2.errors.slice(0, 3)));
+    W2.dom.window.close();
+    // the owner gets Studio and live content, then signs out
+    sb.owners.add(uid);
+    const W3 = await makeDom({ web: sb, storage: keep2 });
+    for (let i = 0; i < 60 && !W3.E('Live.owner'); i++) await sleep(25);
+    ok(W3.E('studioAvailable()'), 'the owner gets Studio on the web');
+    await W3.E('openStudio()');
+    ok(W3.E('Studio.fb.length') === 1 && W3.E('Studio.names')[uid] === 'Ana', 'Studio reads feedback and learner names');
+    W3.E('closeStudio()');
+    await W3.E('setConfig({ latest: "4.9.9" })');
+    ok(store.get('content/config').latest === '4.9.9', 'the owner writes live content');
+    W3.E('UI.tab="me"; render()');
+    let outs = 0; W3.w.webReload = () => { outs++; };
+    [...W3.w.document.querySelectorAll('.web-acct button')].find(b => b.textContent === 'Sign out').click(); await sleep(60);
+    ok(outs === 1 && !W3.E('Web.session') && !W3.w.localStorage.getItem('parlance.web.session'), 'signing out forgets the session');
+    ok(!W3.errors.length, 'no page errors W3 ' + JSON.stringify(W3.errors.slice(0, 3)));
+    W3.dom.window.close();
+    // coming back from Google: the session arrives in the URL fragment
+    const t = sb.issue(uid);
+    const W4 = await makeDom({ web: sb, hash: '#access_token=' + t.access_token + '&expires_in=3600&refresh_token=' + t.refresh_token + '&token_type=bearer' });
+    for (let i = 0; i < 60 && W4.E('Remote.status') !== 'synced'; i++) await sleep(25);
+    ok(W4.E('Remote.status') === 'synced' && W4.E('Web.session.user.id') === uid && W4.w.location.hash === '', 'Google sign-in lands signed in, URL cleaned');
+    ok(W4.P.S.langs.de.done['de-1-1'], 'account progress loads on a new device');
+    // changing your name, and saving a backup file
+    W4.E('openWebName()'); await sleep(20);
+    const nameSheet = [...W4.w.document.querySelectorAll(".sheet")].pop(), newNameIn = nameSheet.querySelector("input");
+    ok(newNameIn && newNameIn.value === "Ana", "name sheet starts with your name");
+    newNameIn.value = "Anita"; [...nameSheet.querySelectorAll('button')].find(b => b.textContent === 'Save').click(); await sleep(60);
+    ok(sb.users.get(uid).meta.name === 'Anita' && sb.profiles.get(uid) === 'Anita' && W4.E('Me.name') === 'Anita', 'name changed in the account, profile and greeting');
+    let saved = null; W4.w.URL.createObjectURL = () => 'blob:parlance'; W4.w.URL.revokeObjectURL = () => {};
+    W4.w.HTMLAnchorElement.prototype.click = function(){ saved = this.download; };
+    W4.E('UI.tab="me"; render()');
+    const dlBtn = [...W4.w.document.querySelectorAll('button')].find(b => b.textContent === 'Download a backup file');
+    ok(!!dlBtn, 'the web version offers a backup file');
+    if (dlBtn){ dlBtn.click(); await sleep(120); }
+    ok(/^parlance-backup-\d{4}-\d\d-\d\d\.txt$/.test(saved || ''), 'backup file saved: ' + saved);
+    ok(!W4.errors.length, 'no page errors W4 ' + JSON.stringify(W4.errors.slice(0, 3)));
+    W4.dom.window.close();
+    // back from a password-reset email: signed in, then asked for a new password
+    const rt = sb.issue(uid);
+    const W5 = await makeDom({ web: sb, hash: '#access_token=' + rt.access_token + '&expires_in=3600&refresh_token=' + rt.refresh_token + '&token_type=bearer&type=recovery' });
+    for (let i = 0; i < 80 && ![...W5.w.document.querySelectorAll('.sheet h3')].some(x => x.textContent === 'Set a new password'); i++) await sleep(25);
+    const pwSheet = [...W5.w.document.querySelectorAll('.sheet')].find(s => s.querySelector('h3').textContent === 'Set a new password');
+    ok(!!pwSheet && W5.E('Web.session.user.id') === uid, 'reset link signs in and asks for a new password');
+    if (pwSheet){ pwSheet.querySelector('input').value = 'a brand new password'; [...pwSheet.querySelectorAll('button')].find(b => b.textContent === 'Save password').click(); await sleep(60); }
+    ok(sb.users.get(uid).password === 'a brand new password', 'new password saved');
+    ok(!W5.errors.length, 'no page errors W5 ' + JSON.stringify(W5.errors.slice(0, 3)));
+    W5.dom.window.close();
+    // Home Screen: iPhone Safari gets the Share tip, the installed app doesn't, Chrome's install prompt becomes a button
+    const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
+    const homeCard = async opts => { const X = await makeDom({ web: sb, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } }, ...opts }); await sleep(60); X.E('UI.tab="me"; render()'); return X; };
+    const H1 = await homeCard({ ua: IPHONE });
+    ok(H1.w.document.querySelector('.web-home') && H1.w.document.querySelector('.web-home').textContent.includes('Tap the Share button, then Add to Home Screen'), 'iPhone Safari shows the Home Screen tip');
+    H1.dom.window.close();
+    const H2 = await homeCard({ ua: IPHONE, standalone: true });
+    ok(!H2.w.document.querySelector('.web-home'), 'no tip once Parlance opens from the Home Screen');
+    H2.dom.window.close();
+    const H3 = await homeCard({});
+    ok(!H3.w.document.querySelector('.web-home'), 'no tip on a browser that can’t install');
+    let prompted = 0; const ev = new H3.w.Event('beforeinstallprompt'); ev.prompt = async () => { prompted++; };
+    H3.w.dispatchEvent(ev); H3.E('render()');
+    const addBtn = [...H3.w.document.querySelectorAll('.web-home button')].find(b => b.textContent === 'Add to Home Screen');
+    ok(!!addBtn, 'Chrome’s install prompt is offered in Me');
+    if (addBtn){ addBtn.click(); await sleep(30); }
+    ok(prompted === 1 && !H3.w.document.querySelector('.web-home'), 'the button installs once, then the card goes away');
+    ok(!H3.errors.length && !H1.errors.length, 'no page errors H ' + JSON.stringify(H3.errors.concat(H1.errors).slice(0, 3)));
+    H3.dom.window.close();
+    // the web build: a full page that turns the web host on, with a manifest and icons
+    require('child_process').execFileSync(process.execPath, [path.join(ROOT, 'dev', 'web.js')], { cwd: ROOT });
+    const built = fs.readFileSync(path.join(ROOT, 'dist', 'index.html'), 'utf8'), manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist', 'manifest.webmanifest'), 'utf8'));
+    ok(built.startsWith('<!doctype html>') && built.includes('window.PARLANCE_WEB = true') && built.includes('rel="manifest"') && built.includes('rel="apple-touch-icon" href="media/icons/icon-180.png"'), 'web build page');
+    ok(manifest.display === 'standalone' && /^#[0-9A-F]{6}$/i.test(manifest.theme_color) && manifest.icons.every(i => fs.existsSync(path.join(ROOT, 'dist', i.src))) && fs.existsSync(path.join(ROOT, 'dist', 'media', 'icons', 'icon-180.png')), 'web manifest and icons ' + JSON.stringify(manifest.icons.map(i => i.src)));
   }
   console.log('PASS', passes, 'FAIL', fails);
   process.exit(fails ? 1 : 0);

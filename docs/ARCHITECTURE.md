@@ -14,19 +14,35 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `styleguide.html` | Living style guide rendered from the tokens and art functions | review the design system |
 | `js/config.js` | Version, release notes, XP economy, daily quests, badges, Talk scenarios | tune the game or ship a version |
 | `js/core/util.js` | DOM helper `h()`, dates, hashing, icons, particles, haptics | add an icon or helper |
-| `js/core/text.js` | Answer normalization, typo/accent tolerance, glossary index | change how answers are checked |
+| `js/core/text.js` | Answer normalization, typo/accent tolerance, word-by-word comparison of an answer that counts with the expected one, glossary index | change how answers are checked |
 | `js/core/content.js` | Content helpers, course assembly, live pack validation, stable review keys | change how content is organized |
 | `js/core/state.js` | Saved state, migrations, merging, account sync, backup codes | change what is saved |
 | `js/core/audio.js` | Speech, the synthesized sound library (`SOUNDS`), the music sequencer, the theme-song player (`Song`) | add or tune a sound, change how music behaves |
 | `media/` | The theme song in two formats: `abc-adventure.mp4` (AAC, for Safari/iPhone and Chrome) and `abc-adventure.webm` (Opus, for browsers without AAC) | swap the song |
 | `js/core/engine.js` | XP, streaks, spaced repetition, quests, badges, lesson status, exercises, grading | change learning logic |
 | `js/core/remote.js` | Live content packs, update banner, announcements, What's new, sharing a lesson | change live updates |
+| `js/core/host.js` | The web version's accounts and database: the same `window.claude.use()` surface, backed by Supabase | change how the web version signs in or stores data |
 | `js/core/art.js` | Pip, cast portraits, unit signs, scenes, chest, medals (pure SVG) | change illustrations |
 | `content/*.js` | Lessons, stories, cast, glossary (data only) | add or fix built-in content |
 | `js/ui/*.js` | One file per screen: learn, review, stories, talk, me, runner (lessons), onboarding, film, feedback, studio | change a screen |
 | `js/main.js` | Boot order | rarely |
 | `dev/test.js` | End-to-end tests (jsdom) | run before every publish |
 | `dev/preview.py`, `dev/files.js` | Local preview server; the list of files to publish | rarely |
+| `dev/web.js`, `vercel.json` | Builds the web version into `dist/` (page, Home Screen manifest and icon tags); Vercel runs it on every push to `main` | change how the web version is served |
+| `dev/icons.js`, `media/icons/` | Draws the web version's Home Screen icons from Pip's art and the tokens | Pip changes |
+| `dev/keep-awake.js`, `.github/workflows/keep-awake.yml` | Reads the web database three times a day so the free Supabase project isn't paused; a failed run means it's down | rarely |
+| `dev/supabase.sql` | The web version's database: the document table and the SQL functions that enforce the access rules | add a database path or rule |
+
+## Two homes: Claude and the web
+
+The same files run in two places.
+
+- **The Claude artifact.** The Claude runtime gives the page `window.claude`: the signed-in person, the shared database and the tutor. Tutor use counts toward each person's own Claude plan.
+- **The web version**, for people without Claude. Vercel builds it from `main` with `dev/web.js`, which wraps `index.html` in a full page that sets `window.PARLANCE_WEB`. `js/core/host.js` sees that flag and provides the same `window.claude.use('db' | 'user')` surface from our Supabase project (`WEB` in `config.js`), so sync, live content, feedback, names, sharing and Studio work without Claude. People sign in with email and password, or Google, through Supabase Auth.
+- The tutor features (Talk, lessons on demand, tutor grading, Studio synthesis) need Claude. On the web they show the same "needs Claude" notices as a signed-out Claude page.
+- The two homes keep separate data: accounts, progress, feedback, proposals and live content. A backup code moves progress between them. `content/config.latest` and any live pack must be written to each home that should get it.
+- On the web, every database call goes through SQL functions (`doc_get`, `doc_list`, `doc_set`, `doc_update`) that apply the same rules as the artifact (`dev/supabase.sql`). The tables themselves are closed to clients, so the public key in `config.js` can't reach anything else. Owners are listed in `public.owners`.
+- Live content on the web is checked every minute while the page is open, instead of being pushed.
 
 ## Progress is never lost
 
@@ -42,8 +58,8 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 1. Make the change in the relevant file(s).
 2. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once.
 3. Run `npm ci && npm test`. It must report `FAIL 0`.
-4. Commit to `main` in GitHub (`mcolfax/parlance`), then republish the same artifact URL with `index.html` as the page and the files `node dev/files.js` lists. Unchanged files are kept.
-5. In Studio → Content, tap **Mark <version> as latest**. Anyone with Parlance open gets a Refresh banner. Their progress stays.
+4. Commit to `main` in GitHub (`mcolfax/parlance`); Vercel deploys the web version from it. Then republish the same artifact URL with `index.html` as the page and the files `node dev/files.js` lists. Unchanged files are kept.
+5. In Studio → Content, tap **Mark <version> as latest**, in each version. Anyone with Parlance open gets a Refresh banner. Their progress stays.
 
 ## The theme song
 

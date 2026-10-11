@@ -137,13 +137,13 @@ function mergeWhole(a, b){
 const Remote = { db: null, uid: null, status: 'local', dirty: new Set(), timer: null, busy: false, readOnly: false, ready: false };
 function setSync(st){ Remote.status = st; const el = $('#sync-status'); if (el) el.replaceChildren(...syncLine()); }
 function syncLine(){
-  const st = Remote.status;
+  const st = Remote.status, web = typeof Web !== 'undefined' && Web.on;
   const map = {
     checking: ['cloud', 'Checking your account…'],
-    synced: ['cloud', 'Synced to your Claude account. Progress follows you to any device.'],
+    synced: ['cloud', 'Synced to your ' + (web ? 'Parlance' : 'Claude') + ' account. Progress follows you to any device.'],
     saving: ['cloud', 'Saving to your account…'],
     device: ['device', 'Saved in this browser. This shared page can’t store progress in your Claude account, so copy a backup code before switching devices.'],
-    local: ['device', 'Saved in this browser. Sign in to Claude to sync across devices, or keep a backup code.'],
+    local: ['device', 'Saved in this browser. Sign in' + (web ? '' : ' to Claude') + ' to sync across devices, or keep a backup code.'],
     error: ['device', 'Couldn’t reach your account just now. Progress is safe in this browser and will sync when it can.']
   };
   const [i, t] = map[st] || map.local;

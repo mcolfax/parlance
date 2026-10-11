@@ -70,7 +70,7 @@ async function doCheck(){
     OV.checkBtn.disabled = true; OV.checkBtn.classList.add('busy'); OV.checkBtn.textContent = 'Asking your tutor…';
     const g = await aiGrade(ex, Run.value);
     if (Run.cur !== ex) return;
-    if (g && g.correct) res = { ok: true, level: 'ai', note: g.note || 'Your tutor accepted this answer.' };
+    if (g && g.correct) res = { ok: true, level: 'ai', note: g.why || g.note || 'Your tutor says this means the same thing.', diffs: g.diffs };
     else if (g && g.note) res.note = g.note;
   }
   if (res.ok && ex.peeked && res.level === 'exact') res = { ...res, level: 'near', note: res.note || 'Hint used, so this counts as a near miss for review.' };
@@ -112,13 +112,16 @@ function showFeedback(ex, res){
   const ans = feedbackAnswer(ex);
   const lang = ex.lang;
   const titles = res.ok ? (res.level === 'exact' ? ['Correct!', 'Nice!', 'Exactly.', 'Well done.', 'Spot on.'][Math.floor(Math.random() * 5)] : res.level === 'ai' ? 'Accepted' : 'Correct') : res.level === 'article' ? 'Almost' : 'Not quite';
+  const cmp = acceptedCompare(ex, res);
   const fb = h('div', { class: 'fb', role: 'status', 'aria-live': 'polite' },
     h('div', { class: 'fb-title' }, res.ok ? h('span', { class: 'fb-ic', html: IC.check }) : null, titles),
     res.note ? h('div', { class: 'fb-note' }, res.note) : null,
-    res.heard ? h('div', { class: 'heard' }, 'Heard: “' + res.heard + '”') : null);
+    res.heard && !cmp ? h('div', { class: 'heard' }, 'Heard: “' + res.heard + '”') : null,
+    cmp ? compareView(ex, cmp) : null,
+    cmp && res.diffs && res.diffs.length ? diffList(res.diffs) : null);
   if (!res.ok || res.level === 'ai') fb.append(reportLink(ex));
   const userWords = !res.ok && typeof Run.value === 'string' ? new Set(fold(norm(Run.value, ans && ans.target ? lang : 'en')).split(' ')) : null;
-  if (ans && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank'].includes(ex.type))){
+  if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank'].includes(ex.type))){
     if (!res.ok) fb.append(h('div', { class: 'fb-label' }, 'Correct answer'));
     if (ans.target) fb.append(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, ex.type === 'blank' ? sayText(ans.t, lang) : (ex.item.g && ex.kind === 'v' ? itemText(ex.item, lang) : sayText(ans.t, lang, userWords ? { miss: userWords } : {}))), speakBtn(ans.t, lang)), h('div', { class: 'fb-sub' }, ans.en));
     else fb.append(h('div', { class: 'fb-ans' }, userWords ? markMissing(ans.en, userWords) : ans.en), h('div', { class: 'fb-sub row' }, h('span', { class: 'grow' }, itemText(ex.item, lang)), speakBtn(ans.t, lang)));
@@ -134,7 +137,38 @@ function showFeedback(ex, res){
   setTimeout(() => cont.focus(), 30);
   sfx(res.ok ? 'ok' : 'bad');
   if (res.ok && first && res.level === 'exact' && [3, 5, 8, 12, 16].includes(Run.combo)) setTimeout(() => showCombo(Run.combo), 280);
-  if (S.settings.autoplay && ans && ex.type !== 'speak' && ex.type !== 'match') setTimeout(() => speak(ans.t, lang), S.settings.sfx ? 380 : 0);
+  if (S.settings.autoplay && ans && ex.type !== 'speak' && ex.type !== 'match') setTimeout(() => speak(cmp && ex.ansLang !== 'en' ? cmp.shown : ans.t, lang), S.settings.sfx ? 380 : 0);
+}
+/* an answer that counts without matching word for word: set it beside the answer it was matched to */
+function acceptedCompare(ex, res){
+  if (!res.ok || (res.level === 'exact' && !res.alt) || !ex.item || !ex.accepted || typeof Run.value !== 'string' || !Run.value.trim()) return null;
+  const yours = Run.value.trim();
+  const shown = res.alt ? closestAnswer(yours, mainForms(ex), ex.ansLang).match : res.match || closestAnswer(yours, ex.accepted, ex.ansLang).match;
+  const d = answerDiff(yours, shown, ex.ansLang);
+  return d.changes.length ? { yours, shown, d } : null;
+}
+function compareView(ex, c){
+  const lang = ex.lang, target = ex.ansLang !== 'en';
+  const rows = [h('span', { class: 'fb-k' }, ex.type === 'speak' ? 'Heard' : 'You wrote'),
+    h('div', { class: 'fb-yours', lang: target ? LANGS[lang].tts : 'en' }, markParts(c.yours, c.d.yours)),
+    h('span', { class: 'fb-k' }, 'Expected')];
+  if (target) rows.push(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, sayText(c.shown, lang, { marks: c.d.answer })), speakBtn(c.shown, lang)), h('span'), h('div', { class: 'fb-sub' }, ex.item.e[0]));
+  else rows.push(h('div', { class: 'fb-ans' }, markParts(c.shown, c.d.answer)), h('span'), h('div', { class: 'fb-sub row' }, h('span', { class: 'grow' }, itemText(ex.item, lang)), speakBtn(ex.item.t, lang)));
+  return h('div', { class: 'fb-cmp' }, rows);
+}
+function diffList(diffs){
+  return h('ul', { class: 'fb-diffs' }, diffs.map(d => h('li', null,
+    d.yours ? h('mark', { class: 'dif' }, d.yours) : null, d.yours && d.expected ? ' → ' : null, d.expected ? h('b', null, d.expected) : null,
+    d.note ? h('span', { class: 'muted' }, ' · ' + d.note) : null)));
+}
+function markParts(text, marks){
+  const wrap = h('span'); let k = 0;
+  for (const part of String(text).split(/(\s+)/)){
+    if (!part) continue;
+    if (/^\s+$/.test(part)){ wrap.append(part); continue; }
+    wrap.append(marks[k++] ? h('mark', { class: 'dif' }, part) : part);
+  }
+  return wrap;
 }
 function markMissing(text, userWords){
   const wrap = h('span');

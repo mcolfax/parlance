@@ -124,24 +124,52 @@ function typoMatch(u, a, lang){
   if (x.slice(0, -1) === y.slice(0, -1) || x === y.slice(0, -1) || y === x.slice(0, -1)) return null;
   return { index: idx };
 }
+/* notes for answers that count without matching exactly: why it counts, and the word to watch */
 function typoNote(a, t, lang){
-  if (t.index < 0) return 'Watch the spacing: ' + a;
+  if (t.index < 0) return 'Only the spacing differs, so it counts.';
   const disp = dispTokens(a), nt = norm(a, lang).split(' ');
   const word = (lang !== 'en' && disp.length === nt.length) ? disp[t.index] : nt[t.index];
-  return 'Watch the spelling: ' + word;
+  return 'Only one letter is off (' + word + '), so it counts.';
 }
 function accentNote(input, a, lang){
   const ua = norm(input, lang).split(' '), na = norm(a, lang).split(' '), da = dispTokens(a);
   const words = [];
   if (ua.length === na.length && na.length === da.length) for (let i = 0; i < na.length; i++) if (ua[i] !== na[i]) words.push(da[i]);
-  const list = words.length ? words.join(', ') : a;
-  if (lang === 'de'){
-    if (/ß/.test(list) && !/[äöüÄÖÜ]/.test(list)) return 'Watch the ß: ' + list;
-    if (/[äöüÄÖÜ]/.test(list)) return 'Watch the umlaut: ' + list;
-    return 'Watch the spelling: ' + list;
+  const list = words.length ? words.join(', ') : a, many = words.length > 1;
+  const what = lang === 'de' && /ß/.test(list) && !/[äöüÄÖÜ]/.test(list) ? (many ? 'the ß spellings differ' : 'the ß differs')
+    : lang === 'de' && /[äöüÄÖÜ]/.test(list) ? (many ? 'the umlauts differ' : 'the umlaut differs')
+    : lang === 'es' && /ñ/i.test(list) && !/[áéíóúü]/i.test(list) ? 'the ñ differs'
+    : many ? 'the accents differ' : 'the accent differs';
+  return 'Only ' + what + ' (' + list + '), so it counts.';
+}
+/* word-by-word comparison of an answer that counts with the answer it was matched to. Marks are per
+   whitespace-separated word on each side ('' | 'accent' | 'spelling' | 'word'); changes list what differs. */
+function answerDiff(input, answer, lang){
+  const side = s => {
+    const parts = String(s ?? '').split(/\s+/).filter(Boolean), toks = [];
+    parts.forEach((p, i) => dispTokens(p).forEach(w => norm(w, lang).split(' ').filter(Boolean).forEach(k => toks.push({ k, f: fold(k), g: fold2(k), p: i }))));
+    return { parts, toks, marks: parts.map(() => '') };
+  };
+  const U = side(input), A = side(answer), m = U.toks.length, n = A.toks.length;
+  const kindOf = (x, y) => x.k === y.k ? '' : (x.f === y.f || x.f === y.g || x.g === y.f) ? 'accent' : (y.f.length >= 4 && osa(x.f, y.f) <= 1) ? 'spelling' : null;
+  const L = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = m - 1; i >= 0; i--) for (let j = n - 1; j >= 0; j--) L[i][j] = kindOf(U.toks[i], A.toks[j]) !== null ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const RANK = { '': 0, accent: 1, spelling: 2, word: 3 };
+  const mark = (S, t, kind) => { if (RANK[kind] > RANK[S.marks[t.p]]) S.marks[t.p] = kind; };
+  const words = (S, ts) => [...new Set(ts.map(t => t.p))].map(p => S.parts[p].replace(/^[¿¡"“„«(\[]+|[.,!?;:"”»)\]…]+$/g, '')).join(' ');
+  const changes = []; let pu = [], pa = [], caught = 0, i = 0, j = 0;
+  const flush = () => { if (pu.length || pa.length) changes.push({ kind: 'word', yours: words(U, pu), answer: words(A, pa) }); pu = []; pa = []; };
+  while (i < m || j < n){
+    const kind = i < m && j < n ? kindOf(U.toks[i], A.toks[j]) : null;
+    if (kind !== null){
+      flush(); caught++;
+      if (kind){ mark(U, U.toks[i], kind); mark(A, A.toks[j], kind); changes.push({ kind, yours: words(U, [U.toks[i]]), answer: words(A, [A.toks[j]]) }); }
+      i++; j++;
+    } else if (j < n && (i >= m || L[i][j + 1] >= L[i + 1][j])){ mark(A, A.toks[j], 'word'); pa.push(A.toks[j++]); }
+    else { mark(U, U.toks[i], 'word'); pu.push(U.toks[i++]); }
   }
-  if (lang === 'es') return 'Watch the accent: ' + list;
-  return 'Watch the spelling: ' + list;
+  flush();
+  return { yours: U.marks, answer: A.marks, changes, caught, total: n };
 }
 function lcsTokens(u, t){
   const m = u.length, n = t.length; const d = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
@@ -149,12 +177,13 @@ function lcsTokens(u, t){
   for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = eq(u[i - 1], t[j - 1]) ? d[i - 1][j - 1] + 1 : Math.max(d[i - 1][j], d[i][j - 1]);
   return d[m][n];
 }
-function speechScore(heard, accepted, lang){
-  const u = fold(norm(heard, lang)).split(' ').filter(Boolean);
-  let best = 0;
-  for (const a of accepted){ const t = fold(norm(a, lang)).split(' ').filter(Boolean); if (!t.length) continue; best = Math.max(best, lcsTokens(u, t) / Math.max(t.length, u.length)); }
+function closestAnswer(input, accepted, lang){
+  const u = fold(norm(input, lang)).split(' ').filter(Boolean);
+  let best = { score: 0, match: accepted[0] };
+  for (const a of accepted){ const t = fold(norm(a, lang)).split(' ').filter(Boolean); if (!t.length) continue; const sc = lcsTokens(u, t) / Math.max(t.length, u.length); if (sc > best.score) best = { score: sc, match: a }; }
   return best;
 }
+function speechScore(heard, accepted, lang){ return closestAnswer(heard, accepted, lang).score; }
 function englishVariants(item){
   const out = new Set();
   for (const e of item.e){

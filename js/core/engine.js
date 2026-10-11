@@ -227,17 +227,25 @@ function evaluate(ex, value){
     }
     case 'blank': return { ok: value === ex.correct, level: value === ex.correct ? 'exact' : 'wrong' };
     case 'speak': {
-      const sc = speechScore(value, ex.accepted, ex.lang);
-      return { ok: sc >= 0.75, level: sc >= 0.999 ? 'exact' : sc >= 0.75 ? 'typo' : 'wrong', note: sc >= 0.75 && sc < 0.999 ? 'Close enough. Play it once more and compare.' : '', heard: value };
+      const { score: sc, match } = closestAnswer(value, ex.accepted, ex.lang);
+      const close = sc >= 0.75 && sc < 0.999;
+      return { ok: sc >= 0.75, level: sc >= 0.999 ? 'exact' : sc >= 0.75 ? 'typo' : 'wrong', note: close ? heardNote(value, match, ex.lang) : '', heard: value, match };
     }
     case 'match': return { ok: true, level: 'exact' };
     default: {
       const tiles = ex.type.startsWith('bank') || (ex.type === 'listen' && ex.mode === 'tiles');
       let r = check(value, ex.accepted, ex.ansLang, { typo: !tiles });
       if (!r.ok && ex.type === 'type-e2t' && ex.item.g){ const a = articleCheck(ex, value); if (a) r = a; }
+      if (r.ok && r.level === 'exact' && !mainForms(ex).includes(r.match)) r = { ...r, alt: true, note: 'That’s another right way to say it.' };
       return r;
     }
   }
+}
+/* the lesson's main answer in the language being typed, in the forms that count as the same answer */
+function mainForms(ex){ return ex.ansLang === 'en' ? englishVariants({ e: ex.item.e.slice(0, 1), g: ex.item.g }) : [ex.item.t]; }
+function heardNote(heard, answer, lang){
+  const d = answerDiff(heard, answer, lang);
+  return (d.caught >= d.total ? 'Every word came through' : 'We caught ' + d.caught + ' of ' + d.total + ' words') + ', so it counts. Play it once more and compare.';
 }
 function articleCheck(ex, value){
   const arts = LANGS[ex.lang].articles;
@@ -259,10 +267,17 @@ async function aiGrade(ex, answer){
     'Reference answers: ' + ex.accepted.slice(0, 6).map(a => '"' + a + '"').join(', ') + '\n' +
     'Learner answer: "' + String(answer).slice(0, 300) + '"\n' +
     'Is the learner answer a correct, natural translation with the same meaning? Ignore capitalization and punctuation.' + rules + '\n' +
-    'Reply with only JSON: {"correct": true or false, "note": "one short sentence for the learner"}';
+    'Reply with only JSON: {"correct": true or false, "note": "one short sentence for the learner", "why": "if correct, one short sentence on why it still counts", ' +
+    '"differences": [{"yours": "words from the learner answer", "expected": "the matching words from the closest reference answer", "note": "a few words on what changes, such as a synonym, a more formal word or a slight shift in meaning"}]}\n' +
+    'In differences, list up to 3 real differences in wording, meaning, tone or grammar between the learner answer and the closest reference answer. Leave out capitalization, punctuation and contractions. Use an empty list if there are none. Write the notes in plain English.';
   try {
     const r = await AI.sample.json(text, { modelTier: 'quick' });
-    if (r && typeof r.correct === 'boolean') return { correct: r.correct, note: String(r.note || '').slice(0, 240) };
+    if (r && typeof r.correct === 'boolean'){
+      const str = (x, n) => String(x ?? '').trim().slice(0, n);
+      const diffs = (Array.isArray(r.differences) ? r.differences : []).filter(d => d && typeof d === 'object')
+        .map(d => ({ yours: str(d.yours, 80), expected: str(d.expected, 80), note: str(d.note, 160) })).filter(d => d.yours || d.expected).slice(0, 3);
+      return { correct: r.correct, note: str(r.note, 240), why: str(r.why, 240), diffs };
+    }
   } catch (e) { aiErrorText(e); }
   return null;
 }
