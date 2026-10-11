@@ -74,9 +74,10 @@ function viewMe(){
     toggleRow('Speaking exercises', 'speaking', 'Say sentences out loud during lessons.'),
     toggleRow('Tutor grading', 'aiGrade', 'If a typed answer doesn’t match, Claude checks whether it’s still right and explains what’s different.')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Tutor access'),
-    h('p', { class: 'small muted' }, !AI.ready ? 'Checking…' : aiOn() ? 'Claude is available for conversations, new lessons and grading. Each use counts toward your own Claude usage.' : AI.denied ? 'Claude access is turned off for this page.' : 'Claude isn’t available in this view. Open the page in the Claude app or on claude.ai while signed in.'),
+    h('p', { class: 'small muted' }, !AI.ready ? 'Checking…' : aiOn() ? 'Claude is available for conversations, new lessons and grading. Each use counts toward your own Claude usage.' : AI.denied ? 'Claude access is turned off for this page.' : 'Claude isn’t available here. Open Parlance in the Claude app or on claude.ai while signed in.'),
     AI.denied ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: manageAccess }, 'Manage permissions') : null));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Your progress is saved'),
+    Web.on ? webAccountRow() : null,
     h('p', { class: 'sync-line small', id: 'sync-status' }, ...syncLine()),
     h('div', { class: 'sheet-actions' },
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: showBackup }, 'Copy backup code'),
@@ -145,6 +146,64 @@ function restoreBackup(){
       const incoming = mergeState(defaultState(), st);
       S = mergeWhole(S, incoming); reindex(); touch(...SLICES); UI.animate = true; render(); sfx('done'); toast('Progress restored');
     } }]);
+}
+/* ----- the web version's own accounts (js/core/host.js). In Claude, the Claude account does this. ----- */
+function webAccountRow(){
+  const u = Web.session && Web.session.user;
+  if (u) return h('div', { class: 'web-acct' }, h('span', { class: 'small grow' }, 'Signed in as ', h('b', null, u.email || u.name || 'you')),
+    h('button', { class: 'linkish small', type: 'button', onclick: async () => { await webSignOut(); saveLocal(); webReload(); } }, 'Sign out'));
+  return h('div', { class: 'web-acct' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openWebSignIn('in') }, 'Sign in or create an account'));
+}
+function webSignInError(e){
+  const why = {
+    invalid_credentials: 'That email and password don’t match. Try again, or create an account.',
+    user_already_exists: 'There’s already an account with that email. Sign in instead.', email_exists: 'There’s already an account with that email. Sign in instead.',
+    weak_password: 'Choose a stronger password, 8 characters or more.', email_address_invalid: 'That email address doesn’t look right.',
+    email_not_confirmed: 'This account’s email hasn’t been confirmed yet, so it can’t sign in.', confirm: 'Your account was made, but its email needs confirming before you can sign in.',
+    over_request_rate_limit: 'Too many tries. Wait a minute, then try again.', over_email_send_rate_limit: 'Too many tries. Wait a minute, then try again.',
+    signup_disabled: 'New accounts are turned off right now.', email_address_not_authorized: 'New accounts aren’t open yet. Try again later.', unavailable: 'Couldn’t reach Parlance’s server. Check your connection and try again.'
+  };
+  return why[e && e.reason] || why[e && e.code] || (e && e.message) || 'Something went wrong. Try again.';
+}
+function openWebSignIn(mode){
+  let up = mode === 'up', busy = false;
+  const field = (type, label, auto) => h('input', { class: 'input', type, placeholder: label, 'aria-label': label, autocomplete: auto, autocapitalize: 'off', spellcheck: 'false' });
+  const name = field('text', 'First name', 'given-name'), email = field('email', 'Email', 'email'), pass = field('password', 'Password', 'current-password');
+  name.maxLength = 40;
+  const msg = h('p', { class: 'small web-msg', role: 'status', 'aria-live': 'polite' });
+  const go = h('button', { class: 'btn btn-primary btn-wide', type: 'button' });
+  const swap = h('button', { class: 'linkish small', type: 'button', style: 'align-self:center' });
+  const google = h('button', { class: 'btn btn-quiet btn-wide', type: 'button', hidden: true, onclick: () => { msg.textContent = 'Opening Google…'; saveLocal(); webGoogle(); } }, 'Continue with Google');
+  const or = h('div', { class: 'web-or', hidden: true }, 'or');
+  const form = h('div', { class: 'field' }, name, email, pass, go);
+  const draw = () => {
+    name.hidden = !up; pass.autocomplete = up ? 'new-password' : 'current-password'; pass.placeholder = up ? 'Password (8 or more characters)' : 'Password';
+    go.textContent = up ? 'Create account' : 'Sign in'; swap.textContent = up ? 'I already have an account' : 'New here? Create an account'; msg.textContent = '';
+  };
+  const submit = async () => {
+    if (busy) return;
+    const e = email.value.trim(), p = pass.value, n = name.value.trim();
+    if (up && !n) return void (msg.textContent = 'Add your first name.');
+    if (!/^\S+@\S+\.\S+$/.test(e)) return void (msg.textContent = 'Enter your email address.');
+    if (p.length < (up ? 8 : 1)) return void (msg.textContent = up ? 'Choose a password with 8 or more characters.' : 'Enter your password.');
+    busy = true; go.disabled = true; go.classList.add('busy'); msg.textContent = '';
+    try {
+      if (up) await webSignUp(n, e, p); else await webSignIn(e, p);
+      msg.textContent = 'Signed in. Loading your progress…'; saveLocal(); setTimeout(webReload, 300);
+    } catch (er){ msg.textContent = webSignInError(er); busy = false; go.disabled = false; go.classList.remove('busy'); }
+  };
+  swap.addEventListener('click', () => { up = !up; draw(); });
+  go.addEventListener('click', submit);
+  [name, email, pass].forEach(i => i.addEventListener('keydown', ev => { if (ev.key === 'Enter'){ ev.preventDefault(); submit(); } }));
+  draw();
+  sheet('Your Parlance account', h('div', { class: 'field web-signin' },
+    h('p', { class: 'small muted' }, 'Sign in to keep your progress safe and pick it up on any device. What you’ve done in this browser comes with you.'),
+    google, or, form, msg, swap), [{ label: 'Not now' }]);
+  webSettings().then(st => {
+    const ext = (st && st.external) || {};
+    google.hidden = !ext.google; or.hidden = !ext.google || ext.email === false;
+    if (ext.email === false){ form.hidden = true; swap.hidden = true; }
+  }, () => {});
 }
 function resetLang(){
   const lang = S.settings.lang;

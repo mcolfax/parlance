@@ -1,0 +1,6 @@
+{
+  "framework": null,
+  "installCommand": "echo No install needed",
+  "buildCommand": "node dev/web.js",
+  "outputDirectory": "dist"
+}

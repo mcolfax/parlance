@@ -33,7 +33,7 @@ async function makeDom(opts = {}){
   const vc = new VirtualConsole();
   vc.on('jsdomError', e => { if (!/Could not load link|stylesheet/i.test(String(e && e.message))) errors.push('jsdom: ' + (e && (e.stack || e.message))); });
   const dom = new JSDOM('<!doctype html><html><head><meta charset="utf-8"></head><body>' + page + '</body></html>', {
-    url: BASE + 'index.html', runScripts: 'dangerously', resources: new LocalOnly(), pretendToBeVisual: true, virtualConsole: vc,
+    url: BASE + 'index.html' + (opts.hash || ''), runScripts: 'dangerously', resources: new LocalOnly(), pretendToBeVisual: true, virtualConsole: vc,
     beforeParse(w){
       w.matchMedia = () => ({ matches: false, addEventListener(){}, removeEventListener(){} });
       w.scrollTo = () => {}; w.Element.prototype.scrollIntoView = function(){}; w.Element.prototype.scrollTo = function(){};
@@ -41,6 +41,8 @@ async function makeDom(opts = {}){
       w.onerror = (m, s, l, c, e) => errors.push(String(m) + (e && e.stack ? '\n' + e.stack : ''));
       w.addEventListener('unhandledrejection', ev => errors.push('unhandled: ' + (ev.reason && (ev.reason.stack || ev.reason.message || JSON.stringify(ev.reason)))));
       if (opts.seed) for (const [k, v] of Object.entries(opts.seed)) w.localStorage.setItem(k, JSON.stringify(v));
+      if (opts.storage) for (const [k, v] of Object.entries(opts.storage)) w.localStorage.setItem(k, v);
+      if (opts.web){ w.PARLANCE_WEB = true; w.fetch = opts.web.fetch; }   // the web version, as dev/web.js builds it
       if (opts.claude) w.claude = opts.claude;
       if (opts.audio !== false) fakeAudio(w);
       if (opts.node){ w.Blob = Blob; w.Response = Response; w.CompressionStream = CompressionStream; w.DecompressionStream = DecompressionStream; }
@@ -69,6 +71,50 @@ function fakeClaude(store, opts = {}){
   const user = { async id(){ return opts.uid || 'u_test'; }, async me(){ return { id: opts.uid || 'u_test', name: opts.name || 'Matt Colfax', avatarUrl: '' }; }, async isOwner(){ return !!opts.owner; }, async profiles(ids){ const o = {}; ids.forEach(i => o[i] = { name: i === 'u_learner' ? 'Ana' : '' }); return o; } };
   return { use: async n => n === 'db' ? db : n === 'user' ? user : n === 'sample' ? (opts.sample || null) : null };
 }
+/* fake Supabase (Auth + the SQL functions in dev/supabase.sql, with the same access rules) for the web version */
+function fakeSupabase(store, opts = {}){
+  const users = new Map(), tokens = new Map(), refresh = new Map(), owners = new Set(), profiles = new Map(); let n = 0;
+  const pub = u => ({ id: u.id, email: u.email, user_metadata: u.meta });
+  const issue = id => { const at = 'at' + (++n), rt = 'rt' + n; tokens.set(at, id); refresh.set(rt, id); return { access_token: at, refresh_token: rt, token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: pub(users.get(id)) }; };
+  const canRead = (p, me) => { const s = p.split('/'); if (s[0] === 'content' && s.length === 2) return true; if (!me) return false;
+    if (s[0] === 'data' && s[1] === 'users' && s.length === 4 && s[2] === me) return true; if (s[0] === 'feedback' && s.length === 2 && s[1] === me) return true;
+    return ['proposals', 'feedback'].includes(s[0]) && s.length === 2 && owners.has(me); };
+  const canWrite = (p, me) => { if (!me) return false; const s = p.split('/');
+    if (s[0] === 'data' && s[1] === 'users' && s.length === 4 && s[2] === me) return true; if (s[0] === 'feedback' && s.length === 2 && s[1] === me) return true;
+    return ['content', 'proposals', 'feedback'].includes(s[0]) && s.length === 2 && owners.has(me); };
+  const res = (status, body) => ({ ok: status >= 200 && status < 300, status, text: async () => body === undefined ? '' : JSON.stringify(body) });
+  const denied = p => res(403, { code: '42501', message: 'not allowed ' + p });
+  async function fetch(url, init = {}){
+    const u = new URL(url), H = init.headers || {}, a = init.body ? JSON.parse(init.body) : {};
+    if (!/^sb_publishable_/.test(H.apikey || '')) return res(401, { message: 'No API key found in request' });
+    const bearer = (H.Authorization || '').replace(/^Bearer /, ''), me = bearer ? tokens.get(bearer) : null;
+    if (bearer && !me) return res(401, { code: 'PGRST301', message: 'JWT expired' });
+    if (u.pathname === '/auth/v1/settings') return res(200, { external: { email: true, google: !!opts.google } });
+    if (u.pathname === '/auth/v1/signup'){
+      if ([...users.values()].some(x => x.email === a.email)) return res(422, { code: 422, error_code: 'user_already_exists', msg: 'User already registered' });
+      const id = '0000000' + (++n) + '-0000-4000-8000-000000000000'; users.set(id, { id, email: a.email, password: a.password, meta: a.data || {} }); return res(200, issue(id));
+    }
+    if (u.pathname === '/auth/v1/token' && u.searchParams.get('grant_type') === 'password'){
+      const x = [...users.values()].find(x => x.email === a.email && x.password === a.password);
+      return x ? res(200, issue(x.id)) : res(400, { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
+    }
+    if (u.pathname === '/auth/v1/token'){ const id = refresh.get(a.refresh_token); if (!id) return res(400, { code: 400, error_code: 'refresh_token_not_found', msg: 'Invalid Refresh Token' }); refresh.delete(a.refresh_token); return res(200, issue(id)); }
+    if (u.pathname === '/auth/v1/user') return me ? res(200, pub(users.get(me))) : res(401, { code: 401, error_code: 'no_authorization', msg: 'No token' });
+    if (u.pathname === '/auth/v1/logout'){ tokens.delete(bearer); return res(204); }
+    switch (u.pathname.replace('/rest/v1/rpc/', '')){
+      case 'doc_get': return canRead(a.p, me) ? res(200, store.has(a.p) ? store.get(a.p) : null) : denied(a.p);
+      case 'doc_list': return res(200, [...store.keys()].filter(k => k.slice(0, k.lastIndexOf('/')) === a.c && canRead(k, me)).sort().map(k => ({ path: k, data: store.get(k) })));
+      case 'doc_set': if (!canWrite(a.p, me)) return denied(a.p); store.set(a.p, JSON.parse(JSON.stringify(a.d))); return res(204);
+      case 'doc_update': if (!canWrite(a.p, me)) return denied(a.p); if (!store.has(a.p)) return res(400, { code: 'P0002', message: 'no document' }); store.set(a.p, { ...store.get(a.p), ...a.d }); return res(204);
+      case 'is_owner': return res(200, !!me && owners.has(me));
+      case 'profile_set': if (!me) return denied('profile'); profiles.set(me, a.n); return res(204);
+      case 'profile_names': return res(200, me && owners.has(me) ? a.ids.filter(i => profiles.has(i)).map(i => ({ id: i, name: profiles.get(i) })) : []);
+    }
+    return res(404, { message: 'not found' });
+  }
+  return { fetch, users, owners, profiles, issue };
+}
+function storageOf(w){ const o = {}; for (let i = 0; i < w.localStorage.length; i++){ const k = w.localStorage.key(i); o[k] = w.localStorage.getItem(k); } return o; }
 
 async function main(){
   /* ---------- 1. content engine: every lesson ---------- */
@@ -627,6 +673,80 @@ async function main(){
     ok(!N2.E('Song.failed') && !N2.E('Song.local') && /media\/abc-adventure\.mp4$/.test(N2.E('Song.el.getAttribute("src")')), 'if the local copy is refused, it plays the file directly');
     ok(!N.errors.length && !N2.errors.length, 'no page errors N ' + JSON.stringify(N.errors.concat(N2.errors).slice(0, 3)));
     N.dom.window.close(); N2.dom.window.close();
+  }
+  /* ---------- 11. the web version: accounts and the database through Supabase (fake server) ---------- */
+  {
+    const store = new Map([['content/config', { kind: 'config', latest: '99.0.0' }]]);
+    const sb = fakeSupabase(store, { google: true });
+    // signed out: live content still arrives, progress stays in this browser, the tutor stays Claude-only
+    const W1 = await makeDom({ web: sb, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+    for (let i = 0; i < 60 && !W1.w.document.getElementById('update-banner'); i++) await sleep(25);
+    ok(W1.E('Web.on') && W1.E('Remote.ready') && W1.E('Remote.status') === 'local', 'web version runs signed out: ' + W1.E('Remote.status'));
+    ok(W1.w.document.getElementById('update-banner'), 'live content reaches signed-out visitors');
+    ok(!W1.E('aiOn()'), 'the tutor stays Claude-only on the web');
+    W1.P.S.langs.de.done['de-1-1'] = { at: '2026-10-11', acc: 1, times: 1 }; W1.E('touch("de")');
+    W1.E('UI.tab="me"; render()');
+    ok(W1.w.document.querySelector('#sync-status').textContent.includes('Sign in to sync'), 'web sync copy when signed out');
+    W1.w.document.querySelector('.web-acct button').click(); await sleep(40);
+    const sh = W1.w.document.querySelector('.sheet'), btn = t => [...sh.querySelectorAll('button')].find(b => b.textContent === t), [nameIn, emailIn, passIn] = sh.querySelectorAll('input');
+    ok(btn('Continue with Google') && !btn('Continue with Google').hidden, 'Google button shows when the project has it on');
+    emailIn.value = 'ana@example.com'; passIn.value = 'wrong password'; btn('Sign in').click(); await sleep(40);
+    ok(sh.querySelector('.web-msg').textContent.includes('don’t match'), 'wrong password explained: ' + sh.querySelector('.web-msg').textContent);
+    btn('New here? Create an account').click();
+    ok(!nameIn.hidden && btn('Create account'), 'create-account mode asks for a name');
+    nameIn.value = 'Ana'; passIn.value = 'short'; btn('Create account').click(); await sleep(20);
+    ok(sh.querySelector('.web-msg').textContent.includes('8 or more'), 'password length checked');
+    let reloads = 0; W1.w.webReload = () => { reloads++; };
+    passIn.value = 'correct horse battery'; btn('Create account').click(); await sleep(450);
+    ok(reloads === 1 && sb.users.size === 1, 'account created, page reloads');
+    const keep1 = storageOf(W1.w);
+    ok(keep1['parlance.web.session'] && JSON.parse(keep1['parlance.v2']).langs.de.done['de-1-1'], 'session and progress kept in this browser');
+    ok(!W1.errors.length, 'no page errors W1 ' + JSON.stringify(W1.errors.slice(0, 3)));
+    W1.dom.window.close();
+    // after the reload: signed in, synced, named; what was done before signing in moves into the account
+    const uid = [...sb.users.keys()][0];
+    const W2 = await makeDom({ web: sb, storage: keep1 });
+    for (let i = 0; i < 60 && W2.E('Remote.status') !== 'synced'; i++) await sleep(25);
+    ok(W2.E('Remote.status') === 'synced' && W2.E('Remote.uid') === uid, 'signed in and synced: ' + W2.E('Remote.status'));
+    ok(store.has('data/users/' + uid + '/de') && JSON.parse(store.get('data/users/' + uid + '/de').blob).done['de-1-1'], 'progress from before signing in went to the account');
+    ok(W2.E('Me.name') === 'Ana' && sb.profiles.get(uid) === 'Ana', 'name comes from the account');
+    W2.E('UI.tab="me"; render()');
+    ok(W2.w.document.querySelector('.web-acct').textContent.includes('ana@example.com') && W2.w.document.querySelector('#sync-status').textContent.includes('Parlance account'), 'Me shows the account');
+    await W2.E('queueFeedback({ id: "fw1", at: 1, type: "idea", text: "More food words", ctx: {} })');
+    ok(store.get('feedback/' + uid) && store.get('feedback/' + uid).items[0].text === 'More food words', 'feedback reaches the database');
+    let denied = null; try { await W2.E('Live.db.doc("content/x").set({ kind: "pack" })'); } catch (e) { denied = e; }
+    ok(denied && denied.code === 'invalid_argument' && !store.has('content/x'), 'learners can’t write live content: ' + JSON.stringify(denied));
+    ok(!W2.E('Live.owner') && !W2.E('studioAvailable()'), 'no Studio for learners');
+    const oldToken = W2.E('Web.session.access_token'); W2.E('Web.session.expires_at = 0');
+    W2.P.S.langs.de.xp = (W2.P.S.langs.de.xp || 0) + 5; W2.E('touch("de")'); await W2.E('syncNow()');
+    ok(W2.E('Web.session.access_token') !== oldToken && W2.E('Remote.status') === 'synced' && JSON.parse(store.get('data/users/' + uid + '/de').blob).xp >= 5, 'an expired session renews itself');
+    const keep2 = storageOf(W2.w);
+    ok(!W2.errors.length, 'no page errors W2 ' + JSON.stringify(W2.errors.slice(0, 3)));
+    W2.dom.window.close();
+    // the owner gets Studio and live content, then signs out
+    sb.owners.add(uid);
+    const W3 = await makeDom({ web: sb, storage: keep2 });
+    for (let i = 0; i < 60 && !W3.E('Live.owner'); i++) await sleep(25);
+    ok(W3.E('studioAvailable()'), 'the owner gets Studio on the web');
+    await W3.E('openStudio()');
+    ok(W3.E('Studio.fb.length') === 1 && W3.E('Studio.names')[uid] === 'Ana', 'Studio reads feedback and learner names');
+    W3.E('closeStudio()');
+    await W3.E('setConfig({ latest: "4.9.9" })');
+    ok(store.get('content/config').latest === '4.9.9', 'the owner writes live content');
+    W3.E('UI.tab="me"; render()');
+    let outs = 0; W3.w.webReload = () => { outs++; };
+    [...W3.w.document.querySelectorAll('.web-acct button')].find(b => b.textContent === 'Sign out').click(); await sleep(60);
+    ok(outs === 1 && !W3.E('Web.session') && !W3.w.localStorage.getItem('parlance.web.session'), 'signing out forgets the session');
+    ok(!W3.errors.length, 'no page errors W3 ' + JSON.stringify(W3.errors.slice(0, 3)));
+    W3.dom.window.close();
+    // coming back from Google: the session arrives in the URL fragment
+    const t = sb.issue(uid);
+    const W4 = await makeDom({ web: sb, hash: '#access_token=' + t.access_token + '&expires_in=3600&refresh_token=' + t.refresh_token + '&token_type=bearer' });
+    for (let i = 0; i < 60 && W4.E('Remote.status') !== 'synced'; i++) await sleep(25);
+    ok(W4.E('Remote.status') === 'synced' && W4.E('Web.session.user.id') === uid && W4.w.location.hash === '', 'Google sign-in lands signed in, URL cleaned');
+    ok(W4.P.S.langs.de.done['de-1-1'], 'account progress loads on a new device');
+    ok(!W4.errors.length, 'no page errors W4 ' + JSON.stringify(W4.errors.slice(0, 3)));
+    W4.dom.window.close();
   }
   console.log('PASS', passes, 'FAIL', fails);
   process.exit(fails ? 1 : 0);

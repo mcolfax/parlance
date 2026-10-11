@@ -228,6 +228,11 @@ li.locked .st-title{color:var(--muted)}
 .bar.today span{color:var(--line-text)}
 .goal-line{position:absolute;left:0;right:0;border-top:2px dashed var(--muted);opacity:.55}
 .goal-line span{position:absolute;right:0;top:-18px;font:700 11px var(--body);color:var(--muted)}
+.web-acct{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.web-signin .field{gap:8px}
+.web-or{display:flex;align-items:center;gap:10px;font:var(--type-small);color:var(--muted)}
+.web-or::before,.web-or::after{content:"";flex:1;border-top:1px solid var(--hair)}
+.web-msg:empty{display:none}
 
 /* Onboarding */
 .overlay.onb .ov-head{justify-content:space-between}

@@ -4,6 +4,8 @@ Parlance is Matt's own German and Latin American Spanish course, a replacement f
 
 **https://claude.ai/artifact/8ZNHqMUCms2THTSfDkTp72**
 
+There is also a **web version** for people without Claude. Vercel builds it from `main` with `node dev/web.js` (see `vercel.json`). Its accounts and database are the Supabase project **Parlance** (`ibrweunxigetiazzuwiz`). The tutor features (Talk, lessons on demand, tutor grading, Studio synthesis) stay Claude-only. See "Two homes" in `docs/ARCHITECTURE.md`.
+
 Design options Matt is reviewing (styles, Pip, cast) are in Claude Design: https://claude.ai/artifact/Qzi2d6c6LteToAfVtkPqJd, with notes and concept-art sources in `design/`.
 
 Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and explains live content, the feedback loop and the theme song.
@@ -28,6 +30,7 @@ Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and exp
 - **Copy** is plain, warm English in sentence case.
 - **Scripts** are classic (not modules) and load in the order `index.html` lists them. A later file can use anything an earlier one defined. An event handler that can fire before the UI scripts have loaded must guard with `typeof`.
 - **Check the design** in `styleguide.html`, a living style guide rendered from the tokens and art functions.
+- **Accounts and the database go through `window.claude.use()`** and nothing else. In the artifact, Claude provides it; on the web, `js/core/host.js` provides the same surface from Supabase. Keep the two in step: a new database path or rule goes in both the artifact's rules and `dev/supabase.sql`.
 
 ## Commands
 
@@ -35,6 +38,7 @@ Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and exp
 npm ci && npm test   # jsdom end-to-end suite (~2 min). Must end with "FAIL 0".
 npm run preview      # http://127.0.0.1:8765/_preview.html
 npm run files        # JSON map of the files to publish next to index.html
+npm run web          # builds the web version into dist/ (what Vercel serves)
 ```
 
 The preview runs without the artifact runtime, so there is no account sync, database or tutor; the app handles their absence.
@@ -43,7 +47,7 @@ The preview runs without the artifact runtime, so there is no account sync, data
 
 1. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once.
 2. Run `npm test`. It must end with `FAIL 0`.
-3. Commit to `main` and push.
+3. Commit to `main` and push. Vercel deploys the web version from `main` on its own.
 4. Publish with the Artifact tool:
    - `file_path`: the absolute path to `index.html`
    - `url`: the artifact URL above
@@ -51,11 +55,15 @@ The preview runs without the artifact runtime, so there is no account sync, data
    - Leave `capabilities` out so the declared ones carry forward.
    - If the publish is refused because the published files differ from what this session has seen, read them first (Artifact `read` with `paths`), check the differences, then publish.
    - Only served file types publish. For media that means `.mp4`, `.webm`, `.mp3`, `.ogg` or `.wav`, not `.m4a`.
-5. Set `content/config` → `latest` to the new version with ArtifactData. Read the doc first and pin `if_version`. Anyone with Parlance open then gets a Refresh banner. Matt can also do this from Me → Studio → Content.
+5. Set `content/config` → `latest` to the new version in **both** homes. Anyone with Parlance open then gets a Refresh banner. Matt can also do this from Me → Studio → Content in each version.
+   - Artifact: ArtifactData. Read the doc first and pin `if_version`.
+   - Web: Supabase `execute_sql` on project `ibrweunxigetiazzuwiz`:
+     `insert into public.docs (path, coll, data) values ('content/config', 'content', '{"kind":"config","latest":"X.Y.Z"}') on conflict (path) do update set data = public.docs.data || excluded.data, updated_at = now();`
+   - Live content packs are per home too: write a pack to both if both should have it.
 
 ## Feedback → proposals → approval → build
 
-- Learner notes are in the database at `feedback/<uid>` as `{ items: [{ id, at, type, text, ctx }] }`. Only the owner can read them.
+- Learner notes are in the database at `feedback/<uid>` as `{ items: [{ id, at, type, text, ctx }] }`. Only the owner can read them. Web learners' notes are in the Supabase `docs` table at the same paths (`select path, data from public.docs where coll = 'feedback'`); Studio synthesis needs Claude, so turn those into proposals from the artifact or a Claude session.
 - Proposals are at `proposals/<id>`:
   - Fields: `title`, `kind` (content|code|design|copy), `summary`, `problem`, `change`, `evidence` (feedback ids), `impact`, `effort`, `status`, `createdAt`, and optionally `note` (Matt's note for the builder).
   - `status` is `pending`, `approved`, `rejected` or `shipped`.
@@ -75,3 +83,5 @@ data/users/{self}  private to each person (platform default)
 ```
 
 Capabilities: `db`, `user` (profile scope), `sample`, `downloads`, `comments` (composer only).
+
+The web version enforces the same rules in SQL (`dev/supabase.sql`). Owners there are listed in `public.owners`.

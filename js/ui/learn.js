@@ -171,7 +171,7 @@ function genSection(){
   if (gl.length) sec.append(stationList(gl, lang));
   const card = h('div', { class: 'card' });
   if (!AI.ready) card.append(h('p', { class: 'status' }, 'Checking tutor access…'));
-  else if (!aiOn()) card.append(h('p', { class: 'notice' }, AI.denied ? 'Claude access is off for this page. Turn it on in Me → Tutor access to write new lessons.' : 'Writing lessons needs Claude. Open this page in the Claude app or on claude.ai while signed in.'));
+  else if (!aiOn()) card.append(h('p', { class: 'notice' }, AI.denied ? 'Claude access is off for this page. Turn it on in Me → Tutor access to write new lessons.' : 'Writing lessons needs Claude. Open Parlance in the Claude app or on claude.ai while signed in.'));
   else {
     const lv = UI.genLevel || currentLevel(lang); UI.genLevel = lv;
     const status = h('p', { class: 'status' + (UI.genStatusErr ? ' err' : ''), 'aria-live': 'polite' }, UI.genStatus || '');

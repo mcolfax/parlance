@@ -5,7 +5,8 @@
   "scripts": {
     "test": "node dev/test.js index.html",
     "preview": "python3 dev/preview.py",
-    "files": "node dev/files.js"
+    "files": "node dev/files.js",
+    "web": "node dev/web.js"
   },
   "devDependencies": {
     "jsdom": "24.1.3"

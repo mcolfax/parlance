@@ -3,9 +3,16 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.2.0';
+const APP_VERSION = '4.3.0';
 const SCHEMA_VERSION = 4;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+/* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
+   our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
+   functions that apply the same access rules as the artifact (dev/supabase.sql). */
+const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000 };
 const RELEASES = [
+  { v: '4.3.0', date: '2026-10-11', title: 'Parlance works without Claude', notes: [
+    'There’s now a web version of Parlance for friends who don’t use Claude. They sign in with email and a password, or with Google, and their progress follows them to any device.',
+    'On the web, lessons, review, stories, feedback and live updates all work. Talk, lessons on demand and tutor grading still need Claude.'] },
   { v: '4.2.0', date: '2026-10-11', title: 'Answers that count now tell you why', notes: [
     'When an answer counts but isn’t word for word, you’ll see why, with your answer next to the expected one and the differences highlighted.',
     'When your tutor accepts a different wording, it now lists what’s different, like a more casual word or a small change in meaning.',
