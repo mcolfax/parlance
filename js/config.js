@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.6.0';
+const APP_VERSION = '4.8.0';
 const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,11 +12,23 @@ const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
-  { v: '4.6.0', date: '2026-10-11', title: 'Learn with friends', notes: [
+  { v: '4.8.0', date: '2026-10-11', title: 'Learn with friends', notes: [
     'There’s a new Friends tab. Invite friends with a code or a link and you’re added to each other’s list.',
     'Race each other up the weekly league by XP, goal days or streak. It starts fresh every Monday.',
     'Challenge a friend to a week-long duel for the most XP, goal days or lessons. Win and you get a bonus.',
     'Send a cheer when a friend needs a nudge. Only friends you invite can see your card.'] },
+  { v: '4.7.0', date: '2026-10-11', title: 'Pip’s whole repertoire', notes: [
+    'Pip now uses every move it has. It waves hello on Learn, dances when you get a run of answers right or finish a lesson without a slip, nods when an answer counts but isn’t word for word, and shrugs, listens, points or looks proud where that fits.',
+    'Tap Pip and it does something different each time: a hop, a wave, a look around, a little dance or a bow. Wake a sleeping Pip and it jumps.',
+    'Pip looks over at whatever you tap, and its beak moves as its speech bubble pops up.',
+    'Your picture on Me shows your initials, or your Google photo on the web version. With no name to go on, it shows a person instead of a stray letter, and on the web version there’s a Sign in link right under it.'] },
+  { v: '4.6.0', date: '2026-10-11', title: 'New friends and a new chest', notes: [
+    'Meet four new friends. In Berlin, Leyla is a pharmacist and Emre’s cousin, and Herr Brandt is Lena’s landlord. In Mexico City, Valentina drives a taxi and Andrés runs a family hotel. Each pair has a new story, and they play scenes in Talk.',
+    'The daily chest has been redrawn. Open it to watch the lid flip back and the coins spill out.',
+    'The theme song now plays on every tab and keeps going when you switch, right where it was. It still pauses for lessons, reviews, stories and Talk.',
+    'Tap any word in a story to see what it means, even before your lessons teach it. Verb forms like “bezahlst” show the word they come from.',
+    'On Learn, every level can be closed again, including the last one that’s open.',
+    'On iPhone, Me now has an Add to Home Screen button that walks you through Safari’s steps.'] },
   { v: '4.5.1', date: '2026-10-11', title: 'Google sign-in only, for now', notes: [
     'The web version signs in with Google only for now. If you used an email and password before, Continue with Google with the same address opens your account.'] },
   { v: '4.5.0', date: '2026-10-11', title: 'Meet the new Pip', notes: [
@@ -54,7 +66,7 @@ const RELEASES = [
     '32 new lessons, tap-to-translate words and a word of the day.'] },
   { v: '2.0.0', date: '2026-10-10', title: 'The full route, A1 to C2', notes: ['Levels B1 to C2, account sync across devices and a polished new design.'] }
 ];
-/* Media. The theme song plays under the intro film and loops softly on the home screen.
+/* Media. The theme song plays under the intro film and loops softly behind the tabs.
    home/film are volume multipliers on the learner's music volume; duck is how low it goes while a voice speaks. */
 const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home: 0.6, film: 1, duck: 0.3,
   sources: [ // first one the browser can play wins: AAC for Safari/iPhone and Chrome, Opus for Chromium and Firefox builds without AAC
@@ -119,7 +131,7 @@ const BADGES = [
   { id: 'combo10', icon: 'bolt', name: 'Hot streak', desc: 'Get 10 answers right in a row.' },
   { id: 'review100', icon: 'stack', name: 'Steady memory', desc: 'Get 100 review answers right.' },
   { id: 'story1', icon: 'book', name: 'Bookworm', desc: 'Finish your first story.' },
-  { id: 'stories8', icon: 'book', name: 'Storyteller', desc: 'Finish all 8 stories in one language.' },
+  { id: 'stories8', icon: 'book', name: 'Storyteller', desc: 'Finish every story in one language.' },
   { id: 'talk', icon: 'chat', name: 'Chatterbox', desc: 'Send your tutor 5 messages in one conversation.' },
   { id: 'chest7', icon: 'chest', name: 'Treasure hunter', desc: 'Open 7 daily chests.' },
   { id: 'friend', icon: 'people', name: 'Better together', desc: 'Add your first friend.' },
@@ -135,16 +147,16 @@ const BADGES = [
 /* ===================== TALK SCENARIOS (cast plays each role) ===================== */
 const SCENARIOS = [
   { id: 'cafe', cast: { de: 'lena', es: 'mateo' }, title: 'At a café', desc: 'Order, ask a question, pay.', prompt: 'You are a barista at a busy neighborhood café. The learner is a customer. Greet them, take their order, suggest something, and handle paying.' },
-  { id: 'directions', cast: { de: 'weber', es: 'carmen' }, title: 'Asking directions', desc: 'Find the station or a pharmacy.', prompt: 'You are a helpful local on a street corner in a city center. The learner is a visitor asking for directions. Give clear, simple directions using left, right, straight ahead and landmarks.' },
+  { id: 'directions', cast: { de: 'leyla', es: 'valentina' }, title: 'Asking directions', desc: 'Find the station or a pharmacy.', prompt: 'You are a helpful local on a street corner in a city center. The learner is a visitor asking for directions. Give clear, simple directions using left, right, straight ahead and landmarks.' },
   { id: 'market', cast: { de: 'emre', es: 'carmen' }, title: 'Market shopping', desc: 'Prices, quantities, paying.', prompt: 'You run a fruit and vegetable stand at an outdoor market. The learner is a customer. Offer produce, give prices per kilo, and handle quantities and paying.' },
   { id: 'smalltalk', cast: { de: 'jonas', es: 'mateo' }, title: 'Small talk', desc: 'Names, work, hobbies, weekend plans.', prompt: 'You are a friendly person the learner just met at a party. Make small talk about names, where you are from, work, hobbies and weekend plans, and share a little about yourself.' },
-  { id: 'hotel', cast: { de: 'jonas', es: 'diego' }, title: 'Hotel check-in', desc: 'Your booking, breakfast, wifi.', prompt: 'You are the front-desk clerk at a mid-size city hotel. The learner is a guest checking in with a reservation. Ask for their name, confirm the dates, explain breakfast and wifi, and answer questions.' },
+  { id: 'hotel', cast: { de: 'jonas', es: 'andres' }, title: 'Hotel check-in', desc: 'Your booking, breakfast, wifi.', prompt: 'You are the front-desk clerk at a mid-size city hotel. The learner is a guest checking in with a reservation. Ask for their name, confirm the dates, explain breakfast and wifi, and answer questions.' },
   { id: 'doctor', cast: { de: 'weber', es: 'sofia' }, title: 'At the doctor', desc: 'Describe how you feel.', prompt: 'You are a calm, kind doctor at a walk-in clinic. The learner is a patient who feels unwell. Ask about symptoms and how long they have had them, then give simple advice. Nothing serious is wrong.', min: 'A2' },
   { id: 'story', cast: { de: 'lena', es: 'diego' }, title: 'Tell a story', desc: 'Your last trip or weekend, in the past tense.', prompt: 'You are a curious friend. Ask the learner to tell you about a recent trip, weekend or memorable day, and keep asking follow-up questions that need past-tense answers.', min: 'B1' },
   { id: 'interview', cast: { de: 'emre', es: 'sofia' }, title: 'Job interview', desc: 'Experience, strengths, motivation.', prompt: 'You are a hiring manager interviewing the learner for a job in their field. Start by asking what role they are applying for, then ask about experience, strengths, a challenge they solved, and why they want the job.', min: 'B1' },
   { id: 'debate', cast: { de: 'jonas', es: 'mateo' }, title: 'Friendly debate', desc: 'Defend an opinion; the tutor disagrees.', prompt: 'You are a sharp but friendly debate partner. Offer the learner a choice of everyday debate topics (for example remote work, city versus country life, social media), then politely take the opposite side and push them to justify their view.', min: 'B2' },
   { id: 'news', cast: { de: 'weber', es: 'sofia' }, title: 'Talk about the news', desc: 'Society, tech and culture topics.', prompt: 'You are a well-read conversation partner. Discuss a general current-affairs theme the learner picks (technology, climate, travel, work culture), without claiming specific recent facts, and ask for their opinions and reasons.', min: 'B2' },
-  { id: 'negotiate', cast: { de: 'emre', es: 'diego' }, title: 'Negotiation', desc: 'Rent, salary or a contract.', prompt: 'You are a landlord, employer or supplier (let the learner choose). Negotiate realistically, push back politely, and make the learner use formal, persuasive language to reach an agreement.', min: 'C1' },
+  { id: 'negotiate', cast: { de: 'brandt', es: 'andres' }, title: 'Negotiation', desc: 'Rent, salary or a contract.', prompt: 'You are a landlord, employer or supplier (let the learner choose). Negotiate realistically, push back politely, and make the learner use formal, persuasive language to reach an agreement.', min: 'C1' },
   { id: 'ideas', cast: { de: 'weber', es: 'sofia' }, title: 'Ideas & culture', desc: 'Books, film, philosophy, nuance.', prompt: 'You are an erudite, witty conversation partner. Discuss books, films, art or big ideas the learner raises, using idiomatic, nuanced language, and challenge them to express subtle opinions.', min: 'C1' },
   { id: 'free', cast: { de: 'pip', es: 'pip' }, title: 'Free conversation', desc: 'Anything you like. The tutor follows.', prompt: 'You are a curious, friendly conversation partner. Let the learner choose the topics and keep the conversation going with follow-up questions.' }
 ];

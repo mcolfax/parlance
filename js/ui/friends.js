@@ -3,7 +3,7 @@
    The weekly league, duels and cheers, and inviting friends. The data side (cards, invites, duels) is js/core/social.js.
    ======================================================= */
 const FR = { metric: 'xp', offered: false };
-const BIRDS = ['pip', 'lena', 'jonas', 'weber', 'emre', 'sofia', 'diego', 'carmen', 'mateo'];
+const BIRDS = ['pip', 'lena', 'jonas', 'weber', 'emre', 'leyla', 'brandt', 'sofia', 'diego', 'carmen', 'mateo', 'valentina', 'andres'].filter(id => CAST[id]);
 
 /* ----- numbers for the league and duels ----- */
 function weekFrom(){ return weekOf(today()); }

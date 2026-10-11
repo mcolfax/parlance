@@ -79,6 +79,13 @@ function reindex(){
       }
     }
     for (const [k, v] of Object.entries(COMMON_GLOSS[lang])) addGloss(lang, k, v, true);
+    for (const [k, v] of Object.entries(STORY_GLOSS[lang])) addGloss(lang, k, v);
+  }
+  /* the cast's names, so tapping "Lena" in a story says who she is */
+  const names = Object.values(CAST).map(c => c.name.split(' ').pop());
+  for (const c of Object.values(CAST)){
+    const who = c.name + ' · ' + (names.some(n => c.role.startsWith(n)) ? c.role : c.role[0].toLowerCase() + c.role.slice(1));
+    for (const lang of c.lang === '*' ? ['de', 'es'] : [c.lang]) for (const part of c.name.split(' ')) if (!COMMON_GLOSS[lang][part.toLowerCase()]) addGloss(lang, part, who);
   }
 }
 let GLOSS = { de: { exact: new Map(), fold: new Map() }, es: { exact: new Map(), fold: new Map() } };
@@ -92,10 +99,26 @@ function glossLookup(word, lang){
   const k = norm(word, lang); if (!k) return null;
   const hit = G.exact.get(k) || G.fold.get(fold(k));
   if (hit) return { val: hit };
-  const tries = lang === 'de' ? ['n', 'en', 'e', 's', 'es', 'er', 'nen'].map(x => k.endsWith(x) ? k.slice(0, -x.length) : null)
-    : [k.endsWith('es') ? k.slice(0, -2) : null, k.endsWith('s') ? k.slice(0, -1) : null, k.endsWith('as') ? k.slice(0, -2) + 'o' : null, k.endsWith('a') ? k.slice(0, -1) + 'o' : null];
-  for (const b of tries){ if (!b || b.length < 3) continue; const v = G.exact.get(b) || G.fold.get(fold(b)); if (v) return { val: v, base: b }; }
+  const bases = baseForms(k, lang).filter(b => b.length >= 3 && b !== k);
+  for (const b of bases){ const v = G.exact.get(b); if (v) return { val: v, base: b }; }
+  if (lang !== 'de') for (const b of bases){ const v = G.fold.get(fold(b)); if (v) return { val: v, base: b }; }   // in German an umlaut changes the word (Küche, Kuchen)
   return null;
+}
+/* the dictionary forms a word might come from, likeliest first: plurals and endings, then the commonest verb forms
+   (du bezahlst → bezahlen, gewartet → warten, angerufen → anrufen; vende → vender, llegamos → llegar) */
+function baseForms(k, lang){
+  const out = [], cut = (suf, add) => { if (k.endsWith(suf) && k.length - suf.length >= 2) out.push(k.slice(0, -suf.length) + (add || '')); };
+  if (lang === 'de'){
+    ['n', 'en', 'e', 's', 'es', 'er', 'nen', 'em'].forEach(x => cut(x));
+    ['e', 'st', 't', 'et', 'est', 'te', 'ten', 'test', 'tet'].forEach(x => cut(x, 'en'));
+    const ge = k.match(/^(an|auf|aus|ein|mit|vor|zu|ab|zurück|weg|her|hin|los|nach|vorbei|rein|raus)?ge(.{3,})$/);
+    if (ge){ const pre = ge[1] || '', rest = ge[2]; out.push(pre + rest); if (rest.endsWith('et')) out.push(pre + rest.slice(0, -2) + 'en'); if (rest.endsWith('t')) out.push(pre + rest.slice(0, -1) + 'en'); }
+  } else {
+    [['es', ''], ['s', ''], ['as', 'o'], ['a', 'o']].forEach(([x, a]) => cut(x, a));
+    for (const x of ['o', 'as', 'a', 'amos', 'an', 'es', 'e', 'emos', 'en', 'imos', 'ó', 'é', 'aste', 'aron', 'ió', 'iste', 'ieron', 'aba', 'abas', 'ábamos', 'aban', 'ía', 'ías', 'íamos', 'ían', 'ando', 'iendo', 'ado', 'ada', 'ados', 'adas', 'ido', 'ida', 'idos', 'idas'])
+      if (k.endsWith(x) && k.length - x.length >= 2) for (const inf of ['ar', 'er', 'ir']) out.push(k.slice(0, -x.length) + inf);
+  }
+  return out;
 }
 function check(input, accepted, lang, opt = {}){
   const typo = opt.typo !== false;

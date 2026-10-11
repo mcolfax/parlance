@@ -82,7 +82,7 @@ function showWhatsNew(since){
   const rel = list.length ? list : RELEASES.slice(0, 1);
   sfx('badge');
   sheet('What’s new in Parlance', h('div', { class: 'whatsnew' },
-    pip('cheer', 76, { tap: false, cls: 'wn-pip' }),
+    pip('dance', 76, { tap: false, cls: 'wn-pip', moveFor: 2400 }),
     rel.map(r => h('div', { class: 'wn-rel' }, h('span', { class: 'eyebrow' }, 'Version ' + r.v), h('h4', null, r.title), h('ul', null, r.notes.map(n => h('li', null, n)))))),
     [{ label: 'Watch the intro film', run: () => { openFilm(); } }, { label: 'Let’s go', primary: true }]);
 }

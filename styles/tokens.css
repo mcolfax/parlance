@@ -51,6 +51,10 @@
   --pip-crest:#EE5F35; --pip-crest2:#F7B440; --pip-tail:#F06137; --pip-tail2:#CD5229; --pip-feet:#808783;
   --pip-glint:#FDFDF9; --pip-gloss:#6CC3C2; --pip-gloss2:#FDE59A; --pip-shadow:rgb(20 48 31 / .14);
   --pip-blush:#FF8C8C; --pip-sweat:#A4DBF6; --pip-sweat2:#4CA3D6; --pip-spark:#F6B33F; --pip-heart:#F0565A;
+  /* the daily chest (chestSVG() in js/core/art.js): inked like Pip, wood with gold fittings, coins and a gem inside */
+  --chest-ink:var(--pip-ink); --chest-wood:#C97B36; --chest-wood2:#A35F27; --chest-wood3:#6F3A15; --chest-inside:#3A1E0B;
+  --chest-metal:#F7BD45; --chest-metal2:#CF8A1E; --chest-gloss:#FFF6DE; --chest-coin:#FFD447; --chest-coin2:#DE9E1A;
+  --chest-gem:#25B8B0; --chest-gem2:#13837D; --chest-glow:#FFD86B; --chest-shadow:var(--pip-shadow);
   /* intro film (always dark, like a cinema) */
   --film-bg:#10241A; --film-ink:#F3FAF0; --film-muted:#A3BFA9; --film-card:#1A3A28; --film-line:#43BF73;
   --line:var(--de); --line-ink:var(--de-ink); --line-text:var(--de-text); --line-soft:var(--de-soft); --line-glow:var(--de-glow); --line-edge:var(--de-edge); --line-soft-edge:var(--de-soft-edge);

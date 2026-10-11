@@ -2,10 +2,12 @@
 /* ===================== ART: Pip, cast portraits, unit signs, story scenes ===================== */
 /* Pip is a parrot: a chatty travel buddy who repeats after you. Pip is drawn by the rig (rig.js) from the shared bird
    (bird.js) and Pip's part sheet (pip.js), traced from the model sheet; design/rig/ has the Blender file, the tools and
-   the review pages. pip() is alive: it breathes, blinks, glances, plays each mood's move, hops when tapped and moves
-   its beak while it talks. pipSVG() is a still for small places and the intro film. Colors are the --pip-* tokens.
-   Screens ask for these moods; the rig has more (wave, love, sad, dance, fly…), and any of them works here too. */
-const PIP_MOODS = ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow'];
+   the review pages. pip() is alive: it breathes, blinks, glances, plays each mood's move, mouths its speech bubble,
+   looks where you touch the screen, does a different move each time it's tapped and moves its beak while it talks.
+   pipSVG() is a still for small places and the intro film. Colors are the --pip-* tokens. Any mood the rig has
+   (bird.js) works here: happy, cheer, think, oops, sleep, wow, wave, point, sad, laugh, shrug, proud, love, listen,
+   fly, dance, ready. */
+const PIP_MOODS = Object.keys(PIP.moods);
 const PIP_VIEW = [-8, 14, 256, 244];     // Pip's frame in rig units: the 120 x 114 box the screens are laid out for
 const PIP_HEAD = [38, 18, 164, 164];     // head and shoulders, for avatars
 const pipMood = mood => (PIP.moods[mood] ? mood : 'happy');
@@ -23,23 +25,46 @@ const PIP_SAYS = {
   es: { cheer: ['¡Genial!', '¡Muy bien!', '¡Excelente!', '¡Increíble!', '¡Así se hace!', '¡Bravo!'], oops: ['¡Casi!', '¡No pasa nada!', '¡Ya casi!', '¡Otra vez!'], hello: ['¡Hola!', '¡Vámonos!', '¡Todos a bordo!', '¿Listos?', '¡Buen viaje!'], sleep: ['¡Buenas noches!'] }
 };
 function pickSay(lang, kind){ const l = PIP_SAYS[lang] || PIP_SAYS.de; const a = l[kind] || l.hello; return a[Math.floor(Math.random() * a.length)]; }
-/* pip(mood, size, {say, sayPos, lang, tap, cls}) -> element. A live rig; tapping Pip makes it hop and say something
-   in the target language. With cls "fly-in" Pip flies in on spread wings and lands in its mood. */
+/* a mood for a little while, then back to the Pip's own mood (rig.home) */
+function pipBriefly(rig, mood, ms){
+  rig.set(mood); clearTimeout(rig.settle);
+  rig.settle = setTimeout(() => { if (rig.mood === mood) rig.set(rig.home); }, ms);
+}
+/* what Pip does when tapped, taking turns: a hop, a wave, a look round, a little dance, a bow, a nod.
+   A sleeping Pip wakes with a start, then nods off again. */
+const PIP_TAPS = [{ move: 'hop' }, { mood: 'wave', ms: 1800 }, { move: 'lookAround' }, { mood: 'dance', ms: 2000 }, { move: 'bow' }, { move: 'nod' }];
+let pipTaps = 0;
+function pipTap(rig){
+  if (rig.home === 'sleep') return pipBriefly(rig, 'wow', 1600);
+  const t = PIP_TAPS[pipTaps++ % PIP_TAPS.length];
+  if (t.mood && rig.mood === rig.home) pipBriefly(rig, t.mood, t.ms); else rig.play(t.move || 'hop');
+}
+/* pip(mood, size, {say, sayPos, mouth, wave, moveFor, lang, tap, cls}) -> element. A live rig; tapping Pip makes it move
+   and say something in the target language. With say and mouth, Pip mouths the line as its bubble pops up; with wave,
+   Pip waves hello first; moveFor (ms) ends a looping move, like dance, after a while. With cls "fly-in" Pip flies in on
+   spread wings and lands in its mood. */
 function pip(mood, size, opts = {}){
   size = size || 72; mood = mood || 'happy';
   const el = h('span', { class: 'pip ' + mood + (opts.cls ? ' ' + opts.cls : ''), style: '--pip:' + size + 'px', 'aria-hidden': opts.say ? null : 'true' });
   pipCSS();
   const flyIn = /(^|\s)fly-in(\s|$)/.test(opts.cls || '');
   const rig = Rig.create(PIP, { mood: flyIn ? 'fly' : pipMood(mood), size, view: PIP_VIEW, cls: 'pip-svg' });
+  rig.home = pipMood(mood);
   el.rig = rig; el.append(rig.el);
-  if (flyIn) setTimeout(() => rig.set(pipMood(mood)), 1500);   // the fly-in in art.css takes 1.6s from 0.2s
-  if (opts.say){ el.append(h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : ''), role: 'note' }, opts.say)); }
+  const land = () => (opts.wave ? pipBriefly(rig, 'wave', 2200) : rig.set(rig.home));
+  if (flyIn) setTimeout(land, 1500);   // the fly-in in art.css takes 1.6s from 0.2s
+  else if (opts.wave) setTimeout(land, 300);
+  if (opts.moveFor) setTimeout(() => rig.stop(), opts.moveFor);
+  if (opts.say){
+    el.append(h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : ''), role: 'note' }, opts.say));
+    if (opts.mouth) rig.say(opts.say, { delay: flyIn ? 1.7 : 0.45 });   // the bubble pops up at 0.35s
+  }
   if (opts.tap !== false){
     el.addEventListener('click', e => {
       e.stopPropagation();
       const lang = opts.lang || (typeof S !== 'undefined' ? S.settings.lang : 'de');
-      const line = pickSay(lang, mood === 'oops' ? 'oops' : mood === 'cheer' ? 'cheer' : 'hello');
-      rig.hop();
+      const m = rig.home, line = pickSay(lang, ['oops', 'cheer', 'sleep'].includes(m) ? m : 'hello');
+      pipTap(rig);
       const b = el.querySelector('.pip-say') || h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : '') });
       b.textContent = line; if (!b.parentNode) el.append(b);
       b.classList.remove('pop'); void b.getBoundingClientRect(); b.classList.add('pop');
@@ -52,8 +77,16 @@ function pip(mood, size, opts = {}){
 function setPipMood(el, mood){
   if (!el) return;
   el.classList.remove(...PIP_MOODS); el.classList.add(mood);
-  if (el.rig) el.rig.set(pipMood(mood));
+  if (el.rig){ clearTimeout(el.rig.settle); el.rig.home = pipMood(mood); el.rig.set(el.rig.home); }
 }
+/* live Pips glance at where you touch the screen, then go back to looking where their mood looks */
+if (typeof document !== 'undefined') document.addEventListener('pointerdown', e => {
+  for (const el of document.querySelectorAll('.pip')){
+    const rig = el.rig; if (!rig || el.contains(e.target)) continue;
+    rig.lookAtPoint(e.clientX, e.clientY); clearTimeout(rig.lookBack);
+    rig.lookBack = setTimeout(() => rig.look(null), 1400);
+  }
+}, { passive: true });
 
 /* ----- cast portraits ----- */
 const HAIR = {
@@ -68,7 +101,16 @@ const HAIR = {
   curly: { back: '<circle cx="21" cy="23" r="5"/><circle cx="24.5" cy="16.5" r="5.5"/><circle cx="32" cy="13.5" r="6"/><circle cx="39.5" cy="16.5" r="5.5"/><circle cx="43" cy="23" r="5"/>',
     front: '<path d="M21.5 26 C22 20.5 26 18.5 32 18.5 C38 18.5 42 20.5 42.5 26 C39.5 23.5 36 22.5 32 22.5 C28 22.5 24.5 23.5 21.5 26Z"/>' },
   bun: { back: '<circle cx="32" cy="10" r="6.2"/>', front: '<path d="M20.5 28 C20 17 26 13.5 32 13.5 C38 13.5 44 17 43.5 28 C42 22 38 19 32 19 C26 19 22 22 20.5 28Z"/>' },
-  cap: { back: '<path d="M20.5 29 C20.5 25 21 23 22 22 L22 30 Z M43.5 29 C43.5 25 43 23 42 22 L42 30 Z"/>', front: '' }
+  cap: { back: '<path d="M20.5 29 C20.5 25 21 23 22 22 L22 30 Z M43.5 29 C43.5 25 43 23 42 22 L42 30 Z"/>', front: '' },
+  bald: { back: '', front: '<path d="M20.4 31.5 C19.5 25.5 20.3 21.8 22.9 19.6 C22.4 23.6 22.6 27.4 23.3 31.5 Z M43.6 31.5 C44.5 25.5 43.7 21.8 41.1 19.6 C41.6 23.6 41.4 27.4 40.7 31.5 Z"/>' },
+  side: { back: '', front: '<path d="M20.5 28 C19.4 17 25.5 11.6 32.6 11.6 C39.8 11.6 45 16.4 43.5 26.5 C42.2 22.4 39.6 20.2 35 20.3 C30.6 20.4 26.9 19.2 24.6 17.6 C23 20.6 21.7 24 20.5 28Z"/>' },
+  braids: { back: '<path d="M19 31 C18 16.5 25 11.4 32 11.4 C39 11.4 46 16.5 45 31 L45.6 39.5 L41.2 39.5 L41.6 31 L22.4 31 L22.8 39.5 L18.4 39.5 Z"/>',
+    front: '<path d="M20.5 27.5 C20.5 17.8 26 13.6 32 13.6 C38 13.6 43.5 17.8 43.5 27.5 C41.4 21.8 37.4 19.2 32.7 18.8 L32 16.6 L31.3 18.8 C26.6 19.2 22.6 21.8 20.5 27.5Z"/>' +
+      [[20.3, 1], [43.7, -1]].map(([x, d]) => [0, 1, 2, 3].map(i => '<ellipse cx="' + (x + d * i * .35) + '" cy="' + (39.5 + i * 4.3) + '" rx="2.9" ry="2.6"/>').join('') +
+        '<path d="M' + (x + d * 1.05 - 1.6) + ' 56.8 L' + (x + d * 1.05 + 1.6) + ' 56.8 L' + (x + d * 1.05 + 2.2) + ' 61 L' + (x + d * 1.05 - 2.2) + ' 61 Z"/>').join('') },
+  /* a headscarf: a frame around the face that wraps under the chin and drapes over the shoulders (hair is its color) */
+  hijab: { back: '', front: '<path fill-rule="evenodd" d="M32 9.5 C41 9.5 47.6 16 47.6 27 C47.6 36 46 42.5 43.8 46.5 C40.8 51 36.5 52.5 32 52.5 C27.5 52.5 23.2 51 20.2 46.5 C18 42.5 16.4 36 16.4 27 C16.4 16 23 9.5 32 9.5 Z M22 29.2 A10 11.6 0 1 0 42 29.2 A10 11.6 0 1 0 22 29.2 Z"/>' +
+    '<path d="M21.2 44.5 C24.6 48.6 28.4 50.2 32 50.2 M24.6 13.6 C28.8 12 35.2 12 39.4 13.6" fill="none" stroke="#000" stroke-opacity=".14" stroke-width="1.3" stroke-linecap="round"/>' }
 };
 function avatarSVG(id){
   const c = CAST[id]; if (!c || !c.look) return pipSVG('happy', 64, PIP_HEAD);
@@ -78,13 +120,17 @@ function avatarSVG(id){
   s += fill(hs.back, L.hair);
   s += '<rect x="28" y="35" width="8" height="10" rx="3" fill="' + L.skin + '"/><rect x="28" y="35" width="8" height="5" fill="#000" opacity=".08"/>';
   s += '<path d="M9 66 C10 52 21 44.5 32 44.5 C43 44.5 54 52 55 66 Z" fill="' + L.shirt + '"/><path d="M27 44.8 L32 50 L37 44.8" fill="none" stroke="#000" stroke-opacity=".14" stroke-width="1.6" stroke-linejoin="round"/>';
+  if (L.tie) s += '<path d="M30.5 45.1 H33.5 L33 47.6 H31 Z M31 47.6 L30 56.5 L32 59 L34 56.5 L33 47.6 Z" fill="' + L.tie + '"/>';
   s += '<ellipse cx="32" cy="28" rx="11.5" ry="13" fill="' + L.skin + '"/>';
+  if (L.style === 'bald') s += '<ellipse cx="27" cy="18.8" rx="3.4" ry="1.5" transform="rotate(-24 27 18.8)" fill="#fff" opacity=".3"/>';
   s += fill(hs.front, L.hair);
+  if (L.style === 'braids') s += [21.35, 42.65].map(x => '<rect x="' + (x - 2.3) + '" y="55.4" width="4.6" height="2" rx="1" fill="' + (L.ribbon || L.shirt) + '"/>').join('');
   if (L.style === 'cap') s += '<path d="M19.5 24.5 C20 14 26 11.5 32 11.5 C38 11.5 44 14 44.5 24.5 Z" fill="#E4572E"/><path d="M40 23 C46 22.4 52 23.4 54.5 25.4 C50.5 27 45 26.6 40 26 Z" fill="#C2411D"/><circle cx="32" cy="12.4" r="1.3" fill="#C2411D"/>';
   if (L.beard) s += '<path d="M20.8 30 C21.3 40.5 26 44.5 32 44.5 C38 44.5 42.7 40.5 43.2 30 C41 35.5 37 38 32 38 C27 38 23 35.5 20.8 30Z" fill="' + L.hair + '"/>';
   s += '<circle cx="27.5" cy="29" r="1.7" fill="#1B1B1B"/><circle cx="36.5" cy="29" r="1.7" fill="#1B1B1B"/>';
-  s += '<path d="M25 25.3 Q27.5 24 30 25.3 M34 25.3 Q36.5 24 39 25.3" fill="none" stroke="' + (L.style === 'silver' || L.style === 'bun' ? '#8D8D8D' : L.hair) + '" stroke-width="1.3" stroke-linecap="round"/>';
+  s += '<path d="M25 25.3 Q27.5 24 30 25.3 M34 25.3 Q36.5 24 39 25.3" fill="none" stroke="' + (L.brow || (L.style === 'silver' || L.style === 'bun' ? '#8D8D8D' : L.hair)) + '" stroke-width="1.3" stroke-linecap="round"/>';
   s += '<path d="M28.6 34.2 Q32 37 35.4 34.2" fill="none" stroke="' + (L.beard ? '#F4E3D7' : '#7A3B2A') + '" stroke-width="1.5" stroke-linecap="round"/>';
+  if (L.mustache) s += '<path d="M26.6 33.6 C28.4 31.8 30.9 31.9 32 33 C33.1 31.9 35.6 31.8 37.4 33.6 C35.6 35 33.5 34.8 32 34 C30.5 34.8 28.4 35 26.6 33.6 Z" fill="' + L.hair + '"/>';
   s += '<circle cx="24.5" cy="32.5" r="2" fill="#FF8A80" opacity=".28"/><circle cx="39.5" cy="32.5" r="2" fill="#FF8A80" opacity=".28"/>';
   if (L.freckles) s += '<g fill="#B5562B" opacity=".45"><circle cx="25.5" cy="31.6" r=".55"/><circle cx="27" cy="32.6" r=".55"/><circle cx="37" cy="32.6" r=".55"/><circle cx="38.5" cy="31.6" r=".55"/></g>';
   if (L.glasses) s += '<g fill="none" stroke="#2A2A2A" stroke-width="1.2"><circle cx="27.5" cy="29" r="3.8"/><circle cx="36.5" cy="29" r="3.8"/><path d="M31.3 29 H32.7"/></g>';
@@ -186,12 +232,44 @@ const SCENES = {
 function sceneArt(kind, cls, lang){ const svg = (SCENES[kind] || SCENES.cafe).replace('{HELLO}', (LANGS[lang] || LANGS.de).hello); return h('div', { class: 'scene' + (cls ? ' ' + cls : ''), 'aria-hidden': 'true', html: '<svg viewBox="0 0 320 140" preserveAspectRatio="xMidYMid slice">' + svg + '</svg>' }); }
 
 /* ----- chest + medals ----- */
+/* The daily chest (80 x 72), inked like Pip: a wooden chest with gold bands and a lock. Opening it (.open animates,
+   .opened is the resting state) flips the lid (.ch-lid) up behind the box (.ch-lidup), lifts the loot (.ch-loot),
+   throws three coins (.ch-fly) and fans out light (.ch-rays). Colors are the --chest-* tokens; motion is in
+   components.css. The markup never changes, so it is built once. */
 function chestSVG(){
-  return '<svg viewBox="0 0 80 72" aria-hidden="true"><ellipse class="ch-glow" cx="40" cy="34" rx="34" ry="22"/>' +
-    '<g class="ch-coins"><circle cx="30" cy="30" r="5"/><circle cx="42" cy="26" r="5"/><circle cx="52" cy="31" r="5"/></g>' +
-    '<rect class="ch-base" x="12" y="34" width="56" height="32" rx="5"/><rect class="ch-band" x="12" y="44" width="56" height="5"/><rect class="ch-band" x="36" y="34" width="8" height="32"/>' +
-    '<g class="ch-lid"><path class="ch-base" d="M12 36v-8a12 12 0 0 1 12-12h32a12 12 0 0 1 12 12v8z"/><rect class="ch-band" x="36" y="16" width="8" height="20"/></g>' +
-    '<rect class="ch-lock" x="35" y="40" width="10" height="11" rx="2.5"/></svg>';
+  if (chestSVG.s) return chestSVG.s;
+  const f = n => +n.toFixed(2);
+  const coin = (x, y, r) => '<circle class="ch-coin" cx="' + x + '" cy="' + y + '" r="' + r + '"/><circle class="ch-coin-in" cx="' + x + '" cy="' + y + '" r="' + f(r * .52) + '"/>' +
+    '<path class="ch-gl" d="M' + f(x - r * .62) + ' ' + f(y + r * .1) + 'Q' + f(x - r * .62) + ' ' + f(y - r * .56) + ' ' + f(x - r * .06) + ' ' + f(y - r * .66) + '"/>';
+  const star = (x, y, s, delay) => '<path class="ch-spark" style="animation-delay:-' + delay + 's" d="M' + x + ' ' + (y - s) + 'Q' + x + ' ' + y + ' ' + (x + s) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y + s) + 'Q' + x + ' ' + y + ' ' + (x - s) + ' ' + y + 'Q' + x + ' ' + y + ' ' + x + ' ' + (y - s) + 'Z"/>';
+  const rays = [...Array(10)].map((_, i) => { const a = i * Math.PI / 5, w = .12, R = 40;
+    return 'M40 30L' + f(40 + R * Math.cos(a - w)) + ' ' + f(30 + R * Math.sin(a - w)) + 'L' + f(40 + R * Math.cos(a + w)) + ' ' + f(30 + R * Math.sin(a + w)) + 'Z'; }).join('');
+  const dome = 'M10 37V28.5C10 22 15.5 17 22.5 17H57.5C64.5 17 70 22 70 28.5V37Z';
+  const box = 'M10 37H70V58.5Q70 63 65.5 63H14.5Q10 63 10 58.5Z';
+  const up = 'M13 33V19.5C13 14 17.5 10 23 10H57C62.5 10 67 14 67 19.5V33Z';
+  return (chestSVG.s = '<svg viewBox="0 0 80 72" aria-hidden="true">' +
+    '<ellipse class="ch-shadow" cx="40" cy="65" rx="32" ry="3.6"/><ellipse class="ch-glow" cx="40" cy="32" rx="36" ry="26"/><path class="ch-rays" d="' + rays + '"/>' +
+    /* the lid seen from inside, standing up behind the box once it's open */
+    '<g class="ch-lidup"><path class="ch-wood" d="' + up + '"/><path class="ch-hollow" d="M17.5 33V21.5C17.5 17.5 20 15 24 15H56C60 15 62.5 17.5 62.5 21.5V33Z"/>' +
+      '<path class="ch-ln dk" d="M17.5 24.5H62.5"/><path class="ch-metal ch-o1" d="M36.8 10V6.4Q40 4.8 43.2 6.4V10Z"/><path class="ch-o" d="' + up + '"/></g>' +
+    '<path class="ch-inside" d="M11.4 37.5L13.6 32.4H66.4L68.6 37.5Z"/>' +
+    /* the loot: a heap of coins and a gem */
+    '<g class="ch-loot">' + coin(26, 31, 3.4) + coin(54.5, 30.6, 3.4) +
+      '<path class="ch-gem ch-o1" d="M35 28.6L37.9 24H42.1L45 28.6L40 35.2Z"/><path class="ch-gem2" d="M35 28.6H45L40 35.2Z"/><path class="ch-gl" d="M37.6 26.6L38.6 25.1"/>' +
+      coin(20.5, 35, 3.6) + coin(29.5, 34.4, 3.6) + coin(49.5, 34.2, 3.6) + coin(59, 35, 3.6) + coin(39.6, 36, 3.4) + '</g>' +
+    /* the box */
+    '<path class="ch-wood" d="' + box + '"/><path class="ch-wood2" d="M10 56.5H70V58.5Q70 63 65.5 63H14.5Q10 63 10 58.5Z"/>' +
+    '<path class="ch-ln" d="M10.8 47H69.2"/><path class="ch-ln thin" d="M27.5 42.5q3-1.2 6 0M46.5 41.8q2.5-1 5 0M28.5 52.8q2.5-1 5 0M45 53q3.5-1.2 7 0"/>' +
+    '<path class="ch-metal ch-o1" d="M18 37H24V63H18ZM56 37H62V63H56Z"/><g class="ch-rivet"><circle cx="21" cy="40.6" r="1.1"/><circle cx="21" cy="59.4" r="1.1"/><circle cx="59" cy="40.6" r="1.1"/><circle cx="59" cy="59.4" r="1.1"/></g>' +
+    '<path class="ch-o" d="' + box + '"/>' +
+    '<path class="ch-metal ch-o1" d="M33.5 38H46.5V45Q46.5 50.5 40 52.6Q33.5 50.5 33.5 45Z"/><circle class="ch-key" cx="40" cy="44.6" r="1.9"/><path class="ch-key" d="M39.1 45.4L38.5 48.8H41.5L40.9 45.4Z"/><path class="ch-gl" d="M35.6 40.4V44.2"/>' +
+    /* the lid, closed */
+    '<g class="ch-lid"><path class="ch-wood" d="' + dome + '"/><path class="ch-ln" d="M10.4 27H69.6"/><path class="ch-wood2" d="M10 33.5H70V37H10Z"/>' +
+      '<path class="ch-metal ch-o1" d="M18 17.75Q20 17.1 22.5 17H24V37H18ZM56 17H57.5Q60 17.1 62 17.75V37H56Z"/><g class="ch-rivet"><circle cx="21" cy="21.4" r="1.1"/><circle cx="21" cy="30.4" r="1.1"/><circle cx="59" cy="21.4" r="1.1"/><circle cx="59" cy="30.4" r="1.1"/></g>' +
+      '<path class="ch-gl wide" d="M14.2 28C14.2 23.6 17.2 20.6 21.4 20.1M27.5 19.9H30"/><path class="ch-o1 ch-line" d="M10 33.5H70"/><path class="ch-o" d="' + dome + '"/>' +
+      '<path class="ch-metal ch-o1" d="M36.8 33.4H43.2V39.6Q40 41.4 36.8 39.6Z"/></g>' +
+    ['l', 'r', 'c'].map(k => '<g class="ch-fly ' + k + '">' + coin(40, 33, 3.6) + '</g>').join('') +
+    star(6, 24, 3.6, 0) + star(74, 15, 3, .7) + star(73.5, 46, 2.4, 1.4) + star(6.5, 50, 2.2, 1.9) + '</svg>');
 }
 const BADGE_ART = {
   flag: '<path d="M6 21V4M6 4.5h11l-2.5 4 2.5 4H6"/>',
