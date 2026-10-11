@@ -10,9 +10,11 @@ function addXP(n, lang){
   touch('core', lang);
 }
 function todayXP(){ return (S.days[today()] || {}).xp || 0; }
-function streakInfo(){
-  const t = today(); const met = k => !!(S.days[k] && S.days[k].met);
-  const keys = Object.keys(S.days).filter(k => S.days[k] && S.days[k].xp > 0).sort();
+function streakInfo(){ return streakFrom(S.days, today()); }
+/* days: { 'YYYY-MM-DD': { xp, met } }. Also counts a friend's streak from the days on their card (social.js). */
+function streakFrom(days, t){
+  const met = k => !!(days[k] && days[k].met);
+  const keys = Object.keys(days).filter(k => days[k] && days[k].xp > 0).sort();
   const first = keys[0];
   let count = 0; const frozenWeeks = new Set(); const frozen = new Set();
   if (first){
@@ -85,6 +87,8 @@ function checkBadges(ctx = {}){
   if (both.some(l => STORIES.filter(s => s.lang === l).every(s => S.langs[l].stories[s.id]))) award('stories8');
   if ((S.stats.talkBest || 0) >= 5) award('talk');
   if ((S.stats.chests || 0) >= 7) award('chest7');
+  if (Object.values(S.social.friends).some(f => f && f.code && (!f.gone || (+f.at || 0) > f.gone))) award('friend');
+  if (Object.values(S.social.past).some(p => p && p.me > p.them)) award('rival');
   for (const [lv, id] of [['A1', 'levelA1'], ['B1', 'levelB1'], ['C2', 'levelC2']]) if (both.some(l => levelComplete(l, lv))) award(id);
   if (ctx.practiced){ const hr = new Date().getHours(); if (hr >= 4 && hr < 8) award('early'); if (hr >= 22 || hr < 4) award('night'); }
   if (got.length) touch('core');

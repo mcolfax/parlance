@@ -6,10 +6,15 @@
    - shape changes get a step in MIGRATIONS below; steps must be idempotent
    ================================================== */
 const LS_KEY = 'parlance.v2';            // keep this key: changing it would orphan everyone's local progress
-const SLICES = ['core', 'de', 'es', 'gen-de', 'gen-es'];
+const SLICES = ['core', 'de', 'es', 'gen-de', 'gen-es', 'social'];
 function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}, start: 'A1', startTs: 0 }; }
+/* Friends (js/core/social.js), kept private and synced like the rest of your progress:
+   on/name/bird: your friends card; secret/since/home: the hidden part of your card's path and invite code;
+   friends: { uid: { code, cAt, at, gone } }; duels: { id: duel }; past: { id: finished duel }; cheers: { uid: day you cheered them };
+   seen: { uid: day of their latest cheer you've seen } */
+function newSocial(){ return { on: false, secret: '', since: 0, home: '', name: '', bird: 'pip', friends: {}, duels: {}, past: {}, cheers: {}, seen: {}, ts: 0 }; }
 function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
-function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defaultSettings(), days: {}, badges: {}, stats: {}, langs: { de: newLang(), es: newLang() }, gen: { de: [], es: [] } }; }
+function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defaultSettings(), days: {}, badges: {}, stats: {}, langs: { de: newLang(), es: newLang() }, gen: { de: [], es: [] }, social: newSocial() }; }
 function validLesson(l){ return l && typeof l.id === 'string' && typeof l.title === 'string' && Array.isArray(l.vocab) && Array.isArray(l.sentences) && Array.isArray(l.blanks); }
 function cleanLang(x){
   const o = { ...newLang(), ...(x && typeof x === 'object' ? x : {}) };
@@ -29,10 +34,21 @@ function cleanSettings(x){
   s.homeMusic = s.homeMusic !== false;
   return s;
 }
+function cleanSocial(x){
+  const o = { ...newSocial(), ...obj(x) };
+  for (const k of ['friends', 'duels', 'past', 'cheers', 'seen']) o[k] = { ...obj(o[k]) };
+  o.on = !!o.on; o.since = +o.since || 0; o.ts = +o.ts || 0;
+  if (typeof o.secret !== 'string' || !/^[A-Za-z0-9]{16,40}$/.test(o.secret)){ o.secret = ''; o.since = 0; }
+  if (!['c', 'w'].includes(o.home)) o.home = '';
+  o.name = typeof o.name === 'string' ? o.name.slice(0, 24) : '';
+  if (typeof o.bird !== 'string') o.bird = 'pip';
+  return o;
+}
 /* Ordered, idempotent upgrade steps for saved state. Each runs once when an older save is loaded. */
 const MIGRATIONS = [
   { to: 3, run: st => { st.badges = obj(st.badges); st.stats = obj(st.stats); } },
-  { to: 4, run: st => { for (const l of ['de', 'es']) if (st.langs[l]) st.langs[l].cards = migrateCardKeys(st.langs[l].cards || {}); } }
+  { to: 4, run: st => { for (const l of ['de', 'es']) if (st.langs[l]) st.langs[l].cards = migrateCardKeys(st.langs[l].cards || {}); } },
+  { to: 5, run: st => { st.social = cleanSocial(st.social); } }
 ];
 function migrate(st){
   const from = +st.v || 1;
@@ -52,6 +68,7 @@ function mergeState(base, s){
     if (s.langs && s.langs[l]) base.langs[l] = cleanLang(s.langs[l]);
     if (s.gen && Array.isArray(s.gen[l])) base.gen[l] = s.gen[l].filter(validLesson);
   }
+  base.social = cleanSocial(s.social);
   if (typeof s.owner === 'string') base.owner = s.owner;
   if (hasProgress(base)) base.settings.onboarded = true;
   base.v = +s.v || 1;
@@ -99,6 +116,20 @@ function mergeLang(a, b){
   return out;
 }
 function mergeGen(a, b){ const map = new Map(); for (const l of [...(b || []), ...(a || [])]) if (validLesson(l)) map.set(l.id, l); return [...map.values()].sort((x, y) => (x.createdAt || 0) - (y.createdAt || 0)); }
+function mergeFriend(a, b){ const c = (+a.cAt || 0) >= (+b.cAt || 0) ? a : b; return { ...b, ...a, code: c.code, cAt: +c.cAt || 0, at: Math.max(+a.at || 0, +b.at || 0), gone: Math.max(+a.gone || 0, +b.gone || 0) }; }
+function mergeSocial(a, b){
+  a = cleanSocial(a); b = cleanSocial(b);
+  const out = { ...b, ...a };   // unknown fields from either side survive
+  const p = a.ts >= b.ts ? a : b; out.on = p.on; out.name = p.name; out.bird = p.bird; out.ts = Math.max(a.ts, b.ts);
+  const k = a.since >= b.since ? a : b; out.secret = k.secret; out.since = k.since; out.home = k.home;   // a changed secret wins
+  out.friends = { ...b.friends };
+  for (const [id, f] of Object.entries(a.friends)){ if (!f || typeof f !== 'object') continue; const x = out.friends[id]; out.friends[id] = x && typeof x === 'object' ? mergeFriend(f, x) : f; }
+  out.duels = { ...b.duels };
+  for (const [id, d] of Object.entries(a.duels)){ const x = out.duels[id]; if (!x || (+(d && d.u) || 0) >= (+x.u || 0)) out.duels[id] = d; }
+  out.past = { ...b.past, ...a.past };
+  for (const f of ['cheers', 'seen']){ out[f] = { ...b[f] }; for (const [id, v] of Object.entries(a[f])) if (!out[f][id] || String(v) > String(out[f][id])) out[f][id] = v; }
+  return out;
+}
 function mergeCore(a, b){
   const sa = cleanSettings(a && a.settings), sb = cleanSettings(b && b.settings);
   const bNewer = (sb.ts || 0) > (sa.ts || 0);
@@ -111,17 +142,20 @@ function mergeCore(a, b){
 function sliceData(slice){
   if (slice === 'core') return { settings: S.settings, days: S.days, badges: S.badges, stats: S.stats };
   if (slice === 'de' || slice === 'es') return S.langs[slice];
+  if (slice === 'social') return S.social;
   return S.gen[slice.slice(4)];
 }
 function mergeSlice(slice, local, remote){
   if (remote == null) return local;
   if (slice === 'core') return mergeCore(local, remote);
   if (slice === 'de' || slice === 'es') return mergeLang(local, remote);
+  if (slice === 'social') return mergeSocial(local, remote);
   return mergeGen(local, remote);
 }
 function applySlice(slice, data){
   if (slice === 'core'){ S.settings = cleanSettings(data.settings); S.days = data.days || {}; S.badges = obj(data.badges); S.stats = obj(data.stats); }
   else if (slice === 'de' || slice === 'es') S.langs[slice] = cleanLang(data);
+  else if (slice === 'social') S.social = cleanSocial(data);
   else S.gen[slice.slice(4)] = (data || []).filter(validLesson);
 }
 function mergeWhole(a, b){
@@ -129,6 +163,9 @@ function mergeWhole(a, b){
   const c = mergeCore({ settings: a.settings, days: a.days, badges: a.badges, stats: a.stats }, { settings: b.settings, days: b.days, badges: b.badges, stats: b.stats });
   out.settings = c.settings; out.days = c.days; out.badges = c.badges; out.stats = c.stats;
   for (const l of ['de', 'es']){ out.langs[l] = mergeLang(a.langs[l], b.langs[l]); out.gen[l] = mergeGen(a.gen[l], b.gen[l]); }
+  // friends live in one home's database: a backup from the other home doesn't bring them along
+  const sa = cleanSocial(a.social), sb = cleanSocial(b.social);
+  out.social = sa.home && sb.home && sa.home !== sb.home ? sa : mergeSocial(sa, sb);
   out.owner = a.owner || b.owner || null;
   return out;
 }
@@ -153,6 +190,7 @@ function touch(...slices){
   for (const s of slices){ if (s === 'core') S.settings.ts = S.settings.ts || 0; Remote.dirty.add(s); }
   saveLocal();
   clearTimeout(Remote.timer); Remote.timer = setTimeout(() => syncNow(), 1200);
+  if (typeof socialTouch === 'function') socialTouch();   // keeps your friends card current (social.js)
 }
 function touchSettings(){ S.settings.ts = Date.now(); touch('core'); }
 function ref(slice){ return Remote.db.doc('data/users/' + Remote.uid + '/' + slice); }
@@ -191,6 +229,7 @@ async function syncNow(full){
     Remote.busy = false;
     if (changedLocal){
       saveLocal(); reindex();
+      if (typeof socialAfterSync === 'function') socialAfterSync();
       if (Onb.open && !Onb.replay && S.settings.onboarded){ Onb.open = false; closeOverlay(); UI.animate = true; render(); toast('Welcome back. Your progress is synced.'); }
       else if (!busy()) render();
     }
@@ -201,6 +240,7 @@ async function syncNow(full){
 function hasData(slice, d){
   if (slice === 'core') return true;
   if (slice === 'de' || slice === 'es') return !!(Object.keys(d.done || {}).length || Object.keys(d.cards || {}).length || Object.keys(d.stories || {}).length || d.xp);
+  if (slice === 'social') return !!(d && (d.secret || d.on || Object.keys(d.friends || {}).length));
   return Array.isArray(d) && d.length > 0;
 }
 async function initRemote(){
@@ -217,6 +257,8 @@ async function initRemote(){
     Remote.db = db; Remote.uid = uid; setSync('checking');
     await syncNow(true);
     flushOutbox();
+    Remote.ready = true;
+    if (typeof socialStart === 'function') socialStart();
   } catch (e) { setSync('error'); }
   Remote.ready = true;
 }

@@ -14,24 +14,25 @@ function sheet(title, body, actions){
   back.append(box);
   back.addEventListener('click', e => { if (e.target === back) close(); });
   document.body.append(back);
-  const f = box.querySelector('textarea,input,button'); if (f) setTimeout(() => { try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); } box.scrollTop = 0; }, 40);
+  const f = box.querySelector('textarea,input,button:not(.danger)'); if (f) setTimeout(() => { try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); } box.scrollTop = 0; }, 40);
   return close;
 }
 function renderTabs(){
   const lang = S.settings.lang; const due = dueCount(lang);
-  const tabs = [['learn', 'Learn'], ['stories', 'Stories'], ['review', 'Review'], ['talk', 'Talk'], ['me', 'Me']];
+  const tabs = [['learn', 'Learn'], ['stories', 'Stories'], ['review', 'Review'], ['talk', 'Talk'], ['friends', 'Friends'], ['me', 'Me']];
   const cl = LEVELS.indexOf(currentLevel(lang));
   const freshStories = allStories().some(s => s.lang === lang && LEVELS.indexOf(s.level) <= cl && !S.langs[lang].stories[s.id]);
   $('#tabs').replaceChildren(h('div', { class: 'tabs-in' }, tabs.map(([id, label]) =>
     h('button', { class: 'tab', type: 'button', 'aria-current': UI.tab === id ? 'page' : null, onclick: () => { if (UI.tab === id){ window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); return; } UI.tab = id; UI.animate = true; haptic(6); render(); window.scrollTo(0, 0); } },
       h('span', { class: 'tab-ic', html: IC[id], 'aria-hidden': 'true' }), h('span', null, label),
       id === 'review' && due ? h('span', { class: 'badge' }, due > 99 ? '99+' : due) : null,
-      id === 'stories' && freshStories ? h('span', { class: 'badge dot', 'aria-label': 'New stories' }) : null))));
+      id === 'stories' && freshStories ? h('span', { class: 'badge dot', 'aria-label': 'New stories' }) : null,
+      id === 'friends' && socialAlerts() ? h('span', { class: 'badge dot', 'aria-label': 'New from friends' }) : null))));
 }
 function render(){
   applyLang();
   closeGloss();
-  const views = { learn: viewLearn, stories: viewStories, review: viewReview, talk: viewTalk, me: viewMe };
+  const views = { learn: viewLearn, stories: viewStories, review: viewReview, talk: viewTalk, friends: viewFriends, me: viewMe };
   const v = (views[UI.tab] || viewLearn)();
   if (UI.animate && !reduced()){ v.classList.add('enter'); [...v.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 8))); }
   UI.animate = false;

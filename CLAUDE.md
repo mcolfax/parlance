@@ -83,9 +83,14 @@ content          read: view    write: owner
 proposals        read: owner   write: owner
 feedback         read: owner   write: owner
 feedback/{self}  read: interact  write: interact
+cards            read: interact  write: owner
+cards/{self}     write: interact
+inbox            read: interact  write: interact
 data/users/{self}  private to each person (platform default)
 ```
 
-Capabilities: `db`, `user` (profile scope), `sample`, `downloads`, `comments` (composer only).
+`cards` and `inbox` are for Friends (see "Friends" in `docs/ARCHITECTURE.md`). Their paths include each person's secret, so only people they invite can find them.
+
+Capabilities: `db`, `user` (profile scope), `sample`, `downloads`, `comments` (composer only). Changing a rule means passing the whole `capabilities` object on that publish (every capability and every rule above); leave it out on other publishes.
 
 The web version enforces the same rules in SQL (`dev/supabase.sql`). Owners there are listed in `public.owners`.

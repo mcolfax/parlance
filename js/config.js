@@ -3,8 +3,8 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.5.1';
-const SCHEMA_VERSION = 4;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+const APP_VERSION = '4.6.0';
+const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
    functions that apply the same access rules as the artifact (dev/supabase.sql).
@@ -12,6 +12,11 @@ const SCHEMA_VERSION = 4;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.6.0', date: '2026-10-11', title: 'Learn with friends', notes: [
+    'There’s a new Friends tab. Invite friends with a code or a link and you’re added to each other’s list.',
+    'Race each other up the weekly league by XP, goal days or streak. It starts fresh every Monday.',
+    'Challenge a friend to a week-long duel for the most XP, goal days or lessons. Win and you get a bonus.',
+    'Send a cheer when a friend needs a nudge. Only friends you invite can see your card.'] },
   { v: '4.5.1', date: '2026-10-11', title: 'Google sign-in only, for now', notes: [
     'The web version signs in with Google only for now. If you used an email and password before, Continue with Google with the same address opens your account.'] },
   { v: '4.5.0', date: '2026-10-11', title: 'Meet the new Pip', notes: [
@@ -56,7 +61,15 @@ const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home
     { src: 'media/abc-adventure.mp4', type: 'audio/mp4; codecs="mp4a.40.2"' },
     { src: 'media/abc-adventure.webm', type: 'audio/webm; codecs="opus"' }] } };
 /* XP economy */
-const XP = { perAnswer: 1, lesson: 5, perfectBonus: 5, review: 3, story: 8, storyPerfect: 4, chest: 15, talkPerMsg: 2, talkMax: 20 };
+const XP = { perAnswer: 1, lesson: 5, perfectBonus: 5, review: 3, story: 8, storyPerfect: 4, chest: 15, talkPerMsg: 2, talkMax: 20, duelWin: 20 };
+/* Friends (js/core/social.js, js/ui/friends.js). Friends must use the same home: the Claude artifact and the web version
+   keep separate databases. links: where an invite sends people. duel: days a duel runs. answer: days a challenge waits
+   for an answer. keep: days a finished duel stays on screen. history: days of activity your card shows friends (it has to
+   cover a whole duel plus keep). max: how many friends you can have. */
+const FRIENDS = { links: { claude: 'https://claude.ai/artifact/8ZNHqMUCms2THTSfDkTp72', web: 'https://parlance-iota.vercel.app/' },
+  duel: 7, answer: 3, keep: 7, history: 35, max: 30,
+  metrics: { xp: { label: 'Most XP' }, goal: { label: 'Most goal days' }, lessons: { label: 'Most lessons' } },
+  league: { xp: 'XP', goal: 'Goal days', streak: 'Streak' } };
 /* ===================== LANGUAGES & LEVELS ===================== */
 const LANGS = {
   de: { code: 'de', name: 'German', native: 'Deutsch', tts: 'de-DE', prefs: ['de-DE', 'de-AT', 'de-CH', 'de'],
@@ -109,6 +122,8 @@ const BADGES = [
   { id: 'stories8', icon: 'book', name: 'Storyteller', desc: 'Finish all 8 stories in one language.' },
   { id: 'talk', icon: 'chat', name: 'Chatterbox', desc: 'Send your tutor 5 messages in one conversation.' },
   { id: 'chest7', icon: 'chest', name: 'Treasure hunter', desc: 'Open 7 daily chests.' },
+  { id: 'friend', icon: 'people', name: 'Better together', desc: 'Add your first friend.' },
+  { id: 'rival', icon: 'duel', name: 'Friendly rival', desc: 'Win a duel with a friend.' },
   { id: 'levelA1', icon: 'trophy', name: 'A1 complete', desc: 'Finish every A1 lesson in one language.' },
   { id: 'levelB1', icon: 'trophy', name: 'Halfway there', desc: 'Finish every B1 lesson in one language.' },
   { id: 'levelC2', icon: 'mountain', name: 'Summit', desc: 'Finish every C2 lesson in one language.' },

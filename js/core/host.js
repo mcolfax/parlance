@@ -96,7 +96,8 @@ function webDoc(path){
   return { id: path.split('/').pop(), path,
     async get(){ return webSnap(path, await webRpc('doc_get', { p: path })); },
     async set(d){ await webRpc('doc_set', { p: path, d: JSON.parse(JSON.stringify(d)) }); },
-    async update(d){ await webRpc('doc_update', { p: path, d: JSON.parse(JSON.stringify(d)) }); } };
+    async update(d){ await webRpc('doc_update', { p: path, d: JSON.parse(JSON.stringify(d)) }); },
+    async delete(){ await webRpc('doc_delete', { p: path }); } };
 }
 function webCollection(c){
   const get = async () => { const docs = ((await webRpc('doc_list', { c })) || []).map(r => webSnap(r.path, r.data)); return { docs, size: docs.length, empty: !docs.length }; };

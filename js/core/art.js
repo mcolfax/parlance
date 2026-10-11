@@ -208,7 +208,10 @@ const BADGE_ART = {
   chest: '<rect x="4" y="10" width="16" height="10" rx="2"/><path d="M4 12V9a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v3M10.5 13h3v3h-3z"/>',
   trophy: UNIT_ART['Mastery'],
   mountain: '<path d="M2.5 19.5 9 8l4 6 2.5-3.5 6 9z"/><path d="M7.4 10.8 9 12.5l1.6-1.8"/>',
-  target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>'
+  target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+  people: '<circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 20.5c1-3.7 3.6-5.6 6.5-5.6s5.5 1.9 6.5 5.6"/><path d="M15.5 5a3.5 3.5 0 0 1 0 7M17.6 15.2c1.9.7 3.2 2.5 3.9 5.3"/>',
+  duel: '<path d="M4 4l11.5 11.5M13 18l5-5M16.5 16.5 20 20M20 4 8.5 15.5M6 13l5 5M7.5 16.5 4 20"/>',
+  heart: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>'
 };
 function medal(icon, earned, size){
   return h('span', { class: 'medal' + (earned ? ' on' : ''), style: '--md:' + (size || 64) + 'px', 'aria-hidden': 'true',

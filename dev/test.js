@@ -1,7 +1,8 @@
 /* Parlance end-to-end tests (jsdom). Loads the real multi-file app from the folder that holds index.html.
    Usage: npm i jsdom@24 && node dev/test.js path/to/index.html
    Covers: every lesson and story through the UI, the answer checker, merges/backup/sync, stable review keys
-   and migrations, live content packs, the update banner, feedback, the owner Studio loop, the film, sounds and the theme song. */
+   and migrations, live content packs, the update banner, feedback, the owner Studio loop, the film, sounds, the theme song,
+   the web version and friends (invites, the league, duels, cheers). */
 const fs = require('fs');
 const path = require('path');
 const { JSDOM, ResourceLoader, VirtualConsole } = require('jsdom');
@@ -56,7 +57,7 @@ async function makeDom(opts = {}){
 }
 /* fake shared database with the same surface the app uses (doc/collection/get/set/update/onSnapshot) */
 function fakeDB(store, opts = {}){
-  const listeners = [];
+  const listeners = store.__listeners || (store.__listeners = []);   // shared by every page using this store, like the real database
   const snapOf = p => ({ id: p.split('/').pop(), exists: store.has(p), data: () => store.has(p) ? JSON.parse(JSON.stringify(store.get(p))) : undefined });
   const colDocs = c => [...store.keys()].filter(k => k.startsWith(c + '/') && k.split('/').length === c.split('/').length + 1).sort().map(snapOf);
   const notify = p => { for (const l of listeners) if (p.startsWith(l.c + '/')) l.next({ docs: colDocs(l.c), size: colDocs(l.c).length }); };
@@ -64,7 +65,8 @@ function fakeDB(store, opts = {}){
   const doc = p => ({ id: p.split('/').pop(), path: p,
     async get(){ return snapOf(p); },
     async set(d){ if (deny(p)) throw { code: 'invalid_argument', message: 'nope' }; if (JSON.stringify(d).includes('undefined')) {} store.set(p, JSON.parse(JSON.stringify(d))); notify(p); },
-    async update(d){ if (deny(p)) throw { code: 'invalid_argument', message: 'nope' }; if (!store.has(p)) throw { code: 'invalid_argument' }; store.set(p, { ...store.get(p), ...JSON.parse(JSON.stringify(d)) }); notify(p); } });
+    async update(d){ if (deny(p)) throw { code: 'invalid_argument', message: 'nope' }; if (!store.has(p)) throw { code: 'invalid_argument' }; store.set(p, { ...store.get(p), ...JSON.parse(JSON.stringify(d)) }); notify(p); },
+    async delete(){ if (deny(p)) throw { code: 'invalid_argument', message: 'nope' }; store.delete(p); notify(p); } });
   return { doc, collection: c => ({ path: c, doc: id => doc(c + '/' + id), async get(){ const docs = colDocs(c); return { docs, size: docs.length, empty: !docs.length }; },
     onSnapshot(next){ const l = { c, next }; listeners.push(l); setTimeout(() => next({ docs: colDocs(c), size: colDocs(c).length }), 5); return () => listeners.splice(listeners.indexOf(l), 1); } }) };
 }
@@ -80,9 +82,11 @@ function fakeSupabase(store, opts = {}){
   const issue = id => { const at = 'at' + (++n), rt = 'rt' + n; tokens.set(at, id); refresh.set(rt, id); return { access_token: at, refresh_token: rt, token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: pub(users.get(id)) }; };
   const canRead = (p, me) => { const s = p.split('/'); if (s[0] === 'content' && s.length === 2) return true; if (!me) return false;
     if (s[0] === 'data' && s[1] === 'users' && s.length === 4 && s[2] === me) return true; if (s[0] === 'feedback' && s.length === 2 && s[1] === me) return true;
+    if (['cards', 'inbox'].includes(s[0]) && s.length === 4) return true;
     return ['proposals', 'feedback'].includes(s[0]) && s.length === 2 && owners.has(me); };
   const canWrite = (p, me) => { if (!me) return false; const s = p.split('/');
     if (s[0] === 'data' && s[1] === 'users' && s.length === 4 && s[2] === me) return true; if (s[0] === 'feedback' && s.length === 2 && s[1] === me) return true;
+    if (s[0] === 'cards' && s.length === 4 && s[1] === me) return true; if (s[0] === 'inbox' && s.length === 4 && (s[3] === me || s[1] === me)) return true;
     return ['content', 'proposals', 'feedback'].includes(s[0]) && s.length === 2 && owners.has(me); };
   const res = (status, body) => ({ ok: status >= 200 && status < 300, status, text: async () => body === undefined ? '' : JSON.stringify(body) });
   const denied = p => res(403, { code: '42501', message: 'not allowed ' + p });
@@ -120,6 +124,7 @@ function fakeSupabase(store, opts = {}){
       case 'doc_list': return res(200, [...store.keys()].filter(k => k.slice(0, k.lastIndexOf('/')) === a.c && canRead(k, me)).sort().map(k => ({ path: k, data: store.get(k) })));
       case 'doc_set': if (!canWrite(a.p, me)) return denied(a.p); store.set(a.p, JSON.parse(JSON.stringify(a.d))); return res(204);
       case 'doc_update': if (!canWrite(a.p, me)) return denied(a.p); if (!store.has(a.p)) return res(400, { code: 'P0002', message: 'no document' }); store.set(a.p, { ...store.get(a.p), ...a.d }); return res(204);
+      case 'doc_delete': if (!canWrite(a.p, me)) return denied(a.p); store.delete(a.p); return res(204);
       case 'is_owner': return res(200, !!me && owners.has(me));
       case 'profile_set': if (!me) return denied('profile'); profiles.set(me, a.n); return res(204);
       case 'profile_names': return res(200, me && owners.has(me) ? a.ids.filter(i => profiles.has(i)).map(i => ({ id: i, name: profiles.get(i) })) : []);
@@ -312,7 +317,7 @@ async function main(){
       E('startReview(false)'); await finishCurrent(); ok(Run().finished, 'review finished'); footBtn('Continue').click();
     }
     ok(Object.values(P.S.langs[lang].cards).filter(c => c.n >= 1).length >= 60, lang + ' reviewed');
-    for (const tab of ['learn', 'stories', 'review', 'talk', 'me']){ E('UI.tab=' + JSON.stringify(tab) + '; render()'); ok(w.document.querySelector('#app').children.length > 0, 'tab ' + tab); }
+    for (const tab of ['learn', 'stories', 'review', 'talk', 'friends', 'me']){ E('UI.tab=' + JSON.stringify(tab) + '; render()'); ok(w.document.querySelector('#app').children.length > 0, 'tab ' + tab); }
     E('UI.wordFilter="all"; UI.wordLimit=5000; UI.tab="review"; render()'); ok(w.document.querySelectorAll('.wrow').length > 500, 'all words ' + w.document.querySelectorAll('.wrow').length);
     E('UI.wordLimit=0; UI.wordFilter="v"; render()'); ok(w.document.querySelectorAll('.wrow').length === 150 && [...w.document.querySelectorAll('#word-list button')].some(b => b.textContent.startsWith('Show more')), 'word list paging');
     /* stories: read every one through the UI */
@@ -510,7 +515,7 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 4, 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 5 && M.P.S.social && M.P.S.social.friends, 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
     for (const lang of ['de', 'es']) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }
@@ -826,6 +831,203 @@ async function main(){
     const built = fs.readFileSync(path.join(ROOT, 'dist', 'index.html'), 'utf8'), manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist', 'manifest.webmanifest'), 'utf8'));
     ok(built.startsWith('<!doctype html>') && built.includes('window.PARLANCE_WEB = true') && built.includes('rel="manifest"') && built.includes('rel="apple-touch-icon" href="media/icons/icon-180.png"'), 'web build page');
     ok(manifest.display === 'standalone' && /^#[0-9A-F]{6}$/i.test(manifest.theme_color) && manifest.icons.every(i => fs.existsSync(path.join(ROOT, 'dist', i.src))) && fs.existsSync(path.join(ROOT, 'dist', 'media', 'icons', 'icon-180.png')), 'web manifest and icons ' + JSON.stringify(manifest.icons.map(i => i.src)));
+  }
+  /* ---------- 12. friends: invites, the league, duels, cheers, removing (learners sharing one database) ---------- */
+  {
+    const store = new Map();
+    const seed = () => ({ 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0', filmSeen: true } } });
+    const btnIn = (root, t) => [...root.querySelectorAll('button')].find(b => b.textContent.trim() === t);
+    const lastSheet = X => [...X.w.document.querySelectorAll('.sheet-back:not(.out) .sheet')].pop();
+    const started = async X => { for (let i = 0; i < 80 && !X.E('Social.started'); i++) await sleep(25); };
+    const M = await makeDom({ claude: fakeClaude(store, { uid: 'u_matt', name: 'Matt Colfax' }), seed: seed() });
+    const A = await makeDom({ claude: fakeClaude(store, { uid: 'u_ana', name: 'Ana López' }), seed: seed() });
+    await started(M); await started(A);
+    ok(M.E('Social.started') && A.E('Social.started') && M.E('socialState()') === 'ok', 'friends start once signed in');
+    // the tab: an intro, then your card and an invite
+    M.E('UI.tab="friends"; render()');
+    const md = M.w.document;
+    const tabBtn = [...md.querySelectorAll('.tab')].find(b => b.textContent.includes('Friends'));
+    ok(md.querySelectorAll('.tab').length === 6 && tabBtn && tabBtn.getAttribute('aria-current') === 'page', 'Friends has its own tab');
+    ok(md.querySelector('.fr-hero') && md.querySelector('.fr-hero').textContent.includes('Learn with friends') && md.querySelector('.fr-privacy'), 'friends intro explains who sees your card');
+    btnIn(md.querySelector('.fr-hero'), 'Invite a friend').click(); await sleep(40);
+    let sh = lastSheet(M);
+    ok(sh && sh.querySelector('#fr-name') && sh.querySelector('#fr-name').value === 'Matt' && sh.querySelectorAll('.fr-bird').length === 9, 'card setup starts with your first name and a choice of pictures');
+    sh.querySelectorAll('.fr-bird')[2].click();
+    btnIn(lastSheet(M), 'Continue').click(); await sleep(450);
+    const mattCard = [...store.keys()].find(k => k.startsWith('cards/u_matt/'));
+    ok(mattCard && /^cards\/u_matt\/[A-Za-z0-9]{24}\/card$/.test(mattCard) && store.get(mattCard).name === 'Matt' && store.get(mattCard).bird === 'jonas', 'card published at a secret path: ' + mattCard);
+    sh = lastSheet(M);
+    const invite = sh && sh.querySelector('textarea') ? sh.querySelector('textarea').value : '';
+    const mattCode = M.E('myCode()');
+    ok(/^Pc1\.[A-Za-z0-9]{24}\.u_matt$/.test(mattCode) && invite.includes(mattCode) && invite.includes('claude.ai/artifact/'), 'invite carries the code and the link: ' + invite);
+    btnIn(sh, 'Copy invite') && M.w.document.querySelectorAll('.sheet-back').forEach(b => b.remove());
+    // Ana pastes the whole message
+    A.E('UI.tab="friends"; render()');
+    const ad = A.w.document;
+    btnIn(ad.querySelector('.fr-hero'), 'I have an invite').click(); await sleep(40);
+    lastSheet(A).querySelector('#fr-name').value = 'Ana';
+    btnIn(lastSheet(A), 'Continue').click(); await sleep(450);
+    sh = lastSheet(A);
+    ok(sh && sh.querySelector('h3').textContent === 'Add a friend', 'after the card, the invite box opens');
+    sh.querySelector('textarea').value = 'P' + 'c1.nope';
+    btnIn(sh, 'Add friend').click(); await sleep(60);
+    ok(sh.querySelector('.web-msg').textContent.includes('doesn’t look like a Parlance invite'), 'a broken invite is explained');
+    sh.querySelector('textarea').value = invite;
+    btnIn(sh, 'Add friend').click(); await sleep(300);
+    ok(A.E('friendIds()').includes('u_matt') && A.E('friendName("u_matt")') === 'Matt', 'Ana added Matt from his invite');
+    for (let i = 0; i < 60 && !M.E('friendIds().includes("u_ana")'); i++) await sleep(25);
+    ok(M.E('friendIds().includes("u_ana")'), 'Matt got Ana back through his inbox');
+    for (let i = 0; i < 40 && [...store.keys()].some(k => k.startsWith('inbox/')); i++) await sleep(25);
+    ok(![...store.keys()].some(k => k.startsWith('inbox/')), 'inbox notes are cleared once read');
+    ok(M.P.S.badges.friend && A.P.S.badges.friend, 'both get the first-friend badge');
+    // the league
+    A.E('addXP(40, "de")'); await A.E('socialPublish(true)');
+    await M.E('socialRefresh(true)'); M.E('UI.tab="friends"; render()');
+    let rows = [...md.querySelectorAll('.fr-league li')];
+    ok(rows.length === 2 && rows[0].textContent.includes('Ana') && rows[0].textContent.includes('40') && rows[1].textContent.includes('You'), 'league ranks Ana first by XP: ' + rows.map(r => r.textContent).join(' | '));
+    M.E('addXP(55, "de")');
+    btnIn(md, 'Goal days').click();
+    rows = [...md.querySelectorAll('.fr-league li')];
+    ok(rows[0].textContent.includes('Matt') && /1\s*goal day/.test(rows[0].textContent), 'goal days rank you first once your goal is met: ' + rows.map(r => r.textContent).join(' | '));
+    btnIn(md, 'Streak').click();
+    ok(md.querySelector('.fr-league .flame'), 'streak league');
+    // a duel: Matt challenges, Ana accepts
+    btnIn(md, 'Challenge a friend').click(); await sleep(30);
+    sh = lastSheet(M);
+    btnIn(sh, 'Most lessons').click();
+    btnIn(lastSheet(M), 'Send challenge').click(); await sleep(200);
+    const did = Object.keys(M.P.S.social.duels)[0];
+    ok(did && M.P.S.social.duels[did].state === 'pending' && store.get(M.E('cardPath(Remote.uid, S.social.secret)')).duels.length === 1, 'challenge sent');
+    await A.E('socialRefresh(true)'); A.E('render()');
+    ok(A.E('socialAlerts()') === 1 && ad.querySelector('.tab .badge.dot[aria-label="New from friends"]'), 'Ana sees the challenge, with a dot on the tab');
+    const al = ad.querySelector('.fr-alert');
+    ok(al && al.textContent.includes('Matt challenged you') && al.textContent.includes('Most lessons'), 'challenge card: ' + (al && al.textContent));
+    btnIn(al, 'Accept').click(); await sleep(200);
+    const ad1 = A.P.S.social.duels[did];
+    ok(ad1 && ad1.state === 'on' && ad1.start === A.E('today()') && ad1.end === A.E('addDays(today(), 6)'), 'Ana accepted: the week starts today');
+    await M.E('socialRefresh(true)');
+    ok(M.P.S.social.duels[did].state === 'on' && M.P.S.social.duels[did].end === ad1.end, 'Matt picks up the dates from Ana’s card');
+    A.E('bumpQuest("lessons", 2); addXP(1, "de")'); await A.E('socialPublish(true)');
+    await M.E('socialRefresh(true)'); M.E('render()');
+    const duelBox = md.querySelector('.fr-duel');
+    ok(duelBox && duelBox.textContent.includes('You vs Ana') && duelBox.textContent.includes('Ana is ahead') && duelBox.textContent.includes('7 days left'), 'duel shows the score: ' + (duelBox && duelBox.textContent));
+    ok(M.E('socialChallenge') && btnIn(md, 'Challenge a friend'), 'challenge button stays');
+    // the week ends: Matt did more lessons, so Matt wins
+    const past = M.E('addDays(today(), -8)'), pastEnd = M.E('addDays(today(), -2)');
+    for (const X of [M, A]){ X.E('Object.assign(S.social.duels[' + JSON.stringify(did) + '], { start: ' + JSON.stringify(past) + ', end: ' + JSON.stringify(pastEnd) + ' })'); }
+    M.E('S.days[' + JSON.stringify(M.E('addDays(today(), -3)')) + '] = { xp: 30, met: true, q: { lessons: 4 } }'); await M.E('socialPublish(true)');
+    A.E('S.days[' + JSON.stringify(A.E('addDays(today(), -3)')) + '] = { xp: 12, met: false, q: { lessons: 1 } }'); await A.E('socialPublish(true)');
+    const xpBefore = M.P.S.langs.de.xp;
+    await M.E('socialRefresh(true)');
+    const res = M.P.S.social.past[did];
+    ok(res && res.me === 4 && res.them === 1 && M.P.S.social.duels[did].state === 'done', 'duel settled: ' + JSON.stringify(res));
+    ok(M.P.S.langs.de.xp === xpBefore + M.E('XP.duelWin') && M.P.S.badges.rival, 'the winner gets bonus XP and a badge');
+    M.E('render()');
+    ok(md.querySelector('.fr-duel.done.won') && md.querySelector('.fr-duel.done').textContent.includes('You beat Ana'), 'finished duel shows the result');
+    await M.E('socialRefresh(true)');
+    ok(M.P.S.langs.de.xp === xpBefore + M.E('XP.duelWin'), 'the bonus is paid once');
+    await A.E('socialRefresh(true)');
+    ok(A.P.S.social.past[did] && A.P.S.social.past[did].me === 1 && A.P.S.social.past[did].them === 4, 'Ana sees the same result from her side');
+    // cheers
+    await M.E('socialCheer("u_ana")');
+    await A.E('socialRefresh(true)'); A.E('UI.tab="friends"; render()');
+    const ch = ad.querySelector('.fr-alert.cheer');
+    ok(ch && ch.textContent.includes('Matt cheered you on'), 'Ana sees Matt’s cheer');
+    btnIn(ch, 'Cheer back').click(); await sleep(150);
+    ok(!ad.querySelector('.fr-alert.cheer') && A.P.S.social.cheers.u_matt === A.E('today()') && A.E('socialAlerts()') === 0, 'cheering back clears the card');
+    await M.E('socialRefresh(true)');
+    ok(M.E('cheerFrom("u_ana")'), 'Matt gets the cheer back');
+    // a friend's sheet
+    M.E('UI.tab="friends"; render()');
+    [...md.querySelectorAll('.fr-league li')].find(li => li.textContent.includes('Ana')).querySelector('button').click(); await sleep(30);
+    sh = lastSheet(M);
+    ok(sh && sh.querySelector('h3').textContent === 'Ana' && sh.querySelector('.fr-week') && sh.textContent.includes('1 won, 0 lost'), 'friend sheet with the week and your duel record: ' + (sh && sh.textContent));
+    M.w.document.querySelectorAll('.sheet-back').forEach(b => b.remove());
+    // a third friend, then removing one: the old card goes, the others get the new code
+    const B = await makeDom({ claude: fakeClaude(store, { uid: 'u_bo', name: 'Bo' }), seed: seed() });
+    await started(B);
+    await B.E('socialSaveCard("Bo", "pip")');
+    const rb = await B.E('socialAccept(' + JSON.stringify(mattCode) + ')');
+    ok(rb && rb.ok, 'Bo adds Matt');
+    for (let i = 0; i < 60 && !M.E('friendIds().includes("u_bo")'); i++) await sleep(25);
+    ok(M.E('friendIds().length') === 2, 'Matt has two friends');
+    await M.E('socialRemove("u_bo")');
+    const newCard = M.E('cardPath(Remote.uid, S.social.secret)');
+    ok(!store.has(mattCard) && store.has(newCard) && newCard !== mattCard, 'removing a friend moves your card to a new secret');
+    for (let i = 0; i < 60 && A.E('S.social.friends.u_matt.code') !== M.E('myCode()'); i++) await sleep(25);
+    ok(A.E('S.social.friends.u_matt.code') === M.E('myCode()'), 'Ana got Matt’s new code in her inbox');
+    await A.E('socialRefresh(true)');
+    ok(A.E('friendCard("u_matt")') && A.E('friendCard("u_matt").name') === 'Matt', 'Ana still sees Matt');
+    await B.E('socialRefresh(true)'); B.E('UI.tab="friends"; render()');
+    ok(!B.E('friendCard("u_matt")') && B.w.document.querySelector('.fr-league li.gone') && B.w.document.querySelector('.fr-league li.gone').textContent.includes('Not sharing right now'), 'Bo no longer sees Matt');
+    const r0 = await B.E('socialAccept(' + JSON.stringify(mattCode) + ')');
+    ok(r0.error && r0.error.includes('isn’t active anymore'), 'the old invite stops working');
+    // codes from the other home, and your own
+    const rw = await A.E('socialAccept("Pw1.abcdefghijklmnopqrstuvwx.0000-1111")');
+    ok(rw.error && rw.error.includes('web version'), 'an invite from the web version is explained: ' + rw.error);
+    const ro = await A.E('socialAccept(myCode())');
+    ok(ro.error && ro.error.includes('your own invite'), 'your own invite is caught');
+    // friends sync privately with the rest of your progress, and a second device carries on
+    await M.E('syncNow(true)');
+    const ms = JSON.parse(store.get('data/users/u_matt/social').blob);
+    ok(ms.friends.u_ana && ms.friends.u_bo.gone && ms.secret === M.E('S.social.secret') && ms.on, 'friends saved to your account');
+    const M2 = await makeDom({ claude: fakeClaude(store, { uid: 'u_matt', name: 'Matt Colfax' }), seed: seed() });
+    await started(M2);
+    ok(M2.E('friendIds().join()') === 'u_ana' && M2.E('S.social.secret') === M.E('S.social.secret'), 'a second device has the same friends and card');
+    await M2.E('socialRefresh(true)');
+    ok(M2.E('friendCard("u_ana").name') === 'Ana', 'and reads their cards');
+    // backups don't carry friends across homes
+    const merged = M.E('mergeWhole(S, mergeState(defaultState(), { social: { on: true, home: "w", secret: "abcdefghijklmnopqrstuvwx", since: 9e12, friends: { x: { code: "Pw1.abcdefghijklmnopqrstuvwx.x", at: 1 } } } }))');
+    ok(merged.social.home === 'c' && !merged.social.friends.x, 'a backup from the web version leaves your friends alone');
+    // leaving
+    await A.E('socialLeave()');
+    ok(!A.E('S.social.on') && !A.E('friendIds().length') && ![...store.keys()].some(k => k.startsWith('cards/u_ana/')), 'leaving Friends deletes your card');
+    A.E('render()');
+    ok(ad.querySelector('.fr-hero'), 'and brings back the intro');
+    // view-only visitors can't make a card
+    const V = await makeDom({ claude: fakeClaude(new Map(), { readOnly: true, uid: 'u_view' }), seed: seed() });
+    for (let i = 0; i < 40 && V.E('Remote.status') !== 'device'; i++) await sleep(25);
+    V.E('UI.tab="friends"; render()');
+    ok(V.E('socialState()') === 'readonly' && V.w.document.querySelector('.fr-hero .notice').textContent.includes('can only be viewed'), 'view-only copy explains why Friends is off');
+    const N = await makeDom({ seed: seed() });
+    N.E('UI.tab="friends"; render()');
+    ok(N.w.document.querySelector('.fr-hero .notice') && N.w.document.querySelector('.fr-hero .notice').textContent.includes('Claude account'), 'without Claude, Friends says what it needs');
+    for (const X of [M, A, B, M2, V, N]){ ok(!X.errors.length, 'no page errors (friends) ' + JSON.stringify(X.errors.slice(0, 3))); X.dom.window.close(); }
+  }
+  /* ---------- 12b. friends on the web: an invite link waits through sign-in ---------- */
+  {
+    const store = new Map(), sb = fakeSupabase(store);
+    const mk = (id, email, name) => { sb.users.set(id, { id, email, password: 'x', meta: { name } }); const t = sb.issue(id); return JSON.stringify({ access_token: t.access_token, refresh_token: t.refresh_token, expires_at: t.expires_at, user: { id, email, name } }); };
+    const ana = '00000001-0000-4000-8000-0000000000aa', bo = '00000002-0000-4000-8000-0000000000bb';
+    const st = { 'parlance.v2': JSON.stringify({ settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0', filmSeen: true } }) };
+    const WA = await makeDom({ web: sb, storage: { ...st, 'parlance.web.session': mk(ana, 'ana@example.com', 'Ana') } });
+    for (let i = 0; i < 80 && !WA.E('Social.started'); i++) await sleep(25);
+    ok(WA.E('Social.started') && WA.E('socialHome()') === 'w', 'friends run on the web version');
+    await WA.E('socialSaveCard("Ana", "sofia")');
+    const code = WA.E('myCode()'), text = WA.E('inviteText()');
+    ok(/^Pw1\./.test(code) && text.includes('parlance-iota.vercel.app/?friend=' + encodeURIComponent(code)), 'web invites are links: ' + text);
+    let denied = null; try { await WA.E('Remote.db.doc("cards/' + bo + '/abcdefghijklmnopqrstuvwx/card").set({ name: "fake" })'); } catch (e) { denied = e; }
+    ok(denied && denied.code === 'invalid_argument', 'nobody writes someone else’s card');
+    // Bo opens the link signed out: the invite waits; after signing in, Parlance offers to add Ana
+    const WB0 = await makeDom({ web: sb, storage: st, hash: '?friend=' + encodeURIComponent(code) });
+    await sleep(100);
+    ok(WB0.w.location.search === '' && JSON.parse(WB0.w.localStorage.getItem('parlance.invite')).code === code, 'the invite waits in the browser and the link is tidied');
+    WB0.E('UI.tab="friends"; render()');
+    ok(WB0.w.document.querySelector('.fr-hero').textContent.includes('Sign in to accept'), 'signed out, the invite asks you to sign in');
+    const keep = storageOf(WB0.w); WB0.dom.window.close();
+    const WB = await makeDom({ web: sb, storage: { ...keep, 'parlance.web.session': mk(bo, 'bo@example.com', 'Bo') } });
+    let offer = null;
+    for (let i = 0; i < 120 && !offer; i++){ await sleep(25); offer = [...WB.w.document.querySelectorAll('.sheet')].find(s => s.querySelector('h3').textContent === 'Ana invited you'); }
+    ok(!!offer, 'after signing in, Parlance offers to add Ana');
+    if (offer){ [...offer.querySelectorAll('button')].find(b => b.textContent === 'Add Ana').click(); await sleep(300); }
+    const setup = [...WB.w.document.querySelectorAll('.sheet-back:not(.out) .sheet')].pop();
+    ok(setup && setup.querySelector('#fr-name').value === 'Bo', 'Bo makes a card first');
+    if (setup){ [...setup.querySelectorAll('button')].find(b => b.textContent === 'Continue').click(); await sleep(700); }
+    ok(WB.E('friendIds().join()') === ana && !WB.w.localStorage.getItem('parlance.invite'), 'Bo and Ana are friends; the invite is used up');
+    ok(WB.E('UI.tab') === 'friends', 'Bo lands on Friends');
+    await WA.E('Remote.db.collection(inboxPath(Remote.uid, S.social.secret)).get().then(s => readInbox(s.docs, Social.inboxKey))');
+    ok(WA.E('friendIds().join()') === bo && ![...store.keys()].some(k => k.startsWith('inbox/')), 'Ana adds Bo back and clears her inbox');
+    for (const X of [WA, WB]){ ok(!X.errors.length, 'no page errors (web friends) ' + JSON.stringify(X.errors.slice(0, 3))); X.dom.window.close(); }
   }
   console.log('PASS', passes, 'FAIL', fails);
   process.exit(fails ? 1 : 0);
