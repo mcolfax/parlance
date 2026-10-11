@@ -104,7 +104,7 @@ function wordOfDay(){
   return h('section', { class: 'card wotd' },
     h('div', { class: 'row' }, h('span', { class: 'eyebrow' }, 'Word of the day'), h('span', { class: 'spacer' }), h('span', { class: 'lvl-badge' }, l.level)),
     h('div', { class: 'row wotd-main' }, speakBtn(v.t, lang, 'Play the word'), h('div', { class: 'grow' }, h('div', { class: 'wotd-t' }, itemText(v, lang)), h('div', { class: 'muted' }, v.e.slice(0, 3).join(', ')))),
-    ex ? h('div', { class: 'wotd-ex' }, h('div', null, sayText(ex.t, lang, { gloss: true })), h('div', { class: 'small muted' }, ex.e[0])) : null,
+    ex ? h('div', { class: 'wotd-ex' }, h('div', null, sayText(ex.t, lang, { gloss: true, en: ex.e[0] })), h('div', { class: 'small muted' }, ex.e[0])) : null,
     h('button', { class: 'linkish small', type: 'button', onclick: () => isDone(lang, l.id) || lessonState(lang, l, nextLesson(lang)) !== 'locked' ? startLesson(l.id) : confirmLocked(l) }, 'From “' + l.title + '” · practice it'));
 }
 function routeStrip(){
@@ -137,8 +137,8 @@ function levelSection(lang, lv){
   const st = levelStats(lang)[lv]; const units = COURSE[lang].units.map((u, ui) => ({ u, ui })).filter(x => x.u.level === lv);
   if (!units.length) return null;
   const nx = nextLesson(lang);
-  if (UI.openLang !== lang){ UI.openLang = lang; UI.open = new Set(); }
-  if (!UI.open.size) UI.open.add(nx ? nx.level : lv);
+  /* the first time (and after a reset) open the level you're on; after that, only what you open, so every level can close */
+  if (UI.openLang !== lang){ UI.openLang = lang; UI.open = new Set([nx ? nx.level : lv]); }
   const open = UI.open.has(lv);
   const pct = st.total ? st.done / st.total : 0;
   const sec = h('section', { class: 'lvl-sec' + (open ? ' open' : '') + (levelComplete(lang, lv) ? ' complete' : ''), id: 'lv-' + lv });

@@ -243,6 +243,13 @@ li.locked .st-title{color:var(--muted)}
 .web-msg:empty{display:none}
 .web-home-ic{flex:none;border-radius:var(--r-md)}
 .web-home .btn{align-self:flex-start}
+.hs-help{display:flex;flex-direction:column;gap:16px}
+.hs-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;counter-reset:hs}
+.hs-step{display:grid;grid-template-columns:46px minmax(0,1fr);gap:14px;align-items:center}
+.hs-step b{display:block;font:var(--type-label)}
+.hs-step .small{display:block;margin-top:2px}
+.hs-ic{position:relative;display:grid;place-items:center;width:46px;height:46px;border-radius:var(--r-sm);background:var(--line-soft);color:var(--line-text)}
+.hs-ic::after{counter-increment:hs;content:counter(hs);position:absolute;top:-7px;left:-7px;width:22px;height:22px;border-radius:50%;background:var(--line);color:var(--line-ink);font:800 12px/22px var(--body);text-align:center;box-shadow:0 0 0 2px var(--surface)}
 
 /* Onboarding */
 .overlay.onb .ov-head{justify-content:space-between}

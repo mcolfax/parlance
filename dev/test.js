@@ -177,6 +177,15 @@ async function main(){
     for (const it of st.items){ if (it.q){ ok(it.o.length === 3 && new Set(it.o).size === 3, 'story q opts ' + st.id + ' ' + it.q); } else { ok(P.CAST[it.who] && P.CAST[it.who].lang === st.lang, 'speaker ' + st.id + ' ' + it.who); ok(it.t && it.e, 'line text ' + st.id); } }
   }
   ok(P.STORIES.length === 18, 'stories ' + P.STORIES.length);
+  /* every word in every story has a meaning when tapped, learned yet or not */
+  for (const st of P.STORIES) for (const it of st.items) if (it.t) for (const part of it.t.split(/\s+/)){
+    if (!/[\p{L}]/u.test(part)) continue;
+    const core = A.E('coreWord(' + JSON.stringify(part) + ')');
+    ok(P.glossLookup(core, st.lang), 'story word has a meaning: ' + st.id + ' ' + core);
+  }
+  { const g = (wd, l) => P.glossLookup(wd, l) || {};
+    ok(g('bezahlst', 'de').base === 'bezahlen' && g('gewartet', 'de').base === 'warten' && g('angerufen', 'de').base === 'anrufen' && g('vende', 'es').base === 'vender' && g('llegamos', 'es').base === 'llegar', 'verb forms find their dictionary form');
+    ok(g('Küche', 'de').val === 'kitchen' && g('Este', 'es').val === 'this' && /Lena/.test(g('Lena', 'de').val) && /landlord/.test(g('Brandt', 'de').val) && /taxi/i.test(g('Valentina', 'es').val), 'look-alikes and names ' + JSON.stringify([g('Küche', 'de'), g('Brandt', 'de')])); }
   /* the cast: a portrait for everyone, Talk scenes played by someone who speaks the language, a part for every friend */
   for (const [id, c] of Object.entries(P.CAST)){
     if (id === 'pip') continue;
@@ -325,6 +334,15 @@ async function main(){
     }
     ok(Object.values(P.S.langs[lang].cards).filter(c => c.n >= 1).length >= 60, lang + ' reviewed');
     for (const tab of ['learn', 'stories', 'review', 'talk', 'me']){ E('UI.tab=' + JSON.stringify(tab) + '; render()'); ok(w.document.querySelector('#app').children.length > 0, 'tab ' + tab); }
+    { /* every level on Learn opens and closes, the last open one too */
+      E('UI.tab="learn"; UI.openLang=null; render()');
+      const openHeads = () => [...w.document.querySelectorAll('.lvl-head[aria-expanded="true"]')];
+      ok(openHeads().length === 1 && w.document.querySelectorAll('.lvl-sec.open .station').length > 0, 'Learn opens one level');
+      openHeads()[0].click(); ok(openHeads().length === 0 && !w.document.querySelector('.lvl-sec.open .station'), 'the open level closes');
+      E('render()'); ok(openHeads().length === 0, 'and stays closed when Learn redraws');
+      w.document.querySelectorAll('.lvl-head')[1].click(); w.document.querySelectorAll('.lvl-head')[2].click(); ok(openHeads().length === 2, 'levels open again');
+      E('setLang(' + JSON.stringify(lang === 'de' ? 'es' : 'de') + '); setLang(' + JSON.stringify(lang) + ')'); ok(openHeads().length === 1, 'switching languages starts fresh');
+    }
     E('UI.wordFilter="all"; UI.wordLimit=5000; UI.tab="review"; render()'); ok(w.document.querySelectorAll('.wrow').length > 500, 'all words ' + w.document.querySelectorAll('.wrow').length);
     E('UI.wordLimit=0; UI.wordFilter="v"; render()'); ok(w.document.querySelectorAll('.wrow').length === 150 && [...w.document.querySelectorAll('#word-list button')].some(b => b.textContent.startsWith('Show more')), 'word list paging');
     /* stories: read every one through the UI */
@@ -376,6 +394,19 @@ async function main(){
   ok(!!word, 'lesson intro has tappable words');
   if (word){ word.click(); const g = w.document.querySelector('.gloss'); ok(g && g.textContent.length > 2, 'gloss popover ' + (g && g.textContent)); w.document.body.dispatchEvent(new w.Event('pointerdown', { bubbles: true })); }
   E('endRun()');
+  { /* a word nothing knows: the popover shows the whole line, and the tutor looks it up when Claude is there */
+    const tap = (txt, en) => { const el = E('(() => { const s = sayText(' + JSON.stringify(txt) + ', "de", { gloss: true, en: ' + JSON.stringify(en) + ' }); document.body.append(s); return s; })()'); el.querySelector('.w').click(); return w.document.querySelector('.gloss:not(.out)'); };
+    const close = () => w.document.body.dispatchEvent(new w.Event('pointerdown', { bubbles: true }));
+    E('window.__aiSample = AI.sample; AI.sample = null');
+    let g = tap('Quatschkopf ist er.', 'He’s a chatterbox.');
+    ok(g && g.querySelector('.gl-e.muted') && g.querySelector('.gl-line') && g.textContent.includes('He’s a chatterbox.'), 'an unknown word shows the line’s translation ' + (g && g.textContent)); close();
+    E('AI.sample = { json: async () => ({ meaning: "silly chatterbox", base: "Quatschkopf" }) }');
+    g = tap('Quatschköpfe sind sie.', 'They’re chatterboxes.'); await sleep(20);
+    ok(g && g.querySelector('.gl-e').textContent === 'silly chatterbox' && !g.querySelector('.gl-e.muted') && /from Quatschkopf/.test(g.textContent) && !g.querySelector('.gl-line'), 'the tutor looks up an unknown word ' + (g && g.textContent)); close();
+    E('AI.sample = { json: async () => { throw new Error("no") } }');
+    g = tap('Quatschköpfe sind sie.', 'They’re chatterboxes.'); ok(g && g.querySelector('.gl-e').textContent === 'silly chatterbox', 'and remembers it'); close();
+    E('AI.sample = window.__aiSample; document.querySelectorAll("body > .say").forEach(x => x.remove())');
+  }
   // quests + chest
   {
     const ids = P.questIds(); ok(ids.length === 3 && ids.every(id => P.QUESTS[id]), 'quests ' + ids);
@@ -825,7 +856,11 @@ async function main(){
     const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
     const homeCard = async opts => { const X = await makeDom({ web: sb, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } }, ...opts }); await sleep(60); X.E('UI.tab="me"; render()'); return X; };
     const H1 = await homeCard({ ua: IPHONE });
-    ok(H1.w.document.querySelector('.web-home') && H1.w.document.querySelector('.web-home').textContent.includes('Tap the Share button, then Add to Home Screen'), 'iPhone Safari shows the Home Screen tip');
+    const iosBtn = H1.w.document.querySelector('.web-home button');
+    ok(iosBtn && iosBtn.textContent === 'Add to Home Screen', 'iPhone Safari gets an Add to Home Screen button too');
+    if (iosBtn){ iosBtn.click(); await sleep(30); }
+    const help = H1.w.document.querySelector('.sheet .hs-steps');
+    ok(help && help.querySelectorAll('.hs-step').length === 3 && /Tap Share/.test(help.textContent) && /Add to Home Screen/.test(help.textContent) && H1.w.document.querySelector('.web-home'), 'and it shows Safari’s steps');
     H1.dom.window.close();
     const H2 = await homeCard({ ua: IPHONE, standalone: true });
     ok(!H2.w.document.querySelector('.web-home'), 'no tip once Parlance opens from the Home Screen');

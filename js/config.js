@@ -15,7 +15,10 @@ const RELEASES = [
   { v: '4.6.0', date: '2026-10-11', title: 'New friends and a new chest', notes: [
     'Meet four new friends. In Berlin, Leyla is a pharmacist and Emre’s cousin, and Herr Brandt is Lena’s landlord. In Mexico City, Valentina drives a taxi and Andrés runs a family hotel. Each pair has a new story, and they play scenes in Talk.',
     'The daily chest has been redrawn. Open it to watch the lid flip back and the coins spill out.',
-    'The theme song now plays on every tab and keeps going when you switch, right where it was. It still pauses for lessons, reviews, stories and Talk.'] },
+    'The theme song now plays on every tab and keeps going when you switch, right where it was. It still pauses for lessons, reviews, stories and Talk.',
+    'Tap any word in a story to see what it means, even before your lessons teach it. Verb forms like “bezahlst” show the word they come from.',
+    'On Learn, every level can be closed again, including the last one that’s open.',
+    'On iPhone, Me now has an Add to Home Screen button that walks you through Safari’s steps.'] },
   { v: '4.5.1', date: '2026-10-11', title: 'Google sign-in only, for now', notes: [
     'The web version signs in with Google only for now. If you used an email and password before, Continue with Google with the same address opens your account.'] },
   { v: '4.5.0', date: '2026-10-11', title: 'Meet the new Pip', notes: [

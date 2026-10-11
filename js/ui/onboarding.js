@@ -65,7 +65,7 @@ function finishOnb(){
   if (S.langs[lang].start !== Onb.level){ S.langs[lang].start = Onb.level; S.langs[lang].startTs = Date.now(); touch(lang); }
   const d = S.days[today()]; if (d && d.xp >= Onb.goal) d.met = true;
   touchSettings();
-  Onb.open = false; UI.open = new Set(); closeOverlay(); UI.animate = true; render(); window.scrollTo(0, 0);
+  Onb.open = false; UI.openLang = null; closeOverlay(); UI.animate = true; render(); window.scrollTo(0, 0);
   sfx('done');
   if (!Onb.replay) toast('Your route starts at ' + Onb.level + '. Have fun!');
 }

@@ -67,6 +67,8 @@ li.just .station{animation:flashbg 1.6s ease both}
 .gl-e{font:600 15px/1.35 var(--body);opacity:.92}
 .gl-e.muted{opacity:.6;font-weight:500;color:inherit}
 .gl-base{font-size:12px;opacity:.6}
+.gl-line{font:500 13px/1.35 var(--body);opacity:.85;margin-top:7px;padding-top:7px;border-top:1px solid color-mix(in srgb, currentColor 22%, transparent)}
+.gl-lbl{display:block;font:var(--type-eyebrow);opacity:.7;margin-bottom:2px}
 @keyframes glin{from{opacity:0;transform:translateY(6px) scale(.92)}}
 @keyframes glout{to{opacity:0;transform:translateY(4px) scale(.96)}}
 
