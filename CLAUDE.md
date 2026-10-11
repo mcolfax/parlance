@@ -39,7 +39,10 @@ npm ci && npm test   # jsdom end-to-end suite (~2 min). Must end with "FAIL 0".
 npm run preview      # http://127.0.0.1:8765/_preview.html
 npm run files        # JSON map of the files to publish next to index.html
 npm run web          # builds the web version into dist/ (what Vercel serves)
+NODE_PATH="$(npm root -g)" node dev/icons.js   # redraws media/icons/ from Pip (needs Playwright)
 ```
+
+A GitHub Action (`keep-awake.yml`) reads the web database three times a day so the free Supabase project doesn't pause. If it fails, the web version's database is down.
 
 The preview runs without the artifact runtime, so there is no account sync, database or tutor; the app handles their absence.
 

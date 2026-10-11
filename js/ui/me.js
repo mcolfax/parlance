@@ -83,6 +83,7 @@ function viewMe(){
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: showBackup }, 'Copy backup code'),
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: restoreBackup }, 'Restore')),
     DL.save ? h('button', { class: 'linkish', type: 'button', style: 'align-self:flex-start', onclick: downloadBackup }, 'Download a backup file') : null));
+  const home = Web.on && webHomeScreenCard(); if (home) v.append(home);
   v.append(h('div', { class: 'row wrap center' },
     h('button', { class: 'linkish', type: 'button', onclick: () => openOnboarding(true) }, 'Change language or level'),
     h('button', { class: 'linkish danger', type: 'button', onclick: resetLang }, 'Reset ' + LANGS[lang].name + ' progress')));
@@ -153,6 +154,19 @@ function webAccountRow(){
   if (u) return h('div', { class: 'web-acct' }, h('span', { class: 'small grow' }, 'Signed in as ', h('b', null, u.email || u.name || 'you')),
     h('button', { class: 'linkish small', type: 'button', onclick: async () => { await webSignOut(); saveLocal(); webReload(); } }, 'Sign out'));
   return h('div', { class: 'web-acct' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openWebSignIn('in') }, 'Sign in or create an account'));
+}
+function webHomeScreenCard(){
+  if (webStandalone() || !(webIOS() || Web.install)) return null;
+  const add = Web.install ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => {
+    const ev = Web.install; Web.install = null;
+    try { await ev.prompt(); } catch (e) {}
+    render();
+  } }, 'Add to Home Screen') : null;
+  return h('section', { class: 'card web-home' },
+    h('div', { class: 'row', style: 'align-items:flex-start' }, h('img', { class: 'web-home-ic', src: 'media/icons/icon-180.png', alt: '', width: '48', height: '48' }),
+      h('div', { class: 'grow' }, h('h3', null, 'Put Parlance on your Home Screen'),
+        h('p', { class: 'small muted' }, add ? 'It opens full screen, like an app.' : 'Tap the Share button, then Add to Home Screen. Parlance then opens full screen, like an app.'))),
+    add);
 }
 function webSignInError(e){
   const why = {

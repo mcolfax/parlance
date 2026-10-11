@@ -233,6 +233,8 @@ li.locked .st-title{color:var(--muted)}
 .web-or{display:flex;align-items:center;gap:10px;font:var(--type-small);color:var(--muted)}
 .web-or::before,.web-or::after{content:"";flex:1;border-top:1px solid var(--hair)}
 .web-msg:empty{display:none}
+.web-home-ic{flex:none;border-radius:var(--r-md)}
+.web-home .btn{align-self:flex-start}
 
 /* Onboarding */
 .overlay.onb .ov-head{justify-content:space-between}

@@ -28,7 +28,9 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `js/main.js` | Boot order | rarely |
 | `dev/test.js` | End-to-end tests (jsdom) | run before every publish |
 | `dev/preview.py`, `dev/files.js` | Local preview server; the list of files to publish | rarely |
-| `dev/web.js`, `vercel.json` | Builds the web version into `dist/`; Vercel runs it on every push to `main` | change how the web version is served |
+| `dev/web.js`, `vercel.json` | Builds the web version into `dist/` (page, Home Screen manifest and icon tags); Vercel runs it on every push to `main` | change how the web version is served |
+| `dev/icons.js`, `media/icons/` | Draws the web version's Home Screen icons from Pip's art and the tokens | Pip changes |
+| `dev/keep-awake.js`, `.github/workflows/keep-awake.yml` | Reads the web database three times a day so the free Supabase project isn't paused; a failed run means it's down | rarely |
 | `dev/supabase.sql` | The web version's database: the document table and the SQL functions that enforce the access rules | add a database path or rule |
 
 ## Two homes: Claude and the web

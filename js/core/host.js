@@ -111,8 +111,13 @@ const webUserApi = {
   async isOwner(){ if (!Web.session) return false; try { return !!(await webRpc('is_owner')); } catch (e){ return false; } },
   async profiles(ids){ const o = {}; for (const r of (await webRpc('profile_names', { ids })) || []) o[r.id] = { name: r.name }; return o; }
 };
+/* Home Screen: true when opened from the Home Screen icon; Chrome hands us its install prompt to offer in Me */
+function webStandalone(){ return navigator.standalone === true || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); }
+function webIOS(){ return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
 if (!window.claude && window.PARLANCE_WEB && typeof WEB === 'object' && WEB.url){
   Web.on = true;
+  window.addEventListener('beforeinstallprompt', e => { Web.install = e; });
+  window.addEventListener('appinstalled', () => { Web.install = null; });
   Web.ready = webStart().catch(() => {});
   window.claude = { use: async name => { await Web.ready; return name === 'db' ? webDB : name === 'user' ? webUserApi : null; } };
 }

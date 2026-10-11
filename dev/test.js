@@ -43,6 +43,8 @@ async function makeDom(opts = {}){
       if (opts.seed) for (const [k, v] of Object.entries(opts.seed)) w.localStorage.setItem(k, JSON.stringify(v));
       if (opts.storage) for (const [k, v] of Object.entries(opts.storage)) w.localStorage.setItem(k, v);
       if (opts.web){ w.PARLANCE_WEB = true; w.fetch = opts.web.fetch; }   // the web version, as dev/web.js builds it
+      if (opts.ua) Object.defineProperty(w.navigator, 'userAgent', { configurable: true, get: () => opts.ua });
+      if (opts.standalone) Object.defineProperty(w.navigator, 'standalone', { configurable: true, get: () => true });
       if (opts.claude) w.claude = opts.claude;
       if (opts.audio !== false) fakeAudio(w);
       if (opts.node){ w.Blob = Blob; w.Response = Response; w.CompressionStream = CompressionStream; w.DecompressionStream = DecompressionStream; }
@@ -747,6 +749,30 @@ async function main(){
     ok(W4.P.S.langs.de.done['de-1-1'], 'account progress loads on a new device');
     ok(!W4.errors.length, 'no page errors W4 ' + JSON.stringify(W4.errors.slice(0, 3)));
     W4.dom.window.close();
+    // Home Screen: iPhone Safari gets the Share tip, the installed app doesn't, Chrome's install prompt becomes a button
+    const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
+    const homeCard = async opts => { const X = await makeDom({ web: sb, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } }, ...opts }); await sleep(60); X.E('UI.tab="me"; render()'); return X; };
+    const H1 = await homeCard({ ua: IPHONE });
+    ok(H1.w.document.querySelector('.web-home') && H1.w.document.querySelector('.web-home').textContent.includes('Tap the Share button, then Add to Home Screen'), 'iPhone Safari shows the Home Screen tip');
+    H1.dom.window.close();
+    const H2 = await homeCard({ ua: IPHONE, standalone: true });
+    ok(!H2.w.document.querySelector('.web-home'), 'no tip once Parlance opens from the Home Screen');
+    H2.dom.window.close();
+    const H3 = await homeCard({});
+    ok(!H3.w.document.querySelector('.web-home'), 'no tip on a browser that can’t install');
+    let prompted = 0; const ev = new H3.w.Event('beforeinstallprompt'); ev.prompt = async () => { prompted++; };
+    H3.w.dispatchEvent(ev); H3.E('render()');
+    const addBtn = [...H3.w.document.querySelectorAll('.web-home button')].find(b => b.textContent === 'Add to Home Screen');
+    ok(!!addBtn, 'Chrome’s install prompt is offered in Me');
+    if (addBtn){ addBtn.click(); await sleep(30); }
+    ok(prompted === 1 && !H3.w.document.querySelector('.web-home'), 'the button installs once, then the card goes away');
+    ok(!H3.errors.length && !H1.errors.length, 'no page errors H ' + JSON.stringify(H3.errors.concat(H1.errors).slice(0, 3)));
+    H3.dom.window.close();
+    // the web build: a full page that turns the web host on, with a manifest and icons
+    require('child_process').execFileSync(process.execPath, [path.join(ROOT, 'dev', 'web.js')], { cwd: ROOT });
+    const built = fs.readFileSync(path.join(ROOT, 'dist', 'index.html'), 'utf8'), manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist', 'manifest.webmanifest'), 'utf8'));
+    ok(built.startsWith('<!doctype html>') && built.includes('window.PARLANCE_WEB = true') && built.includes('rel="manifest"') && built.includes('rel="apple-touch-icon" href="media/icons/icon-180.png"'), 'web build page');
+    ok(manifest.display === 'standalone' && /^#[0-9A-F]{6}$/i.test(manifest.theme_color) && manifest.icons.every(i => fs.existsSync(path.join(ROOT, 'dist', i.src))) && fs.existsSync(path.join(ROOT, 'dist', 'media', 'icons', 'icon-180.png')), 'web manifest and icons ' + JSON.stringify(manifest.icons.map(i => i.src)));
   }
   console.log('PASS', passes, 'FAIL', fails);
   process.exit(fails ? 1 : 0);
