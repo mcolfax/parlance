@@ -32,7 +32,7 @@ function confirmStory(st){
 function openStory(id){
   const st = storyById(id); if (!st) return;
   Object.assign(Story, { open: true, st, lang: st.lang, pos: 0, qs: 0, firstTry: 0, finished: false, saved: new Set() });
-  openOverlay('story');
+  openOverlay('story'); recWarm(st.lang, st.items.filter(it => it.t).map(it => it.t));
   const close = h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'Close', html: IC.close, onclick: () => {
     if (Story.finished || Story.pos === 0) return endStory();
     sheet('Leave this story?', h('p', null, 'You can come back to it any time.'), [{ label: 'Keep reading', primary: true }, { label: 'Leave', run: () => { endStory(); } }]);

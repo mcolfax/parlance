@@ -8,7 +8,7 @@
 const LS_KEY = 'parlance.v2';            // keep this key: changing it would orphan everyone's local progress
 const SLICES = ['core', 'de', 'es', 'gen-de', 'gen-es'];
 function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}, start: 'A1', startTs: 0 }; }
-function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
+function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, natural: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
 function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defaultSettings(), days: {}, badges: {}, stats: {}, langs: { de: newLang(), es: newLang() }, gen: { de: [], es: [] } }; }
 function validLesson(l){ return l && typeof l.id === 'string' && typeof l.title === 'string' && Array.isArray(l.vocab) && Array.isArray(l.sentences) && Array.isArray(l.blanks); }
 function cleanLang(x){

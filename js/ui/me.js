@@ -40,12 +40,13 @@ function viewMe(){
     h('p', { class: 'small muted' }, 'The dashed line is your daily goal. Miss one day a week and your streak freeze covers it.')));
   // settings
   const vs = voicesFor(lang);
-  const voiceSel = h('select', { class: 'input', id: 'voice-sel', onchange: e => { S.settings.voices[lang] = e.target.value; touchSettings(); speak(LANGS[lang].test, lang); } },
+  const voiceSel = h('select', { class: 'input', id: 'voice-sel', onchange: e => { S.settings.voices[lang] = e.target.value; touchSettings(); Rec.gen++; recStop(); speakDevice(LANGS[lang].test, lang); } },
     h('option', { value: '' }, 'Best available (automatic)'), vs.map(vc => h('option', { value: vc.voiceURI, selected: S.settings.voices[lang] === vc.voiceURI }, vc.name + ' · ' + vc.lang)));
   const testOut = h('p', { class: 'small muted', 'aria-live': 'polite' });
   const testBtn = h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => { testOut.textContent = 'Playing…'; const r = await speakTest(lang); testOut.textContent = audioResultText(r, lang); } }, ic('speaker'), 'Test voice');
   v.append(h('section', { class: 'card' }, h('h3', null, 'Sound'),
-    h('div', { class: 'field' }, h('label', { for: 'voice-sel' }, LANGS[lang].name + ' voice'), voiceSel),
+    MEDIA.voice ? toggleRow('Natural voices', 'natural', 'Recorded voices read the course. Talk and lessons made for you use your device’s voice.', on => { if (!on) speakStop(); render(); }) : null,
+    h('div', { class: 'field' }, h('label', { for: 'voice-sel' }, LANGS[lang].name + (recOn() ? ' device voice' : ' voice')), voiceSel),
     h('div', { class: 'row wrap' }, testBtn, h('div', { class: 'seg small-seg', role: 'group', 'aria-label': 'Speaking speed' }, [['normal', 'Normal speed'], ['relaxed', 'Relaxed']].map(([k, l]) => h('button', { type: 'button', 'aria-pressed': String(S.settings.speed === k), onclick: () => { S.settings.speed = k; touchSettings(); render(); speak(LANGS[lang].test, lang); } }, l)))),
     testOut,
     toggleRow('Play audio automatically', 'autoplay', 'Speak new words and answers out loud.'),
@@ -120,6 +121,7 @@ function badgesCard(){
     })));
 }
 function audioResultText(r, lang){
+  if (r === 'recorded') return 'That’s the recorded voice. If it’s quiet, turn up the volume.';
   if (r === 'ok') return 'Sound is working. If it’s quiet, turn up the volume or switch off silent mode.';
   if (r === 'novoice') return 'No ' + LANGS[lang].name + ' voice is installed. On iPhone, add one in Settings → Accessibility → Spoken Content → Voices, then reopen this page.';
   if (r === 'none') return 'This browser can’t speak text aloud. Try Safari or Chrome.';

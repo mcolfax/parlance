@@ -50,11 +50,17 @@ const RELEASES = [
   { v: '2.0.0', date: '2026-10-10', title: 'The full route, A1 to C2', notes: ['Levels B1 to C2, account sync across devices and a polished new design.'] }
 ];
 /* Media. The theme song plays under the intro film and loops softly on the home screen.
-   home/film are volume multipliers on the learner's music volume; duck is how low it goes while a voice speaks. */
+   home/film are volume multipliers on the learner's music volume; duck is how low it goes while a voice speaks.
+   voice: the recorded voices. dev/voices.js records every line the course can say with Google Cloud Text-to-Speech
+   into dir; each speaker (the narrator, the cast, Pip) has a Google voice per language. Google has no Mexican Spanish
+   voices, so Spanish uses its Latin American US Spanish (es-US). Changing a voice here re-records that speaker. */
 const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home: 0.6, film: 1, duck: 0.3,
   sources: [ // first one the browser can play wins: AAC for Safari/iPhone and Chrome, Opus for Chromium and Firefox builds without AAC
     { src: 'media/abc-adventure.mp4', type: 'audio/mp4; codecs="mp4a.40.2"' },
-    { src: 'media/abc-adventure.webm', type: 'audio/webm; codecs="opus"' }] } };
+    { src: 'media/abc-adventure.webm', type: 'audio/webm; codecs="opus"' }] },
+  voice: { dir: 'media/voice',
+    de: { narrator: 'de-DE-Chirp3-HD-Erinome', pip: 'de-DE-Chirp3-HD-Leda', lena: 'de-DE-Chirp3-HD-Aoede', jonas: 'de-DE-Chirp3-HD-Puck', weber: 'de-DE-Chirp3-HD-Gacrux', emre: 'de-DE-Chirp3-HD-Algenib' },
+    es: { narrator: 'es-US-Chirp3-HD-Erinome', pip: 'es-US-Chirp3-HD-Leda', sofia: 'es-US-Chirp3-HD-Sulafat', diego: 'es-US-Chirp3-HD-Achird', carmen: 'es-US-Chirp3-HD-Vindemiatrix', mateo: 'es-US-Chirp3-HD-Zubenelgenubi' } } };
 /* XP economy */
 const XP = { perAnswer: 1, lesson: 5, perfectBonus: 5, review: 3, story: 8, storyPerfect: 4, chest: 15, talkPerMsg: 2, talkMax: 20 };
 /* ===================== LANGUAGES & LEVELS ===================== */

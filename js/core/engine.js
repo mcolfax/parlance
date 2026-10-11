@@ -183,6 +183,8 @@ function makeEx(type, lesson, kind, i){
   }
   return ex;
 }
+/* the whole sentence a blank makes once it is filled in, as it is shown and spoken */
+function blankSaid(b){ return b.t.replace('___', b.a).replace(/\s*\([^)]*\)\s*$/, '').replace(/^.*→\s*/, ''); }
 function blankEx(lesson, i){ const b = lesson.blanks[i]; return { id: ++EXID, type: 'blank', lang: lesson.lang, lesson, blank: b, correct: b.a, options: shuffle(b.o) }; }
 function matchEx(lesson, idxs){ return { id: ++EXID, type: 'match', lang: lesson.lang, lesson, items: idxs.map(i => lesson.vocab[i]) }; }
 function buildLesson(lesson){

@@ -16,7 +16,7 @@ function endRun(){ if (Run.finished && Run.mode === 'lesson' && Run.lesson) UI.j
 function startLesson(id){
   const lesson = getLesson(id); if (!lesson) return;
   Object.assign(Run, { active: true, started: false, finished: false, mode: 'lesson', lang: lesson.lang, lesson, queue: [], pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 });
-  openOverlay('run'); sfx('open'); showIntro();
+  openOverlay('run'); sfx('open'); recWarm(lesson.lang, lessonSaid(lesson)); showIntro();
 }
 function showIntro(){
   const l = Run.lesson, lang = Run.lang;
@@ -38,7 +38,7 @@ function startReview(practice){
   if (!entries.length) return;
   if (practice) entries = shuffle(entries);
   Object.assign(Run, { active: true, started: true, finished: false, mode: practice ? 'practice' : 'review', lang, lesson: null, queue: entries.map(reviewEx), pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 });
-  openOverlay('run'); runHead(); nextEx();
+  openOverlay('run'); runHead(); recWarm(lang, Run.queue.map(ex => ex.item && ex.item.t).filter(Boolean)); nextEx();
 }
 function nextEx(){
   if (Run.pos >= Run.queue.length) return finishRun();
@@ -77,7 +77,7 @@ async function doCheck(){
   showFeedback(ex, res);
 }
 function feedbackAnswer(ex){
-  if (ex.type === 'blank'){ const full = ex.blank.t.replace('___', ex.correct).replace(/\s*\([^)]*\)\s*$/, '').replace(/^.*→\s*/, ''); return { t: full, en: ex.blank.e, target: true }; }
+  if (ex.type === 'blank') return { t: blankSaid(ex.blank), en: ex.blank.e, target: true };
   if (ex.type === 'match') return null;
   return { t: ex.item.t, en: ex.item.e[0], target: ['mc-e2t', 'type-e2t', 'bank-e2t', 'listen', 'speak'].includes(ex.type) };
 }

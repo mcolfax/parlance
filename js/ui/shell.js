@@ -124,7 +124,7 @@ function openOverlay(kind){
 function closeOverlay(instant){
   const root = OV.root; OV.root = null;
   document.body.classList.remove('locked');
-  try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+  speakStop();
   songSync(300);
   if (!root) return;
   if (instant || reduced()) root.remove();

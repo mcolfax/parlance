@@ -12,9 +12,10 @@ render();
 initCaps();
 const remoteP = initRemote();
 setTimeout(() => { if (homeMusicOn()) songPrefetch(); }, 1200); // fetch the theme song early so the first tap can start it
+setTimeout(() => { if (recOn()) recWarm(S.settings.lang, [LANGS[S.settings.lang].hello, ...Object.values(PIP_SAYS[S.settings.lang] || {}).flat()]); }, 1500); // the recorded voices' index and common lines
 Promise.race([remoteP, sleep(2600)]).then(() => {
   if (!S.settings.onboarded && !busy()) openOnboarding(false);
   else setTimeout(() => { if (!maybeWhatsNew()) afterLiveConfig(); }, 600);
 });
 /* test and debugging hooks */
-window.__parlance = { APP_VERSION, COURSE, STORIES, CAST, BADGES, QUESTS, Packs, Live, buildLesson, glossLookup, checkBadges, questIds, mergeDays, mergeBadges, evaluate, check, answerDiff, closestAnswer, norm, fold, englishVariants, tileTokens, reviewEx, streakInfo, srsUpdate, sanitizeLesson, speechScore, mergeLang, mergeCore, mergeGen, mergeWhole, makeBackupCode, readBackup, defaultState, mergeState, itemKey, resolveKey, migrateCardKeys, validatePack, applyContentDocs, allStories, filmActors, get S(){ return S; }, set S(v){ S = v; } };
+window.__parlance = { APP_VERSION, COURSE, STORIES, CAST, BADGES, QUESTS, Packs, Live, buildLesson, glossLookup, checkBadges, questIds, mergeDays, mergeBadges, evaluate, check, answerDiff, closestAnswer, norm, fold, englishVariants, tileTokens, reviewEx, streakInfo, srsUpdate, sanitizeLesson, speechScore, mergeLang, mergeCore, mergeGen, mergeWhole, makeBackupCode, readBackup, defaultState, mergeState, itemKey, resolveKey, migrateCardKeys, validatePack, applyContentDocs, allStories, filmActors, voiceLines, recKey, get S(){ return S; }, set S(v){ S = v; } };
