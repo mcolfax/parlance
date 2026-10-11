@@ -1,0 +1,19 @@
+name: keep the web database awake
+# Free Supabase projects pause after a quiet week; a few reads a day keep the web version's database awake.
+# A failed run means the web version's database isn't answering. See dev/keep-awake.js.
+on:
+  schedule:
+    - cron: '23 3,11,19 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node dev/keep-awake.js
