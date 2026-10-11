@@ -2,3 +2,5 @@ node_modules/
 _preview.html
 .DS_Store
 *.log
+*.blend1
+__pycache__/

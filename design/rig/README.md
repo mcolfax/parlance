@@ -1,9 +1,13 @@
 # Character rig
 
-Pip, and later Kiwi, Mango, Kakadu and Rojo, are **cut-out vector rigs**. Each bird is a sheet of separate SVG drawings hung on one shared skeleton. Small data files describe the poses and moves, and a dependency-free runtime (`rig.js`) plays them. It's the model Spine and Rive use, built to fit Parlance: plain SVG, classic scripts, colors from tokens, no build step.
+Pip, and later Kiwi, Mango, Kakadu and Rojo, are traced from their model sheets and rigged in **Blender**. The
+Blender file is the source for poses and moves, and a small three.js player shows it in the browser. See
+[`blender/README.md`](blender/README.md) for how to open, edit and export Pip.
 
-- **Review page:** [`index.html`](index.html), published for review at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF (private until shared). Each pose has a Comment button that opens the viewer's comment box on that pose. Open it locally with `npm run preview`, then go to http://127.0.0.1:8765/design/rig/index.html.
-- **Figma:** the part sheet is on the Pip page of the [design file](https://www.figma.com/design/ZOAqSm0kQAjzkppKF0jLlS), as described in Figma below.
+- **Review page:** [`index.html`](index.html), published for review at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF (private until shared). Each section has a Comment button that opens the viewer's comment box on it. Open it locally with `npm run preview`, then go to http://127.0.0.1:8765/design/rig/index.html.
+- **Blender rig:** `blender/pip.blend`, exported to `blender/pip.gltf.json` and played by `blender/pip3d.js`.
+- **Part sheet and SVG rig:** `pip.js` (the traced drawings), `bird.js` (the shared skeleton, poses and moves) and `rig.js` (an SVG runtime). The Blender build starts from these, and `Rig.svg` still draws small static Pips (avatars, thumbnails) without WebGL. The SVG rig's own review page is `svg.html`.
+- **Figma:** the first part sheet is on the Pip page of the [design file](https://www.figma.com/design/ZOAqSm0kQAjzkppKF0jLlS), as described in Figma below.
 - **Check the data:** `node design/rig/check.js` must end with `ok`.
 
 ## Why this method
@@ -34,7 +38,9 @@ Pip, and later Kiwi, Mango, Kakadu and Rojo, are **cut-out vector rigs**. Each b
 | `rig.js` | The runtime: matrices, pose blending, clips, idle, blink, talk, look-at, springs, 2.5D turn, static SVG export, validation. No dependencies. |
 | `bird.js` | The shared bird: skeleton, slots, poses, faces, moods, moves, springs and the effects any bird can show (sweat, tear, blush, sparkles, notes, zzz, ?, !, hearts). |
 | `pip.js` | Pip's part sheet and palette, and nothing else. |
-| `index.html` | The review page: live stage, moods and moves, concept-vs-rig wipe, pose library, part sheet, skeleton, puppet sliders. |
+| `index.html` | The review page: the live Blender rig, moods and moves, the concept-vs-rig wipe, the mood library, and how to edit Pip in Blender. |
+| `blender/` | The Blender rig (`pip.blend`), its web export, the three.js player and the build scripts. See its README. |
+| `svg.html` | The SVG rig's review page: live stage, pose library, part sheet, skeleton, puppet sliders. |
 | `check.js` | Validates every bird and renders every mood once. |
 | `reference/` | Concept art. `pip-happy/cheer/oops.webp` are crops aligned to rig units (1 px = 0.5 unit) for the compare view; `*-sheet.webp` are the full model sheets for each bird. |
 | `tools/bake.js` | Exports the drawings as plain SVG and the moods as instance matrices for Figma or another vector tool. |

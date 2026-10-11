@@ -2,9 +2,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.185.0/build/three.module.min.js"}}</script>
 <style>
-/* Layout: a rig sheet. The live stage and its controls on the left (sticky on wide screens); concept match,
-   poses, part sheet and skeleton on the right. On a phone it is one column: stage first. */
+/* Layout: a rig sheet. The live Blender rig and its controls on the left (sticky on wide screens); the concept
+   match, the moods and how to edit Pip in Blender on the right. On a phone it is one column, stage first. */
 :root{
   --ground:#F3F7EC; --paper:#FFFFFF; --paper-2:#F7FAF2; --ink:#15301F; --muted:#56705F; --rule:#D7E3CB;
   --stage:#E8F0DD; --chip:#E2ECD5; --green:#1F8A4C; --green-ink:#FFFFFF; --orange-text:#A65300; --red:#D9402B;
@@ -42,15 +43,14 @@ p{margin:0}
 .lede{max-width:62ch;color:var(--muted);font-size:17px}
 .muted{color:var(--muted)}
 .small{font-size:14px}
-.mono{font-family:var(--mono)}
+code,.mono{font-family:var(--mono);font-size:.88em}
 header{display:flex;flex-direction:column;gap:10px;padding-top:8px}
 .facts{display:flex;flex-wrap:wrap;gap:6px 16px;font:500 13px/1.3 var(--mono);color:var(--muted)}
-.facts b{color:var(--ink);font-weight:500}
+.facts b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
 
-/* two columns on wide screens; on phones the panels interleave by order */
 .layout{display:flex;flex-direction:column;gap:28px}
 .col{display:contents}
-.panel-stage{order:1}.sec-compare{order:2}.sec-poses{order:3}.panel-puppet{order:4}.sec-parts{order:5}.sec-skeleton{order:6}.sec-method{order:7}.sec-next{order:8}
+.panel-stage{order:1}.sec-compare{order:2}.sec-moods{order:3}.sec-blender{order:4}.sec-new{order:5}
 @media (min-width:980px){
   .layout{display:grid;grid-template-columns:minmax(360px,420px) minmax(0,1fr);gap:36px;align-items:start}
   .col{display:flex;flex-direction:column;gap:24px;min-width:0}
@@ -61,15 +61,13 @@ section,.panel{display:flex;flex-direction:column;gap:14px;min-width:0}
 .card{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow)}
 
 /* stage */
-.stage{position:relative;background:var(--stage);border-radius:var(--r-lg);overflow:hidden;aspect-ratio:1/1.08;max-height:62vh;display:grid;place-items:center;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.stage{position:relative;background:var(--stage);border-radius:var(--r-lg);overflow:hidden;aspect-ratio:1/1.08;max-height:62vh;max-width:100%;display:grid;place-items:center;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 .stage.follow{touch-action:none}
-.stage .rig{width:min(78%,330px);height:auto;overflow:visible;cursor:pointer;margin-top:6%}
-.stage::before,.stage::after{content:"";position:absolute;width:18px;height:18px;opacity:.5;background:
-  linear-gradient(var(--muted),var(--muted)) center/100% 1.5px no-repeat,linear-gradient(var(--muted),var(--muted)) center/1.5px 100% no-repeat;border-radius:50%}
-.stage::before{left:12px;bottom:12px}.stage::after{right:12px;bottom:12px}
+.stage .pip{width:min(80%,340px);aspect-ratio:204/258;max-width:100%;margin-top:4%;cursor:pointer}
+.stage .note{position:absolute;inset:auto 16px 16px;text-align:center;font-size:14px;color:var(--muted)}
 .hud{position:absolute;inset:12px 14px auto;display:flex;justify-content:space-between;gap:8px;font:500 12px/1.2 var(--mono);color:var(--muted);pointer-events:none}
 .hud b{color:var(--ink);font-weight:500}
-.bubble{position:absolute;left:50%;top:10%;transform:translateX(-10%);background:var(--paper);color:var(--ink);border:1.5px solid var(--rule);border-radius:var(--r-md);padding:7px 12px;font:600 16px/1.2 var(--display);box-shadow:var(--shadow);pointer-events:none;opacity:0;transition:opacity .2s,transform .3s cubic-bezier(.2,1.4,.4,1);white-space:nowrap}
+.bubble{position:absolute;left:50%;top:9%;transform:translateX(-10%);background:var(--paper);color:var(--ink);border:1.5px solid var(--rule);border-radius:var(--r-md);padding:7px 12px;font:600 16px/1.2 var(--display);box-shadow:var(--shadow);pointer-events:none;opacity:0;transition:opacity .2s,transform .3s cubic-bezier(.2,1.4,.4,1);white-space:nowrap}
 .bubble.on{opacity:1;transform:translateX(-10%) translateY(-4px)}
 .bubble::after{content:"";position:absolute;left:22px;bottom:-7px;width:11px;height:11px;background:var(--paper);border-right:1.5px solid var(--rule);border-bottom:1.5px solid var(--rule);transform:rotate(45deg)}
 .group-label{font:500 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
@@ -77,516 +75,299 @@ section,.panel{display:flex;flex-direction:column;gap:14px;min-width:0}
 .chip{appearance:none;border:1.5px solid transparent;background:var(--chip);color:var(--ink);font:700 14px/1 var(--body);padding:9px 12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform .12s,background .15s}
 .chip:active{transform:scale(.95)}
 .chip[aria-pressed="true"]{background:var(--green);color:var(--green-ink)}
-.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--orange-text);opacity:.9}
-.chip[aria-pressed="true"] .dot{background:currentColor}
-.chip:focus-visible,.btn:focus-visible,.pose-play:focus-visible,.cbtn:focus-visible,.seg button:focus-visible,input:focus-visible,select:focus-visible{outline:2.5px solid var(--red);outline-offset:2px}
+.chip:disabled{opacity:.45;cursor:default}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .btn{appearance:none;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:700 14px/1 var(--body);padding:10px 14px;border-radius:12px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
 .btn:active{transform:scale(.97)}
-.btn.primary{background:var(--green);border-color:var(--green);color:var(--green-ink)}
 .btn.toggle[aria-pressed="true"]{border-color:var(--green);color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--paper))}
+.btn:disabled{opacity:.45;cursor:default}
+.chip:focus-visible,.btn:focus-visible,.cbtn:focus-visible,.seg button:focus-visible,.mood-play:focus-visible,input:focus-visible{outline:2.5px solid var(--red);outline-offset:2px}
 .seg{display:inline-flex;background:var(--chip);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
 .seg button{appearance:none;border:0;background:none;color:var(--ink);font:700 13px/1 var(--body);padding:8px 11px;border-radius:9px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--paper);box-shadow:var(--shadow)}
-.swatch{width:12px;height:12px;border-radius:50%;display:inline-block;vertical-align:-1px;margin-right:6px;border:1.5px solid rgb(11 42 30 / .5)}
 
 /* compare */
 .cmp{padding:14px;display:flex;flex-direction:column;gap:12px}
-.cmp-box{position:relative;width:min(100%,340px);aspect-ratio:370/608;margin:0 auto;border-radius:var(--r-md);overflow:hidden;background:var(--concept-bg);touch-action:pan-y}
-.cmp-box img,.cmp-box .layer{position:absolute;inset:0;width:100%;height:100%}
-.cmp-box img{object-fit:cover}
-.cmp-box .layer{background:var(--concept-bg);clip-path:inset(0 0 0 var(--cut,50%))}
-.cmp-box .layer svg{width:100%;height:100%;display:block}
+.cmp-box{position:relative;width:min(100%,340px);aspect-ratio:370/608;max-width:100%;margin:0 auto;border-radius:var(--r-md);overflow:hidden;background:var(--concept-bg);touch-action:pan-y}
+.cmp-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cmp-box .layer{position:absolute;inset:0;background:var(--concept-bg);clip-path:inset(0 0 0 var(--cut,50%))}
+.cmp-box .layer img{object-fit:contain}
 .cmp-box.overlay .layer{clip-path:none;background:none;opacity:.55}
 .cmp-box .cut{position:absolute;top:0;bottom:0;left:var(--cut,50%);width:2px;margin-left:-1px;background:var(--red);pointer-events:none}
 .cmp-box.overlay .cut{display:none}
 .cmp-box .tag{position:absolute;top:8px;font:500 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;background:rgb(255 255 255 / .85);color:#15301F;padding:4px 6px;border-radius:6px}
 .cmp-box .tag.l{left:8px}.cmp-box .tag.r{right:8px}
 .cmp-box.overlay .tag{display:none}
+.cmp-box .wait{position:absolute;inset:auto 0 12px;text-align:center;font:500 12px/1.2 var(--mono);color:#56705F}
 input[type=range]{width:100%;accent-color:var(--green)}
 
-/* pose library */
-.poses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-@media (min-width:560px){.poses{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (min-width:1180px){.poses{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.pose{position:relative;background:var(--paper);border:1.5px solid var(--rule);border-radius:var(--r-md);padding:8px 10px 10px;display:flex;flex-direction:column;gap:4px}
-.pose-play{appearance:none;border:0;background:none;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:4px;border-radius:12px}
-.pose[aria-current="true"]{border-color:var(--green)}
-.pose .art{background:var(--paper-2);border-radius:12px;display:grid;place-items:center;aspect-ratio:1/1.05;overflow:hidden}
-.pose .art svg{width:88%;height:auto}
-.pose .name{font:600 16px/1.2 var(--display);display:flex;align-items:center;gap:6px;justify-content:space-between}
-.pose .use{font-size:13px;line-height:1.35;color:var(--muted)}
-.badge{font:500 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 5px;border-radius:5px;background:var(--chip);color:var(--muted);white-space:nowrap}
-.badge.new{color:var(--orange-text);background:color-mix(in srgb,var(--orange-text) 12%,var(--paper))}
+/* moods */
+.moods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:560px){.moods{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1180px){.moods{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.mood{position:relative;background:var(--paper);border:1.5px solid var(--rule);border-radius:var(--r-md);padding:8px 10px 10px;display:flex;flex-direction:column;gap:4px}
+.mood[aria-current="true"]{border-color:var(--green)}
+.mood-play{appearance:none;border:0;background:none;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:4px;border-radius:12px}
+.mood .art{background:var(--paper-2);border-radius:12px;aspect-ratio:240/304;display:grid;place-items:center;overflow:hidden}
+.mood .art img{width:100%;height:100%;object-fit:contain}
+.mood .art .ph{width:38%;aspect-ratio:1;border-radius:50%;background:var(--chip)}
+.mood .name{font:600 16px/1.2 var(--display)}
+.mood .use{font-size:13px;line-height:1.35;color:var(--muted)}
 .cbtn{appearance:none;border:0;background:none;color:var(--muted);font:700 12px/1 var(--body);padding:6px 0 0;cursor:pointer;display:inline-flex;gap:5px;align-items:center;align-self:flex-start}
 .cbtn:hover{color:var(--green)}
 .cbtn svg{width:14px;height:14px}
 [data-comments="off"] .cbtn{display:none}
 
-/* puppet */
-.puppet{padding:14px;display:flex;flex-direction:column;gap:12px}
-.ctl{display:grid;grid-template-columns:96px minmax(0,1fr) 44px;gap:10px;align-items:center;font-size:14px}
-.ctl output{font:500 12px/1 var(--mono);color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
-.ctl select{width:100%;font:600 14px var(--body);padding:7px 8px;border-radius:10px;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink)}
-pre.json{margin:0;max-height:140px;overflow:auto;background:var(--paper-2);border:1px solid var(--rule);border-radius:10px;padding:10px;font:400 12px/1.45 var(--mono);white-space:pre-wrap;word-break:break-all}
-
-/* part sheet */
-.parts-sum{display:flex;flex-wrap:wrap;gap:8px}
-.stat{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:8px 12px;display:flex;flex-direction:column;gap:2px;min-width:92px}
-.stat b{font:600 24px/1 var(--display);font-variant-numeric:tabular-nums}
-.stat span{font-size:12px;color:var(--muted)}
-.pgroup{padding:14px;display:flex;flex-direction:column;gap:10px}
-.pgroup-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px}
-.pcell{display:flex;flex-direction:column;gap:3px;align-items:stretch}
-.pcell .pv{background:var(--stage);border-radius:10px;aspect-ratio:1/1;display:grid;place-items:center;overflow:hidden}
-.pcell .pv svg{width:86%;height:86%;overflow:hidden}
-.pcell b{font:600 13px/1.2 var(--display)}
-.pcell span{font:400 11px/1.2 var(--mono);color:var(--muted);word-break:break-word}
-.pivot{fill:none;stroke:var(--red);stroke-width:1.3}
-
-/* skeleton */
-.skel{padding:14px;display:grid;gap:14px}
-@media (min-width:700px){.skel{grid-template-columns:minmax(0,260px) minmax(0,1fr)}}
-.skel .fig{background:var(--paper-2);border-radius:var(--r-md);display:grid;place-items:center;padding:8px}
-.skel .fig svg{width:100%;max-width:260px;height:auto;overflow:visible}
-.tree{font:400 12.5px/1.65 var(--mono);margin:0;padding:0;list-style:none;overflow-x:auto}
-.tree li{white-space:nowrap}
-.tree .ind{color:var(--rule)}
-.tree .bn{color:var(--ink);font-weight:500}
-.tree .tag{font-size:10.5px;padding:1px 5px;border-radius:5px;margin-left:6px;background:var(--chip);color:var(--muted)}
-.tree .tag.spring{color:var(--red);background:color-mix(in srgb,var(--red) 12%,var(--paper))}
-.tree .tag.turn{color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--paper))}
-
-/* method */
-.method{display:grid;gap:12px}
-@media (min-width:700px){.method{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.m{padding:16px;display:flex;flex-direction:column;gap:8px}
-.m p{font-size:15px;color:var(--muted)}
-.turnstrip{display:flex;gap:4px;justify-content:space-between;align-items:flex-end;background:var(--paper-2);border-radius:12px;padding:6px}
-.turnstrip figure{margin:0;display:flex;flex-direction:column;align-items:center;flex:1;min-width:0}
-.turnstrip svg{width:100%;height:auto}
-.turnstrip figcaption{font:500 11px/1 var(--mono);color:var(--muted);padding-bottom:4px}
-.next{padding:18px;display:flex;flex-direction:column;gap:10px}
-.next ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
-footer{font:400 12px/1.5 var(--mono);color:var(--muted)}
-@media (prefers-reduced-motion: reduce){.bubble{transition:none}.chip,.btn{transition:none}}
+/* blender */
+.steps{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.steps ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;max-width:66ch}
+.steps li::marker{font:600 15px var(--display);color:var(--green)}
+.kbd{font:500 12px/1 var(--mono);background:var(--chip);border:1px solid var(--rule);border-bottom-width:2px;border-radius:6px;padding:2px 5px;white-space:nowrap}
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:720px){.cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fact{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.fact h3{font-size:16px}
+.fact p{font-size:14px;color:var(--muted)}
+ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:66ch}
+@media (prefers-reduced-motion: reduce){.chip,.btn{transition:none}.bubble{transition:none}}
 </style>
 
-<div class="page" id="top">
+<div class="page">
   <header>
-    <span class="eyebrow">Parlance · character rig · round 1</span>
-    <h1>Pip, rigged</h1>
-    <p class="lede">Pip is now a cut-out rig: one skeleton, a sheet of swappable parts and a small animation runtime. Everything on this page is live SVG built from that part sheet. Tap a mood, poke Pip, or pose it yourself. Then comment on anything you’d change.</p>
-    <div class="facts" id="facts"></div>
+    <span class="eyebrow">Parlance · Pip · round 3 · Blender rig</span>
+    <h1>Pip, rigged in Blender</h1>
+    <p class="lede">This is Pip's Blender rig, playing in the browser with three.js. The drawing is traced from your model sheet, and it now hangs on real bones: wings curl and bend, the crest and tail swing after every move, and one mood blends into the next. Tap Pip to hop, pick a mood or a move, or let Pip follow your finger.</p>
+    <div class="facts"><span><b id="f-bones">96</b> bones</span><span><b id="f-moods">17</b> moods</span><span><b id="f-moves">11</b> moves</span><span><b>Blender 5.2</b> source file</span><span><b>three.js 0.185</b> player</span></div>
   </header>
 
   <div class="layout">
     <div class="col col-left">
       <section class="panel panel-stage" aria-label="Live Pip" data-comment-target>
         <div class="stage" id="stage">
-          <div class="hud"><span>mood <b id="hud-mood">happy</b></span><span id="hud-time">t 0.00s · 1×</span></div>
-          <div class="bubble" id="bubble" role="status" aria-live="polite"></div>
+          <div class="hud"><span>mood <b id="hud-mood">happy</b></span><span id="hud-state">loading the rig…</span></div>
+          <div class="bubble" id="bubble" aria-live="polite"></div>
+          <div class="pip" id="pip" role="img" aria-label="Pip, the Parlance parrot, live"></div>
+          <p class="note" id="note" hidden></p>
+        </div>
+        <div class="row">
+          <button class="btn toggle" id="follow" type="button" aria-pressed="false">Follow my finger</button>
+          <button class="btn" id="say" type="button">Say a line</button>
+          <button class="btn toggle" id="slow" type="button" aria-pressed="false">Slow motion</button>
+          <button class="cbtn" type="button" data-comment>Comment</button>
         </div>
         <div class="group-label">Moods</div>
-        <div class="chips" id="moods" role="group" aria-label="Moods"></div>
-        <div class="group-label">Moves</div>
-        <div class="row" id="moves"></div>
-        <div class="row">
-          <button class="btn toggle" type="button" id="t-follow" aria-pressed="false">Follow my finger</button>
-          <button class="btn toggle" type="button" id="t-bones" aria-pressed="false">Show bones</button>
-          <button class="btn toggle" type="button" id="t-slow" aria-pressed="false">Slow motion</button>
-        </div>
-        <div class="group-label">Body color</div>
-        <div class="seg" id="palette" role="group" aria-label="Body color">
-          <button type="button" data-p="teal" aria-pressed="true"><span class="swatch" style="background:#08777B"></span>Concept teal</button>
-          <button type="button" data-p="green" aria-pressed="false"><span class="swatch" style="background:#1F8A4C"></span>German line</button>
-          <button type="button" data-p="orange" aria-pressed="false"><span class="swatch" style="background:#FF8A1F"></span>Spanish line</button>
-        </div>
-        <p class="small muted">Today Pip takes the line color of the language you’re learning. The colors are tokens, so either choice is one line in <span class="mono">tokens.css</span>.</p>
-      </section>
-
-      <section class="panel panel-puppet" aria-labelledby="puppet-h">
-        <div class="sec-head">
-          <h2 id="puppet-h">Pose it yourself</h2>
-          <p class="muted small">Move the sliders to pose the live Pip. If you find a pose you like, copy it and paste it in our chat.</p>
-        </div>
-        <div class="card puppet" id="puppet"></div>
+        <div class="chips" id="mood-chips"></div>
+        <div class="group-label">Moves, on top of any mood</div>
+        <div class="chips" id="move-chips"></div>
       </section>
     </div>
 
     <div class="col col-right">
       <section class="sec-compare" aria-labelledby="cmp-h" data-comment-target>
         <div class="sec-head">
-          <h2 id="cmp-h">Concept and rig</h2>
-          <p class="muted small">Your three concept poses, rebuilt from the part sheet at the same scale. Drag the slider to wipe between them, or switch to onion skin.</p>
+          <span class="eyebrow">Match</span>
+          <h2 id="cmp-h">Concept and rig, side by side</h2>
+          <p class="muted">Drag the line to wipe between your concept (left) and the Blender rig (right), or overlay them.</p>
         </div>
         <div class="card cmp">
-          <div class="row" style="justify-content:space-between">
-            <div class="seg" id="cmp-pick" role="group" aria-label="Concept pose">
-              <button type="button" data-i="0" aria-pressed="true">Neutral</button>
-              <button type="button" data-i="1" aria-pressed="false">Cheer</button>
-              <button type="button" data-i="2" aria-pressed="false">Oops</button>
-            </div>
-            <div class="seg" id="cmp-mode" role="group" aria-label="Compare mode">
-              <button type="button" data-m="wipe" aria-pressed="true">Wipe</button>
-              <button type="button" data-m="overlay" aria-pressed="false">Onion skin</button>
-            </div>
+          <div class="row">
+            <div class="seg" id="cmp-pick" role="group" aria-label="Concept drawing"></div>
+            <button class="btn toggle" id="cmp-overlay" type="button" aria-pressed="false">Overlay</button>
           </div>
           <div class="cmp-box" id="cmp-box">
-            <img id="cmp-img" src="reference/pip-happy.webp" alt="Concept art of Pip, neutral pose" width="370" height="608">
-            <div class="layer" id="cmp-rig"></div>
+            <img id="cmp-concept" alt="">
+            <div class="layer"><img id="cmp-rig" alt="Pip's Blender rig in the same pose"></div>
             <div class="cut"></div>
-            <span class="tag l">Concept</span><span class="tag r">Rig</span>
+            <span class="tag l">Concept</span><span class="tag r">Blender rig</span>
+            <span class="wait" id="cmp-wait">Rendering the rig…</span>
           </div>
-          <input type="range" id="cmp-cut" min="0" max="100" value="50" aria-label="Wipe between concept and rig">
+          <label class="small muted" for="cmp-cut">Wipe</label>
+          <input type="range" id="cmp-cut" min="0" max="100" value="50">
+          <button class="cbtn" type="button" data-comment>Comment</button>
         </div>
       </section>
 
-      <section class="sec-poses" aria-labelledby="poses-h">
+      <section class="sec-moods" aria-labelledby="moods-h">
         <div class="sec-head">
-          <h2 id="poses-h">Pose library</h2>
-          <p class="muted small">Each mood is a body pose, a face and sometimes a move. The first six are the moods the app uses today; the rest are new. Tap one to play it on the stage.</p>
+          <span class="eyebrow">Library</span>
+          <h2 id="moods-h">Moods</h2>
+          <p class="muted">Each mood is one action in the Blender file. Tap one to play it on the stage.</p>
         </div>
-        <div class="poses" id="poses"></div>
+        <div class="moods" id="moods"></div>
       </section>
 
-      <section class="sec-parts" aria-labelledby="parts-h">
+      <section class="sec-blender" aria-labelledby="blend-h" data-comment-target>
         <div class="sec-head">
-          <h2 id="parts-h">Part sheet</h2>
-          <p class="muted small">Every drawing in Pip, shown where it hangs on its bone. The red cross is the pivot it turns around. Paired parts are drawn once and mirrored.</p>
+          <span class="eyebrow">Editing</span>
+          <h2 id="blend-h">Change Pip in Blender</h2>
+          <p class="muted">Blender is free. Every pose and move you see here is in one file you can open and adjust by eye.</p>
         </div>
-        <div class="parts-sum" id="parts-sum"></div>
-        <div id="parts" style="display:flex;flex-direction:column;gap:12px"></div>
-      </section>
-
-      <section class="sec-skeleton" aria-labelledby="skel-h" data-comment-target>
-        <div class="sec-head">
-          <h2 id="skel-h">Skeleton</h2>
-          <p class="muted small">The bird skeleton every parrot will share. Green bones ride the head turn; red ones are springs that swing after a move.</p>
-        </div>
-        <div class="card skel"><div class="fig" id="skel-fig"></div><ul class="tree" id="skel-tree"></ul></div>
-      </section>
-
-      <section class="sec-method" aria-labelledby="method-h">
-        <div class="sec-head"><h2 id="method-h">How the rig works</h2></div>
-        <div class="method">
-          <div class="card m"><h3>One skeleton for five birds</h3><p>Pip, Kiwi, Mango, Kakadu and Rojo will share these bones and pivots. Each bird is its own part sheet and palette, so every pose and move is written once and works for all of them.</p></div>
-          <div class="card m"><h3>Parts, not frames</h3><p>A pose is a list of bone angles plus which drawing each slot shows. Eyes, beaks and wing shapes swap; everything else bends and turns. New poses cost a few numbers, not new art.</p></div>
-          <div class="card m"><h3>A head that turns</h3><p>Face parts ride an invisible sphere. Turn Pip and the near eye grows, the beak leads, the lower body twists the other way and the tail swings to the far side.</p>
-            <div class="turnstrip" id="turnstrip"></div></div>
-          <div class="card m"><h3>Alive between moves</h3><p>Pip breathes, blinks, glances around, and its crest and tail lag behind a hop and settle on springs. Its beak moves with its voice. All of it stops for people who ask for reduced motion.</p></div>
-          <div class="card m"><h3>Built for the app</h3><p>One small script with no dependencies, plain SVG, colors from tokens. Big Pips animate; small ones, like avatars and the route marker, are still images from the same data.</p></div>
-          <div class="card m"><h3>Room to grow</h3><p>The part sheet imports straight into Figma or Rive, and the skeleton maps one to one to Spine, so an animator could take over in a tool later without redrawing anything.</p></div>
-        </div>
-      </section>
-
-      <section class="sec-next" aria-labelledby="next-h" data-comment-target>
-        <div class="card next">
-          <h2 id="next-h">What I need from you</h2>
+        <div class="card steps">
           <ol>
-            <li>Does this Pip match your concept? Note anything off in shape, color or proportion.</li>
-            <li>Which poses and moves feel right, and which feel stiff or wrong? Comment right on the pose.</li>
-            <li>Should Pip stay teal, or keep taking the line color of the language?</li>
-            <li>Anything missing from the pose library?</li>
+            <li>Install <b>Blender 5.2 LTS</b> from blender.org (free, Mac or Windows).</li>
+            <li>Open <code>design/rig/blender/pip.blend</code> from the Parlance repo. Press <span class="kbd">1</span> on the number pad (or View › Viewpoint › Front) to see Pip from the front.</li>
+            <li>Click Pip's bones, switch to Pose Mode, and open the Dope Sheet's Action Editor. Each mood is an action there: pick one, scrub the timeline, and rotate a bone with <span class="kbd">R</span> to change a pose. Keys go in with <span class="kbd">I</span>.</li>
+            <li>Which eyes, beak or wings show is a set of small <code>show_…</code> bones: scale 1 shows a drawing, 0 hides it.</li>
+            <li>Save, then export with <code>design/rig/blender/build/export.py</code> (Blender's Scripting tab › Open › Run Script), or ask Claude to re-export Pip. The player picks up the new <code>pip.gltf.json</code>.</li>
           </ol>
-          <p class="small muted">Once Pip is approved, I’ll draw the part sheets for Kiwi, Mango, Kakadu and Rojo on this same skeleton, then wire the rig into the app behind the current <span class="mono">pip()</span> calls.</p>
+          <button class="cbtn" type="button" data-comment>Comment</button>
         </div>
+        <div class="cols">
+          <div class="fact"><h3>In the Blender file</h3><p>The drawing, 96 bones, the wing, crest and tail chains that bend, and every mood and move as an action.</p></div>
+          <div class="fact"><h3>Added by the player</h3><p>Breathing, blinking, quick glances, looking at your finger, talking, and the springy follow-through on the crest, tail and wing tips.</p></div>
+        </div>
+      </section>
+
+      <section class="sec-new" aria-labelledby="new-h" data-comment-target>
+        <div class="sec-head">
+          <span class="eyebrow">This round</span>
+          <h2 id="new-h">What changed</h2>
+        </div>
+        <ul class="plain">
+          <li>Pip is traced from your model sheet, so at rest the rig matches the concept line for line.</li>
+          <li>The rig is a Blender file with real bones. Wings bend through bone chains instead of swinging as stiff pieces.</li>
+          <li>The sad and surprised beaks are redrawn: a closed beak with a soft downturned line, and a small round opening.</li>
+          <li>Moods blend into each other. Moves like hop and nod layer on top of whatever mood Pip is in.</li>
+        </ul>
+        <button class="cbtn" type="button" data-comment>Comment</button>
       </section>
     </div>
   </div>
-  <footer id="foot"></footer>
 </div>
 
-<script src="rig.js"></script>
-<script src="bird.js"></script>
-<script src="pip.js"></script>
+<script src="blender/pip3d.js"></script>
 <script>
-"use strict";
 (() => {
-  const NS = 'http://www.w3.org/2000/svg';
-  const $ = (s, el = document) => el.querySelector(s);
-  const h = (tag, attrs = {}, ...kids) => { const el = document.createElement(tag); for (const k in attrs){ const v = attrs[k]; if (v == null || v === false) continue; if (k === 'html') el.innerHTML = v; else if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? '' : v); } for (const c of kids) if (c != null) el.append(c); return el; };
-  const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const COMMENT_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11h-9l-5 4v-4H4z"/></svg>';
-
-  /* moods: [id, label, where the app would use it, in the app today] */
+  const $ = id => document.getElementById(id);
+  const h = (tag, attrs = {}, ...kids) => { const el = document.createElement(tag); for (const k in attrs) { if (k === 'class') el.className = attrs[k]; else if (k.startsWith('on')) el.addEventListener(k.slice(2), attrs[k]); else el.setAttribute(k, attrs[k]); } for (const c of kids) if (c != null) el.append(c); return el; };
+  const SRC = 'blender/pip.gltf.json';
   const MOODS = [
-    ['happy', 'Happy', 'Default. Learn screen, lesson intros, About.', true],
-    ['cheer', 'Cheer', 'Right answer, lesson complete, finished course.', true],
-    ['oops', 'Oops', 'Wrong answer. Worried, not upset.', true],
-    ['think', 'Think', 'Hints, “jump ahead?”, Studio, Talk without a tutor.', true],
-    ['wow', 'Wow', 'A new version is out, big milestones.', true],
-    ['sleep', 'Sleep', 'Nothing due in Review, no feedback yet.', true],
-    ['wave', 'Wave', 'Hello, onboarding, coming back after a break.', false],
-    ['point', 'Point', 'Tutorials: “look here”.', false],
-    ['listen', 'Listen', 'Listening exercises and audio questions.', false],
-    ['ready', 'Ready', 'Before a test or a hard lesson.', false],
-    ['proud', 'Proud', 'Badges, streak days, a level done.', false],
-    ['laugh', 'Laugh', 'Funny moments in stories.', false],
-    ['love', 'Love', 'Thanks for your feedback.', false],
-    ['shrug', 'Shrug', 'Skipped a question, “no problem”.', false],
-    ['sad', 'Sad', 'A streak ended. Gentle, never guilt.', false],
-    ['dance', 'Dance', 'Celebrations and the theme song.', false],
-    ['fly', 'Fly', 'Intro film, moving between screens.', false]
+    ['happy', 'Happy', 'Default. Learn screen, lesson intros, About.'],
+    ['cheer', 'Cheer', 'Right answer, lesson complete, finished course.'],
+    ['oops', 'Oops', 'Wrong answer. Worried, not upset.'],
+    ['think', 'Think', 'Hints, “jump ahead?”, Studio, Talk without a tutor.'],
+    ['wow', 'Wow', 'A new version is out, big milestones.'],
+    ['sleep', 'Sleep', 'Nothing due in Review, no feedback yet.'],
+    ['wave', 'Wave', 'Hello, onboarding, coming back after a break.'],
+    ['point', 'Point', 'Tutorials: “look here”.'],
+    ['listen', 'Listen', 'Listening exercises and audio questions.'],
+    ['ready', 'Ready', 'Before a test or a hard lesson.'],
+    ['proud', 'Proud', 'Badges, streak days, a level done.'],
+    ['laugh', 'Laugh', 'Funny moments in stories.'],
+    ['love', 'Love', 'Thanks for your feedback.'],
+    ['shrug', 'Shrug', 'Skipped a question, “no problem”.'],
+    ['sad', 'Sad', 'A streak ended. Gentle, never guilt.'],
+    ['dance', 'Dance', 'Celebrations and the theme song.'],
+    ['fly', 'Fly', 'Intro film, moving between screens.']
   ];
-  const MOVES = [['hop', 'Hop'], ['nod', 'Nod'], ['shake', 'Shake head'], ['lookAround', 'Look around'], ['surprise', 'Jump'], ['wobble', 'Wobble'], ['bow', 'Bow']];
-  const LINES = { de: ['Hallo! Ich bin Pip.', 'Super gemacht!', 'Los geht’s!', 'Fast! Nochmal?'], es: ['¡Hola! Soy Pip.', '¡Muy bien!', '¡Vámonos!', '¡Casi! ¿Otra vez?'] };
-
-  /* ----- live stage ----- */
-  const stage = $('#stage');
-  const pip = Rig.create(PIP, { mood: 'happy', intro: false });
-  stage.append(pip.el);
-  const bubble = $('#bubble');
-  let bubbleT = 0, lineN = 0;
-  function say(text, lang) {
-    bubble.textContent = text; bubble.classList.add('on');
-    clearTimeout(bubbleT); bubbleT = setTimeout(() => bubble.classList.remove('on'), 2600);
-    const synth = window.speechSynthesis;
-    let started = false;
-    if (synth && typeof SpeechSynthesisUtterance === 'function'){
-      try {
-        synth.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = lang === 'es' ? 'es-MX' : 'de-DE'; u.pitch = 1.35; u.rate = 1;
-        const v = synth.getVoices().find(x => x.lang && x.lang.toLowerCase().replace('_', '-').startsWith(lang));
-        if (v) u.voice = v;
-        u.onstart = () => { started = true; pip.talking(true); };
-        u.onend = u.onerror = () => pip.talking(false);
-        synth.speak(u);
-      } catch (e) { /* no voice here */ }
-    }
-    setTimeout(() => { if (!started) pip.say(text); }, 600);   // no voice: the beak still moves
-  }
-  function nextLine() { const lang = lineN % 2 ? 'es' : 'de'; const arr = LINES[lang]; const t = arr[Math.floor(lineN / 2) % arr.length]; lineN++; return [t, lang]; }
-  pip.el.addEventListener('click', () => { pip.hop(); const [t, l] = nextLine(); say(t, l); });
-
-  const hudMood = $('#hud-mood'), hudTime = $('#hud-time');
-  (function hud() { hudTime.textContent = 't ' + pip.time.toFixed(2) + 's · ' + (pip.speed === 1 ? '1×' : pip.speed + '×'); requestAnimationFrame(hud); })();
-
-  function setMood(m, scroll) {
-    clearPuppet();
-    pip.set(m);
-    hudMood.textContent = m;
-    for (const b of document.querySelectorAll('#moods .chip')) b.setAttribute('aria-pressed', String(b.dataset.m === m));
-    for (const c of document.querySelectorAll('.pose')) c.setAttribute('aria-current', String(c.dataset.m === m));
-    if (scroll){ const r = stage.getBoundingClientRect(); if (r.bottom < 60 || r.top > innerHeight - 120) stage.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'center' }); }
-  }
-  const moodsEl = $('#moods');
-  for (const [id, label, , today] of MOODS) moodsEl.append(h('button', { class: 'chip', type: 'button', 'data-m': id, 'aria-pressed': String(id === 'happy'), onclick: () => setMood(id) }, today ? null : h('span', { class: 'dot', title: 'New', 'aria-hidden': 'true' }), label));
-  const movesEl = $('#moves');
-  for (const [id, label] of MOVES) movesEl.append(h('button', { class: 'btn', type: 'button', onclick: () => pip.play(id) }, label));
-  movesEl.append(h('button', { class: 'btn primary', type: 'button', onclick: () => { const [t, l] = nextLine(); say(t, l); } }, 'Talk'));
-
-  const tFollow = $('#t-follow'), tBones = $('#t-bones'), tSlow = $('#t-slow');
-  const toggle = (b, on) => b.setAttribute('aria-pressed', String(on));
-  tFollow.onclick = () => { const on = tFollow.getAttribute('aria-pressed') !== 'true'; toggle(tFollow, on); stage.classList.toggle('follow', on); if (!on) pip.look(null); };
-  stage.addEventListener('pointermove', e => { if (tFollow.getAttribute('aria-pressed') === 'true') pip.lookAtPoint(e.clientX, e.clientY); });
-  stage.addEventListener('pointerleave', () => { if (tFollow.getAttribute('aria-pressed') === 'true') pip.look(null); });
-  tBones.onclick = () => { const on = tBones.getAttribute('aria-pressed') !== 'true'; toggle(tBones, on); pip.setDebug(on); };
-  tSlow.onclick = () => { const on = tSlow.getAttribute('aria-pressed') !== 'true'; toggle(tSlow, on); pip.speed = on ? 0.25 : 1; };
-
-  const PALETTES = { teal: {}, green: { '--pip-body': '#23955A', '--pip-body2': '#1B8650' }, orange: { '--pip-body': '#F4952F', '--pip-body2': '#E8851F' } };
-  const palEl = $('#palette');
-  palEl.addEventListener('click', e => {
-    const b = e.target.closest('button'); if (!b) return;
-    for (const x of palEl.children) x.setAttribute('aria-pressed', String(x === b));
-    for (const k of ['--pip-body', '--pip-body2']) stage.style.removeProperty(k);
-    const p = PALETTES[b.dataset.p]; for (const k in p) stage.style.setProperty(k, p[k]);
-  });
-
-  /* ----- concept and rig ----- */
+  const MOVES = [['hop', 'Hop'], ['nod', 'Nod'], ['shake', 'Shake head'], ['lookAround', 'Look around'], ['surprise', 'Jump'], ['wobble', 'Wobble'], ['bow', 'Bow'], ['flap', 'Flap']];
+  const LINES = [['Hallo! Ich bin Pip.', 'de-DE'], ['¡Hola! Soy Pip.', 'es-MX'], ['Super gemacht!', 'de-DE'], ['¡Muy bien!', 'es-MX'], ['Los geht’s!', 'de-DE'], ['¡Casi! ¿Otra vez?', 'es-MX']];
   const CROPS = [
-    { img: 'reference/pip-happy.webp', alt: 'Concept art of Pip, neutral pose', mood: 'happy', x0: 0, cx: 193 },
-    { img: 'reference/pip-cheer.webp', alt: 'Concept art of Pip, cheering', mood: 'cheer', x0: 362, cx: 537.5 },
-    { img: 'reference/pip-oops.webp', alt: 'Concept art of Pip, worried', mood: 'oops', x0: 718, cx: 900 }
+    { key: 'happy', label: 'Neutral', img: 'reference/pip-happy.webp', alt: 'Concept art of Pip, neutral pose', view: [23.5, -10, 185, 304] },
+    { key: 'cheer', label: 'Cheer', img: 'reference/pip-cheer.webp', alt: 'Concept art of Pip, cheering', view: [32.25, -10, 185, 304] },
+    { key: 'oops', label: 'Worried', img: 'reference/pip-oops.webp', alt: 'Concept art of Pip, worried', view: [29, -10, 185, 304] }
   ];
-  const cmpBox = $('#cmp-box'), cmpImg = $('#cmp-img'), cmpRig = $('#cmp-rig'), cmpCut = $('#cmp-cut');
+  let pip = null, mood = 'happy';
+
+  /* ----- chips ----- */
+  const moodChips = $('mood-chips'), moveChips = $('move-chips');
+  for (const [id, name] of MOODS) moodChips.append(h('button', { class: 'chip', type: 'button', 'data-m': id, 'aria-pressed': String(id === 'happy'), disabled: '', onclick: () => setMood(id) }, name));
+  for (const [id, name] of MOVES) moveChips.append(h('button', { class: 'chip', type: 'button', disabled: '', onclick: () => { if (pip) pip.play(id); } }, name));
+  function setMood(id) {
+    mood = id;
+    if (pip) pip.set(id);
+    $('hud-mood').textContent = id;
+    for (const b of moodChips.children) b.setAttribute('aria-pressed', String(b.dataset.m === id));
+    for (const c of document.querySelectorAll('.mood')) c.setAttribute('aria-current', String(c.dataset.m === id));
+  }
+
+  /* ----- mood library ----- */
+  const grid = $('moods'), arts = {};
+  for (const [id, name, use] of MOODS) {
+    const art = h('div', { class: 'art' }, h('div', { class: 'ph' }));
+    arts[id] = art;
+    const play = h('button', { class: 'mood-play', type: 'button', 'aria-label': 'Play ' + name + ' on the stage', onclick: () => { setMood(id); if (matchMedia('(max-width: 979px)').matches) $('stage').scrollIntoView({ behavior: 'smooth', block: 'center' }); } },
+      art, h('span', { class: 'name' }, name), h('span', { class: 'use' }, use));
+    grid.append(h('div', { class: 'mood', 'data-m': id, 'aria-current': String(id === 'happy'), 'data-comment-target': '' }, play, h('button', { class: 'cbtn', type: 'button', 'data-comment': '' }, 'Comment')));
+  }
+
+  /* ----- compare ----- */
+  const pick = $('cmp-pick'), box = $('cmp-box');
+  let crop = 0, rigShots = [];
+  CROPS.forEach((c, i) => pick.append(h('button', { type: 'button', 'aria-pressed': String(i === 0), onclick: () => showCrop(i) }, c.label)));
   function showCrop(i) {
+    crop = i;
     const c = CROPS[i];
-    cmpImg.src = c.img; cmpImg.alt = c.alt;
-    /* each concept crop is 370 x 608 px at half a rig unit per pixel, centred on the head */
-    cmpRig.innerHTML = Rig.svg(PIP, c.mood, { view: [(c.x0 - c.cx) * 0.5 + 120, -10, 185, 304], size: 340, style: false });
-    const s = cmpRig.firstChild; s.removeAttribute('width'); s.removeAttribute('height');
-    for (const b of $('#cmp-pick').children) b.setAttribute('aria-pressed', String(+b.dataset.i === i));
+    $('cmp-concept').src = c.img; $('cmp-concept').alt = c.alt;
+    if (rigShots[i]) $('cmp-rig').src = rigShots[i];
+    for (const [k, b] of [...pick.children].entries()) b.setAttribute('aria-pressed', String(k === i));
   }
-  $('#cmp-pick').addEventListener('click', e => { const b = e.target.closest('button'); if (b) showCrop(+b.dataset.i); });
-  $('#cmp-mode').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; for (const x of $('#cmp-mode').children) x.setAttribute('aria-pressed', String(x === b)); cmpBox.classList.toggle('overlay', b.dataset.m === 'overlay'); cmpCut.hidden = b.dataset.m === 'overlay'; });
-  cmpCut.addEventListener('input', () => cmpBox.style.setProperty('--cut', cmpCut.value + '%'));
-  /* dragging on the picture moves the wipe too */
-  let dragging = false;
-  const wipeTo = e => { const r = cmpBox.getBoundingClientRect(); const v = Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)); cmpCut.value = v; cmpBox.style.setProperty('--cut', v + '%'); };
-  cmpBox.addEventListener('pointerdown', e => { if (cmpBox.classList.contains('overlay')) return; dragging = true; wipeTo(e); });
-  addEventListener('pointermove', e => { if (dragging) wipeTo(e); });
-  addEventListener('pointerup', () => { dragging = false; });
   showCrop(0);
+  $('cmp-cut').addEventListener('input', e => box.style.setProperty('--cut', e.target.value + '%'));
+  const drag = e => { const r = box.getBoundingClientRect(); const v = Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)); box.style.setProperty('--cut', v + '%'); $('cmp-cut').value = Math.round(v); };
+  box.addEventListener('pointerdown', e => { if (box.classList.contains('overlay')) return; box.setPointerCapture(e.pointerId); drag(e); });
+  box.addEventListener('pointermove', e => { if (box.hasPointerCapture(e.pointerId)) drag(e); });
+  $('cmp-overlay').addEventListener('click', e => { const on = box.classList.toggle('overlay'); e.currentTarget.setAttribute('aria-pressed', String(on)); });
 
-  /* ----- pose library ----- */
-  const posesEl = $('#poses');
-  for (const [id, label, use, today] of MOODS){
-    const play = h('button', { class: 'pose-play', type: 'button', 'aria-label': 'Play ' + label + ' on the stage. ' + use, onclick: () => setMood(id, true) },
-      h('div', { class: 'art', html: Rig.svg(PIP, id, { size: 170, style: false }) }),
-      h('div', { class: 'name' }, label, h('span', { class: 'badge' + (today ? '' : ' new') }, today ? 'In the app' : 'New')),
-      h('div', { class: 'use' }, use));
-    const card = h('div', { class: 'pose', 'data-m': id, 'aria-current': String(id === 'happy'), 'data-comment-target': true }, play);
-    const cb = h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Comment on ' + label, html: COMMENT_IC + 'Comment' });
-    cb.addEventListener('click', () => openComment(card));
-    card.append(cb);
-    posesEl.append(card);
-  }
-
-  /* ----- puppet ----- */
-  const PUP = [
-    { k: 'turn', label: 'Head turn', min: -1, max: 1, step: 0.01, set: (O, v) => { O.params.turn = v; } },
-    { k: 'lookX', label: 'Look side', min: -1, max: 1, step: 0.01, set: (O, v) => { O.params.lookX = v; } },
-    { k: 'lookY', label: 'Look up', min: -1, max: 1, step: 0.01, set: (O, v) => { O.params.lookY = -v; } },
-    { k: 'tilt', label: 'Head tilt', min: -25, max: 25, step: 0.5, set: (O, v) => { O.bones.head = Object.assign(O.bones.head || {}, { r: v }); } },
-    { k: 'lean', label: 'Lean', min: -15, max: 15, step: 0.5, set: (O, v) => { O.bones.body = Object.assign(O.bones.body || {}, { r: v }); } },
-    { k: 'wl', label: 'Left wing', min: -45, max: 160, step: 1, set: (O, v) => { O.bones.wingL = { r: v }; } },
-    { k: 'wr', label: 'Right wing', min: -45, max: 160, step: 1, set: (O, v) => { O.bones.wingR = { r: -v }; } },
-    { k: 'crest', label: 'Crest', min: -1, max: 1, step: 0.01, set: (O, v) => { O.bones.crest1 = { r: -16 * v, sy: 1 + 0.1 * v }; O.bones.crest3 = { r: 16 * v, sy: 1 + 0.1 * v }; O.bones.crest2 = { r: 0, sy: 1 + 0.14 * v }; } },
-    { k: 'squash', label: 'Squash', min: -1, max: 1, step: 0.01, set: (O, v) => { O.bones.root = Object.assign(O.bones.root || {}, { sy: 1 - 0.16 * v, sx: 1 + 0.12 * v }); } },
-    { k: 'lift', label: 'Lift off', min: 0, max: 40, step: 1, set: (O, v) => { O.bones.root = Object.assign(O.bones.root || {}, { y: -v }); } }
-  ];
-  const SEL = [
-    { k: 'eyes', label: 'Eyes', opts: ['open', 'wide', 'wet', 'happy', 'closed', 'lidded', 'squeeze', 'heart'], set: (O, v) => { O.slots.pupilL = v; O.slots.pupilR = v; } },
-    { k: 'beak', label: 'Beak', opts: ['grin', 'smile', 'closed', 'frown', 'open', 'wide', 'o'], set: (O, v) => { O.slots.mouth = v; O.slots.beak = ['grin', 'open', 'wide', 'o'].includes(v) ? 'open' : 'closed'; } },
-    { k: 'wings', label: 'Wing shape', opts: ['folded', 'spread'], set: (O, v) => { O.slots.wingL = v; O.slots.wingR = v; } }
-  ];
-  const pupEl = $('#puppet');
-  const vals = {};
-  const fmt = (c, v) => (c.step < 0.1 ? (+v).toFixed(2) : String(+v));
-  function applyPuppet() {
-    const O = { bones: {}, params: {}, slots: {} };
-    for (const c of PUP) if (vals[c.k] != null) c.set(O, vals[c.k]);
-    for (const c of SEL) if (vals[c.k] != null) c.set(O, vals[c.k]);
-    pip.override = O;
-    $('#pose-json').textContent = JSON.stringify(Object.assign({ mood: pip.mood }, O.bones && Object.keys(O.bones).length ? { bones: O.bones } : {}, Object.keys(O.params).length ? { params: O.params } : {}, Object.keys(O.slots).length ? { slots: O.slots } : {}));
-  }
-  for (const c of PUP){
-    const out = h('output', { for: 'p-' + c.k }, '·');
-    const inp = h('input', { type: 'range', id: 'p-' + c.k, min: c.min, max: c.max, step: c.step, value: 0 });
-    inp.addEventListener('input', () => { vals[c.k] = +inp.value; out.textContent = fmt(c, inp.value); applyPuppet(); });
-    c.inp = inp; c.out = out;
-    pupEl.append(h('label', { class: 'ctl', for: 'p-' + c.k }, h('span', {}, c.label), inp, out));
-  }
-  for (const c of SEL){
-    const sel = h('select', { id: 's-' + c.k }, h('option', { value: '' }, 'From the mood'), ...c.opts.map(o => h('option', { value: o }, o)));
-    sel.addEventListener('change', () => { vals[c.k] = sel.value || null; applyPuppet(); });
-    c.sel = sel;
-    pupEl.append(h('label', { class: 'ctl', for: 's-' + c.k }, h('span', {}, c.label), sel, h('span')));
-  }
-  const copyMsg = h('span', { class: 'small muted', role: 'status' });
-  pupEl.append(h('div', { class: 'row' },
-    h('button', { class: 'btn', type: 'button', onclick: clearPuppet }, 'Reset'),
-    h('button', { class: 'btn primary', type: 'button', onclick: () => {
-      const txt = $('#pose-json').textContent;
-      const done = () => { copyMsg.textContent = 'Copied. Paste it in our chat.'; };
-      const fallback = () => { const r = document.createRange(); r.selectNodeContents($('#pose-json')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); copyMsg.textContent = 'Selected. Copy it from the box below.'; };
-      try { navigator.clipboard.writeText(txt).then(done, fallback); } catch (e) { fallback(); }
-    } }, 'Copy pose'), copyMsg));
-  pupEl.append(h('pre', { class: 'json', id: 'pose-json', 'aria-label': 'Pose as data' }, '{"mood":"happy"}'));
-  function clearPuppet() {
-    for (const k in vals) delete vals[k];
-    for (const c of PUP){ if (c.inp){ c.inp.value = 0; c.out.textContent = '·'; } }
-    for (const c of SEL) if (c.sel) c.sel.value = '';
-    pip.override = { bones: {}, params: {}, slots: {} };
-    const j = $('#pose-json'); if (j) j.textContent = JSON.stringify({ mood: pip.mood || 'happy' });
-    copyMsg.textContent = '';
-  }
-
-  /* ----- part sheet ----- */
-  const all = Rig.parts(PIP);
-  const MIRRORED = { patchR: 1, browR: 1, wingR: 1, legR: 1, cheekR: 1, pupilR: 1 };
-  const uniq = all.filter(p => !MIRRORED[p.slot]);
-  const comp = Rig.compile(PIP);
-  const GROUPS = [
-    ['Head and crest', 'One head, three crest feathers on springs.', ['head', 'crest1', 'crest2', 'crest3', 'patchL']],
-    ['Eyes', 'Swapped for each expression; blinks squash them first.', ['pupilL'], 'patchL'],
-    ['Brows and beak', 'One brow drawing that lifts and tilts. Two upper beaks.', ['browL', 'beak'], 'head'],
-    ['Mouth', 'Behind the upper beak. These double as the talking shapes.', ['mouth']],
-    ['Body', 'The torso twists against a head turn; the tail flips sides.', ['body', 'belly', 'tail']],
-    ['Wings and feet', 'Both wing shapes share one pivot and rest angle, so they swap mid-swing.', ['wingL', 'legL']],
-    ['Effects', 'Little extras that ride the head or the body.', ['sweat', 'tear', 'cheekL', 'fxHead', 'fxBody', 'shadow']]
-  ];
-  const ctx = { patchL: PIP.parts.patchL.on, head: PIP.parts.head.on };
-  $('#parts-sum').append(
-    h('div', { class: 'stat' }, h('b', {}, String(uniq.length)), h('span', {}, 'drawings')),
-    h('div', { class: 'stat' }, h('b', {}, String(comp.bones.length)), h('span', {}, 'bones')),
-    h('div', { class: 'stat' }, h('b', {}, String(comp.slots.length)), h('span', {}, 'slots')),
-    h('div', { class: 'stat' }, h('b', {}, String(Object.keys(PIP.moods).length)), h('span', {}, 'moods')),
-    h('div', { class: 'stat' }, h('b', {}, String(Object.keys(PIP.clips).length)), h('span', {}, 'moves')));
-  const partsEl = $('#parts');
-  const cells = [];
-  for (const [title, note, slots, ctxKey] of GROUPS){
-    const grid = h('div', { class: 'pgrid' });
-    const items = uniq.filter(p => slots.includes(p.slot));
-    for (const p of items){
-      const svg = document.createElementNS(NS, 'svg');
-      svg.setAttribute('class', 'rig rig-pip');
-      const pivot = '<g class="pivot"><circle cx="' + p.pivot[0] + '" cy="' + p.pivot[1] + '" r="3.2"/><path d="M' + (p.pivot[0] - 6) + ' ' + p.pivot[1] + 'h12M' + p.pivot[0] + ' ' + (p.pivot[1] - 6) + 'v12"/></g>';
-      const context = ctxKey && !(ctxKey === 'head' && p.slot === 'beak') ? '<g opacity=".22">' + ctx[ctxKey] + '</g>' : '';   // a faint neighbor for scale
-      svg.innerHTML = context + '<g class="part">' + p.markup + '</g>' + pivot;
-      const label = p.slot.replace(/L$/, '') + ' · ' + p.name;
-      grid.append(h('div', { class: 'pcell' }, h('div', { class: 'pv' }, svg), h('b', {}, p.name), h('span', {}, p.slot + (MIRRORED[p.slot.replace(/L$/, 'R')] ? ' ×2' : ''))));
-      cells.push({ svg, pivot: p.pivot, label });
-    }
-    const group = h('div', { class: 'card pgroup', 'data-comment-target': true },
-      h('div', { class: 'pgroup-head' }, h('h3', {}, title), h('span', { class: 'small muted' }, items.length + (items.length === 1 ? ' drawing' : ' drawings'))),
-      h('p', { class: 'small muted' }, note), grid);
-    const cb = h('button', { class: 'cbtn', type: 'button', html: COMMENT_IC + 'Comment on ' + title.toLowerCase() });
-    cb.addEventListener('click', () => openComment(group));
-    group.append(cb);
-    partsEl.append(group);
-  }
-  /* fit each part's viewBox to its drawing and pivot once laid out; line weight follows the zoom */
-  requestAnimationFrame(() => {
-    for (const c of cells){
-      const g = c.svg.querySelector('.part');
-      let b; try { b = g.getBBox(); } catch (e) { continue; }
-      let x0 = Math.min(b.x, c.pivot[0] - 6), y0 = Math.min(b.y, c.pivot[1] - 6), x1 = Math.max(b.x + b.width, c.pivot[0] + 6), y1 = Math.max(b.y + b.height, c.pivot[1] + 6);
-      const pad = 5, w = x1 - x0 + pad * 2, hh = y1 - y0 + pad * 2, side = Math.max(w, hh);
-      const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-      c.svg.setAttribute('viewBox', [cx - side / 2, cy - side / 2, side, side].map(v => Math.round(v * 10) / 10).join(' '));
-      const px = c.svg.getBoundingClientRect().width || 72;
-      c.svg.style.setProperty('--rig-lw', String(Math.max(1.2, Math.min(4, 1.2 * side / px))));
-    }
+  /* ----- stage controls ----- */
+  const stage = $('stage');
+  $('pip').addEventListener('click', () => { if (pip) pip.hop(); });
+  const follow = $('follow');
+  let following = false;
+  follow.addEventListener('click', () => { following = !following; follow.setAttribute('aria-pressed', String(following)); stage.classList.toggle('follow', following); if (!following && pip) pip.look(null); });
+  stage.addEventListener('pointermove', e => { if (following && pip) pip.lookAtPoint(e.clientX, e.clientY); });
+  stage.addEventListener('pointerleave', () => { if (following && pip) pip.look(null); });
+  $('slow').addEventListener('click', e => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', String(on)); if (pip) pip.speed = on ? 0.3 : 1; });
+  let line = 0, bubbleT = 0;
+  $('say').addEventListener('click', () => {
+    if (!pip) return;
+    const [text, lang] = LINES[line++ % LINES.length];
+    const bubble = $('bubble');
+    bubble.textContent = text; bubble.classList.add('on');
+    clearTimeout(bubbleT);
+    const done = () => { pip.talking(false); bubbleT = setTimeout(() => bubble.classList.remove('on'), 900); };
+    // speak with a German or Spanish voice when the device has one; otherwise Pip mouths the line
+    const synth = window.speechSynthesis;
+    const voice = synth && typeof SpeechSynthesisUtterance === 'function' && synth.getVoices().find(v => v.lang && v.lang.startsWith(lang.slice(0, 2)));
+    if (voice) {
+      const u = new SpeechSynthesisUtterance(text); u.voice = voice; u.lang = voice.lang; u.rate = 0.95;
+      u.onstart = () => pip.talking(true); u.onend = done; u.onerror = done;
+      synth.cancel(); synth.speak(u);
+    } else pip.say(text).then(done);
   });
-
-  /* ----- skeleton ----- */
-  $('#skel-fig').innerHTML = Rig.svg(PIP, 'happy', { size: 260, style: false, debug: true });
-  const treeEl = $('#skel-tree');
-  const springs = PIP.springs || {};
-  const walk = (b, depth) => {
-    const t = b.turn;
-    treeEl.append(h('li', {}, h('span', { class: 'ind' }, depth ? '│ '.repeat(depth - 1) + '├ ' : ''), h('span', { class: 'bn' }, b.id), ' ', h('span', { class: 'muted' }, b.x + ', ' + b.y),
-      springs[b.id] ? h('span', { class: 'tag spring' }, 'spring') : null, t ? h('span', { class: 'tag turn' }, t.flip ? 'flips' : t.rot ? 'twists' : 'turns') : null));
-    for (const k of b.kids) walk(comp.bones[k], depth + 1);
-  };
-  comp.bones.filter(b => b.parent < 0).forEach(b => walk(b, 0));
-
-  /* ----- turn strip ----- */
-  const ts = $('#turnstrip');
-  for (const t of [-0.9, -0.45, 0, 0.45, 0.9]) ts.append(h('figure', {}, h('div', { html: Rig.svg(PIP, { pose: 'stand', face: 'smile', params: { turn: t } }, { size: 90, style: false, view: [40, 10, 160, 250] }) }), h('figcaption', {}, (t > 0 ? '+' : '') + t)));
-
-  /* ----- facts + footer ----- */
-  $('#facts').append(
-    h('span', {}, h('b', {}, 'rig.js ' + Rig.version), ' runtime'),
-    h('span', {}, h('b', {}, uniq.length + ' drawings'), ' on ' + comp.bones.length + ' bones'),
-    h('span', {}, h('b', {}, Object.keys(PIP.moods).length + ' moods'), ', ' + Object.keys(PIP.clips).length + ' moves'),
-    h('span', {}, 'design/rig in mcolfax/parlance'));
-  $('#foot').textContent = 'Pip rig review, round 1. Source in design/rig: rig.js (runtime), bird.js (shared skeleton, poses, moves), pip.js (Pip’s part sheet and palette). Concept art in design/rig/reference.';
 
   /* ----- comments: each card can open the viewer's comment box on itself ----- */
   let comments = null;
-  async function openComment(el) {
-    if (!comments) return;
-    try { await comments.openComposer({ element: el }); }
-    catch (e) { if (e && (e.code === 'unavailable' || e.code === 'not_granted' || e.code === 'capability_disabled' || e.code === 'capability_removed')) document.body.dataset.comments = 'off'; }
-  }
   document.body.dataset.comments = 'off';
-  if (window.claude && typeof window.claude.use === 'function'){
-    window.claude.use('comments').then(c => { comments = c; if (c) document.body.dataset.comments = 'on'; }, () => {});
-  }
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-comment]');
+    if (!b || !comments) return;
+    const el = b.closest('[data-comment-target]') || b.parentElement;
+    try { await comments.openComposer({ element: el }); }
+    catch (err) { if (err && ['unavailable', 'not_granted', 'capability_disabled', 'capability_removed'].includes(err.code)) document.body.dataset.comments = 'off'; }
+  });
+  if (window.claude && typeof window.claude.use === 'function') window.claude.use('comments').then(c => { comments = c; if (c) document.body.dataset.comments = 'on'; }, () => {});
+
+  /* ----- load the rig ----- */
+  const fail = err => {
+    $('hud-state').textContent = 'not loaded';
+    const note = $('note'); note.hidden = false;
+    note.textContent = 'Pip’s rig didn’t load here (' + (err && err.message ? err.message : 'no WebGL') + '). Try another browser, or reload.';
+    $('cmp-wait').textContent = 'The rig didn’t load.';
+  };
+  Pip3D.create($('pip'), { src: SRC, mood: 'happy' }).then(async p => {
+    pip = p;
+    $('hud-state').textContent = 'Blender rig · three.js';
+    $('f-moods').textContent = p.moods.length; $('f-moves').textContent = p.moves.length;
+    let n = 0; p.scene.traverse(o => { if (o.isBone) n++; }); $('f-bones').textContent = n;
+    for (const b of document.querySelectorAll('.chip')) b.removeAttribute('disabled');
+    if (mood !== 'happy') p.set(mood);
+    // stills come from one hidden renderer, after the live one is up
+    const shots = await Pip3D.stills(MOODS.map(([id]) => ({ mood: id })), { src: SRC, width: 240, height: 304, pixelRatio: 2 });
+    MOODS.forEach(([id, name], i) => { arts[id].replaceChildren(h('img', { src: shots[i], alt: 'Pip, ' + name.toLowerCase(), loading: 'lazy' })); });
+    rigShots = await Pip3D.stills(CROPS.map(c => ({ mood: c.key, view: c.view })), { src: SRC, width: 370, height: 608, pixelRatio: 1.5 });
+    $('cmp-wait').remove();
+    showCrop(crop);
+  }).catch(fail);
 })();
 </script>

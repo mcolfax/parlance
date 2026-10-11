@@ -11,6 +11,6 @@ Options for Parlance's next look, for Matt to review.
 - **Pip:** today's Pip plus four parrots, each in three moods: Rojo (scarlet macaw), Kiwi (budgie), Kakadu (cockatoo), Mango (yellow-headed amazon).
 - **Cast styles:** Flat, Ink and spot color, Sticker, each shown with Lena, Emre, Sofía and Diego.
 
-**Character rig:** Pip is rigged as a cut-out SVG character in [`rig/`](rig/README.md): one shared bird skeleton, Pip's part sheet, poses, moves and a small runtime. It's reviewed at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF and mirrored in the Figma file's Pip page. The concept sheets for all five birds are in `rig/reference/`.
+**Character rig:** Pip is traced from the model sheet and rigged in Blender in [`rig/`](rig/README.md): `rig/blender/pip.blend` holds the bones, moods and moves, and a three.js player shows it. It's reviewed at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF. The traced part sheet and the earlier SVG rig are in `rig/` too, and the concept sheets for all five birds are in `rig/reference/`.
 
 `concepts/make_art.py` draws the parrot and cast concept art as SVG into `concepts/art/`. When a direction is chosen, port it into `styles/tokens.css` and `js/core/art.js`. The app itself doesn't load anything from this folder.
