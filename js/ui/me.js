@@ -53,7 +53,7 @@ function viewMe(){
     S.settings.sfx ? h('div', { class: 'field vol' }, h('label', { for: 'sfx-vol' }, 'Effects volume'),
       h('div', { class: 'row' }, h('span', { class: 'small muted' }, 'Soft'), h('input', { type: 'range', id: 'sfx-vol', class: 'f-range grow', min: '0.1', max: '1', step: '0.05', value: String(S.settings.sfxVol),
         oninput: e => { S.settings.sfxVol = +e.target.value; clearTimeout(viewMe.t); viewMe.t = setTimeout(() => { touchSettings(); sfx('ok'); }, 180); } }), h('span', { class: 'small muted' }, 'Loud'))) : null,
-    MEDIA.song ? toggleRow('Music on the home screen', 'homeMusic', 'Our theme song, “' + MEDIA.song.title + '”, plays softly while you’re on Learn.', on => { if (on){ songPrefetch(); songUnlock(); } render(); }) : null,
+    MEDIA.song ? toggleRow('Theme song', 'homeMusic', 'Our theme song, “' + MEDIA.song.title + '”, plays softly as you move between tabs. It pauses for lessons, reviews, stories and Talk.', on => { if (on){ songPrefetch(); songUnlock(); } render(); }) : null,
     MEDIA.song ? h('div', { class: 'field vol' }, h('label', { for: 'music-vol' }, 'Music volume'),
       h('div', { class: 'row' }, h('span', { class: 'small muted' }, 'Soft'), h('input', { type: 'range', id: 'music-vol', class: 'f-range grow', min: '0', max: '1', step: '0.05', value: String(musicVol()),
         onpointerdown: () => songUnlock(),

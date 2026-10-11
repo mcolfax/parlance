@@ -176,7 +176,19 @@ async function main(){
     ok(st.items.filter(x => x.q).length >= 2, 'story questions ' + st.id);
     for (const it of st.items){ if (it.q){ ok(it.o.length === 3 && new Set(it.o).size === 3, 'story q opts ' + st.id + ' ' + it.q); } else { ok(P.CAST[it.who] && P.CAST[it.who].lang === st.lang, 'speaker ' + st.id + ' ' + it.who); ok(it.t && it.e, 'line text ' + st.id); } }
   }
-  ok(P.STORIES.length === 16, 'stories ' + P.STORIES.length);
+  ok(P.STORIES.length === 18, 'stories ' + P.STORIES.length);
+  /* the cast: a portrait for everyone, Talk scenes played by someone who speaks the language, a part for every friend */
+  for (const [id, c] of Object.entries(P.CAST)){
+    if (id === 'pip') continue;
+    const svg = A.E('avatarSVG(' + JSON.stringify(id) + ')');
+    ok(['de', 'es'].includes(c.lang) && c.look && A.E('!!HAIR[' + JSON.stringify(c.look.style) + ']') && svg.startsWith('<svg') && !/NaN|undefined/.test(svg), 'portrait ' + id);
+    ok(P.STORIES.some(s => s.cast.includes(id)) || A.E('SCENARIOS').some(sc => sc.cast[c.lang] === id), 'has a story or a Talk scene ' + id);
+  }
+  for (const sc of A.E('SCENARIOS')) for (const lang of ['de', 'es']){ const who = sc.cast[lang]; ok(who === 'pip' || (P.CAST[who] && P.CAST[who].lang === lang), 'Talk ' + sc.id + ' ' + lang + ' is played by ' + who); }
+  ok(A.E('avatarSVG("leyla")').includes('evenodd') && A.E('avatarSVG("brandt")').includes(P.CAST.brandt.look.tie) && A.E('avatarSVG("valentina")').includes(P.CAST.valentina.look.ribbon), 'new looks: headscarf, tie, braid ribbons');
+  ok(A.E('FILM_CAST').map(r => r.length).join() === '6,6' && A.E('FILM_CAST.flat().length') === Object.keys(P.CAST).length - 1, 'the film meets everyone ' + JSON.stringify(A.E('FILM_CAST')));
+  ok(A.E('FILM_CUES').filter(c => c[1] === 'pop' && c[0] >= 10 && c[0] < 14).length === 12, 'a pop for every face in the film');
+  { const ch = A.E('chestSVG()'); ok(['ch-lid', 'ch-lidup', 'ch-loot', 'ch-fly', 'ch-rays', 'ch-spark'].every(k => ch.includes('class="' + k)) && !/NaN|undefined/.test(ch) && A.E('chestSVG()') === ch, 'chest drawing'); }
   /* glossary */
   ok(P.glossLookup('ich', 'de') && P.glossLookup('ich', 'de').val === 'I', 'gloss ich');
   ok(P.glossLookup('Kaffee', 'de') && /coffee/.test(P.glossLookup('Kaffee', 'de').val), 'gloss Kaffee ' + JSON.stringify(P.glossLookup('Kaffee', 'de')));
@@ -640,22 +652,29 @@ async function main(){
     ok(E('Song.unlocked') && E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.loop'), 'first tap starts the looping song on Learn');
     ok(Math.abs(E('Song.vol') - E('homeVol()')) < 1e-9 && E('homeVol()') < 0.5, 'plays softly ' + E('homeVol()'));
     E('songDuck(true)'); ok(E('Song.duck') === E('MEDIA.song.duck'), 'a speaking voice lowers the song'); E('songDuck(false)'); ok(E('Song.duck') === 1, 'and it comes back up');
-    [...D.querySelectorAll('.tab')].find(b => b.textContent.includes('Me')).click(); await sleep(800);
-    ok(E('Song.mode') === 'off' && E('Song.el.paused'), 'song stops off the home screen');
+    const tab = name => [...D.querySelectorAll('.tab')].find(b => b.textContent.includes(name)).click();
+    E('Song.el.currentTime = 42'); const plays0 = E('window.__plays');
+    for (const name of ['Stories', 'Review', 'Talk', 'Me']){
+      tab(name); await sleep(400);
+      ok(E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.currentTime') === 42 && E('window.__plays') === plays0, 'the song keeps playing on ' + name + ', from the same spot');
+      ok(D.querySelector('.top .music-btn.on'), 'music button on ' + name);
+    }
     ok(D.querySelector('#set-homeMusic') && D.querySelector('#music-vol'), 'Me → Sound has the music switch and volume');
     const mv = D.querySelector('#music-vol'); mv.value = '0.3'; mv.dispatchEvent(new M.w.Event('input')); await sleep(50);
-    ok(E('Song.mode') === 'preview' && !E('Song.el.paused') && Math.abs(M.P.S.settings.musicVol - 0.3) < 1e-9, 'moving the slider previews the song');
-    await sleep(2600); ok(E('Song.mode') === 'off' && E('Song.el.paused'), 'preview stops on its own');
-    [...D.querySelectorAll('.tab')].find(b => b.textContent.includes('Learn')).click(); await sleep(500);
-    ok(E('Song.mode') === 'home' && !E('Song.el.paused'), 'back on Learn, the song resumes');
+    ok(E('Song.mode') === 'home' && Math.abs(E('Song.vol') - E('homeVol()')) < 1e-9 && Math.abs(M.P.S.settings.musicVol - 0.3) < 1e-9, 'while it plays, the slider sets its volume');
     D.querySelector('.top .music-btn').click(); await sleep(800);
     ok(!M.P.S.settings.homeMusic && E('Song.mode') === 'off' && E('Song.el.paused') && D.querySelector('.top .music-btn:not(.on)'), 'music button turns it off');
+    const mv2 = D.querySelector('#music-vol'); mv2.value = '0.35'; mv2.dispatchEvent(new M.w.Event('input')); await sleep(50);
+    ok(E('Song.mode') === 'preview' && !E('Song.el.paused') && Math.abs(M.P.S.settings.musicVol - 0.35) < 1e-9, 'with music off, moving the slider previews the song');
+    await sleep(2600); ok(E('Song.mode') === 'off' && E('Song.el.paused'), 'preview stops on its own');
     D.querySelector('.top .music-btn').click(); await sleep(400);
     ok(M.P.S.settings.homeMusic && E('Song.mode') === 'home' && !E('Song.el.paused'), 'and back on');
+    E('Song.el.currentTime = 50'); tab('Learn'); await sleep(500);
+    ok(E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.currentTime') === 50, 'back on Learn, it carries on from the same spot');
     D.querySelector('.hero .btn-primary').click(); await sleep(800);
     ok(E('Run.active') && E('Song.mode') === 'off' && E('Song.el.paused'), 'song stops when a lesson starts');
     E('Run.active = false; closeOverlay(true); render()'); await sleep(500);
-    ok(E('Song.mode') === 'home', 'resumes after the lesson');
+    ok(E('Song.mode') === 'home' && E('Song.el.currentTime') === 50, 'resumes after the lesson, where it paused');
     E('openFilm({ autoplay: false })'); await sleep(300);
     ok(E('Song.mode') === 'off', 'home music stops when the film opens');
     E('filmSeek(10)'); E('filmPlay()'); await sleep(30);

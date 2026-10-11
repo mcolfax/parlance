@@ -102,5 +102,19 @@ ST('es-s8', 'C1', 'La entrevista', 'The interview', 'studio', [
   ['diego', 'Entonces seré formal con los precios y sincero con las historias.', 'Then I’ll be formal about the prices and honest about the stories.'],
   ['sofia', 'Exacto. Y por favor, no menciones que la abuela cocina mejor que tú.', 'Exactly. And please, don’t mention that Grandma cooks better than you.'],
   ['?', 'What shouldn’t Diego mention?', 'That Grandma cooks better than him|The blackout|His prices']
+]),
+ST('es-s9', 'B1', 'Taxi bajo la lluvia', 'A taxi in the rain', 'rain', [
+  ['valentina', '¡Buenas tardes! ¿A dónde lo llevo?', 'Good afternoon! Where can I take you?'],
+  ['andres', 'Al centro, por favor, a la calle Madero. Tengo prisa: a las seis llegan unos huéspedes a mi hotel.', 'To the center, please, Madero Street. I’m in a hurry: some guests are arriving at my hotel at six.'],
+  ['valentina', 'Con esta lluvia va a haber mucho tráfico, pero conozco un atajo.', 'With this rain there’ll be a lot of traffic, but I know a shortcut.'],
+  ['?', 'Why is Andrés in a hurry?', 'Guests are arriving at his hotel at six|He’s late for a concert|His flight leaves at six'],
+  ['andres', '¿Hace mucho que maneja un taxi?', 'Have you been driving a taxi for a long time?'],
+  ['valentina', 'Doce años. Antes era maestra, pero me gusta más la calle.', 'Twelve years. I used to be a teacher, but I like the street better.'],
+  ['andres', 'Siempre busco a alguien que conozca bien la ciudad. Mis huéspedes se pierden todo el tiempo.', 'I’m always looking for someone who knows the city well. My guests get lost all the time.'],
+  ['?', 'What did Valentina do before she drove a taxi?', 'She was a teacher|She was a chef|She worked at a hotel'],
+  ['valentina', '¿Me está ofreciendo trabajo?', 'Are you offering me a job?'],
+  ['andres', 'Algo así. ¿Podría llevar a mis huéspedes al aeropuerto de vez en cuando?', 'Something like that. Could you take my guests to the airport now and then?'],
+  ['valentina', 'Claro que sí. Aquí tiene mi tarjeta. Y mire: ya llegamos, y faltan cinco para las seis.', 'Of course. Here’s my card. And look: we’re here, and it’s five to six.'],
+  ['?', 'What does Andrés ask Valentina?', 'To drive his guests to the airport now and then|To work at his hotel’s front desk|To teach him to drive']
 ])
 );

@@ -5,15 +5,15 @@ function greetingWord(lang){
   if (lang === 'de') return hr < 11 ? 'Guten Morgen' : hr < 18 ? 'Guten Tag' : 'Guten Abend';
   return hr < 12 ? 'Buenos días' : hr < 19 ? 'Buenas tardes' : 'Buenas noches';
 }
-function topBar(opts = {}){
+function topBar(){
   const lang = S.settings.lang;
   return h('header', { class: 'top' },
     h('div', { class: 'brand' }, h('span', { class: 'mark', 'aria-hidden': 'true' }, h('i'), h('i')), 'Parlance'),
-    opts.music && MEDIA.song ? musicBtn() : null,
+    MEDIA.song ? musicBtn() : null,
     h('div', { class: 'seg', role: 'group', 'aria-label': 'Language' },
       ['de', 'es'].map(l => h('button', { type: 'button', 'aria-pressed': String(lang === l), onclick: () => setLang(l) }, LANGS[l].native))));
 }
-/* Home-screen music switch. Turning it on starts the song right away (the tap counts as permission to play). */
+/* The music switch, on every tab's top bar. Turning it on starts the song right away (the tap counts as permission to play). */
 function musicBtn(){
   const on = homeMusicOn();
   return h('button', { class: 'icon-btn music-btn' + (on ? ' on' : ''), type: 'button', 'aria-pressed': String(on), 'aria-label': on ? 'Music on. Tap to turn it off.' : 'Music off. Tap to turn it on.', html: on ? IC.music : IC.musicOff,
@@ -157,7 +157,7 @@ function levelSection(lang, lv){
 }
 function viewLearn(){
   const lang = S.settings.lang;
-  const v = h('div', { class: 'view' }, topBar({ music: true }), greetBlock(), heroCard(), questCard(), wordOfDay(), routeStrip());
+  const v = h('div', { class: 'view' }, topBar(), greetBlock(), heroCard(), questCard(), wordOfDay(), routeStrip());
   for (const lv of LEVELS){ const s = levelSection(lang, lv); if (s) v.append(s); }
   v.append(genSection());
   if (UI.justDone){ const id = UI.justDone; setTimeout(() => { if (UI.justDone === id) UI.justDone = null; }, 1600); }
