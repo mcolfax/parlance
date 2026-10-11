@@ -110,7 +110,10 @@ function fakeSupabase(store, opts = {}){
       }
       return res(200, pub(x));
     }
-    if (u.pathname === '/auth/v1/recover'){ recovers.push({ email: a.email, redirect: u.searchParams.get('redirect_to') }); return res(200, {}); }
+    if (u.pathname === '/auth/v1/recover'){
+      if (opts.mail === false) return res(400, { code: 400, error_code: 'email_address_not_authorized', msg: 'Email address not authorized' });
+      recovers.push({ email: a.email, redirect: u.searchParams.get('redirect_to') }); return res(200, {});
+    }
     if (u.pathname === '/auth/v1/logout'){ tokens.delete(bearer); return res(204); }
     switch (u.pathname.replace('/rest/v1/rpc/', '')){
       case 'doc_get': return canRead(a.p, me) ? res(200, store.has(a.p) ? store.get(a.p) : null) : denied(a.p);
@@ -123,7 +126,7 @@ function fakeSupabase(store, opts = {}){
     }
     return res(404, { message: 'not found' });
   }
-  return { fetch, users, owners, profiles, recovers, issue };
+  return { fetch, users, owners, profiles, recovers, issue, opts };
 }
 function storageOf(w){ const o = {}; for (let i = 0; i < w.localStorage.length; i++){ const k = w.localStorage.key(i); o[k] = w.localStorage.getItem(k); } return o; }
 
@@ -701,9 +704,12 @@ async function main(){
     W1.w.document.querySelector('.web-acct button').click(); await sleep(40);
     const sh = W1.w.document.querySelector('.sheet'), btn = t => [...sh.querySelectorAll('button')].find(b => b.textContent === t), [nameIn, emailIn, passIn] = sh.querySelectorAll('input');
     ok(btn('Continue with Google') && !btn('Continue with Google').hidden, 'Google button shows when the project has it on');
+    ok(btn('Continue with Google').classList.contains('btn-primary') && btn('Sign in').classList.contains('btn-quiet') && sh.querySelector('.web-or').textContent === 'or use email', 'Google leads when it is on; email comes second');
     emailIn.value = 'ana@example.com'; passIn.value = 'wrong password'; btn('Sign in').click(); await sleep(40);
     ok(sh.querySelector('.web-msg').textContent.includes('don’t match'), 'wrong password explained: ' + sh.querySelector('.web-msg').textContent);
-    btn('Forgot your password?').click(); await sleep(40);
+    sb.opts.mail = false; btn('Forgot your password?').click(); await sleep(40);
+    ok(!sb.recovers.length && sh.querySelector('.web-msg').textContent.includes('Continue with Google'), 'with no email service, forgot password points to Google: ' + sh.querySelector('.web-msg').textContent);
+    sb.opts.mail = true; btn('Forgot your password?').click(); await sleep(40);
     ok(sb.recovers.length === 1 && sb.recovers[0].email === 'ana@example.com' && /^https:\/\/parlance\.test\//.test(sb.recovers[0].redirect) && sh.querySelector('.web-msg').textContent.includes('on its way'), 'forgot password sends a reset link back to Parlance ' + JSON.stringify(sb.recovers));
     btn('New here? Create an account').click();
     ok(!nameIn.hidden && btn('Create account'), 'create-account mode asks for a name');

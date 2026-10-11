@@ -200,7 +200,7 @@ function webSignInError(e){
   return why[e && e.reason] || why[e && e.code] || (e && e.message) || 'Something went wrong. Try again.';
 }
 function openWebSignIn(mode){
-  let up = mode === 'up', busy = false;
+  let up = mode === 'up', busy = false, hasGoogle = false;
   const field = (type, label, auto) => h('input', { class: 'input', type, placeholder: label, 'aria-label': label, autocomplete: auto, autocapitalize: 'off', spellcheck: 'false' });
   const name = field('text', 'First name', 'given-name'), email = field('email', 'Email', 'email'), pass = field('password', 'Password', 'current-password');
   name.maxLength = 40;
@@ -211,10 +211,13 @@ function openWebSignIn(mode){
     const e = email.value.trim();
     if (!/^\S+@\S+\.\S+$/.test(e)) return void (msg.textContent = 'Enter your email address, then tap Forgot your password again.');
     try { await webRecover(e); msg.textContent = 'If there’s an account for that email, a link to set a new password is on its way.'; }
-    catch (er){ msg.textContent = er && er.reason === 'email_address_not_authorized' ? 'Password reset emails aren’t set up yet. Ask whoever shared Parlance with you to reset it.' : webSignInError(er); }
+    catch (er){ msg.textContent = er && er.reason === 'email_address_not_authorized'
+      ? (hasGoogle ? 'Password reset emails aren’t set up yet. If that’s a Gmail address, tap Continue with Google: it opens the same account.' : 'Password reset emails aren’t set up yet. Ask whoever shared Parlance with you to reset it.')
+      : webSignInError(er); }
   } }, 'Forgot your password?');
+  // With Google on, it leads: there's no password to forget (we have no email service for reset links).
   const google = h('button', { class: 'btn btn-quiet btn-wide', type: 'button', hidden: true, onclick: () => { msg.textContent = 'Opening Google…'; saveLocal(); webGoogle(); } }, 'Continue with Google');
-  const or = h('div', { class: 'web-or', hidden: true }, 'or');
+  const or = h('div', { class: 'web-or', hidden: true }, 'or use email');
   const form = h('div', { class: 'field' }, name, email, pass, go, forgot);
   const draw = () => {
     name.hidden = !up; forgot.hidden = up; pass.autocomplete = up ? 'new-password' : 'current-password'; pass.placeholder = up ? 'Password (8 or more characters)' : 'Password';
@@ -241,7 +244,8 @@ function openWebSignIn(mode){
     google, or, form, msg, swap), [{ label: 'Not now' }]);
   webSettings().then(st => {
     const ext = (st && st.external) || {};
-    google.hidden = !ext.google; or.hidden = !ext.google || ext.email === false;
+    hasGoogle = !!ext.google; google.hidden = !hasGoogle; or.hidden = !hasGoogle || ext.email === false;
+    if (hasGoogle){ google.classList.replace('btn-quiet', 'btn-primary'); go.classList.replace('btn-primary', 'btn-quiet'); }
     if (ext.email === false){ form.hidden = true; swap.hidden = true; }
   }, () => {});
 }
