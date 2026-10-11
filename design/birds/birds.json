@@ -18,7 +18,8 @@
    "mouth": "#41281A",
    "shadow2": "#B8C6B4",
    "sweat": "#8FD3F0",
-   "sweatHi": "#CDEFFB"
+   "sweatHi": "#CDEFFB",
+   "tongue": "#F06A55"
   },
   "regions": {
    "body": "teal",
@@ -138,12 +139,15 @@
       "map": {
        "orange": "beak",
        "orangeHi": "beak:l",
-       "mouth": "=b-mouth",
-       "red": "=b-tongue",
-       "redD": "=b-tongue",
+       "mouth": "#41281A",
+       "red": "#EE6650",
+       "redD": "#EE6650",
        "teal": "skip",
-       "tealD": "skip"
-      }
+       "tealD": "skip",
+       "tongue": "#EE6650"
+      },
+      "base": "beak",
+      "fillHoles": true
      },
      {
       "name": "face",
@@ -173,7 +177,38 @@
        "teal": "skip",
        "tealD": "skip",
        "hi": "skip"
-      }
+      },
+      "base": "face",
+      "fillHoles": true,
+      "close": 7,
+      "complete": {
+       "union": [
+        {
+         "ellipse": [
+          143,
+          257,
+          40,
+          50
+         ]
+        },
+        {
+         "ellipse": [
+          267,
+          250,
+          37,
+          50
+         ]
+        }
+       ]
+      },
+      "behind": [
+       "eyeL",
+       "eyeR",
+       "beak",
+       "browL",
+       "browR"
+      ],
+      "stroke": false
      },
      {
       "name": "head",
@@ -203,93 +238,103 @@
       }
      },
      {
-      "name": "crestA",
+      "name": "crest",
       "area": {
-       "poly": [
-        [
-         112,
-         98
-        ],
-        [
-         162,
-         92
-        ],
-        [
-         196,
-         150
-        ],
-        [
-         116,
-         152
-        ]
-       ]
-      },
-      "base": "crest2",
-      "map": {
-       "orange": "crest2",
-       "orangeHi": "crest2:l",
-       "red": "crest"
-      }
-     },
-     {
-      "name": "crestC",
-      "area": {
-       "poly": [
-        [
-         208,
-         86
-        ],
-        [
-         270,
-         84
-        ],
-        [
-         264,
-         154
-        ],
-        [
-         204,
-         154
-        ]
-       ]
-      },
-      "base": "crest2",
-      "map": {
-       "orange": "crest2",
-       "orangeHi": "crest2:l",
-       "red": "crest"
-      }
-     },
-     {
-      "name": "crestB",
-      "area": {
-       "poly": [
-        [
-         156,
-         52
-        ],
-        [
-         226,
-         52
-        ],
-        [
-         218,
-         156
-        ],
-        [
-         168,
-         156
-        ]
+       "union": [
+        {
+         "poly": [
+          [
+           112,
+           98
+          ],
+          [
+           162,
+           92
+          ],
+          [
+           196,
+           150
+          ],
+          [
+           116,
+           152
+          ]
+         ]
+        },
+        {
+         "poly": [
+          [
+           208,
+           86
+          ],
+          [
+           270,
+           84
+          ],
+          [
+           264,
+           154
+          ],
+          [
+           204,
+           154
+          ]
+         ]
+        },
+        {
+         "poly": [
+          [
+           156,
+           52
+          ],
+          [
+           226,
+           52
+          ],
+          [
+           218,
+           156
+          ],
+          [
+           168,
+           156
+          ]
+         ]
+        }
        ]
       },
       "base": "crest",
+      "complete": {
+       "poly": [
+        [
+         150,
+         138
+        ],
+        [
+         240,
+         138
+        ],
+        [
+         240,
+         168
+        ],
+        [
+         150,
+         168
+        ]
+       ]
+      },
+      "behind": [
+       "head"
+      ],
       "map": {
        "red": "crest",
        "redD": "crest:d",
        "orange": "crest2",
-       "orangeHi": "crest:l",
+       "orangeHi": "crest2:l",
        "white": "crest:l",
-       "cream": "crest:l"
+       "cream": "crest:l",
+       "tongue": "crest"
       }
      },
      {
@@ -484,9 +529,9 @@
        "inter": [
         {
          "ellipse": [
-          196,
+          198,
           410,
-          94,
+          101,
           88
          ]
         },
@@ -511,7 +556,15 @@
          ]
         }
        ]
-      }
+      },
+      "behind": [
+       "wingL",
+       "wingR",
+       "head",
+       "face",
+       "footL",
+       "footR"
+      ]
      },
      {
       "name": "tail",
@@ -544,23 +597,26 @@
       "complete": {
        "poly": [
         [
-         92,
+         90,
          402
         ],
         [
-         130,
+         126,
          402
         ],
         [
-         130,
+         126,
          462
         ],
         [
-         92,
+         90,
          462
         ]
        ]
-      }
+      },
+      "behind": [
+       "body"
+      ]
      }
     ]
    },
@@ -669,12 +725,15 @@
       "map": {
        "orange": "beak",
        "orangeHi": "beak:l",
-       "mouth": "=b-mouth",
-       "red": "=b-tongue",
-       "redD": "=b-tongue",
+       "mouth": "#41281A",
+       "red": "#EE6650",
+       "redD": "#EE6650",
        "teal": "skip",
-       "tealD": "skip"
-      }
+       "tealD": "skip",
+       "tongue": "#EE6650"
+      },
+      "base": "beak",
+      "fillHoles": true
      },
      {
       "name": "face",
@@ -704,7 +763,10 @@
        "teal": "skip",
        "tealD": "skip",
        "hi": "skip"
-      }
+      },
+      "base": "face",
+      "fillHoles": true,
+      "close": 7
      },
      {
       "name": "head",
@@ -734,97 +796,103 @@
       }
      },
      {
-      "name": "crestA",
+      "name": "crest",
       "area": {
-       "poly": [
-        [
-         458,
-         86
-        ],
-        [
-         505,
-         84
-        ],
-        [
-         545,
-         140
-        ],
-        [
-         462,
-         142
-        ]
-       ]
-      },
-      "base": "crest2",
-      "map": {
-       "orange": "crest2",
-       "orangeHi": "crest2:l",
-       "red": "crest",
-       "white": "crest2:l",
-       "cream": "crest2:l"
-      }
-     },
-     {
-      "name": "crestC",
-      "area": {
-       "poly": [
-        [
-         552,
-         72
-        ],
-        [
-         610,
-         70
-        ],
-        [
-         606,
-         146
-        ],
-        [
-         548,
-         146
-        ]
-       ]
-      },
-      "base": "crest2",
-      "map": {
-       "orange": "crest2",
-       "orangeHi": "crest2:l",
-       "red": "crest",
-       "white": "crest2:l",
-       "cream": "crest2:l"
-      }
-     },
-     {
-      "name": "crestB",
-      "area": {
-       "poly": [
-        [
-         498,
-         44
-        ],
-        [
-         566,
-         44
-        ],
-        [
-         562,
-         146
-        ],
-        [
-         506,
-         146
-        ]
+       "union": [
+        {
+         "poly": [
+          [
+           458,
+           86
+          ],
+          [
+           505,
+           84
+          ],
+          [
+           545,
+           140
+          ],
+          [
+           462,
+           142
+          ]
+         ]
+        },
+        {
+         "poly": [
+          [
+           552,
+           72
+          ],
+          [
+           610,
+           70
+          ],
+          [
+           606,
+           146
+          ],
+          [
+           548,
+           146
+          ]
+         ]
+        },
+        {
+         "poly": [
+          [
+           498,
+           44
+          ],
+          [
+           566,
+           44
+          ],
+          [
+           562,
+           146
+          ],
+          [
+           506,
+           146
+          ]
+         ]
+        }
        ]
       },
       "base": "crest",
+      "complete": {
+       "poly": [
+        [
+         495,
+         132
+        ],
+        [
+         590,
+         132
+        ],
+        [
+         590,
+         160
+        ],
+        [
+         495,
+         160
+        ]
+       ]
+      },
+      "behind": [
+       "head"
+      ],
       "map": {
        "red": "crest",
        "redD": "crest:d",
        "orange": "crest2",
-       "orangeHi": "crest:l",
+       "orangeHi": "crest2:l",
        "white": "crest:l",
-       "cream": "crest:l"
+       "cream": "crest:l",
+       "tongue": "crest"
       }
      },
      {
@@ -1210,12 +1278,15 @@
       "map": {
        "orange": "beak",
        "orangeHi": "beak:l",
-       "mouth": "=b-mouth",
-       "red": "=b-tongue",
-       "redD": "=b-tongue",
+       "mouth": "#41281A",
+       "red": "#EE6650",
+       "redD": "#EE6650",
        "teal": "skip",
-       "tealD": "skip"
-      }
+       "tealD": "skip",
+       "tongue": "#EE6650"
+      },
+      "base": "beak",
+      "fillHoles": true
      },
      {
       "name": "face",
@@ -1245,7 +1316,10 @@
        "teal": "skip",
        "tealD": "skip",
        "hi": "skip"
-      }
+      },
+      "base": "face",
+      "fillHoles": true,
+      "close": 7
      },
      {
       "name": "head",
@@ -1303,7 +1377,8 @@
        "orange": "crest2",
        "orangeHi": "crest2:l",
        "white": "crest:l",
-       "cream": "crest:l"
+       "cream": "crest:l",
+       "tongue": "crest"
       }
      },
      {
@@ -1567,7 +1642,11 @@
      226,
      486
     ]
-   }
+   },
+   "sweat": [
+    298,
+    176
+   ]
   }
  }
 }

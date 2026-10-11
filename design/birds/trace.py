@@ -104,6 +104,15 @@ def run_pose(cfg, pose_name, sheet):
     edge = set(np.unique(np.concatenate([lab_bg[0], lab_bg[-1], lab_bg[:, 0], lab_bg[:, -1]]))) - {0}
     outside = np.isin(lab_bg, list(edge))
     inside_bg = vm & ~outside
+    # small enclosed pockets are real background (a gap between two crest feathers), not a pale fill
+    n_in, lab_in, st_in, _ = cv2.connectedComponentsWithStats(inside_bg.astype(np.uint8), connectivity=4)
+    ink0 = np.isin(L, [names.index(n_) for n_ in names if n_.startswith('ink')])
+    ring_k = np.ones((5, 5), np.uint8)
+    for r in range(1, n_in):
+        if st_in[r, cv2.CC_STAT_AREA] >= cfg.get('pocket', 500): continue
+        rm = lab_in == r
+        ring = cv2.dilate(rm.astype(np.uint8), ring_k).astype(bool) & ~rm
+        if ring.any() and (ink0 & ring).sum() > 0.5 * ring.sum(): inside_bg[rm] = False; outside[rm] = True
     if inside_bg.any():
         d2 = d.copy(); d2[:, :, VOID] = np.inf
         L[inside_bg] = d2.argmin(-1)[inside_bg]
@@ -159,19 +168,36 @@ def run_pose(cfg, pose_name, sheet):
         if p.get('inkOnly'): pm = pm & ink
         sh = p.get('shift', [0, 0])
         comp = shape_mask(H, W, p['complete'], x0, y0) if p.get('complete') else np.zeros((H, W), bool)
-        sil = pm | comp
+        # fill in only what the drawing hides: pixels that belong to parts in front of this one
+        hidden = (owner >= 0) & (owner < pi)
+        if p.get('behind'):   # only these parts count as cover (a wing can move away; the body can't)
+            idx = [i for i, q in enumerate(parts) if q['name'] in p['behind']]
+            hidden = np.isin(owner, idx)
+            for q in parts:   # a cover part's own filled-in area counts too
+                if q['name'] in p['behind'] and q.get('complete'): hidden |= shape_mask(H, W, q['complete'], x0, y0)
+        comp &= hidden | pm
+        # colors this part skips (the head showing around a beak) don't belong in its silhouette
+        skips = [names.index(c) for c, t in p.get('map', {}).items() if t == 'skip' and c in names]
+        pm_fill = pm & ~np.isin(L, skips) if skips else pm
+        sil = pm_fill | comp
         if p.get('close'):
             kk = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (p['close'], p['close']))
             sil = cv2.morphologyEx(sil.astype(np.uint8), cv2.MORPH_CLOSE, kk).astype(bool)
         layers = []
         base = p.get('base')
+        if p.get('fillHoles'):
+            from scipy import ndimage
+            sil = ndimage.binary_fill_holes(sil)
         if base and not p.get('inkOnly'):
-            # the silhouette is drawn with an ink stroke (for edges hidden in the drawing that show when parts
-            # move), so shrink it by half the stroke to keep the outer edge where the drawing has it
-            r = max(1, int(round(cfg.get('ow', 7) / 2)))
-            ke = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
-            sil_in = cv2.erode(sil.astype(np.uint8), ke).astype(bool)
-            layers.append({'cls': 'r-' + base, 'd': trace_path(sil_in, x0, y0, sh), 'sil': True})
+            if comp.any() and p.get('stroke', True):
+                # a part with hidden areas is drawn with an ink stroke, so edges the drawing hides are outlined
+                # when the part moves; shrink it by half the stroke to keep the outer edge where the drawing has it
+                r = max(1, int(round(cfg.get('ow', 7) / 2)))
+                ke = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
+                sil_in = cv2.erode(sil.astype(np.uint8), ke).astype(bool)
+                layers.append({'cls': 'r-' + base, 'd': trace_path(sil_in, x0, y0, sh), 'sil': True})
+            else:   # fully drawn: the traced ink outlines it, so the fill just sits under it
+                layers.append({'cls': 'r-' + base, 'd': trace_path(sil, x0, y0, sh)})
         # colors in this part, biggest first; a hair of overlap hides seams
         counts = [(int(((L == ci) & pm).sum()), ci) for ci in range(len(names)) if ci != INK]
         k1 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))

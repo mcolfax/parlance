@@ -70,10 +70,16 @@ def build_bird(bird, cfg, data):
     art = {}
     for k in ('body', 'head', 'face', 'tail', 'footL', 'footR'):
         if k in H: art[k] = svg(H[k])
+    # tucked wings cover the same span as folded ones: line up their combined centre and top
+    tuck_d = (0, 0)
+    if 'wingL' in O and 'wingR' in O:
+        fb = bbox(H['wingL'] + H['wingR'], True) or bbox(H['wingL'] + H['wingR']); tb = bbox(O['wingL'] + O['wingR'], True) or bbox(O['wingL'] + O['wingR'])
+        tuck_d = ((fb[0] + fb[2]) / 2 - (tb[0] + tb[2]) / 2, fb[1] - tb[1])
+    nudge = rig.get('nudge', {})
     for side in 'LR':
         w = {'fold': svg(H['wing' + side])}
-        if 'wing' + side in C: w['spread'] = svg(by_feet(C, C['wing' + side]))
-        if 'wing' + side in O: w['tuck'] = svg(by_feet(O, O['wing' + side]))
+        if 'wing' + side in C: w['spread'] = svg(move(by_feet(C, C['wing' + side]), *nudge.get('spread', [0, 0])))
+        if 'wing' + side in O: w['tuck'] = svg(move(O['wing' + side], tuck_d[0] + nudge.get('tuck', [0, 0])[0], tuck_d[1] + nudge.get('tuck', [0, 0])[1]))
         art['wing' + side] = w
         e = {'open': svg(H['eye' + side])}; b = {'happy': svg(H.get('brow' + side, []))}
         for pose, name in ((C, 'closed'), (O, 'worried')):
@@ -92,7 +98,7 @@ def build_bird(bird, cfg, data):
     # crest: the feathers named crest* in each pose, back to front, each with a pivot at its base
     crest = {}
     for pname, pose in (('happy', H), ('cheer', C), ('oops', O)):
-        names = [n for n in cfg['poses'].get(pname, {}).get('parts', []) if n['name'].startswith('crest')]
+        names = [n for n in cfg['poses'].get(pname, {}).get('parts', []) if n['name'] == 'crest' or n['name'].startswith('crest')]
         feathers = []
         for n in names[::-1]:
             layers = pose.get(n['name'])
@@ -101,7 +107,11 @@ def build_bird(bird, cfg, data):
             feathers.append({'pivot': [round((b[0] + b[2]) / 2, 1), round(b[3], 1)], 'art': svg(layers)})
         if feathers: crest[pname] = feathers
     if crest: art['crest'] = crest
-    if 'sweat' in O: art['sweat'] = svg(O['sweat'])
+    if 'sweat' in O:
+        sw = O['sweat']
+        if rig.get('sweat'):   # a set spot on the head (the worried pose often turns the head)
+            sb = bbox(sw); sw = move(sw, rig['sweat'][0] - (sb[0] + sb[2]) / 2, rig['sweat'][1] - sb[1])
+        art['sweat'] = svg(sw); O = dict(O, sweat=sw)
     piv = dict(rig['pivots'])
     piv.setdefault('eyeL', [round(v, 1) for v in centre(bbox(H['eyeL']))]); piv.setdefault('eyeR', [round(v, 1) for v in centre(bbox(H['eyeR']))])
     piv.setdefault('beak', [round(v, 1) for v in bt])
