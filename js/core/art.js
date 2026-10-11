@@ -2,41 +2,33 @@
 /* ===================== ART: Pip, cast portraits, unit signs, story scenes ===================== */
 /* ----- Pip: the learner's bird -----
    Birds are drawn and animated by the skeletal rig in rig.js from the species art in birds.js.
-   A look is { body, crest, beak, tail, wing, face, marks[], size, outline, c: { region: '#RRGGBB' } }:
-   body is the species; crest, beak, tail, wing and face can each come from any species ('none' for no
-   crest). Presets, palettes and color regions live in config.js.
+   A look is { body, face, crest, beak, wing, tail, size, c: { region: '#RRGGBB' } }: body is the
+   species; face (eyes and brows), crest, beak, wing and tail can each come from any species, and crest
+   can be 'none'. Colors a look leaves out come from each part's own species. Presets, palettes and color
+   regions live in config.js.
    Moods: happy, cheer, think, oops, sleep, wow. Actions: hop, fly, flyin, talking. */
 const PIP_MOODS = ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow'];
-const PIP_PART_KEYS = ['crest', 'beak', 'tail', 'wing', 'face'];
+const PIP_PART_KEYS = ['face', 'crest', 'beak', 'wing', 'tail'];
 /* the learner's chosen look (Settings → pip), or the default preset's */
 function pipSetting(){ return (typeof S !== 'undefined' && S && S.settings && S.settings.pip) || null; }
 function pipPreset(id){ const p = pipSetting(); return PIP_PRESETS[id || (p && p.preset)] || PIP_PRESETS[PIP_DEFAULT]; }
 function pipLook(){ const p = pipSetting(); return (p && p.look) || pipPreset().look; }
 function pipName(){ const p = pipSetting(); return (p && p.name) || pipPreset().pet || pipPreset().name; }
 function pipKind(){ return pipPreset().kind; }
-/* which species can lend a part: body = every species; crest also offers none */
+/* which species can lend a part (body = every species; crest also offers none) */
 function pipChoices(key){
   const ids = Object.keys(BIRD_SKINS);
   if (key === 'body') return ids;
-  const has = ids.filter(id => BIRD_SKINS[id].parts[key]);
+  const has = ids.filter(id => hasPart(BIRD_SKINS[id], key));
   return key === 'crest' ? [...has, 'none'] : has;
 }
-/* the markings a look's parts can show */
-function pipMarksFor(look){
-  const sk = id => BIRD_SKINS[id] || null, out = new Set();
-  const add = o => { if (o) for (const k of Object.keys(o)) out.add(k); };
-  const b = sk(look.body) || BIRD_SKINS[BIRD_DEFAULT_SKIN];
-  add(b.parts.body.marks); add(b.parts.head.marks);
-  for (const k of PIP_PART_KEYS){ const s = sk(look[k]); if (s && s.parts[k]) add(s.parts[k].marks); }
-  const bk = sk(look.beak); if (bk && bk.parts.beak && bk.parts.beak.cere) out.add('cere');
-  return PIP_MARKS.filter(([k]) => out.has(k)).map(([k]) => k);
-}
+/* the default colors a look shows for each region (its species' colors, then the learner's) */
+function pipColors(look){ const sk = rigSkin(look.body); return Object.assign({}, sk.colors, look.c || {}); }
 /* --px-* custom properties for a look's colors and outline */
 function pipVars(look){
   const c = (look && look.c) || {};
   let s = '';
   for (const [k] of PIP_PARTS) if (c[k]) s += '--px-' + k + ':' + c[k] + ';';
-  s += '--px-olon:' + (look && look.outline ? 1 : 0) + ';';
   return s;
 }
 /* clean a stored or edited look. Unknown species ids are kept (a newer version may know them; the rig
@@ -48,10 +40,9 @@ function cleanLook(l, base){
   const c = {};
   const lc = l.c && typeof l.c === 'object' ? l.c : {};
   for (const [k] of PIP_PARTS){ const v = lc[k]; if (typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v)) c[k] = v.toUpperCase(); }
-  const marks = [...new Set((Array.isArray(l.marks) ? l.marks : []).filter(m => PIP_MARKS.some(([k]) => k === m)))];
   const out = { body: id(l.body, base.body) };
   for (const k of PIP_PART_KEYS) out[k] = id(l[k], base[k]);
-  return Object.assign(out, { size: ['s', 'm', 'l'].includes(l.size) ? l.size : base.size, outline: typeof l.outline === 'boolean' ? l.outline : !!base.outline, marks, c });
+  return Object.assign(out, { size: ['s', 'm', 'l'].includes(l.size) ? l.size : base.size, c });
 }
 function cleanPip(p){
   const o = p && typeof p === 'object' && !Array.isArray(p) ? p : {};
@@ -63,7 +54,7 @@ function cleanPip(p){
 /* a still drawing of a bird in a mood (no animation clock) */
 function pipSVG(mood, look){
   const model = rigModel(look || pipLook());
-  return rigSVG(model, rigPose(model, { mood: mood || 'happy', still: true, seed: 1 }, RIG_STILL[mood] || 0));
+  return rigStatic(model, rigPose(model, { mood: mood || 'happy', still: true, seed: 1 }, RIG_STILL[mood] || 0));
 }
 const PIP_SAYS = {
   de: { cheer: ['Super!', 'Toll gemacht!', 'Wunderbar!', 'Klasse!', 'Sehr gut!', 'Weiter so!'], oops: ['Fast!', 'Kein Problem!', 'Gleich klappt’s!', 'Nochmal!'], hello: ['Hallo!', 'Los geht’s!', 'Alles einsteigen!', 'Bereit?', 'Gute Fahrt!'], sleep: ['Gute Nacht!'] },
@@ -80,7 +71,8 @@ function pip(mood, size, opts = {}){
   const still = !!opts.still || reduced();
   const b = { el, model, t0: rigNow(), state: { mood, moodT: 0, seed: 1 + Math.floor(Math.random() * 1e6), still, act: opts.cls && /\bfly-in\b/.test(opts.cls) ? 'flyin' : null, actT: 0, fly: !!(opts.cls && /\bfly\b/.test(opts.cls)) } };
   el._bird = b; el._look = opts.look || null;
-  el.innerHTML = rigSVG(model, rigPose(model, b.state, still ? (RIG_STILL[mood] || 0) : 0));
+  el.innerHTML = rigSVG(model);
+  rigApply(b, rigPose(model, b.state, still ? (RIG_STILL[mood] || 0) : 0));
   if (!still) rigStart(b);
   if (opts.say){ el.append(h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : ''), role: 'note' }, opts.say)); }
   if (opts.tap !== false){
