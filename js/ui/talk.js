@@ -6,8 +6,8 @@ function viewTalk(){
   const lang = S.settings.lang;
   const lv = UI.talkLevel || currentLevel(lang); UI.talkLevel = lv;
   const v = h('div', { class: 'view' }, topBar(),
-    h('section', { class: 'talk-intro' }, h('div', { class: 'grow' }, h('h1', null, 'Talk with your tutor'), h('p', { class: 'muted' }, 'Real back-and-forth in ' + LANGS[lang].name + '. The cast plays each scene, answers out loud, corrects every message, and can save fixes to your review deck.')),
-      h('div', { class: 'av-stack big' }, castOf(lang).map(id => avatar(id, 38)))));
+    h('section', { class: 'talk-intro' }, h('div', { class: 'grow' }, h('h1', null, 'Talk with your tutor'), h('p', { class: 'muted' }, 'Real back-and-forth in ' + LANGS[lang].name + '. The cast plays each scene, answers out loud, corrects every message, and can save fixes to your review deck.'),
+      h('div', { class: 'av-stack big' }, castOf(lang).map(id => avatar(id, 38))))));
   if (!AI.ready){ v.append(h('p', { class: 'status' }, 'Checking tutor access…')); return v; }
   if (!aiOn()){ v.append(h('div', { class: 'empty' }, pip('shrug', 72, { tap: false })), h('div', { class: 'notice' }, AI.denied ? 'Claude access is turned off for this page. ' : 'The tutor needs Claude. Open Parlance in the Claude app or on claude.ai while signed in. Lessons and reviews work without it. ', AI.denied ? h('button', { class: 'linkish', type: 'button', onclick: manageAccess }, 'Manage permissions') : null)); return v; }
   v.append(h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Level'), h('div', { class: 'chips' }, LEVELS.map(x => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(x === lv), onclick: () => { UI.talkLevel = x; render(); } }, x)))));
@@ -131,7 +131,7 @@ function drawTalk(){
     if (m.role === 'tutor'){
       const en = h('div', { class: 'en', hidden: !m.showEn }, m.en);
       const vo = CAST[Talk.who];
-      nodes.push(h('div', { class: 'msg-row tutor' }, avatar(Talk.who, 30), h('div', { class: 'msg tutor' + (m.fresh ? ' fresh' : '') }, h('div', { class: 't' }, sayText(m.text, lang, { gloss: true })), en,
+      nodes.push(h('div', { class: 'msg-row tutor' }, avatar(Talk.who, 30), h('div', { class: 'msg tutor' + (m.fresh ? ' fresh' : '') }, h('div', { class: 't' }, sayText(m.text, lang, { gloss: true, en: m.en })), en,
         h('div', { class: 'msg-actions' }, speakBtn(m.text, lang, null, vo), slowBtn(m.text, lang, vo), m.en ? h('button', { class: 'linkish small', type: 'button', onclick: () => { m.showEn = !m.showEn; drawTalk(); } }, m.showEn ? 'Hide translation' : 'Translate') : null))));
       m.fresh = false;
       if (m.showHint && m.hint) nodes.push(h('div', { class: 'hintbox' }, h('span', { class: 'small muted' }, 'You could say: '), sayText(m.hint, lang, { gloss: true }), ' ', speakBtn(m.hint, lang)));

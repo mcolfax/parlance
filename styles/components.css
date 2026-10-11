@@ -187,6 +187,7 @@ li.locked .st-title{color:var(--muted)}
 /* Talk */
 .talk-intro{display:flex;align-items:center;gap:12px;padding-top:4px}
 .talk-intro p{margin-top:6px}
+.talk-intro .av-stack{margin-top:12px}
 .talk-intro h1{font-size:30px;letter-spacing:-.025em}
 .scen-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .scen{display:flex;flex-direction:column;gap:4px;align-items:flex-start;text-align:left;width:100%;background:var(--surface);border:1px solid var(--hair);border-radius:var(--r);padding:14px;font:inherit;color:inherit;min-height:96px;transition:transform .15s var(--ease),border-color .2s,box-shadow .2s}
@@ -242,6 +243,13 @@ li.locked .st-title{color:var(--muted)}
 .web-msg:empty{display:none}
 .web-home-ic{flex:none;border-radius:var(--r-md)}
 .web-home .btn{align-self:flex-start}
+.hs-help{display:flex;flex-direction:column;gap:16px}
+.hs-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;counter-reset:hs}
+.hs-step{display:grid;grid-template-columns:46px minmax(0,1fr);gap:14px;align-items:center}
+.hs-step b{display:block;font:var(--type-label)}
+.hs-step .small{display:block;margin-top:2px}
+.hs-ic{position:relative;display:grid;place-items:center;width:46px;height:46px;border-radius:var(--r-sm);background:var(--line-soft);color:var(--line-text)}
+.hs-ic::after{counter-increment:hs;content:counter(hs);position:absolute;top:-7px;left:-7px;width:22px;height:22px;border-radius:50%;background:var(--line);color:var(--line-ink);font:800 12px/22px var(--body);text-align:center;box-shadow:0 0 0 2px var(--surface)}
 
 /* Onboarding */
 .overlay.onb .ov-head{justify-content:space-between}
@@ -315,24 +323,53 @@ li.locked .st-title{color:var(--muted)}
 .chest{width:70px;height:63px;border:0;background:none;padding:0;flex:none;transition:transform .15s var(--ease)}
 .chest:active{transform:scale(.92)}
 .chest svg{width:100%;height:100%;display:block;overflow:visible}
-.ch-base{fill:#B8742A}
-.ch-band{fill:#7A4A17}
-.ch-lock{fill:#F2C14E}
-.ch-glow{fill:var(--gold);opacity:0}
-.ch-coins circle{fill:#F2C14E;stroke:#B8860B;stroke-width:1.5;opacity:0}
-.chest.open .ch-coins circle{opacity:1;transform:translateY(-16px)}
-.ch-lid{transform-box:view-box;transform-origin:12px 34px;transition:transform .6s var(--spring)}
+/* the chest's drawing is chestSVG() in art.js; its colors are the --chest-* tokens */
+.ch-shadow{fill:var(--chest-shadow)}
+.ch-wood{fill:var(--chest-wood)}
+.ch-wood2{fill:var(--chest-wood2)}
+.ch-hollow{fill:var(--chest-wood3)}
+.ch-inside{fill:var(--chest-inside);stroke:var(--chest-ink);stroke-width:1.1;stroke-linejoin:round}
+.ch-metal{fill:var(--chest-metal)}
+.ch-rivet{fill:var(--chest-metal2)}
+.ch-key{fill:var(--chest-ink)}
+.ch-o{fill:none;stroke:var(--chest-ink);stroke-width:2;stroke-linejoin:round}
+.ch-o1{stroke:var(--chest-ink);stroke-width:1.1;stroke-linejoin:round}
+.ch-line{fill:none}
+.ch-ln{fill:none;stroke:var(--chest-wood3);stroke-width:1.1;stroke-linecap:round}
+.ch-ln.thin{stroke-width:.8;opacity:.5}
+.ch-ln.dk{stroke:var(--chest-inside);opacity:.6}
+.ch-gl{fill:none;stroke:var(--chest-gloss);stroke-width:1.1;stroke-linecap:round;opacity:.85}
+.ch-gl.wide{stroke-width:2;opacity:.55}
+.ch-coin{fill:var(--chest-coin);stroke:var(--chest-ink);stroke-width:1}
+.ch-coin-in{fill:none;stroke:var(--chest-coin2);stroke-width:1}
+.ch-gem{fill:var(--chest-gem)}
+.ch-gem2{fill:var(--chest-gem2);opacity:.55}
+.ch-glow,.ch-rays,.ch-spark,.ch-fly{opacity:0;transform-box:fill-box;transform-origin:center}
+.ch-glow,.ch-rays{fill:var(--chest-glow)}
+.ch-rays{transition:opacity .4s}
+.ch-spark{fill:var(--chest-glow);stroke:var(--chest-ink);stroke-width:.8;stroke-linejoin:round}
+/* opening: the lid folds back toward its hinge, then stands up behind the box as the loot rises */
+.ch-lid{transform-box:fill-box;transform-origin:50% 74%;transition:transform .22s var(--ease) .3s}
+.ch-lidup{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);transition:transform .2s ease-in}
+.ch-loot{transform-box:fill-box;transform-origin:50% 100%;transform:translateY(5px) scale(.4);opacity:0;transition:transform .2s ease-in,opacity .2s}
+.chest.open .ch-lid,.chest.opened .ch-lid{transform:scaleY(0);transition:transform .14s ease-in}
+.chest.open .ch-lidup,.chest.opened .ch-lidup{transform:none;transition:transform .5s var(--spring) .12s}
+.chest.open .ch-loot,.chest.opened .ch-loot{transform:none;opacity:1;transition:transform .6s var(--spring) .22s,opacity .15s .22s}
+.chest.open .ch-fly{animation:chestcoin 1.1s var(--ease) .3s both}
+.chest.open .ch-fly.l{--dx:-19px;--rot:-40deg}
+.chest.open .ch-fly.r{--dx:19px;--rot:40deg;animation-delay:.4s}
+.chest.open .ch-fly.c{--dx:3px;--rot:15deg;animation-delay:.5s}
+.chest.open .ch-rays{opacity:.45;animation:chestrays 16s linear infinite}
 .chest:not(.ready):not(.opened):not(.big):not(.film){filter:grayscale(.55);opacity:.7}
 .chest.ready{animation:chestwiggle 2.4s ease-in-out infinite}
-.chest.ready .ch-glow{opacity:.35;animation:breathe 2s ease-in-out infinite}
-.chest.opened .ch-lid,.chest.open .ch-lid{transform:rotate(-26deg) translate(-2px,-3px)}
-.chest.opened .ch-coins circle{opacity:1;transform:translateY(-6px)}
-.chest.open .ch-coins circle{animation:coin .9s var(--spring) forwards}
-.chest.open .ch-coins circle:nth-child(2){animation-delay:.1s}
-.chest.open .ch-coins circle:nth-child(3){animation-delay:.2s}
-.chest.open .ch-glow{opacity:.22;animation:breathe 1.6s ease-in-out infinite}
+.chest.ready .ch-glow{opacity:.4;animation:chestglow 2s ease-in-out infinite}
+.chest.open .ch-glow{opacity:.3;animation:chestglow 1.6s ease-in-out infinite}
+.chest.ready .ch-spark,.chest.open .ch-spark{animation:chestspark 2.4s ease-in-out infinite}
 .chest.big{width:170px;height:153px;margin:4px auto 0;animation:pop .6s var(--spring) both}
-@keyframes coin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(-16px)}}
+@keyframes chestcoin{0%{opacity:0;transform:translateY(4px) scale(.5)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx,0),-36px) rotate(var(--rot,0deg)) scale(1.1)}}
+@keyframes chestglow{50%{transform:scale(1.12);opacity:.12}}
+@keyframes chestrays{to{transform:rotate(360deg)}}
+@keyframes chestspark{0%,100%{opacity:0;transform:scale(.3)}40%{opacity:1;transform:scale(1)}65%{opacity:.9;transform:scale(.85) rotate(25deg)}}
 @keyframes chestwiggle{0%,78%,100%{transform:rotate(0)}82%{transform:rotate(-7deg)}86%{transform:rotate(6deg)}90%{transform:rotate(-4deg)}94%{transform:rotate(2deg)}}
 .chest-sheet{display:flex;flex-direction:column;align-items:center;gap:6px}
 .chest-xp{font:800 32px var(--display);color:var(--gold);animation:pop .6s var(--spring) .7s both}

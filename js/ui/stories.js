@@ -74,7 +74,7 @@ function storyLine(it, st){
   return h('div', { class: 'sline ' + side },
     avatar(it.who, 40, 'sl-av'),
     h('div', { class: 'bubble' }, h('span', { class: 'who' }, vo.name),
-      h('div', { class: 't' }, sayText(it.t, st.lang, { gloss: true })), en,
+      h('div', { class: 't' }, sayText(it.t, st.lang, { gloss: true, en: it.e })), en,
       h('div', { class: 'sl-act' }, speakBtn(it.t, st.lang, 'Play line', vo), slowBtn(it.t, st.lang, vo), tr, save)));
 }
 function saveStoryLine(it, st, key){

@@ -180,9 +180,9 @@ function musicPlay(score, from, volume){
 function musicVolume(v){ if (Music.bus && SFX.ctx) Music.bus.gain.setTargetAtTime(v, SFX.ctx.currentTime, 0.05); }
 
 /* ----- the theme song (MEDIA.song in config.js) -----
-   One audio file shared by the intro film and the home screen. It is fetched once and played from a local copy,
+   One audio file shared by the intro film and the tabs. It is fetched once and played from a local copy,
    so its volume can run through Web Audio (the only way to set volume on iPhone). If that isn't possible it
-   plays the file directly. Modes: 'off', 'home' (loops softly on Learn), 'film' (the intro film drives it). */
+   plays the file directly. Modes: 'off', 'home' (loops softly behind the tabs), 'film' (the intro film drives it). */
 const Song = { el: null, url: '', local: false, routed: false, gain: null, unlocked: false, failed: false, mode: 'off', vol: 0, duck: 1, ducks: 0, fetching: null, syncT: 0, stopT: 0, src: '' };
 /* the file to use on this device: the first source the browser says it can play (or the first, if it won't say) */
 function songSrc(){
@@ -284,11 +284,13 @@ function songGesture(){
 }
 document.addEventListener('pointerdown', songGesture, { capture: true });
 document.addEventListener('keydown', songGesture, { capture: true });
-/* home-screen music: plays on Learn when nothing else is open, the page is visible and the setting is on */
+/* home music: loops on every tab (Learn, Stories, Review, Talk, Me) while no lesson, review, story, chat or film is open, the
+   page is visible and the setting is on. Switching tabs leaves it playing where it is; a lesson pauses it, and it
+   picks up from the same spot afterwards. */
 function musicVol(){ return S.settings.musicVol == null ? 0.6 : S.settings.musicVol; }
 function homeMusicOn(){ return !!(MEDIA.song && S.settings.homeMusic && musicVol() > 0); }
 function homeVol(){ return musicVol() * MEDIA.song.home; }
-function homeMusicWanted(){ return homeMusicOn() && Song.unlocked && !Song.failed && typeof UI !== 'undefined' && UI.tab === 'learn' && !busy() && !document.hidden; }
+function homeMusicWanted(){ return homeMusicOn() && Song.unlocked && !Song.failed && typeof UI !== 'undefined' && !busy() && !document.hidden; }
 function songSync(delay){ clearTimeout(Song.syncT); Song.syncT = setTimeout(songSyncNow, delay == null ? 150 : delay); }
 function songSyncNow(){
   if (typeof Film !== 'undefined' && Film.open){ if (Song.mode === 'home'){ Song.mode = 'off'; songStop(0.3); } return; } // the film drives the song while it is open

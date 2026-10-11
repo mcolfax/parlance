@@ -32,8 +32,9 @@ function filmPip(mood){
   return '<g class="rig rig-pip" style="--rig-lw:' + lw + '" transform="scale(' + (120 / PIP_VIEW[2]).toFixed(4) + ') translate(' + -PIP_VIEW[0] + ' ' + -PIP_VIEW[1] + ')">' + inner(svg) + '</g>';
 }
 
-/* ----- the cast of the film ----- */
-const FILM_CAST = ['lena', 'jonas', 'weber', 'emre', 'sofia', 'diego', 'carmen', 'mateo'];
+/* ----- the cast of the film: a row of friends for each city; each face pops in on its own beat ----- */
+const FILM_CAST = ['de', 'es'].map(l => Object.keys(CAST).filter(id => CAST[id].lang === l));
+const filmCastAt = (r, i) => { const row = FILM_CAST[r], gap = Math.min(72, 300 / row.length); return { x: 180 + (i - (row.length - 1) / 2) * gap, y: r ? 540 : 286, t: [10.0, 12.2][r] + i * Math.min(0.4, 1.6 / row.length) }; };
 const ROUTE_PTS = [[64, 520], [116, 446], [158, 372], [204, 300], [250, 232], [296, 160]];
 const FILM_CAPTIONS = [
   [4.8, 9.0, 'Meet Pip, a parrot who loves to repeat after you.'],
@@ -44,7 +45,7 @@ const FILM_CAPTIONS = [
   [31.4, FILM_DUR + 1, 'Ready? Let’s go.']
 ];
 const FILM_CUES = [[0.3, 'ding'], [1.9, 'whoosh'], [5.2, 'chirp'], [6.9, 'pop'], [9.2, 'whoosh'],
-  [10.0, 'pop', 0.6], [10.4, 'pop', 0.6], [10.8, 'pop', 0.6], [11.2, 'pop', 0.6], [12.2, 'pop', 0.6], [12.6, 'pop', 0.6], [13.0, 'pop', 0.6], [13.4, 'pop', 0.6],
+  ...FILM_CAST.flatMap((row, r) => row.map((id, i) => [filmCastAt(r, i).t, 'pop', 0.6])),
   [15.4, 'select'], [16.6, 'select'], [17.8, 'select'], [19.0, 'select'], [21.2, 'whoosh'], [23.0, 'chest'], [23.7, 'coin'], [24.0, 'coin'], [24.3, 'coin'], [24.6, 'streak'],
   [26.3, 'whoosh'], [27.0, 'tap'], [27.6, 'tap'], [28.2, 'tap'], [28.8, 'tap'], [29.4, 'tap'], [30.2, 'level'], [31.6, 'chirp'], [33.2, 'ding']];
 
@@ -88,11 +89,11 @@ function filmSVG(){
     '<g id="f-cdmx"><g class="f-sky-es"><rect x="40" y="430" width="46" height="62" rx="4" class="h1"/><rect x="92" y="412" width="40" height="80" rx="4" class="h2"/><rect x="138" y="440" width="52" height="52" rx="4" class="h3"/><rect x="196" y="420" width="42" height="72" rx="4" class="h1"/><rect x="244" y="436" width="36" height="56" rx="4" class="h2"/><rect x="286" y="416" width="36" height="76" rx="4" class="h3"/></g>' +
     '<path d="M30 386 Q180 420 330 386" class="f-string"/>' + [50, 85, 120, 155, 190, 225, 260, 295].map((x, i) => '<path d="M' + (x - 9) + ' ' + (390 + Math.sin(i / 7 * Math.PI) * 14) + ' h18 v13 l-4 -3 l-5 4 l-5 -4 l-4 3 z" class="pp' + (i % 4) + '"/>').join('') +
     '<text x="180" y="376" class="f-city es">Ciudad de México · Español</text></g>' +
-    '<g id="f-cast">' + FILM_CAST.map(id => avatarAt(id)).join('') + '</g>' +
+    '<g id="f-cast">' + FILM_CAST.flat().map(id => avatarAt(id)).join('') + '</g>' +
     '<g id="f-hallo"><rect x="-32" y="-13" width="64" height="26" rx="13" class="f-bub"/><text x="0" y="5" class="f-bub-t">Hallo!</text></g>' +
     '<g id="f-hola"><rect x="-35" y="-13" width="70" height="26" rx="13" class="f-bub"/><text x="0" y="5" class="f-bub-t">¡Hola!</text></g>' +
     /* scene 4: feature cards */
-    card(0, 'learn', 'Lessons', 'A1 to C2, built for real use') + card(1, 'stories', '16 stories', 'With friends in two cities') + card(2, 'talk', 'A tutor who talks back', 'Real conversations, gently corrected') + card(3, 'review', 'Review that remembers', 'Words return before you forget') +
+    card(0, 'learn', 'Lessons', 'A1 to C2, built for real use') + card(1, 'stories', STORIES.length + ' stories', 'With friends in two cities') + card(2, 'talk', 'A tutor who talks back', 'Real conversations, gently corrected') + card(3, 'review', 'Review that remembers', 'Words return before you forget') +
     /* scene 5: rewards */
     '<g id="f-chest"><g class="chest film" transform="translate(-80 -72) scale(2)">' + inner(chestSVG()) + '</g></g>' +
     '<g id="f-coins">' + [0, 1, 2, 3, 4].map(i => '<circle id="f-coin' + i + '" r="7" class="f-coin"/>').join('') + '</g>' +
@@ -118,9 +119,9 @@ function filmActors(){
   A['f-berlin'] = { o: fade(9.3, 10.0, 14.6, 15.2), y: [[9.3, -30], [10.2, 0, 'out']] };
   A['f-cdmx'] = { o: fade(9.6, 10.3, 14.6, 15.2), y: [[9.6, 30], [10.5, 0, 'out']] };
   A['f-cast'] = { o: [[9.7, 0], [9.8, 1], [14.6, 1], [15.2, 0]] };
-  FILM_CAST.forEach((id, i) => { const t = [10.0, 10.4, 10.8, 11.2, 12.2, 12.6, 13.0, 13.4][i]; A['f-av-' + id] = { x: 72 + (i % 4) * 72, y: i < 4 ? 286 : 540, s: [[t, 0.01], [t + 0.45, 1, 'back']], o: [[t, 0], [t + 0.1, 1]] }; });
-  A['f-hallo'] = { x: 72, y: 248, o: fade(11.0, 11.3, 14.3, 14.7), s: [[11.0, 0.6], [11.4, 1, 'back']] };
-  A['f-hola'] = { x: 72, y: 502, o: fade(13.6, 13.9, 14.3, 14.7), s: [[13.6, 0.6], [14.0, 1, 'back']] };
+  FILM_CAST.forEach((row, r) => row.forEach((id, i) => { const { x, y, t } = filmCastAt(r, i); A['f-av-' + id] = { x, y, s: [[t, 0.01], [t + 0.45, 1, 'back']], o: [[t, 0], [t + 0.1, 1]] }; }));
+  A['f-hallo'] = { x: Math.max(40, filmCastAt(0, 0).x), y: 248, o: fade(11.0, 11.3, 14.3, 14.7), s: [[11.0, 0.6], [11.4, 1, 'back']] };
+  A['f-hola'] = { x: Math.max(40, filmCastAt(1, 0).x), y: 502, o: fade(13.6, 13.9, 14.3, 14.7), s: [[13.6, 0.6], [14.0, 1, 'back']] };
   [15.4, 16.6, 17.8, 19.0].forEach((t, i) => { A['f-card' + i] = { x: [[t, 560], [t + 0.7, 180, 'back']], y: 150 + i * 92, o: [[t - 0.05, 0], [t, 1], [20.6, 1], [21.1, 0]] }; });
   A['f-chest'] = { x: 180, y: 336, s: [[21.4, 0.2], [22.1, 1, 'back'], [25.6, 1], [26.1, 0.6, 'in']], o: [[21.4, 0], [21.7, 1], [25.6, 1], [26.1, 0]] };
   [[-90, -140], [-40, -170], [10, -190], [60, -165], [100, -130]].forEach(([dx, dy], i) => { A['f-coin' + i] = { x: [[23.0, 180], [23.9 + i * 0.05, 180 + dx, 'out']], y: [[23.0, 320], [23.9 + i * 0.05, 320 + dy, 'out'], [25.6, 330 + dy]], o: [[23.0, 0], [23.1, 1], [25.4, 1], [25.9, 0]], s: 1 }; });

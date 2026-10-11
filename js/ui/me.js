@@ -53,7 +53,7 @@ function viewMe(){
     S.settings.sfx ? h('div', { class: 'field vol' }, h('label', { for: 'sfx-vol' }, 'Effects volume'),
       h('div', { class: 'row' }, h('span', { class: 'small muted' }, 'Soft'), h('input', { type: 'range', id: 'sfx-vol', class: 'f-range grow', min: '0.1', max: '1', step: '0.05', value: String(S.settings.sfxVol),
         oninput: e => { S.settings.sfxVol = +e.target.value; clearTimeout(viewMe.t); viewMe.t = setTimeout(() => { touchSettings(); sfx('ok'); }, 180); } }), h('span', { class: 'small muted' }, 'Loud'))) : null,
-    MEDIA.song ? toggleRow('Music on the home screen', 'homeMusic', 'Our theme song, “' + MEDIA.song.title + '”, plays softly while you’re on Learn.', on => { if (on){ songPrefetch(); songUnlock(); } render(); }) : null,
+    MEDIA.song ? toggleRow('Theme song', 'homeMusic', 'Our theme song, “' + MEDIA.song.title + '”, plays softly as you move between tabs. It pauses for lessons, reviews, stories and Talk.', on => { if (on){ songPrefetch(); songUnlock(); } render(); }) : null,
     MEDIA.song ? h('div', { class: 'field vol' }, h('label', { for: 'music-vol' }, 'Music volume'),
       h('div', { class: 'row' }, h('span', { class: 'small muted' }, 'Soft'), h('input', { type: 'range', id: 'music-vol', class: 'f-range grow', min: '0', max: '1', step: '0.05', value: String(musicVol()),
         onpointerdown: () => songUnlock(),
@@ -70,7 +70,7 @@ function viewMe(){
     h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => openStudio() }, 'Open Studio')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Practice'),
     h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Daily goal'), h('div', { class: 'chips' }, [[10, 'Casual'], [20, 'Regular'], [30, 'Serious']].map(([g, n]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(S.settings.goal === g), onclick: () => { S.settings.goal = g; const d = S.days[today()]; if (d && d.xp >= g) d.met = true; touchSettings(); render(); } }, n + ' · ' + g + ' XP')))),
-    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Starting level for ' + LANGS[lang].name), h('div', { class: 'chips' }, LEVELS.map(lv => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(L.start === lv), onclick: () => { L.start = lv; L.startTs = Date.now(); touch(lang); UI.open = new Set(); render(); toast('Route starts at ' + lv + ' now'); } }, lv)))),
+    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Starting level for ' + LANGS[lang].name), h('div', { class: 'chips' }, LEVELS.map(lv => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(L.start === lv), onclick: () => { L.start = lv; L.startTs = Date.now(); touch(lang); UI.openLang = null; render(); toast('Route starts at ' + lv + ' now'); } }, lv)))),
     toggleRow('Speaking exercises', 'speaking', 'Say sentences out loud during lessons.'),
     toggleRow('Tutor grading', 'aiGrade', 'If a typed answer doesn’t match, Claude checks whether it’s still right and explains what’s different.')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Tutor access'),
@@ -181,18 +181,29 @@ function openWebNewPassword(){
       catch (e){ toast(webSignInError(e)); return true; }
     } }]);
 }
+/* Chrome hands us an install prompt to call. Safari on iPhone and iPad has none, so its button shows the steps instead. */
 function webHomeScreenCard(){
   if (webStandalone() || !(webIOS() || Web.install)) return null;
-  const add = Web.install ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => {
+  const add = h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => {
+    if (!Web.install){ openHomeScreenHelp(); return; }
     const ev = Web.install; Web.install = null;
     try { await ev.prompt(); } catch (e) {}
     render();
-  } }, 'Add to Home Screen') : null;
+  } }, 'Add to Home Screen');
   return h('section', { class: 'card web-home' },
     h('div', { class: 'row', style: 'align-items:flex-start' }, h('img', { class: 'web-home-ic', src: 'media/icons/icon-180.png', alt: '', width: '48', height: '48' }),
       h('div', { class: 'grow' }, h('h3', null, 'Put Parlance on your Home Screen'),
-        h('p', { class: 'small muted' }, add ? 'It opens full screen, like an app.' : 'Tap the Share button, then Add to Home Screen. Parlance then opens full screen, like an app.'))),
+        h('p', { class: 'small muted' }, Web.install ? 'It opens full screen, like an app.' : 'It opens full screen, like an app. Safari adds it in three taps.'))),
     add);
+}
+function openHomeScreenHelp(){
+  const step = (icon, title, sub) => h('li', { class: 'hs-step' }, h('span', { class: 'hs-ic', html: IC[icon], 'aria-hidden': 'true' }), h('div', null, h('b', null, title), h('span', { class: 'small muted' }, sub)));
+  sheet('Add Parlance to your Home Screen', h('div', { class: 'hs-help' },
+    h('ol', { class: 'hs-steps' },
+      step('share', 'Tap Share in Safari', 'It’s in the bar at the bottom of the screen, or at the top on iPad. On newer iPhones, tap ••• first, then Share.'),
+      step('addHome', 'Tap Add to Home Screen', 'Scroll down the list to find it. You may need to tap View More.'),
+      step('check', 'Tap Add', 'Leave Open as Web App on. Parlance then opens full screen, with Pip as its icon.')),
+    h('p', { class: 'small muted' }, 'Opened Parlance from a link in another app? Open it in Safari first.')), [{ label: 'Got it', primary: true }]);
 }
 function webSignInError(e){
   const why = {

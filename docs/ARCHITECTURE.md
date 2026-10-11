@@ -66,7 +66,7 @@ The same files run in two places.
 
 `MEDIA.song` in `js/config.js` describes it: title, the two source files, where the film starts in the song, the fade at the end of the film, and volume multipliers for home, film and ducking under speech.
 
-- **Home screen.** The song loops softly on Learn while nothing else is open and the page is visible. It starts on the learner's first tap, because browsers don't allow sound before one. It stops on other tabs, in lessons, stories, Talk and the film, and comes back when they return to Learn. The note button on Learn and **Me → Sound** turn it off and set the music volume. A speaking voice lowers it.
+- **Behind the tabs.** The song loops softly on every tab (Learn, Stories, Review, Talk, Me) while nothing else is open and the page is visible. Switching tabs leaves it playing where it is; it never starts over. It starts on the learner's first tap, because browsers don't allow sound before one. It pauses in lessons, review sessions, stories, Talk chats and the film, and picks up from the same spot when they close. The note button on every tab's top bar and **Me → Sound** turn it off and set the music volume. A speaking voice lowers it.
 - **Intro film.** The film plays the song from its own playhead, so pausing, scrubbing and replaying stay in sync. While the song is running, the playhead follows the song's clock. If the song can't play, the film falls back to its synthesized score (`filmScore()` in `js/ui/film.js`).
 - **How it plays.** The file is fetched once and played from a local copy, so its volume can run through Web Audio. That is the only way to set volume on an iPhone. If the local copy is refused, it plays the file directly.
 - **To swap the song**, encode the new track into both formats with the same names, or change `MEDIA.song.sources`:
@@ -121,3 +121,4 @@ data/users/{self}  (platform default: private to each person)
 - Every sound is a named entry in `SOUNDS`; call `sfx('name')`. Music goes through `Song` and `MEDIA.song`, never a new `<audio>`.
 - XP amounts, quests, badges and scenarios are data in `config.js`, not literals in screens.
 - Everything a learner reads is plain, warm English in sentence case.
+- Every word in a built-in story has a meaning when tapped: from the lessons, `COMMON_GLOSS`, `STORY_GLOSS` (both in `content/glossary.js`) or a cast member's name. `glossLookup()` also finds dictionary forms from common endings (bezahlst → bezahlen, vende → vender). When you add or change a story, `npm test` lists any word that still needs a `STORY_GLOSS` entry. Words outside the built-in content (Talk, live packs) are looked up by the tutor when Claude is there; otherwise the popover shows the whole line's translation.

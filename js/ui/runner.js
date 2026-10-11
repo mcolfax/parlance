@@ -22,7 +22,7 @@ function showIntro(){
   const l = Run.lesson, lang = Run.lang;
   runHead(l.title);
   const tip = h('div', { class: 'tip' }, h('span', { class: 'eyebrow' }, ic('bulb'), 'Before you start'), h('h3', null, l.tip.title), h('p', { html: rich(l.tip.body) }),
-    l.tip.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e))));
+    l.tip.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e))));
   const words = h('div', { class: 'wordlist' }, l.vocab.map(v => h('div', { class: 'wl-row' }, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang))));
   swapBody([
     h('div', { class: 'intro-head' }, l.core ? unitSign(COURSE[lang].units[l.unit].title, 52) : null, h('span', { class: 'eyebrow' }, (l.core ? 'Unit ' + (l.unit + 1) + ' · ' : '') + l.level + ' ' + LEVEL_NAME[l.level] + ' · ' + LANGS[lang].name), h('h1', null, l.title), h('p', { class: 'muted' }, l.vocab.length + ' words · ' + l.sentences.length + ' phrases · about ' + minutesFor(l) + ' min')),

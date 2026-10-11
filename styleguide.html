@@ -90,7 +90,7 @@ function draw(){
     sec('Badges and chest', null, h('div', { class: 'art-row' }, Object.keys(BADGE_ART).map((k, i) => h('figure', null, medal(k, i % 3 !== 2, 64), k)), h('figure', null, h('span', { class: 'chest ready', html: chestSVG() }), 'chest'))),
     sec('Story scenes', null, h('div', { class: 'scenes' }, Object.keys(SCENES).map(k => h('figure', null, sceneArt(k, '', root.dataset.lang || 'de'), k)))),
     sec('Sound library', 'Every effect is synthesized live (js/core/audio.js, SOUNDS). Tap to hear.', h('div', { class: 'chips' }, Object.keys(SOUNDS).map(n => h('button', { class: 'chip', type: 'button', onclick: () => playSound(n, 0.8) }, ic('speaker'), n)))),
-    sec('Theme song', 'MEDIA.song in js/config.js. It scores the intro film and loops softly on the home screen.', h('div', { class: 'chips' }, h('button', { class: 'chip', type: 'button', onclick: e => { const playing = Song.el && !Song.el.paused && Song.vol > 0; if (playing) songStop(0.4); else songStart(null, 0.6, 0.4); e.currentTarget.replaceChildren(ic(playing ? 'music' : 'musicOff'), playing ? 'Play “' + MEDIA.song.title + '”' : 'Stop'); } }, ic('music'), 'Play “' + MEDIA.song.title + '”')))
+    sec('Theme song', 'MEDIA.song in js/config.js. It scores the intro film and loops softly behind the tabs.', h('div', { class: 'chips' }, h('button', { class: 'chip', type: 'button', onclick: e => { const playing = Song.el && !Song.el.paused && Song.vol > 0; if (playing) songStop(0.4); else songStart(null, 0.6, 0.4); e.currentTarget.replaceChildren(ic(playing ? 'music' : 'musicOff'), playing ? 'Play “' + MEDIA.song.title + '”' : 'Stop'); } }, ic('music'), 'Play “' + MEDIA.song.title + '”')))
   );
 }
 draw();

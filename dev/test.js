@@ -181,7 +181,28 @@ async function main(){
     ok(st.items.filter(x => x.q).length >= 2, 'story questions ' + st.id);
     for (const it of st.items){ if (it.q){ ok(it.o.length === 3 && new Set(it.o).size === 3, 'story q opts ' + st.id + ' ' + it.q); } else { ok(P.CAST[it.who] && P.CAST[it.who].lang === st.lang, 'speaker ' + st.id + ' ' + it.who); ok(it.t && it.e, 'line text ' + st.id); } }
   }
-  ok(P.STORIES.length === 16, 'stories ' + P.STORIES.length);
+  ok(P.STORIES.length === 18, 'stories ' + P.STORIES.length);
+  /* every word in every story has a meaning when tapped, learned yet or not */
+  for (const st of P.STORIES) for (const it of st.items) if (it.t) for (const part of it.t.split(/\s+/)){
+    if (!/[\p{L}]/u.test(part)) continue;
+    const core = A.E('coreWord(' + JSON.stringify(part) + ')');
+    ok(P.glossLookup(core, st.lang), 'story word has a meaning: ' + st.id + ' ' + core);
+  }
+  { const g = (wd, l) => P.glossLookup(wd, l) || {};
+    ok(g('bezahlst', 'de').base === 'bezahlen' && g('gewartet', 'de').base === 'warten' && g('angerufen', 'de').base === 'anrufen' && g('vende', 'es').base === 'vender' && g('llegamos', 'es').base === 'llegar', 'verb forms find their dictionary form');
+    ok(g('Küche', 'de').val === 'kitchen' && g('Este', 'es').val === 'this' && /Lena/.test(g('Lena', 'de').val) && /landlord/.test(g('Brandt', 'de').val) && /taxi/i.test(g('Valentina', 'es').val), 'look-alikes and names ' + JSON.stringify([g('Küche', 'de'), g('Brandt', 'de')])); }
+  /* the cast: a portrait for everyone, Talk scenes played by someone who speaks the language, a part for every friend */
+  for (const [id, c] of Object.entries(P.CAST)){
+    if (id === 'pip') continue;
+    const svg = A.E('avatarSVG(' + JSON.stringify(id) + ')');
+    ok(['de', 'es'].includes(c.lang) && c.look && A.E('!!HAIR[' + JSON.stringify(c.look.style) + ']') && svg.startsWith('<svg') && !/NaN|undefined/.test(svg), 'portrait ' + id);
+    ok(P.STORIES.some(s => s.cast.includes(id)) || A.E('SCENARIOS').some(sc => sc.cast[c.lang] === id), 'has a story or a Talk scene ' + id);
+  }
+  for (const sc of A.E('SCENARIOS')) for (const lang of ['de', 'es']){ const who = sc.cast[lang]; ok(who === 'pip' || (P.CAST[who] && P.CAST[who].lang === lang), 'Talk ' + sc.id + ' ' + lang + ' is played by ' + who); }
+  ok(A.E('avatarSVG("leyla")').includes('evenodd') && A.E('avatarSVG("brandt")').includes(P.CAST.brandt.look.tie) && A.E('avatarSVG("valentina")').includes(P.CAST.valentina.look.ribbon), 'new looks: headscarf, tie, braid ribbons');
+  ok(A.E('FILM_CAST').map(r => r.length).join() === '6,6' && A.E('FILM_CAST.flat().length') === Object.keys(P.CAST).length - 1, 'the film meets everyone ' + JSON.stringify(A.E('FILM_CAST')));
+  ok(A.E('FILM_CUES').filter(c => c[1] === 'pop' && c[0] >= 10 && c[0] < 14).length === 12, 'a pop for every face in the film');
+  { const ch = A.E('chestSVG()'); ok(['ch-lid', 'ch-lidup', 'ch-loot', 'ch-fly', 'ch-rays', 'ch-spark'].every(k => ch.includes('class="' + k)) && !/NaN|undefined/.test(ch) && A.E('chestSVG()') === ch, 'chest drawing'); }
   /* glossary */
   ok(P.glossLookup('ich', 'de') && P.glossLookup('ich', 'de').val === 'I', 'gloss ich');
   ok(P.glossLookup('Kaffee', 'de') && /coffee/.test(P.glossLookup('Kaffee', 'de').val), 'gloss Kaffee ' + JSON.stringify(P.glossLookup('Kaffee', 'de')));
@@ -318,6 +339,15 @@ async function main(){
     }
     ok(Object.values(P.S.langs[lang].cards).filter(c => c.n >= 1).length >= 60, lang + ' reviewed');
     for (const tab of ['learn', 'stories', 'review', 'talk', 'me']){ E('UI.tab=' + JSON.stringify(tab) + '; render()'); ok(w.document.querySelector('#app').children.length > 0, 'tab ' + tab); }
+    { /* every level on Learn opens and closes, the last open one too */
+      E('UI.tab="learn"; UI.openLang=null; render()');
+      const openHeads = () => [...w.document.querySelectorAll('.lvl-head[aria-expanded="true"]')];
+      ok(openHeads().length === 1 && w.document.querySelectorAll('.lvl-sec.open .station').length > 0, 'Learn opens one level');
+      openHeads()[0].click(); ok(openHeads().length === 0 && !w.document.querySelector('.lvl-sec.open .station'), 'the open level closes');
+      E('render()'); ok(openHeads().length === 0, 'and stays closed when Learn redraws');
+      w.document.querySelectorAll('.lvl-head')[1].click(); w.document.querySelectorAll('.lvl-head')[2].click(); ok(openHeads().length === 2, 'levels open again');
+      E('setLang(' + JSON.stringify(lang === 'de' ? 'es' : 'de') + '); setLang(' + JSON.stringify(lang) + ')'); ok(openHeads().length === 1, 'switching languages starts fresh');
+    }
     E('UI.wordFilter="all"; UI.wordLimit=5000; UI.tab="review"; render()'); ok(w.document.querySelectorAll('.wrow').length > 500, 'all words ' + w.document.querySelectorAll('.wrow').length);
     E('UI.wordLimit=0; UI.wordFilter="v"; render()'); ok(w.document.querySelectorAll('.wrow').length === 150 && [...w.document.querySelectorAll('#word-list button')].some(b => b.textContent.startsWith('Show more')), 'word list paging');
     /* stories: read every one through the UI */
@@ -369,6 +399,19 @@ async function main(){
   ok(!!word, 'lesson intro has tappable words');
   if (word){ word.click(); const g = w.document.querySelector('.gloss'); ok(g && g.textContent.length > 2, 'gloss popover ' + (g && g.textContent)); w.document.body.dispatchEvent(new w.Event('pointerdown', { bubbles: true })); }
   E('endRun()');
+  { /* a word nothing knows: the popover shows the whole line, and the tutor looks it up when Claude is there */
+    const tap = (txt, en) => { const el = E('(() => { const s = sayText(' + JSON.stringify(txt) + ', "de", { gloss: true, en: ' + JSON.stringify(en) + ' }); document.body.append(s); return s; })()'); el.querySelector('.w').click(); return w.document.querySelector('.gloss:not(.out)'); };
+    const close = () => w.document.body.dispatchEvent(new w.Event('pointerdown', { bubbles: true }));
+    E('window.__aiSample = AI.sample; AI.sample = null');
+    let g = tap('Quatschkopf ist er.', 'He’s a chatterbox.');
+    ok(g && g.querySelector('.gl-e.muted') && g.querySelector('.gl-line') && g.textContent.includes('He’s a chatterbox.'), 'an unknown word shows the line’s translation ' + (g && g.textContent)); close();
+    E('AI.sample = { json: async () => ({ meaning: "silly chatterbox", base: "Quatschkopf" }) }');
+    g = tap('Quatschköpfe sind sie.', 'They’re chatterboxes.'); await sleep(20);
+    ok(g && g.querySelector('.gl-e').textContent === 'silly chatterbox' && !g.querySelector('.gl-e.muted') && /from Quatschkopf/.test(g.textContent) && !g.querySelector('.gl-line'), 'the tutor looks up an unknown word ' + (g && g.textContent)); close();
+    E('AI.sample = { json: async () => { throw new Error("no") } }');
+    g = tap('Quatschköpfe sind sie.', 'They’re chatterboxes.'); ok(g && g.querySelector('.gl-e').textContent === 'silly chatterbox', 'and remembers it'); close();
+    E('AI.sample = window.__aiSample; document.querySelectorAll("body > .say").forEach(x => x.remove())');
+  }
   // quests + chest
   {
     const ids = P.questIds(); ok(ids.length === 3 && ids.every(id => P.QUESTS[id]), 'quests ' + ids);
@@ -651,22 +694,29 @@ async function main(){
     ok(E('Song.unlocked') && E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.loop'), 'first tap starts the looping song on Learn');
     ok(Math.abs(E('Song.vol') - E('homeVol()')) < 1e-9 && E('homeVol()') < 0.5, 'plays softly ' + E('homeVol()'));
     E('songDuck(true)'); ok(E('Song.duck') === E('MEDIA.song.duck'), 'a speaking voice lowers the song'); E('songDuck(false)'); ok(E('Song.duck') === 1, 'and it comes back up');
-    [...D.querySelectorAll('.tab')].find(b => b.textContent.includes('Me')).click(); await sleep(800);
-    ok(E('Song.mode') === 'off' && E('Song.el.paused'), 'song stops off the home screen');
+    const tab = name => [...D.querySelectorAll('.tab')].find(b => b.textContent.includes(name)).click();
+    E('Song.el.currentTime = 42'); const plays0 = E('window.__plays');
+    for (const name of ['Stories', 'Review', 'Talk', 'Me']){
+      tab(name); await sleep(400);
+      ok(E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.currentTime') === 42 && E('window.__plays') === plays0, 'the song keeps playing on ' + name + ', from the same spot');
+      ok(D.querySelector('.top .music-btn.on'), 'music button on ' + name);
+    }
     ok(D.querySelector('#set-homeMusic') && D.querySelector('#music-vol'), 'Me → Sound has the music switch and volume');
     const mv = D.querySelector('#music-vol'); mv.value = '0.3'; mv.dispatchEvent(new M.w.Event('input')); await sleep(50);
-    ok(E('Song.mode') === 'preview' && !E('Song.el.paused') && Math.abs(M.P.S.settings.musicVol - 0.3) < 1e-9, 'moving the slider previews the song');
-    await sleep(2600); ok(E('Song.mode') === 'off' && E('Song.el.paused'), 'preview stops on its own');
-    [...D.querySelectorAll('.tab')].find(b => b.textContent.includes('Learn')).click(); await sleep(500);
-    ok(E('Song.mode') === 'home' && !E('Song.el.paused'), 'back on Learn, the song resumes');
+    ok(E('Song.mode') === 'home' && Math.abs(E('Song.vol') - E('homeVol()')) < 1e-9 && Math.abs(M.P.S.settings.musicVol - 0.3) < 1e-9, 'while it plays, the slider sets its volume');
     D.querySelector('.top .music-btn').click(); await sleep(800);
     ok(!M.P.S.settings.homeMusic && E('Song.mode') === 'off' && E('Song.el.paused') && D.querySelector('.top .music-btn:not(.on)'), 'music button turns it off');
+    const mv2 = D.querySelector('#music-vol'); mv2.value = '0.35'; mv2.dispatchEvent(new M.w.Event('input')); await sleep(50);
+    ok(E('Song.mode') === 'preview' && !E('Song.el.paused') && Math.abs(M.P.S.settings.musicVol - 0.35) < 1e-9, 'with music off, moving the slider previews the song');
+    await sleep(2600); ok(E('Song.mode') === 'off' && E('Song.el.paused'), 'preview stops on its own');
     D.querySelector('.top .music-btn').click(); await sleep(400);
     ok(M.P.S.settings.homeMusic && E('Song.mode') === 'home' && !E('Song.el.paused'), 'and back on');
+    E('Song.el.currentTime = 50'); tab('Learn'); await sleep(500);
+    ok(E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.currentTime') === 50, 'back on Learn, it carries on from the same spot');
     D.querySelector('.hero .btn-primary').click(); await sleep(800);
     ok(E('Run.active') && E('Song.mode') === 'off' && E('Song.el.paused'), 'song stops when a lesson starts');
     E('Run.active = false; closeOverlay(true); render()'); await sleep(500);
-    ok(E('Song.mode') === 'home', 'resumes after the lesson');
+    ok(E('Song.mode') === 'home' && E('Song.el.currentTime') === 50, 'resumes after the lesson, where it paused');
     E('openFilm({ autoplay: false })'); await sleep(300);
     ok(E('Song.mode') === 'off', 'home music stops when the film opens');
     E('filmSeek(10)'); E('filmPlay()'); await sleep(30);
@@ -824,7 +874,11 @@ async function main(){
     const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
     const homeCard = async opts => { const X = await makeDom({ web: sb, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } }, ...opts }); await sleep(60); X.E('UI.tab="me"; render()'); return X; };
     const H1 = await homeCard({ ua: IPHONE });
-    ok(H1.w.document.querySelector('.web-home') && H1.w.document.querySelector('.web-home').textContent.includes('Tap the Share button, then Add to Home Screen'), 'iPhone Safari shows the Home Screen tip');
+    const iosBtn = H1.w.document.querySelector('.web-home button');
+    ok(iosBtn && iosBtn.textContent === 'Add to Home Screen', 'iPhone Safari gets an Add to Home Screen button too');
+    if (iosBtn){ iosBtn.click(); await sleep(30); }
+    const help = H1.w.document.querySelector('.sheet .hs-steps');
+    ok(help && help.querySelectorAll('.hs-step').length === 3 && /Tap Share/.test(help.textContent) && /Add to Home Screen/.test(help.textContent) && H1.w.document.querySelector('.web-home'), 'and it shows Safari’s steps');
     H1.dom.window.close();
     const H2 = await homeCard({ ua: IPHONE, standalone: true });
     ok(!H2.w.document.querySelector('.web-home'), 'no tip once Parlance opens from the Home Screen');
