@@ -6,7 +6,7 @@
 <title>Parlance Style Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500..700&family=Nunito:ital,wght@0,400..800;1,400&display=swap">
 <link rel="stylesheet" href="styles/tokens.css">
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/art.css">
@@ -56,7 +56,7 @@
 const Run = { active: false }, Talk = { open: false }, Onb = { open: false }, Story = { open: false }, Film = { open: false }, Studio = { open: false };
 const root = document.documentElement;
 const css = n => getComputedStyle(root).getPropertyValue(n).trim();
-const COLORS = ['--bg', '--surface', '--surface-2', '--ink', '--muted', '--hair', '--hair-2', '--line', '--line-soft', '--line-text', '--de', '--es', '--ok', '--ok-bg', '--bad', '--bad-bg', '--warn', '--warn-bg', '--der', '--die', '--das', '--pl', '--gold', '--pip-accent', '--pip-accent-2', '--pip-beak', '--film-bg', '--film-card'];
+const COLORS = ['--bg', '--surface', '--surface-2', '--ink', '--muted', '--hair', '--hair-2', '--line', '--line-soft', '--line-text', '--line-edge', '--de', '--es', '--ok', '--ok-bg', '--bad', '--bad-bg', '--warn', '--warn-bg', '--flame', '--sun', '--der', '--die', '--das', '--pl', '--gold', '--pip-accent', '--pip-accent-2', '--pip-beak', '--film-bg', '--film-card'];
 const TYPES = ['--type-h1', '--type-h2', '--type-title', '--type-title-s', '--type-body', '--type-button', '--type-label', '--type-small', '--type-eyebrow', '--type-num'];
 const RADII = ['--r-xs', '--r-sm', '--r-md', '--r', '--r-lg', '--r-xl', '--r-pill'];
 const SPACE = ['--sp-1', '--sp-2', '--sp-3', '--sp-4', '--sp-5', '--sp-6'];
@@ -69,7 +69,7 @@ function draw(){
       h('div', { class: 'controls demo-row' },
         h('div', { class: 'seg', role: 'group', 'aria-label': 'Theme' }, ['light', 'dark'].map(t => h('button', { type: 'button', 'aria-pressed': String((root.dataset.theme || 'light') === t), onclick: () => { root.dataset.theme = t; draw(); } }, t))),
         h('div', { class: 'seg', role: 'group', 'aria-label': 'Language line' }, ['de', 'es'].map(l => h('button', { type: 'button', 'aria-pressed': String((root.dataset.lang || 'de') === l), onclick: () => { root.dataset.lang = l; draw(); } }, LANGS[l].native))))),
-    h('p', { class: 'note' }, 'Every value here comes from styles/tokens.css. Change a token, reload, and this page and every screen in the app change together. The line color (petrol for German, saffron for Spanish) flows through --line.'),
+    h('p', { class: 'note' }, 'Every value here comes from styles/tokens.css. Change a token, reload, and this page and every screen in the app change together. The look is Selva. The line color (palm green for German, mango for Spanish) flows through --line, and --line-edge is the solid edge under chunky buttons.'),
     sec('Color', null, h('div', { class: 'grid' }, COLORS.map(c => h('div', { class: 'sw' }, h('i', { style: 'background:var(' + c + ')' }), h('div', null, h('b', null, c.slice(2)), h('code', null, css(c))))))),
     sec('Type roles', 'Use font: var(--type-…) instead of writing sizes by hand.', TYPES.map(t => h('div', { class: 'tok' }, h('code', null, t), h('span', { style: 'font:var(' + t + ')' }, t === '--type-num' ? '1,216' : 'Guten Morgen, Ana. ¿Qué tal?')))),
     sec('Radii, spacing, layers', null,

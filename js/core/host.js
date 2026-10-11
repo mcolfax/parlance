@@ -2,7 +2,7 @@
 /* ===================== WEB HOST =====================
    Parlance has two homes. Inside the Claude artifact, window.claude provides accounts, the database and the
    tutor. The web version (built by dev/web.js, which sets window.PARLANCE_WEB) has no Claude, so this file
-   provides the same window.claude.use() surface for 'db' and 'user', backed by our Supabase project (WEB in
+   provides the same window.claude.use() surface for 'db', 'user' and 'downloads', backed by our Supabase project (WEB in
    config.js). Sync, live content, feedback, names, sharing and Studio then work unchanged; the tutor stays
    Claude-only. Everywhere else (the artifact, the preview, the tests' Claude fakes) this file does nothing.
    Sign-in is email and password, or Google, through Supabase Auth's HTTP API. The session lives in this browser.
@@ -54,7 +54,10 @@ async function webRefresh(){
 function webCleanUrl(){ try { history.replaceState(null, '', location.pathname); } catch (e) {} }
 async function webStart(){
   const hash = new URLSearchParams(location.hash.replace(/^#/, '')), query = new URLSearchParams(location.search);
-  if (hash.get('access_token') && hash.get('refresh_token')){ webAdopt(Object.fromEntries(hash)); webCleanUrl(); }
+  if (hash.get('access_token') && hash.get('refresh_token')){
+    webAdopt(Object.fromEntries(hash)); webCleanUrl();
+    if (hash.get('type') === 'recovery') setTimeout(() => { if (typeof openWebNewPassword === 'function') openWebNewPassword(); }, 1200);   // from a "set a new password" email
+  }
   else {
     const err = hash.get('error_description') || query.get('error_description');
     if (err){ Web.notice = err; webCleanUrl(); setTimeout(() => { if (typeof toast === 'function') toast('Couldn’t sign in: ' + err); }, 1500); }
@@ -75,6 +78,13 @@ async function webSignUp(name, email, password){
   const r = await webFetch('/auth/v1/signup', { body: { email, password, data: { name } }, auth: false });
   if (!r || !r.access_token) throw { code: 'confirm', status: 200, reason: 'confirm', message: '' };   // the project still requires email confirmation
   webAdopt(r);
+}
+async function webRecover(email){ await webFetch('/auth/v1/recover?redirect_to=' + encodeURIComponent(location.origin + location.pathname), { body: { email }, auth: false }); }
+async function webUpdateUser(change){   // { password } or { data: { name } }
+  const u = webUser(await webFetch('/auth/v1/user', { method: 'PUT', body: change }));
+  Web.session.user = u; webKeep(Web.session);
+  if (change.data && change.data.name !== undefined) await webRpc('profile_set', { n: u.name });
+  return u;
 }
 function webGoogle(){ location.assign(WEB.url + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(location.origin + location.pathname)); }
 async function webSignOut(){ try { await webFetch('/auth/v1/logout', { method: 'POST' }); } catch (e) {} webKeep(null); }
@@ -105,6 +115,12 @@ function webCollection(c){
     } };
 }
 const webDB = { doc: webDoc, collection: webCollection };
+const webDownloads = {   // saves a file through the browser, like the artifact's downloads capability
+  async save({ filename, data }){
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data], { type: 'text/plain' })); a.download = filename;
+    document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+};
 const webUserApi = {
   async id(){ return Web.session && Web.session.user ? Web.session.user.id : null; },
   async me(){ const u = Web.session && Web.session.user; return { id: u ? u.id : null, name: u ? u.name : '', avatarUrl: '' }; },
@@ -119,5 +135,5 @@ if (!window.claude && window.PARLANCE_WEB && typeof WEB === 'object' && WEB.url)
   window.addEventListener('beforeinstallprompt', e => { Web.install = e; });
   window.addEventListener('appinstalled', () => { Web.install = null; });
   Web.ready = webStart().catch(() => {});
-  window.claude = { use: async name => { await Web.ready; return name === 'db' ? webDB : name === 'user' ? webUserApi : null; } };
+  window.claude = { use: async name => { await Web.ready; return name === 'db' ? webDB : name === 'user' ? webUserApi : name === 'downloads' ? webDownloads : null; } };
 }

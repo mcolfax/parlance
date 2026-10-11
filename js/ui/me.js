@@ -152,8 +152,27 @@ function restoreBackup(){
 function webAccountRow(){
   const u = Web.session && Web.session.user;
   if (u) return h('div', { class: 'web-acct' }, h('span', { class: 'small grow' }, 'Signed in as ', h('b', null, u.email || u.name || 'you')),
+    h('button', { class: 'linkish small', type: 'button', onclick: openWebName }, 'Change your name'),
     h('button', { class: 'linkish small', type: 'button', onclick: async () => { await webSignOut(); saveLocal(); webReload(); } }, 'Sign out'));
   return h('div', { class: 'web-acct' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openWebSignIn('in') }, 'Sign in or create an account'));
+}
+function openWebName(){
+  const input = h('input', { class: 'input', type: 'text', maxlength: '40', autocomplete: 'given-name', 'aria-label': 'Your name', value: (Web.session && Web.session.user && Web.session.user.name) || '' });
+  sheet('Your name', h('div', { class: 'field' }, h('p', { class: 'small muted' }, 'Pip greets you by your first name.'), input),
+    [{ label: 'Cancel' }, { label: 'Save', primary: true, run: async () => {
+      const n = input.value.trim(); if (!n){ toast('Add your name'); return true; }
+      try { const u = await webUpdateUser({ data: { name: n } }); Me.name = u.name; render(); toast('Name saved'); }
+      catch (e){ toast(webSignInError(e)); return true; }
+    } }]);
+}
+function openWebNewPassword(){
+  const input = h('input', { class: 'input', type: 'password', autocomplete: 'new-password', placeholder: 'New password (8 or more characters)', 'aria-label': 'New password' });
+  sheet('Set a new password', h('div', { class: 'field' }, h('p', { class: 'small muted' }, 'You’re signed in. Choose a new password for next time.'), input),
+    [{ label: 'Not now' }, { label: 'Save password', primary: true, run: async () => {
+      if (input.value.length < 8){ toast('Choose a password with 8 or more characters'); return true; }
+      try { await webUpdateUser({ password: input.value }); toast('Password changed'); }
+      catch (e){ toast(webSignInError(e)); return true; }
+    } }]);
 }
 function webHomeScreenCard(){
   if (webStandalone() || !(webIOS() || Web.install)) return null;
@@ -175,7 +194,8 @@ function webSignInError(e){
     weak_password: 'Choose a stronger password, 8 characters or more.', email_address_invalid: 'That email address doesn’t look right.',
     email_not_confirmed: 'This account’s email hasn’t been confirmed yet, so it can’t sign in.', confirm: 'Your account was made, but its email needs confirming before you can sign in.',
     over_request_rate_limit: 'Too many tries. Wait a minute, then try again.', over_email_send_rate_limit: 'Too many tries. Wait a minute, then try again.',
-    signup_disabled: 'New accounts are turned off right now.', email_address_not_authorized: 'New accounts aren’t open yet. Try again later.', unavailable: 'Couldn’t reach Parlance’s server. Check your connection and try again.'
+    signup_disabled: 'New accounts are turned off right now.', email_address_not_authorized: 'New accounts aren’t open yet. Try again later.',
+    same_password: 'That’s your current password. Choose a new one.', unavailable: 'Couldn’t reach Parlance’s server. Check your connection and try again.'
   };
   return why[e && e.reason] || why[e && e.code] || (e && e.message) || 'Something went wrong. Try again.';
 }
@@ -187,11 +207,17 @@ function openWebSignIn(mode){
   const msg = h('p', { class: 'small web-msg', role: 'status', 'aria-live': 'polite' });
   const go = h('button', { class: 'btn btn-primary btn-wide', type: 'button' });
   const swap = h('button', { class: 'linkish small', type: 'button', style: 'align-self:center' });
+  const forgot = h('button', { class: 'linkish small', type: 'button', style: 'align-self:flex-start', onclick: async () => {
+    const e = email.value.trim();
+    if (!/^\S+@\S+\.\S+$/.test(e)) return void (msg.textContent = 'Enter your email address, then tap Forgot your password again.');
+    try { await webRecover(e); msg.textContent = 'If there’s an account for that email, a link to set a new password is on its way.'; }
+    catch (er){ msg.textContent = er && er.reason === 'email_address_not_authorized' ? 'Password reset emails aren’t set up yet. Ask whoever shared Parlance with you to reset it.' : webSignInError(er); }
+  } }, 'Forgot your password?');
   const google = h('button', { class: 'btn btn-quiet btn-wide', type: 'button', hidden: true, onclick: () => { msg.textContent = 'Opening Google…'; saveLocal(); webGoogle(); } }, 'Continue with Google');
   const or = h('div', { class: 'web-or', hidden: true }, 'or');
-  const form = h('div', { class: 'field' }, name, email, pass, go);
+  const form = h('div', { class: 'field' }, name, email, pass, go, forgot);
   const draw = () => {
-    name.hidden = !up; pass.autocomplete = up ? 'new-password' : 'current-password'; pass.placeholder = up ? 'Password (8 or more characters)' : 'Password';
+    name.hidden = !up; forgot.hidden = up; pass.autocomplete = up ? 'new-password' : 'current-password'; pass.placeholder = up ? 'Password (8 or more characters)' : 'Password';
     go.textContent = up ? 'Create account' : 'Sign in'; swap.textContent = up ? 'I already have an account' : 'New here? Create an account'; msg.textContent = '';
   };
   const submit = async () => {

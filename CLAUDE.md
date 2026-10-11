@@ -6,7 +6,7 @@ Parlance is Matt's own German and Latin American Spanish course, a replacement f
 
 There is also a **web version** for people without Claude at **https://parlance-iota.vercel.app**. Vercel (project `parlance`) builds it from `main` with `node dev/web.js` (see `vercel.json`). Its accounts and database are the Supabase project **Parlance** (`ibrweunxigetiazzuwiz`). The tutor features (Talk, lessons on demand, tutor grading, Studio synthesis) stay Claude-only. See "Two homes" in `docs/ARCHITECTURE.md`.
 
-Design options Matt is reviewing (styles, Pip, cast) are in Claude Design: https://claude.ai/artifact/Qzi2d6c6LteToAfVtkPqJd, with notes and concept-art sources in `design/`.
+The look is **Selva** (built in 4.4.0). The remaining design choices (Pip and the cast style) are in Claude Design: https://claude.ai/artifact/Qzi2d6c6LteToAfVtkPqJd, with notes and concept-art sources in `design/`.
 
 Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and explains live content, the feedback loop and the theme song.
 

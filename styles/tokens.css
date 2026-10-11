@@ -4,36 +4,40 @@
    screen follows. Light values sit on :root, dark values in the two dark blocks below (system dark
    mode and the explicit dark toggle), and the language line color swaps with data-lang.
    See styleguide.html for all of them rendered.
+   The look is "Selva" (jungle pop): leaf-green ground, palm green for German, mango for Spanish,
+   Fredoka headings and Nunito for reading, chunky buttons that sit on a solid edge.
    ========================================================== */
 :root{
-  --bg:#EBF0EF; --surface:#FFFFFF; --surface-2:#F3F6F5; --ink:#11242A; --muted:#536A6E; --hair:#D0DBD9; --hair-2:#E2E9E8;
-  --de:#0B6470; --de-ink:#FFFFFF; --de-text:#0B6470; --de-soft:#D7EBED; --de-glow:rgb(11 100 112 / .22);
-  --es:#DE9D08; --es-ink:#1F1600; --es-text:#865C00; --es-soft:#FAEDCB; --es-glow:rgb(222 157 8 / .28);
-  --ok:#15724D; --ok-bg:#DBF0E4; --bad:#B02C25; --bad-bg:#F9E2DF; --warn:#835500; --warn-bg:#FFEFC9;
+  --bg:#F3F7EC; --surface:#FFFFFF; --surface-2:#F9FBF5; --ink:#15301F; --muted:#4F6B57; --hair:#D6E3CF; --hair-2:#E6EFDD;
+  --de:#1F8A4C; --de-ink:#FFFFFF; --de-text:#17713D; --de-soft:#DDF1E3; --de-glow:rgb(31 138 76 / .24); --de-edge:#14633A; --de-soft-edge:#B9DEC5;
+  --es:#FF8A1F; --es-ink:#2A1600; --es-text:#9A4A00; --es-soft:#FFE9D2; --es-glow:rgb(255 138 31 / .28); --es-edge:#C9640A; --es-soft-edge:#F5CFA8;
+  --ok:#11643A; --ok-bg:#DDF4E4; --bad:#A3231B; --bad-bg:#FFE3DE; --warn:#7A5A00; --warn-bg:#FFF3C4;
+  --flame:#E8412C; --sun:#FFD23F;
   --der:#2360C6; --die:#C22E29; --das:#1A8448; --pl:#7847B3;
   --gold:#B8860B;
   --pip-face:#FBFEFD; --pip-ink:#13262B; --ice:#CFE6F7;
   --sc-warm:#E9A23B; --sc-red:#D9604C; --sc-sage:#7FB5A0; --sc-night:#1C2D3B; --sc-house:#C9D6D4; --sc-glow:rgb(255 214 120 / .38); --sc-glowbox:#FFE9B8; --sc-crate:#B98A5A; --sc-moon:#F5E7B5;
-  --shadow:0 1px 2px rgb(17 36 42 / .06), 0 10px 28px rgb(17 36 42 / .08);
-  --shadow-lg:0 2px 6px rgb(17 36 42 / .08), 0 24px 60px rgb(17 36 42 / .14);
-  --display:"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --body:"Atkinson Hyperlegible", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --r:16px;
+  --edge:0 2px 0 var(--hair);   /* the soft ledge under cards */
+  --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(21 48 31 / .08);
+  --shadow-lg:0 2px 6px rgb(21 48 31 / .10), 0 24px 60px rgb(21 48 31 / .18);
+  --display:"Fredoka", ui-rounded, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body:"Nunito", ui-rounded, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r:22px;
   --ease:cubic-bezier(.2,.8,.2,1);
   --spring:cubic-bezier(.2,1.4,.4,1);
   /* type roles: use as  font: var(--type-…)  */
-  --type-eyebrow:700 12px/1.2 var(--body);
-  --type-label:700 14px/1.3 var(--body);
-  --type-small:400 14px/1.45 var(--body);
+  --type-eyebrow:800 12px/1.2 var(--body);
+  --type-label:800 14px/1.3 var(--body);
+  --type-small:600 14px/1.45 var(--body);
   --type-body:400 17px/1.5 var(--body);
-  --type-button:700 17px/1.1 var(--body);
-  --type-title-s:760 19px/1.2 var(--display);
-  --type-title:760 22px/1.15 var(--display);
-  --type-h2:720 28px/1.12 var(--display);
-  --type-h1:780 34px/1.05 var(--display);
-  --type-num:780 26px/1 var(--display);
+  --type-button:600 18px/1.1 var(--display);
+  --type-title-s:600 19px/1.2 var(--display);
+  --type-title:600 22px/1.15 var(--display);
+  --type-h2:700 28px/1.1 var(--display);
+  --type-h1:700 34px/1.05 var(--display);
+  --type-num:700 26px/1 var(--display);
   /* radii */
-  --r-xs:8px; --r-sm:11px; --r-md:14px; --r-lg:20px; --r-xl:24px; --r-pill:999px;
+  --r-xs:10px; --r-sm:14px; --r-md:18px; --r-lg:24px; --r-xl:26px; --r-pill:999px;
   /* spacing */
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px;
   /* motion */
@@ -44,33 +48,35 @@
   --pip-belly:color-mix(in srgb, var(--line) 36%, #fff); --pip-wing:color-mix(in srgb, var(--line) 72%, #000);
   --pip-accent:#E4572E; --pip-accent-2:#F2B544; --pip-beak:#F6E9D2; --pip-feet:#8D99A6;
   /* intro film (always dark, like a cinema) */
-  --film-bg:#0F2329; --film-ink:#F4FBFA; --film-muted:#9FB7BA; --film-card:#183840;
-  --line:var(--de); --line-ink:var(--de-ink); --line-text:var(--de-text); --line-soft:var(--de-soft); --line-glow:var(--de-glow);
+  --film-bg:#10241A; --film-ink:#F3FAF0; --film-muted:#A3BFA9; --film-card:#1A3A28; --film-line:#43BF73;
+  --line:var(--de); --line-ink:var(--de-ink); --line-text:var(--de-text); --line-soft:var(--de-soft); --line-glow:var(--de-glow); --line-edge:var(--de-edge); --line-soft-edge:var(--de-soft-edge);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0A1315; --surface:#121F23; --surface-2:#172729; --ink:#E0EAEA; --muted:#8BA0A2; --hair:#233539; --hair-2:#1B2C30;
-    --de:#38A6B2; --de-ink:#03181B; --de-text:#66C6D0; --de-soft:#13333A; --de-glow:rgb(56 166 178 / .28);
-    --es:#F0B42C; --es-ink:#211700; --es-text:#F4C657; --es-soft:#382D11; --es-glow:rgb(240 180 44 / .26);
-    --ok:#5DD49B; --ok-bg:#0E3125; --bad:#FF8C83; --bad-bg:#391714; --warn:#F2C25B; --warn-bg:#33280F;
+    --bg:#0D1A12; --surface:#15251B; --surface-2:#1A2D21; --ink:#E4F0E2; --muted:#9BB5A0; --hair:#27402F; --hair-2:#1E3326;
+    --de:#43BF73; --de-ink:#04170B; --de-text:#6FD796; --de-soft:#153824; --de-glow:rgb(67 191 115 / .26); --de-edge:#2A8A50; --de-soft-edge:#0E2A19;
+    --es:#FF9D45; --es-ink:#2A1600; --es-text:#FFB877; --es-soft:#3A2510; --es-glow:rgb(255 157 69 / .26); --es-edge:#C9640A; --es-soft-edge:#2A1A0A;
+    --ok:#6BD99A; --ok-bg:#103222; --bad:#FF8C7F; --bad-bg:#3A1714; --warn:#F5CF5B; --warn-bg:#332A0E;
+    --flame:#FF6A4D; --sun:#FFD84F;
     --der:#7BA8FF; --die:#FF7C75; --das:#5FD48F; --pl:#C49CFF; --gold:#E8B84A;
     --pip-face:#EAF3F2; --pip-ink:#0D1B1F; --ice:#1D3A52;
     --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
-    --shadow:0 1px 2px rgb(0 0 0 / .35), 0 10px 28px rgb(0 0 0 / .28);
+    --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(0 0 0 / .3);
     --shadow-lg:0 2px 6px rgb(0 0 0 / .4), 0 24px 60px rgb(0 0 0 / .45);
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0A1315; --surface:#121F23; --surface-2:#172729; --ink:#E0EAEA; --muted:#8BA0A2; --hair:#233539; --hair-2:#1B2C30;
-  --de:#38A6B2; --de-ink:#03181B; --de-text:#66C6D0; --de-soft:#13333A; --de-glow:rgb(56 166 178 / .28);
-  --es:#F0B42C; --es-ink:#211700; --es-text:#F4C657; --es-soft:#382D11; --es-glow:rgb(240 180 44 / .26);
-  --ok:#5DD49B; --ok-bg:#0E3125; --bad:#FF8C83; --bad-bg:#391714; --warn:#F2C25B; --warn-bg:#33280F;
+  --bg:#0D1A12; --surface:#15251B; --surface-2:#1A2D21; --ink:#E4F0E2; --muted:#9BB5A0; --hair:#27402F; --hair-2:#1E3326;
+  --de:#43BF73; --de-ink:#04170B; --de-text:#6FD796; --de-soft:#153824; --de-glow:rgb(67 191 115 / .26); --de-edge:#2A8A50; --de-soft-edge:#0E2A19;
+  --es:#FF9D45; --es-ink:#2A1600; --es-text:#FFB877; --es-soft:#3A2510; --es-glow:rgb(255 157 69 / .26); --es-edge:#C9640A; --es-soft-edge:#2A1A0A;
+  --ok:#6BD99A; --ok-bg:#103222; --bad:#FF8C7F; --bad-bg:#3A1714; --warn:#F5CF5B; --warn-bg:#332A0E;
+  --flame:#FF6A4D; --sun:#FFD84F;
   --der:#7BA8FF; --die:#FF7C75; --das:#5FD48F; --pl:#C49CFF; --gold:#E8B84A;
   --pip-face:#EAF3F2; --pip-ink:#0D1B1F; --ice:#1D3A52;
   --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
-  --shadow:0 1px 2px rgb(0 0 0 / .35), 0 10px 28px rgb(0 0 0 / .28);
+  --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(0 0 0 / .3);
   --shadow-lg:0 2px 6px rgb(0 0 0 / .4), 0 24px 60px rgb(0 0 0 / .45);
   color-scheme:dark;
 }
-:root[data-lang="es"]{ --line:var(--es); --line-ink:var(--es-ink); --line-text:var(--es-text); --line-soft:var(--es-soft); --line-glow:var(--es-glow); }
+:root[data-lang="es"]{ --line:var(--es); --line-ink:var(--es-ink); --line-text:var(--es-text); --line-soft:var(--es-soft); --line-glow:var(--es-glow); --line-edge:var(--es-edge); --line-soft-edge:var(--es-soft-edge); }

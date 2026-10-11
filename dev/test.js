@@ -75,7 +75,7 @@ function fakeClaude(store, opts = {}){
 }
 /* fake Supabase (Auth + the SQL functions in dev/supabase.sql, with the same access rules) for the web version */
 function fakeSupabase(store, opts = {}){
-  const users = new Map(), tokens = new Map(), refresh = new Map(), owners = new Set(), profiles = new Map(); let n = 0;
+  const users = new Map(), tokens = new Map(), refresh = new Map(), owners = new Set(), profiles = new Map(), recovers = []; let n = 0;
   const pub = u => ({ id: u.id, email: u.email, user_metadata: u.meta });
   const issue = id => { const at = 'at' + (++n), rt = 'rt' + n; tokens.set(at, id); refresh.set(rt, id); return { access_token: at, refresh_token: rt, token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: pub(users.get(id)) }; };
   const canRead = (p, me) => { const s = p.split('/'); if (s[0] === 'content' && s.length === 2) return true; if (!me) return false;
@@ -101,7 +101,16 @@ function fakeSupabase(store, opts = {}){
       return x ? res(200, issue(x.id)) : res(400, { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' });
     }
     if (u.pathname === '/auth/v1/token'){ const id = refresh.get(a.refresh_token); if (!id) return res(400, { code: 400, error_code: 'refresh_token_not_found', msg: 'Invalid Refresh Token' }); refresh.delete(a.refresh_token); return res(200, issue(id)); }
-    if (u.pathname === '/auth/v1/user') return me ? res(200, pub(users.get(me))) : res(401, { code: 401, error_code: 'no_authorization', msg: 'No token' });
+    if (u.pathname === '/auth/v1/user'){
+      if (!me) return res(401, { code: 401, error_code: 'no_authorization', msg: 'No token' });
+      const x = users.get(me);
+      if (init.method === 'PUT'){
+        if (a.password !== undefined){ if (a.password === x.password) return res(422, { code: 422, error_code: 'same_password', msg: 'New password should be different' }); x.password = a.password; }
+        if (a.data) x.meta = { ...x.meta, ...a.data };
+      }
+      return res(200, pub(x));
+    }
+    if (u.pathname === '/auth/v1/recover'){ recovers.push({ email: a.email, redirect: u.searchParams.get('redirect_to') }); return res(200, {}); }
     if (u.pathname === '/auth/v1/logout'){ tokens.delete(bearer); return res(204); }
     switch (u.pathname.replace('/rest/v1/rpc/', '')){
       case 'doc_get': return canRead(a.p, me) ? res(200, store.has(a.p) ? store.get(a.p) : null) : denied(a.p);
@@ -114,7 +123,7 @@ function fakeSupabase(store, opts = {}){
     }
     return res(404, { message: 'not found' });
   }
-  return { fetch, users, owners, profiles, issue };
+  return { fetch, users, owners, profiles, recovers, issue };
 }
 function storageOf(w){ const o = {}; for (let i = 0; i < w.localStorage.length; i++){ const k = w.localStorage.key(i); o[k] = w.localStorage.getItem(k); } return o; }
 
@@ -694,6 +703,8 @@ async function main(){
     ok(btn('Continue with Google') && !btn('Continue with Google').hidden, 'Google button shows when the project has it on');
     emailIn.value = 'ana@example.com'; passIn.value = 'wrong password'; btn('Sign in').click(); await sleep(40);
     ok(sh.querySelector('.web-msg').textContent.includes('don’t match'), 'wrong password explained: ' + sh.querySelector('.web-msg').textContent);
+    btn('Forgot your password?').click(); await sleep(40);
+    ok(sb.recovers.length === 1 && sb.recovers[0].email === 'ana@example.com' && /^https:\/\/parlance\.test\//.test(sb.recovers[0].redirect) && sh.querySelector('.web-msg').textContent.includes('on its way'), 'forgot password sends a reset link back to Parlance ' + JSON.stringify(sb.recovers));
     btn('New here? Create an account').click();
     ok(!nameIn.hidden && btn('Create account'), 'create-account mode asks for a name');
     nameIn.value = 'Ana'; passIn.value = 'short'; btn('Create account').click(); await sleep(20);
@@ -747,8 +758,31 @@ async function main(){
     for (let i = 0; i < 60 && W4.E('Remote.status') !== 'synced'; i++) await sleep(25);
     ok(W4.E('Remote.status') === 'synced' && W4.E('Web.session.user.id') === uid && W4.w.location.hash === '', 'Google sign-in lands signed in, URL cleaned');
     ok(W4.P.S.langs.de.done['de-1-1'], 'account progress loads on a new device');
+    // changing your name, and saving a backup file
+    W4.E('openWebName()'); await sleep(20);
+    const nameSheet = [...W4.w.document.querySelectorAll(".sheet")].pop(), newNameIn = nameSheet.querySelector("input");
+    ok(newNameIn && newNameIn.value === "Ana", "name sheet starts with your name");
+    newNameIn.value = "Anita"; [...nameSheet.querySelectorAll('button')].find(b => b.textContent === 'Save').click(); await sleep(60);
+    ok(sb.users.get(uid).meta.name === 'Anita' && sb.profiles.get(uid) === 'Anita' && W4.E('Me.name') === 'Anita', 'name changed in the account, profile and greeting');
+    let saved = null; W4.w.URL.createObjectURL = () => 'blob:parlance'; W4.w.URL.revokeObjectURL = () => {};
+    W4.w.HTMLAnchorElement.prototype.click = function(){ saved = this.download; };
+    W4.E('UI.tab="me"; render()');
+    const dlBtn = [...W4.w.document.querySelectorAll('button')].find(b => b.textContent === 'Download a backup file');
+    ok(!!dlBtn, 'the web version offers a backup file');
+    if (dlBtn){ dlBtn.click(); await sleep(120); }
+    ok(/^parlance-backup-\d{4}-\d\d-\d\d\.txt$/.test(saved || ''), 'backup file saved: ' + saved);
     ok(!W4.errors.length, 'no page errors W4 ' + JSON.stringify(W4.errors.slice(0, 3)));
     W4.dom.window.close();
+    // back from a password-reset email: signed in, then asked for a new password
+    const rt = sb.issue(uid);
+    const W5 = await makeDom({ web: sb, hash: '#access_token=' + rt.access_token + '&expires_in=3600&refresh_token=' + rt.refresh_token + '&token_type=bearer&type=recovery' });
+    for (let i = 0; i < 80 && ![...W5.w.document.querySelectorAll('.sheet h3')].some(x => x.textContent === 'Set a new password'); i++) await sleep(25);
+    const pwSheet = [...W5.w.document.querySelectorAll('.sheet')].find(s => s.querySelector('h3').textContent === 'Set a new password');
+    ok(!!pwSheet && W5.E('Web.session.user.id') === uid, 'reset link signs in and asks for a new password');
+    if (pwSheet){ pwSheet.querySelector('input').value = 'a brand new password'; [...pwSheet.querySelectorAll('button')].find(b => b.textContent === 'Save password').click(); await sleep(60); }
+    ok(sb.users.get(uid).password === 'a brand new password', 'new password saved');
+    ok(!W5.errors.length, 'no page errors W5 ' + JSON.stringify(W5.errors.slice(0, 3)));
+    W5.dom.window.close();
     // Home Screen: iPhone Safari gets the Share tip, the installed app doesn't, Chrome's install prompt becomes a button
     const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
     const homeCard = async opts => { const X = await makeDom({ web: sb, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } }, ...opts }); await sleep(60); X.E('UI.tab="me"; render()'); return X; };

@@ -38,9 +38,9 @@ function greetBlock(){
     h('h1', null, sayText(greetingWord(lang), lang), name ? ', ' + name : '', '.'),
     h('p', { class: 'muted' }, sub),
     h('div', { class: 'stats' },
-      h('div', { class: 'stat' + (st.todayMet ? ' hot' : ' cold') }, h('span', { class: 'num' }, ic('flame', 'flame'), st.count), h('span', { class: 'lbl' }, 'day streak', h('br'), h('span', { class: 'sub' }, st.freezeUsed ? 'Freeze used this week' : 'Freeze ready'))),
-      h('div', { class: 'stat' }, h('span', { class: 'num' }, ring(xp / goal, 30, 5), xp), h('span', { class: 'lbl' }, 'of ' + goal + ' XP', h('br'), h('span', { class: 'sub' }, 'today'))),
-      h('button', { class: 'stat', type: 'button', onclick: () => { UI.tab = 'review'; UI.animate = true; render(); window.scrollTo(0, 0); } }, h('span', { class: 'num' }, dueCount(lang)), h('span', { class: 'lbl' }, plural(dueCount(lang), 'review', 'reviews'), h('br'), h('span', { class: 'sub' }, 'due now')))));
+      h('div', { class: 'stat streak' + (st.todayMet ? ' hot' : ' cold') }, h('span', { class: 'num' }, ic('flame', 'flame'), st.count), h('span', { class: 'lbl' }, 'day streak', h('br'), h('span', { class: 'sub' }, st.freezeUsed ? 'Freeze used this week' : 'Freeze ready'))),
+      h('div', { class: 'stat xp' }, h('span', { class: 'num' }, ring(xp / goal, 30, 5), xp), h('span', { class: 'lbl' }, 'of ' + goal + ' XP', h('br'), h('span', { class: 'sub' }, 'today'))),
+      h('button', { class: 'stat due', type: 'button', onclick: () => { UI.tab = 'review'; UI.animate = true; render(); window.scrollTo(0, 0); } }, h('span', { class: 'num' }, dueCount(lang)), h('span', { class: 'lbl' }, plural(dueCount(lang), 'review', 'reviews'), h('br'), h('span', { class: 'sub' }, 'due now')))));
 }
 function minutesFor(l){ return Math.max(4, Math.round((l.vocab.length + l.sentences.length + l.blanks.length) * 0.4)); }
 function pipMoodNow(){

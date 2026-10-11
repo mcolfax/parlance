@@ -1,7 +1,7 @@
 "use strict";
 /* ===================== ART: Pip, cast portraits, unit signs, story scenes ===================== */
 /* Pip is a parrot: a chatty travel buddy who repeats after you. Body and head take the current
-   line color (petrol in German, saffron in Spanish); crest and tail stay warm red and gold.
+   line color (palm green in German, mango in Spanish); crest and tail stay warm red and gold.
    Moods: happy, cheer, think, oops, sleep, wow. Classes on .pip drive the motion (art.css). */
 const PIP_FACE = {
   happy: { eyes: '<ellipse cx="50" cy="42.5" rx="4.6" ry="5.4"/><ellipse cx="70" cy="42.5" rx="4.6" ry="5.4"/><circle class="p-glint" cx="51.7" cy="40.3" r="1.6"/><circle class="p-glint" cx="71.7" cy="40.3" r="1.6"/>', beak: 'closed' },
