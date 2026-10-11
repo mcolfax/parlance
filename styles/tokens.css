@@ -40,8 +40,7 @@
   --dur-fast:.15s; --dur:.3s; --dur-slow:.6s;
   /* layers */
   --z-tabs:20; --z-overlay:50; --z-sheet:80; --z-toast:90; --z-pop:95; --z-banner:100; --z-fx:120;
-  /* Pip the parrot */
-  --pip-belly:color-mix(in srgb, var(--line) 36%, #fff); --pip-wing:color-mix(in srgb, var(--line) 72%, #000);
+  /* Pip: fallbacks for any color a bird's look leaves out (see the bird rig in art.css) */
   --pip-accent:#E4572E; --pip-accent-2:#F2B544; --pip-beak:#F6E9D2; --pip-feet:#8D99A6;
   /* intro film (always dark, like a cinema) */
   --film-bg:#0F2329; --film-ink:#F4FBFA; --film-muted:#9FB7BA; --film-card:#183840;

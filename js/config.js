@@ -4,7 +4,7 @@
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
 const APP_VERSION = '4.1.0';
-const SCHEMA_VERSION = 4;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 const RELEASES = [
   { v: '4.1.0', date: '2026-10-10', title: 'Parlance has a theme song', notes: [
     'The intro film now plays our own theme song, “ABC Adventure”.',
@@ -88,6 +88,66 @@ const BADGES = [
   { id: 'early', icon: 'sun', name: 'Early bird', desc: 'Practice before 8 a.m.' },
   { id: 'night', icon: 'moon', name: 'Night owl', desc: 'Practice after 10 p.m.' }
 ];
+
+/* ===================== YOUR BIRD: presets, options and palettes =====================
+   Every mascot is a bird drawn on one shared rig (js/core/art.js), so every mood and animation works
+   for every look. A look is { size, crest, face, beak, tail, outline, marks: [], c: { part: color } }.
+   Colors a look leaves out fall back (head → body, belly and wings → shades of the body), and a look
+   with no colors at all follows the language color. Never rename a preset id: learners' choices
+   point at them. */
+const PIP_SHAPES = {
+  size: [['s', 'Small'], ['m', 'Medium'], ['l', 'Large']],
+  crest: [['tuft', 'Tuft'], ['fan', 'Fan'], ['none', 'None']],
+  face: [['patches', 'Face patches'], ['rings', 'Eye rings'], ['bare', 'Bare cheeks'], ['plain', 'Plain']],
+  beak: [['small', 'Small'], ['hook', 'Hooked'], ['big', 'Big']],
+  tail: [['short', 'Short'], ['long', 'Long']]
+};
+const PIP_MARKS = [['stripes', 'Head stripes'], ['cere', 'Nose band'], ['cheeks', 'Cheek spots'], ['throat', 'Throat spots'], ['collar', 'Collar'], ['patch', 'Shoulder patch'], ['band', 'Wing band'], ['tips', 'Wing tips']];
+/* colorable parts; `when` says which look option makes a part visible */
+const PIP_PARTS = [
+  ['body', 'Body'], ['head', 'Head'], ['belly', 'Belly'], ['wing', 'Wings'],
+  ['crest', 'Crest', l => l.crest !== 'none'], ['crest2', 'Crest tips', l => l.crest !== 'none'],
+  ['tail', 'Tail'], ['tail2', 'Under tail'],
+  ['face', 'Face', l => l.face === 'patches' || l.face === 'bare'], ['ring', 'Eye rings', l => l.face === 'rings'],
+  ['beak', 'Beak'],
+  ['mark', 'Markings', l => l.marks.some(m => m === 'cere' || m === 'cheeks' || m === 'collar')],
+  ['band', 'Wing band', l => l.marks.includes('band')], ['tip', 'Wing tips', l => l.marks.includes('tips')], ['patch', 'Shoulder patch', l => l.marks.includes('patch')]
+];
+const PIP_PRESETS = {
+  pip: { name: 'Pip', kind: 'parrot', blurb: 'Your travel buddy, redrawn.',
+    look: { size: 'm', crest: 'tuft', face: 'patches', beak: 'hook', tail: 'short', outline: true, marks: [],
+      c: { body: '#13828C', belly: '#FFF1D6', wing: '#0C5F68', crest: '#FF6B4A', crest2: '#FFC93C', tail: '#FF6B4A', tail2: '#0C5F68', face: '#FFFFFF', beak: '#F6E9D2' } } },
+  rojo: { name: 'Rojo', kind: 'scarlet macaw', blurb: 'Big, bright and never quiet.',
+    look: { size: 'l', crest: 'none', face: 'bare', beak: 'big', tail: 'long', outline: true, marks: ['band', 'tips'],
+      c: { body: '#E2352D', belly: '#EC5040', wing: '#2C6BE0', tail: '#E2352D', tail2: '#2C6BE0', face: '#FFFFFF', beak: '#F2E6D0', band: '#FFC93C', tip: '#1E3F9E' } } },
+  kiwi: { name: 'Kiwi', kind: 'budgie', blurb: 'Small, quick and always chattering.',
+    look: { size: 's', crest: 'none', face: 'plain', beak: 'small', tail: 'long', outline: true, marks: ['stripes', 'cere', 'cheeks', 'throat', 'tips'],
+      c: { body: '#7DCB45', head: '#F7D84A', belly: '#A6DE6E', wing: '#5BA232', tail: '#2E7F87', tail2: '#3D9AA3', beak: '#F2D9A0', mark: '#4F6BDF', tip: '#2B4A2A' } } },
+  kakadu: { name: 'Kakadu', kind: 'cockatoo', blurb: 'The crest shows every mood.',
+    look: { size: 'm', crest: 'fan', face: 'rings', beak: 'hook', tail: 'short', outline: true, marks: [],
+      c: { body: '#FBFAF6', belly: '#FFFFFF', wing: '#E9EAE2', crest: '#FFCF3A', crest2: '#FFE27A', tail: '#F1F1EA', tail2: '#FFE27A', ring: '#CFE8F7', beak: '#3A3A42' } } },
+  mango: { name: 'Mango', kind: 'yellow-headed amazon', blurb: 'A parrot from Mexico with a sunny head.',
+    look: { size: 'm', crest: 'none', face: 'rings', beak: 'hook', tail: 'short', outline: true, marks: ['collar', 'patch', 'tips'],
+      c: { body: '#2E9E57', head: '#FFD447', belly: '#5DBA6E', wing: '#22804A', tail: '#2E9E57', tail2: '#9CCB4E', ring: '#FFFFFF', beak: '#E9D7B5', mark: '#9CCB4E', patch: '#E2412F', tip: '#2D5FBF' } } },
+  classic: { name: 'Pip Classic', pet: 'Pip', kind: 'parrot', blurb: 'The first Pip. Takes the color of the language you’re learning.',
+    look: { size: 'm', crest: 'tuft', face: 'patches', beak: 'hook', tail: 'short', outline: false, marks: [], c: {} } }
+};
+const PIP_DEFAULT = 'pip';
+/* one-tap color sets; a palette changes colors only, never the bird's shape */
+const PIP_PALETTES = [
+  { id: 'lagoon', name: 'Lagoon', c: PIP_PRESETS.pip.look.c },
+  { id: 'scarlet', name: 'Scarlet', c: PIP_PRESETS.rojo.look.c },
+  { id: 'meadow', name: 'Meadow', c: PIP_PRESETS.kiwi.look.c },
+  { id: 'snow', name: 'Snow', c: PIP_PRESETS.kakadu.look.c },
+  { id: 'jungle', name: 'Jungle', c: PIP_PRESETS.mango.look.c },
+  { id: 'sunset', name: 'Sunset', c: { body: '#F28A2E', head: '#F6A93B', belly: '#FFE3BF', wing: '#C45A1C', crest: '#E8364F', crest2: '#FFD25A', tail: '#E8364F', tail2: '#C45A1C', face: '#FFFFFF', ring: '#FFF3D6', beak: '#3A3A42', mark: '#E8364F', band: '#FFD25A', tip: '#7A2E12', patch: '#E8364F' } },
+  { id: 'berry', name: 'Berry', c: { body: '#8B3FB5', belly: '#E9D5F7', wing: '#5E2785', crest: '#FF5FA2', crest2: '#FFC6E0', tail: '#FF5FA2', tail2: '#5E2785', face: '#FFFFFF', ring: '#FFC6E0', beak: '#F6E9D2', mark: '#FF5FA2', band: '#FFC6E0', tip: '#3A1659', patch: '#FF5FA2' } },
+  { id: 'midnight', name: 'Midnight', c: { body: '#2F4AA8', belly: '#C9D6FF', wing: '#1E2F73', crest: '#FFC93C', crest2: '#FFE48A', tail: '#1E2F73', tail2: '#4C68C9', face: '#FFFFFF', ring: '#FFD447', beak: '#3A3A42', mark: '#FFD447', band: '#FFD447', tip: '#121C47', patch: '#FFC93C' } },
+  { id: 'rose', name: 'Rose', c: { body: '#F27A98', belly: '#F7A6BA', wing: '#A3A9B2', crest: '#FFD6E0', crest2: '#FFFFFF', tail: '#A3A9B2', tail2: '#C5CAD1', face: '#FFFFFF', ring: '#FFE3EA', beak: '#F3E4D3', mark: '#C2416A', band: '#FFD6E0', tip: '#6F7782', patch: '#FFD6E0' } },
+  { id: 'language', name: 'Language color', c: {} }
+];
+/* swatches offered for each part, plus a free color picker */
+const PIP_SWATCHES = ['#13828C', '#0C5F68', '#2E9E57', '#7DCB45', '#FFD447', '#FFC93C', '#FF6B4A', '#E2352D', '#F27A98', '#8B3FB5', '#2F4AA8', '#2C6BE0', '#4F6BDF', '#CFE8F7', '#FBFAF6', '#A3A9B2', '#3A3A42', '#F6E9D2'];
 
 /* ===================== TALK SCENARIOS (cast plays each role) ===================== */
 const SCENARIOS = [

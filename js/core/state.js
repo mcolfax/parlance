@@ -8,7 +8,7 @@
 const LS_KEY = 'parlance.v2';            // keep this key: changing it would orphan everyone's local progress
 const SLICES = ['core', 'de', 'es', 'gen-de', 'gen-es'];
 function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}, start: 'A1', startTs: 0 }; }
-function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
+function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, pip: { preset: PIP_DEFAULT, name: '', look: null }, onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
 function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defaultSettings(), days: {}, badges: {}, stats: {}, langs: { de: newLang(), es: newLang() }, gen: { de: [], es: [] } }; }
 function validLesson(l){ return l && typeof l.id === 'string' && typeof l.title === 'string' && Array.isArray(l.vocab) && Array.isArray(l.sentences) && Array.isArray(l.blanks); }
 function cleanLang(x){
@@ -27,12 +27,14 @@ function cleanSettings(x){
   s.sfxVol = Math.max(0, Math.min(1, isFinite(+s.sfxVol) ? +s.sfxVol : 0.8));
   s.musicVol = Math.max(0, Math.min(1, isFinite(+s.musicVol) ? +s.musicVol : 0.6));
   s.homeMusic = s.homeMusic !== false;
+  s.pip = cleanPip(s.pip);   // the learner's bird: preset id, pet name, and their own look if they edited one
   return s;
 }
 /* Ordered, idempotent upgrade steps for saved state. Each runs once when an older save is loaded. */
 const MIGRATIONS = [
   { to: 3, run: st => { st.badges = obj(st.badges); st.stats = obj(st.stats); } },
-  { to: 4, run: st => { for (const l of ['de', 'es']) if (st.langs[l]) st.langs[l].cards = migrateCardKeys(st.langs[l].cards || {}); } }
+  { to: 4, run: st => { for (const l of ['de', 'es']) if (st.langs[l]) st.langs[l].cards = migrateCardKeys(st.langs[l].cards || {}); } },
+  { to: 5, run: st => { st.settings.pip = cleanPip(st.settings.pip); } }   // everyone starts with the redrawn Pip
 ];
 function migrate(st){
   const from = +st.v || 1;

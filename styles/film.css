@@ -54,8 +54,8 @@
 .cf0{fill:#F0B42C}.cf1{fill:#2FA3AE}.cf2{fill:#E4572E}.cf3{fill:#fff}
 .f-end{font:800 32px var(--display);text-anchor:middle}
 .f-end.de{fill:#5CC3CD}.f-end.es{fill:#F4C657}.f-end.en{font-size:22px;fill:var(--film-ink)}
-/* Pip in the film takes the German line color for its body */
-.film-svg .pip{--line:#2FA3AE;--pip-belly:color-mix(in srgb, #2FA3AE 36%, #fff);--pip-wing:color-mix(in srgb, #2FA3AE 72%, #000)}
+/* a bird with no body color of its own (Pip Classic) takes the German line color in the film */
+.film-svg .pip{--line:#2FA3AE}
 /* onboarding film card */
 .film-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;padding:12px 14px;border-radius:var(--r-lg);background:var(--film-bg);color:var(--film-ink);font:inherit;box-shadow:var(--shadow);transition:transform .15s var(--ease)}
 .film-card:active{transform:scale(.98)}

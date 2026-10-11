@@ -28,6 +28,7 @@ function viewMe(){
     h('div', { class: 'stat' }, h('span', { class: 'num' }, lessonsDone), h('span', { class: 'lbl' }, plural(lessonsDone, 'lesson') + ' done')),
     h('div', { class: 'stat' }, h('span', { class: 'num' }, words), h('span', { class: 'lbl' }, plural(words, 'word') + ' learned')),
     h('div', { class: 'stat' }, h('span', { class: 'num' }, storiesRead), h('span', { class: 'lbl' }, plural(storiesRead, 'story', 'stories') + ' read'))));
+  v.append(buddyCard());
   v.append(streakCalendar(st));
   v.append(badgesCard());
   const t = today(); const days = [...Array(7)].map((_, i) => addDays(t, i - 6));
@@ -60,7 +61,7 @@ function viewMe(){
         oninput: e => { S.settings.musicVol = +e.target.value; previewSong(); clearTimeout(viewMe.mt); viewMe.mt = setTimeout(() => touchSettings(), 250); } }), h('span', { class: 'small muted' }, 'Loud')),
       h('p', { class: 'small muted' }, 'Also sets the music in the intro film.')) : null));
   v.append(h('section', { class: 'card about' },
-    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('happy', 58, { cls: 'about-pip' }), h('div', { class: 'grow' }, h('h3', null, 'Parlance ' + APP_VERSION), h('p', { class: 'small muted' }, 'Tell Pip what to improve. Every note is read, grouped and turned into updates.'))),
+    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('happy', 58, { cls: 'about-pip' }), h('div', { class: 'grow' }, h('h3', null, 'Parlance ' + APP_VERSION), h('p', { class: 'small muted' }, 'Tell ' + pipName() + ' what to improve. Every note is read, grouped and turned into updates.'))),
     h('div', { class: 'about-actions' },
       h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openFeedback() }, ic('heart'), 'Send feedback'),
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => openFilm() }, ic('play'), 'Watch the intro film'),

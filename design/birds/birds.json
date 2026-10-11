@@ -1,0 +1,1573 @@
+{
+ "pip": {
+  "palette": {
+   "bg": "#F1F4E5",
+   "shadow": "#D6E0CB",
+   "teal": "#00787D",
+   "tealD": "#066E73",
+   "hi": "#67BBBA",
+   "cream": "#F7F1D7",
+   "white": "#FDFDF8",
+   "ink": "#052B1A",
+   "ink2": "#051E12",
+   "orange": "#F5B443",
+   "orangeHi": "#FCC660",
+   "red": "#EA6138",
+   "redD": "#D4582C",
+   "grey": "#808B86",
+   "mouth": "#41281A",
+   "shadow2": "#B8C6B4",
+   "sweat": "#8FD3F0",
+   "sweatHi": "#CDEFFB"
+  },
+  "regions": {
+   "body": "teal",
+   "head": "teal",
+   "wing": "teal",
+   "belly": "cream",
+   "face": "cream",
+   "crest": "red",
+   "crest2": "orange",
+   "tail": "red",
+   "tail2": "redD",
+   "beak": "orange",
+   "feet": "grey"
+  },
+  "poses": {
+   "happy": {
+    "box": [
+     40,
+     50,
+     320,
+     550
+    ],
+    "parts": [
+     {
+      "name": "eyeL",
+      "area": {
+       "ellipse": [
+        154,
+        260,
+        27,
+        33
+       ]
+      },
+      "inkIn": true,
+      "map": {
+       "white": "#fff",
+       "cream": "face",
+       "teal": "skip"
+      }
+     },
+     {
+      "name": "eyeR",
+      "area": {
+       "ellipse": [
+        258,
+        254,
+        23,
+        34
+       ]
+      },
+      "inkIn": true,
+      "map": {
+       "white": "#fff",
+       "cream": "face",
+       "teal": "skip"
+      }
+     },
+     {
+      "name": "browL",
+      "area": {
+       "poly": [
+        [
+         124,
+         178
+        ],
+        [
+         160,
+         176
+        ],
+        [
+         162,
+         199
+        ],
+        [
+         124,
+         201
+        ]
+       ]
+      },
+      "inkOnly": true
+     },
+     {
+      "name": "browR",
+      "area": {
+       "poly": [
+        [
+         243,
+         172
+        ],
+        [
+         281,
+         172
+        ],
+        [
+         281,
+         195
+        ],
+        [
+         243,
+         195
+        ]
+       ]
+      },
+      "inkOnly": true
+     },
+     {
+      "name": "beak",
+      "area": {
+       "ellipse": [
+        212,
+        284,
+        34,
+        43
+       ]
+      },
+      "inkIn": true,
+      "map": {
+       "orange": "beak",
+       "orangeHi": "beak:l",
+       "mouth": "=b-mouth",
+       "red": "=b-tongue",
+       "redD": "=b-tongue",
+       "teal": "skip",
+       "tealD": "skip"
+      }
+     },
+     {
+      "name": "face",
+      "area": {
+       "union": [
+        {
+         "ellipse": [
+          143,
+          257,
+          45,
+          54
+         ]
+        },
+        {
+         "ellipse": [
+          266,
+          250,
+          40,
+          54
+         ]
+        }
+       ]
+      },
+      "map": {
+       "cream": "face",
+       "white": "face",
+       "teal": "skip",
+       "tealD": "skip",
+       "hi": "skip"
+      }
+     },
+     {
+      "name": "head",
+      "area": {
+       "ellipse": [
+        193,
+        241,
+        120,
+        104
+       ]
+      },
+      "base": "head",
+      "complete": {
+       "ellipse": [
+        193,
+        241,
+        112,
+        96
+       ]
+      },
+      "map": {
+       "teal": "head",
+       "tealD": "head:d",
+       "hi": "head:l",
+       "cream": "face",
+       "white": "face"
+      }
+     },
+     {
+      "name": "crestA",
+      "area": {
+       "poly": [
+        [
+         112,
+         98
+        ],
+        [
+         162,
+         92
+        ],
+        [
+         196,
+         150
+        ],
+        [
+         116,
+         152
+        ]
+       ]
+      },
+      "base": "crest2",
+      "map": {
+       "orange": "crest2",
+       "orangeHi": "crest2:l",
+       "red": "crest"
+      }
+     },
+     {
+      "name": "crestC",
+      "area": {
+       "poly": [
+        [
+         208,
+         86
+        ],
+        [
+         270,
+         84
+        ],
+        [
+         264,
+         154
+        ],
+        [
+         204,
+         154
+        ]
+       ]
+      },
+      "base": "crest2",
+      "map": {
+       "orange": "crest2",
+       "orangeHi": "crest2:l",
+       "red": "crest"
+      }
+     },
+     {
+      "name": "crestB",
+      "area": {
+       "poly": [
+        [
+         156,
+         52
+        ],
+        [
+         226,
+         52
+        ],
+        [
+         218,
+         156
+        ],
+        [
+         168,
+         156
+        ]
+       ]
+      },
+      "base": "crest",
+      "map": {
+       "red": "crest",
+       "redD": "crest:d",
+       "orange": "crest2",
+       "orangeHi": "crest:l",
+       "white": "crest:l",
+       "cream": "crest:l"
+      }
+     },
+     {
+      "name": "wingL",
+      "area": {
+       "poly": [
+        [
+         80,
+         372
+        ],
+        [
+         100,
+         356
+        ],
+        [
+         132,
+         350
+        ],
+        [
+         164,
+         356
+        ],
+        [
+         168,
+         384
+        ],
+        [
+         166,
+         446
+        ],
+        [
+         146,
+         470
+        ],
+        [
+         100,
+         472
+        ],
+        [
+         76,
+         430
+        ]
+       ]
+      },
+      "base": "wing",
+      "map": {
+       "teal": "wing",
+       "tealD": "wing:d",
+       "hi": "wing:l"
+      }
+     },
+     {
+      "name": "wingR",
+      "area": {
+       "poly": [
+        [
+         236,
+         352
+        ],
+        [
+         270,
+         346
+        ],
+        [
+         300,
+         352
+        ],
+        [
+         312,
+         380
+        ],
+        [
+         306,
+         440
+        ],
+        [
+         284,
+         470
+        ],
+        [
+         252,
+         468
+        ],
+        [
+         236,
+         440
+        ]
+       ]
+      },
+      "base": "wing",
+      "map": {
+       "teal": "wing",
+       "tealD": "wing:d",
+       "hi": "wing:l"
+      }
+     },
+     {
+      "name": "footL",
+      "area": {
+       "poly": [
+        [
+         100,
+         486
+        ],
+        [
+         172,
+         486
+        ],
+        [
+         172,
+         542
+        ],
+        [
+         100,
+         542
+        ]
+       ]
+      },
+      "base": "feet",
+      "map": {
+       "grey": "feet",
+       "shadow": "skip"
+      }
+     },
+     {
+      "name": "footR",
+      "area": {
+       "poly": [
+        [
+         184,
+         486
+        ],
+        [
+         266,
+         486
+        ],
+        [
+         266,
+         542
+        ],
+        [
+         184,
+         542
+        ]
+       ]
+      },
+      "base": "feet",
+      "map": {
+       "grey": "feet",
+       "shadow": "skip"
+      }
+     },
+     {
+      "name": "body",
+      "area": {
+       "poly": [
+        [
+         86,
+         330
+        ],
+        [
+         300,
+         330
+        ],
+        [
+         304,
+         420
+        ],
+        [
+         290,
+         490
+        ],
+        [
+         100,
+         496
+        ],
+        [
+         84,
+         420
+        ]
+       ]
+      },
+      "base": "body",
+      "map": {
+       "teal": "body",
+       "tealD": "body:d",
+       "hi": "body:l",
+       "cream": "belly",
+       "white": "belly"
+      },
+      "complete": {
+       "inter": [
+        {
+         "ellipse": [
+          196,
+          410,
+          94,
+          88
+         ]
+        },
+        {
+         "poly": [
+          [
+           90,
+           334
+          ],
+          [
+           300,
+           334
+          ],
+          [
+           300,
+           500
+          ],
+          [
+           90,
+           500
+          ]
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "name": "tail",
+      "area": {
+       "poly": [
+        [
+         44,
+         390
+        ],
+        [
+         112,
+         386
+        ],
+        [
+         116,
+         478
+        ],
+        [
+         44,
+         478
+        ]
+       ]
+      },
+      "base": "tail",
+      "map": {
+       "red": "tail",
+       "redD": "tail2",
+       "orange": "tail2"
+      },
+      "complete": {
+       "poly": [
+        [
+         92,
+         402
+        ],
+        [
+         130,
+         402
+        ],
+        [
+         130,
+         462
+        ],
+        [
+         92,
+         462
+        ]
+       ]
+      }
+     }
+    ]
+   },
+   "cheer": {
+    "box": [
+     352,
+     40,
+     725,
+     550
+    ],
+    "register": "head",
+    "parts": [
+     {
+      "name": "eyeL",
+      "area": {
+       "ellipse": [
+        490,
+        254,
+        33,
+        18
+       ]
+      },
+      "inkIn": true,
+      "map": {
+       "cream": "face",
+       "white": "face",
+       "teal": "skip"
+      }
+     },
+     {
+      "name": "eyeR",
+      "area": {
+       "ellipse": [
+        607,
+        240,
+        31,
+        18
+       ]
+      },
+      "inkIn": true,
+      "map": {
+       "cream": "face",
+       "white": "face",
+       "teal": "skip"
+      }
+     },
+     {
+      "name": "browL",
+      "area": {
+       "poly": [
+        [
+         462,
+         166
+        ],
+        [
+         506,
+         166
+        ],
+        [
+         506,
+         197
+        ],
+        [
+         462,
+         197
+        ]
+       ]
+      },
+      "inkOnly": true
+     },
+     {
+      "name": "browR",
+      "area": {
+       "poly": [
+        [
+         574,
+         156
+        ],
+        [
+         620,
+         156
+        ],
+        [
+         620,
+         186
+        ],
+        [
+         574,
+         186
+        ]
+       ]
+      },
+      "inkOnly": true
+     },
+     {
+      "name": "beak",
+      "area": {
+       "ellipse": [
+        551,
+        267,
+        35,
+        44
+       ]
+      },
+      "inkIn": true,
+      "map": {
+       "orange": "beak",
+       "orangeHi": "beak:l",
+       "mouth": "=b-mouth",
+       "red": "=b-tongue",
+       "redD": "=b-tongue",
+       "teal": "skip",
+       "tealD": "skip"
+      }
+     },
+     {
+      "name": "face",
+      "area": {
+       "union": [
+        {
+         "ellipse": [
+          487,
+          240,
+          42,
+          52
+         ]
+        },
+        {
+         "ellipse": [
+          605,
+          228,
+          39,
+          52
+         ]
+        }
+       ]
+      },
+      "map": {
+       "cream": "face",
+       "white": "face",
+       "teal": "skip",
+       "tealD": "skip",
+       "hi": "skip"
+      }
+     },
+     {
+      "name": "head",
+      "area": {
+       "ellipse": [
+        539,
+        239,
+        116,
+        107
+       ]
+      },
+      "base": "head",
+      "complete": {
+       "ellipse": [
+        539,
+        239,
+        108,
+        99
+       ]
+      },
+      "map": {
+       "teal": "head",
+       "tealD": "head:d",
+       "hi": "head:l",
+       "cream": "face",
+       "white": "face"
+      }
+     },
+     {
+      "name": "crestA",
+      "area": {
+       "poly": [
+        [
+         458,
+         86
+        ],
+        [
+         505,
+         84
+        ],
+        [
+         545,
+         140
+        ],
+        [
+         462,
+         142
+        ]
+       ]
+      },
+      "base": "crest2",
+      "map": {
+       "orange": "crest2",
+       "orangeHi": "crest2:l",
+       "red": "crest",
+       "white": "crest2:l",
+       "cream": "crest2:l"
+      }
+     },
+     {
+      "name": "crestC",
+      "area": {
+       "poly": [
+        [
+         552,
+         72
+        ],
+        [
+         610,
+         70
+        ],
+        [
+         606,
+         146
+        ],
+        [
+         548,
+         146
+        ]
+       ]
+      },
+      "base": "crest2",
+      "map": {
+       "orange": "crest2",
+       "orangeHi": "crest2:l",
+       "red": "crest",
+       "white": "crest2:l",
+       "cream": "crest2:l"
+      }
+     },
+     {
+      "name": "crestB",
+      "area": {
+       "poly": [
+        [
+         498,
+         44
+        ],
+        [
+         566,
+         44
+        ],
+        [
+         562,
+         146
+        ],
+        [
+         506,
+         146
+        ]
+       ]
+      },
+      "base": "crest",
+      "map": {
+       "red": "crest",
+       "redD": "crest:d",
+       "orange": "crest2",
+       "orangeHi": "crest:l",
+       "white": "crest:l",
+       "cream": "crest:l"
+      }
+     },
+     {
+      "name": "wingL",
+      "area": {
+       "poly": [
+        [
+         352,
+         185
+        ],
+        [
+         455,
+         185
+        ],
+        [
+         470,
+         250
+        ],
+        [
+         505,
+         320
+        ],
+        [
+         522,
+         372
+        ],
+        [
+         482,
+         388
+        ],
+        [
+         420,
+         384
+        ],
+        [
+         362,
+         348
+        ],
+        [
+         350,
+         260
+        ]
+       ]
+      },
+      "base": "wing",
+      "map": {
+       "teal": "wing",
+       "tealD": "wing:d",
+       "hi": "wing:l"
+      }
+     },
+     {
+      "name": "wingR",
+      "area": {
+       "poly": [
+        [
+         588,
+         185
+        ],
+        [
+         724,
+         185
+        ],
+        [
+         724,
+         300
+        ],
+        [
+         706,
+         352
+        ],
+        [
+         652,
+         388
+        ],
+        [
+         602,
+         390
+        ],
+        [
+         588,
+         372
+        ],
+        [
+         600,
+         320
+        ],
+        [
+         612,
+         250
+        ]
+       ]
+      },
+      "base": "wing",
+      "map": {
+       "teal": "wing",
+       "tealD": "wing:d",
+       "hi": "wing:l"
+      }
+     },
+     {
+      "name": "footL",
+      "area": {
+       "poly": [
+        [
+         442,
+         488
+        ],
+        [
+         532,
+         488
+        ],
+        [
+         532,
+         548
+        ],
+        [
+         442,
+         548
+        ]
+       ]
+      },
+      "base": "feet",
+      "map": {
+       "grey": "feet"
+      }
+     },
+     {
+      "name": "footR",
+      "area": {
+       "poly": [
+        [
+         556,
+         488
+        ],
+        [
+         644,
+         488
+        ],
+        [
+         644,
+         548
+        ],
+        [
+         556,
+         548
+        ]
+       ]
+      },
+      "base": "feet",
+      "map": {
+       "grey": "feet"
+      }
+     },
+     {
+      "name": "body",
+      "area": {
+       "poly": [
+        [
+         452,
+         328
+        ],
+        [
+         632,
+         328
+        ],
+        [
+         638,
+         420
+        ],
+        [
+         628,
+         502
+        ],
+        [
+         456,
+         502
+        ],
+        [
+         450,
+         420
+        ]
+       ]
+      },
+      "base": "body",
+      "complete": {
+       "poly": [
+        [
+         478,
+         330
+        ],
+        [
+         612,
+         330
+        ],
+        [
+         618,
+         400
+        ],
+        [
+         470,
+         400
+        ]
+       ]
+      },
+      "map": {
+       "teal": "body",
+       "tealD": "body:d",
+       "hi": "body:l",
+       "cream": "belly",
+       "white": "belly"
+      }
+     },
+     {
+      "name": "tail",
+      "area": {
+       "poly": [
+        [
+         412,
+         392
+        ],
+        [
+         488,
+         392
+        ],
+        [
+         492,
+         482
+        ],
+        [
+         412,
+         482
+        ]
+       ]
+      },
+      "base": "tail",
+      "complete": {
+       "poly": [
+        [
+         462,
+         402
+        ],
+        [
+         500,
+         402
+        ],
+        [
+         500,
+         468
+        ],
+        [
+         462,
+         468
+        ]
+       ]
+      },
+      "map": {
+       "red": "tail",
+       "redD": "tail2",
+       "orange": "tail2"
+      }
+     }
+    ]
+   },
+   "oops": {
+    "box": [
+     775,
+     40,
+     1030,
+     550
+    ],
+    "register": "head",
+    "parts": [
+     {
+      "name": "sweat",
+      "area": {
+       "ellipse": [
+        982,
+        224,
+        16,
+        22
+       ]
+      },
+      "map": {
+       "sweat": "#9ED8F2",
+       "sweatHi": "#E4F6FC"
+      },
+      "minBit": 30
+     },
+     {
+      "name": "eyeL",
+      "area": {
+       "ellipse": [
+        845,
+        270,
+        26,
+        31
+       ]
+      },
+      "inkIn": true,
+      "map": {
+       "white": "#fff",
+       "cream": "face",
+       "teal": "skip"
+      }
+     },
+     {
+      "name": "eyeR",
+      "area": {
+       "ellipse": [
+        940,
+        281,
+        32,
+        32
+       ]
+      },
+      "inkIn": true,
+      "map": {
+       "white": "#fff",
+       "cream": "face",
+       "teal": "skip"
+      }
+     },
+     {
+      "name": "browL",
+      "area": {
+       "poly": [
+        [
+         826,
+         190
+        ],
+        [
+         868,
+         190
+        ],
+        [
+         868,
+         222
+        ],
+        [
+         826,
+         222
+        ]
+       ]
+      },
+      "inkOnly": true
+     },
+     {
+      "name": "browR",
+      "area": {
+       "poly": [
+        [
+         914,
+         214
+        ],
+        [
+         958,
+         214
+        ],
+        [
+         958,
+         246
+        ],
+        [
+         914,
+         246
+        ]
+       ]
+      },
+      "inkOnly": true
+     },
+     {
+      "name": "beak",
+      "area": {
+       "ellipse": [
+        878,
+        303,
+        32,
+        31
+       ]
+      },
+      "inkIn": true,
+      "map": {
+       "orange": "beak",
+       "orangeHi": "beak:l",
+       "mouth": "=b-mouth",
+       "red": "=b-tongue",
+       "redD": "=b-tongue",
+       "teal": "skip",
+       "tealD": "skip"
+      }
+     },
+     {
+      "name": "face",
+      "area": {
+       "union": [
+        {
+         "ellipse": [
+          832,
+          265,
+          40,
+          52
+         ]
+        },
+        {
+         "ellipse": [
+          944,
+          283,
+          46,
+          50
+         ]
+        }
+       ]
+      },
+      "map": {
+       "cream": "face",
+       "white": "face",
+       "teal": "skip",
+       "tealD": "skip",
+       "hi": "skip"
+      }
+     },
+     {
+      "name": "head",
+      "area": {
+       "ellipse": [
+        898,
+        250,
+        118,
+        104
+       ]
+      },
+      "base": "head",
+      "map": {
+       "teal": "head",
+       "tealD": "head:d",
+       "hi": "head:l",
+       "cream": "face",
+       "white": "face"
+      },
+      "complete": {
+       "ellipse": [
+        898,
+        250,
+        110,
+        96
+       ]
+      }
+     },
+     {
+      "name": "crest",
+      "area": {
+       "poly": [
+        [
+         845,
+         60
+        ],
+        [
+         995,
+         60
+        ],
+        [
+         995,
+         160
+        ],
+        [
+         845,
+         160
+        ]
+       ]
+      },
+      "base": "crest",
+      "map": {
+       "red": "crest",
+       "redD": "crest:d",
+       "orange": "crest2",
+       "orangeHi": "crest2:l",
+       "white": "crest:l",
+       "cream": "crest:l"
+      }
+     },
+     {
+      "name": "wingL",
+      "area": {
+       "poly": [
+        [
+         796,
+         340
+        ],
+        [
+         850,
+         336
+        ],
+        [
+         872,
+         350
+        ],
+        [
+         884,
+         400
+        ],
+        [
+         884,
+         445
+        ],
+        [
+         870,
+         470
+        ],
+        [
+         820,
+         470
+        ],
+        [
+         796,
+         440
+        ],
+        [
+         794,
+         380
+        ]
+       ]
+      },
+      "base": "wing",
+      "map": {
+       "teal": "wing",
+       "tealD": "wing:d",
+       "hi": "wing:l"
+      }
+     },
+     {
+      "name": "wingR",
+      "area": {
+       "poly": [
+        [
+         886,
+         346
+        ],
+        [
+         940,
+         338
+        ],
+        [
+         968,
+         352
+        ],
+        [
+         980,
+         400
+        ],
+        [
+         976,
+         452
+        ],
+        [
+         960,
+         472
+        ],
+        [
+         900,
+         472
+        ],
+        [
+         886,
+         440
+        ],
+        [
+         884,
+         400
+        ]
+       ]
+      },
+      "base": "wing",
+      "map": {
+       "teal": "wing",
+       "tealD": "wing:d",
+       "hi": "wing:l"
+      }
+     },
+     {
+      "name": "footL",
+      "area": {
+       "poly": [
+        [
+         818,
+         488
+        ],
+        [
+         880,
+         488
+        ],
+        [
+         880,
+         546
+        ],
+        [
+         818,
+         546
+        ]
+       ]
+      },
+      "base": "feet",
+      "map": {
+       "grey": "feet"
+      }
+     },
+     {
+      "name": "footR",
+      "area": {
+       "poly": [
+        [
+         884,
+         488
+        ],
+        [
+         970,
+         488
+        ],
+        [
+         970,
+         546
+        ],
+        [
+         884,
+         546
+        ]
+       ]
+      },
+      "base": "feet",
+      "map": {
+       "grey": "feet"
+      }
+     },
+     {
+      "name": "body",
+      "area": {
+       "poly": [
+        [
+         790,
+         330
+        ],
+        [
+         985,
+         330
+        ],
+        [
+         985,
+         500
+        ],
+        [
+         790,
+         500
+        ]
+       ]
+      },
+      "base": "body",
+      "map": {
+       "teal": "body",
+       "tealD": "body:d",
+       "hi": "body:l",
+       "cream": "belly",
+       "white": "belly"
+      }
+     },
+     {
+      "name": "tail",
+      "area": {
+       "poly": [
+        [
+         955,
+         400
+        ],
+        [
+         1025,
+         400
+        ],
+        [
+         1025,
+         480
+        ],
+        [
+         955,
+         480
+        ]
+       ]
+      },
+      "base": "tail",
+      "map": {
+       "red": "tail",
+       "redD": "tail2",
+       "orange": "tail2"
+      }
+     }
+    ]
+   }
+  },
+  "name": "Pip",
+  "ow": 7,
+  "rig": {
+   "ground": [
+    186,
+    532
+   ],
+   "height": 390,
+   "cx": 193,
+   "headR": 115,
+   "bodyR": 95,
+   "ow": 7,
+   "shadow": 118,
+   "pivots": {
+    "body": [
+     192,
+     488
+    ],
+    "head": [
+     193,
+     336
+    ],
+    "crest": [
+     190,
+     150
+    ],
+    "tail": [
+     104,
+     440
+    ],
+    "wingL": [
+     132,
+     352
+    ],
+    "wingR": [
+     266,
+     350
+    ],
+    "footL": [
+     135,
+     488
+    ],
+    "footR": [
+     226,
+     486
+    ]
+   }
+  }
+ }
+}

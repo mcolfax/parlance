@@ -28,10 +28,13 @@ const fade = (a, b, c, d) => [[a, 0], [b, 1], [c, 1], [d, 0]];
 function inner(svg){ return svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, ''); }
 
 /* ----- the cast of the film ----- */
-const FILM_CAST = ['lena', 'jonas', 'weber', 'emre', 'sofia', 'diego', 'carmen', 'mateo'];
+const FILM_CAST = ['lena', 'jonas', 'weber', 'emre', 'amara', 'minh', 'leyla', 'sofia', 'diego', 'carmen', 'mateo', 'valeria', 'itzel', 'kenji'];
+const FILM_ROW = 7;   // German friends on the first row, Spanish friends on the second
+const filmCastAt = i => ({ x: 48 + (i % FILM_ROW) * 44, y: i < FILM_ROW ? 286 : 540, t: (i < FILM_ROW ? 10.0 : 12.0) + (i % FILM_ROW) * 0.24 });
+const aOrAn = w => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
 const ROUTE_PTS = [[64, 520], [116, 446], [158, 372], [204, 300], [250, 232], [296, 160]];
 const FILM_CAPTIONS = [
-  [4.8, 9.0, 'Meet Pip, a parrot who loves to repeat after you.'],
+  [4.8, 9.0, () => 'Meet ' + pipName() + ', ' + aOrAn(pipKind()) + ' who loves to repeat after you.'],
   [9.3, 15.0, 'German with friends in Berlin. Spanish with friends in Mexico City.'],
   [15.3, 21.0, 'Short lessons, real stories, and a tutor who talks back.'],
   [21.3, 26.0, 'Daily quests, streaks and badges keep you going.'],
@@ -39,7 +42,7 @@ const FILM_CAPTIONS = [
   [31.4, FILM_DUR + 1, 'Ready? Let’s go.']
 ];
 const FILM_CUES = [[0.3, 'ding'], [1.9, 'whoosh'], [5.2, 'chirp'], [6.9, 'pop'], [9.2, 'whoosh'],
-  [10.0, 'pop', 0.6], [10.4, 'pop', 0.6], [10.8, 'pop', 0.6], [11.2, 'pop', 0.6], [12.2, 'pop', 0.6], [12.6, 'pop', 0.6], [13.0, 'pop', 0.6], [13.4, 'pop', 0.6],
+  ...FILM_CAST.map((_, i) => [filmCastAt(i).t, 'pop', 0.45]),
   [15.4, 'select'], [16.6, 'select'], [17.8, 'select'], [19.0, 'select'], [21.2, 'whoosh'], [23.0, 'chest'], [23.7, 'coin'], [24.0, 'coin'], [24.3, 'coin'], [24.6, 'streak'],
   [26.3, 'whoosh'], [27.0, 'tap'], [27.6, 'tap'], [28.2, 'tap'], [28.8, 'tap'], [29.4, 'tap'], [30.2, 'level'], [31.6, 'chirp'], [33.2, 'ding']];
 
@@ -67,7 +70,7 @@ function filmScore(){
 }
 
 function filmSVG(){
-  const avatarAt = id => '<g class="f-av" id="f-av-' + id + '"><g transform="scale(0.62) translate(-32 -32)"><clipPath id="fc-' + id + '"><circle cx="32" cy="32" r="32"/></clipPath><g clip-path="url(#fc-' + id + ')">' + inner(avatarSVG(id)) + '</g><circle cx="32" cy="32" r="31" fill="none" stroke="#fff" stroke-width="3"/></g></g>';
+  const avatarAt = id => '<g class="f-av" id="f-av-' + id + '"><g transform="scale(0.6) translate(-32 -32)"><clipPath id="fc-' + id + '"><circle cx="32" cy="32" r="32"/></clipPath><g clip-path="url(#fc-' + id + ')">' + inner(avatarSVG(id)) + '</g><circle cx="32" cy="32" r="31" fill="none" stroke="#fff" stroke-width="3"/></g></g>';
   const card = (i, icon, a, b) => '<g id="f-card' + i + '"><rect x="-150" y="-36" width="300" height="72" rx="18" class="f-card"/><circle cx="-112" cy="0" r="22" class="f-card-ic"/><g transform="translate(-124 -12)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner(IC[icon]) + '</g><text x="-78" y="-4" class="f-card-a">' + a + '</text><text x="-78" y="17" class="f-card-b">' + b + '</text></g>';
   const route = ROUTE_PTS.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join(' ');
   return '<svg class="film-svg" viewBox="0 0 360 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
@@ -99,7 +102,8 @@ function filmSVG(){
     /* scene 7: end card */
     '<g id="f-end"><text x="180" y="444" class="f-end de">Los geht’s!</text><text x="180" y="482" class="f-end es">¡Vámonos!</text><text x="180" y="516" class="f-end en">Let’s go.</text></g>' +
     /* Pip on top of everything */
-    '<g id="f-bubble"><rect x="-72" y="-20" width="144" height="36" rx="18" class="f-bub"/><path d="M-6 15 L4 26 L10 15 Z" class="f-bub"/><text x="0" y="5" class="f-bub-t" id="f-bubble-t">Hi! I’m Pip.</text></g>' +
+    (() => { const hi = 'Hi! I’m ' + pipName() + '.', w = Math.max(144, Math.round(hi.length * 8.6 + 28));
+      return '<g id="f-bubble"><rect x="' + (-w / 2) + '" y="-20" width="' + w + '" height="36" rx="18" class="f-bub"/><path d="M-6 15 L4 26 L10 15 Z" class="f-bub"/><text x="0" y="5" class="f-bub-t" id="f-bubble-t">' + esc(hi) + '</text></g>'; })() +
     '<g id="f-pip"><g transform="translate(-60 -57)" class="pip happy" id="f-pip-in">' + inner(pipSVG('happy')) + '</g></g>' +
     '</svg>';
 }
@@ -113,9 +117,9 @@ function filmActors(){
   A['f-berlin'] = { o: fade(9.3, 10.0, 14.6, 15.2), y: [[9.3, -30], [10.2, 0, 'out']] };
   A['f-cdmx'] = { o: fade(9.6, 10.3, 14.6, 15.2), y: [[9.6, 30], [10.5, 0, 'out']] };
   A['f-cast'] = { o: [[9.7, 0], [9.8, 1], [14.6, 1], [15.2, 0]] };
-  FILM_CAST.forEach((id, i) => { const t = [10.0, 10.4, 10.8, 11.2, 12.2, 12.6, 13.0, 13.4][i]; A['f-av-' + id] = { x: 72 + (i % 4) * 72, y: i < 4 ? 286 : 540, s: [[t, 0.01], [t + 0.45, 1, 'back']], o: [[t, 0], [t + 0.1, 1]] }; });
-  A['f-hallo'] = { x: 72, y: 248, o: fade(11.0, 11.3, 14.3, 14.7), s: [[11.0, 0.6], [11.4, 1, 'back']] };
-  A['f-hola'] = { x: 72, y: 502, o: fade(13.6, 13.9, 14.3, 14.7), s: [[13.6, 0.6], [14.0, 1, 'back']] };
+  FILM_CAST.forEach((id, i) => { const { x, y, t } = filmCastAt(i); A['f-av-' + id] = { x, y, s: [[t, 0.01], [t + 0.45, 1, 'back']], o: [[t, 0], [t + 0.1, 1]] }; });
+  A['f-hallo'] = { x: 70, y: 250, o: fade(11.0, 11.3, 14.3, 14.7), s: [[11.0, 0.6], [11.4, 1, 'back']] };
+  A['f-hola'] = { x: 70, y: 504, o: fade(13.6, 13.9, 14.3, 14.7), s: [[13.6, 0.6], [14.0, 1, 'back']] };
   [15.4, 16.6, 17.8, 19.0].forEach((t, i) => { A['f-card' + i] = { x: [[t, 560], [t + 0.7, 180, 'back']], y: 150 + i * 92, o: [[t - 0.05, 0], [t, 1], [20.6, 1], [21.1, 0]] }; });
   A['f-chest'] = { x: 180, y: 336, s: [[21.4, 0.2], [22.1, 1, 'back'], [25.6, 1], [26.1, 0.6, 'in']], o: [[21.4, 0], [21.7, 1], [25.6, 1], [26.1, 0]] };
   [[-90, -140], [-40, -170], [10, -190], [60, -165], [100, -130]].forEach(([dx, dy], i) => { A['f-coin' + i] = { x: [[23.0, 180], [23.9 + i * 0.05, 180 + dx, 'out']], y: [[23.0, 320], [23.9 + i * 0.05, 320 + dy, 'out'], [25.6, 330 + dy]], o: [[23.0, 0], [23.1, 1], [25.4, 1], [25.9, 0]], s: 1 }; });
@@ -145,7 +149,7 @@ function openFilm(opts = {}){
   const close = h('button', { class: 'icon-btn plain f-x', type: 'button', 'aria-label': 'Close the film', html: IC.close, onclick: () => endFilm(false) });
   Film.muteBtn = h('button', { class: 'chip f-mute', type: 'button', 'aria-pressed': 'true', onclick: () => { Film.muted = !Film.muted; Film.muteBtn.setAttribute('aria-pressed', String(!Film.muted)); Film.muteBtn.replaceChildren(ic('speaker'), Film.muted ? 'Sound off' : 'Sound on'); if (Film.muted) filmMusicStop(); else if (Film.playing) filmMusicStart(); } }, ic('speaker'), 'Sound on');
   OV.head.replaceChildren(close, h('div', { class: 'ov-title grow' }, 'Welcome to Parlance'), Film.muteBtn);
-  const stage = h('div', { class: 'film-stage', html: filmSVG(), role: 'img', 'aria-label': 'Intro film: Pip the parrot shows you around Parlance' });
+  const stage = h('div', { class: 'film-stage', html: filmSVG(), role: 'img', 'aria-label': 'Intro film: ' + pipName() + ' the ' + pipKind() + ' shows you around Parlance' });
   Film.caption = h('div', { class: 'film-cap', 'aria-live': 'polite' });
   Film.big = h('button', { class: 'film-big', type: 'button', 'aria-label': 'Play', html: '<svg viewBox="0 0 24 24" width="40" height="40"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>' });
   Film.big.addEventListener('click', e => { e.stopPropagation(); filmPlay(); });
@@ -255,7 +259,7 @@ function filmRender(t){
   }
   // captions, bubble text, controls
   const cap = FILM_CAPTIONS.find(c => t >= c[0] && t < c[1]);
-  const txt = cap ? cap[2] : '';
+  const txt = cap ? (typeof cap[2] === 'function' ? cap[2]() : cap[2]) : '';
   if (Film.caption.textContent !== txt){ Film.caption.textContent = txt; Film.caption.classList.toggle('on', !!txt); }
   if (Film.range && document.activeElement !== Film.range) Film.range.value = t.toFixed(1);
   if (Film.time) Film.time.textContent = fmtTime(t) + ' / ' + fmtTime(FILM_DUR);

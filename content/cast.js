@@ -20,5 +20,8 @@ const CAST = {
             look: { skin: '#B97E58', hair: '#BDBDBD', style: 'bun', shirt: '#C22E29', bg: '#F9E2DF', earrings: true } },
   mateo:  { name: 'Mateo', lang: 'es', role: 'Musician, makes the coffee', pitch: 0.96, rate: 1.0,
             look: { skin: '#A86B48', hair: '#1E1B1A', style: 'cap', shirt: '#2360C6', bg: '#DCE6F7' } },
-  pip:    { name: 'Pip', lang: '*', role: 'Your parrot and travel buddy', pitch: 1.35, rate: 1.0 }
+  /* the learner's own bird: name, kind and voice follow their choice in Me → Your bird (art.js) */
+  pip:    { get name(){ return typeof pipName === 'function' ? pipName() : 'Pip'; }, lang: '*',
+            get role(){ return 'Your ' + (typeof pipKind === 'function' ? pipKind() : 'parrot') + ' and travel buddy'; },
+            get pitch(){ return typeof pipVoice === 'function' ? pipVoice().pitch : 1.35; }, rate: 1.0 }
 };

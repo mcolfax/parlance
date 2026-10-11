@@ -1,22 +1,59 @@
 /* ===================== ART =====================
    Pip the parrot, cast portraits, unit signs, story scenes, medals and the tap-to-translate popover.
    ================================================ */
-/* ----- Pip the parrot ----- */
+/* ----- Pip: the bird rig -----
+   A look sets --px-* colors on .p-root (art.js pipVars). Each part resolves to --pc-* here, with a
+   fallback, so any color a look leaves out still makes a sensible bird. No body color at all means
+   the bird takes the language line color (Pip Classic). */
 .pip{position:relative;display:inline-block;width:var(--pip);height:calc(var(--pip) * .95);flex:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pip-svg{width:100%;height:100%;display:block;overflow:visible}
-.p-body,.p-head{fill:var(--line)}
-.p-belly{fill:var(--pip-belly)}
-.p-wing path:first-child{fill:var(--pip-wing)}
-.p-feather{fill:none;stroke:color-mix(in srgb, var(--pip-wing) 70%, #000);stroke-width:1.6;stroke-linecap:round;opacity:.55}
-.p-tail.a,.p-crest .c1,.p-crest .c3{fill:var(--pip-accent)}
-.p-tail.b{fill:var(--pip-wing)}
-.p-crest .c2{fill:var(--pip-accent-2)}
-.p-face{fill:var(--pip-face)}
+.p-root{
+  --pc-body:var(--px-body, var(--line));
+  --pc-head:var(--px-head, var(--pc-body));
+  --pc-belly:var(--px-belly, color-mix(in srgb, var(--pc-body) 36%, #fff));
+  --pc-wing:var(--px-wing, color-mix(in srgb, var(--pc-body) 72%, #000));
+  --pc-crest:var(--px-crest, var(--pip-accent));
+  --pc-crest2:var(--px-crest2, var(--pip-accent-2));
+  --pc-tail:var(--px-tail, var(--pc-crest));
+  --pc-tail2:var(--px-tail2, var(--pc-wing));
+  --pc-face:var(--px-face, var(--pip-face));
+  --pc-ring:var(--px-ring, var(--pc-face));
+  --pc-beak:var(--px-beak, var(--pip-beak));
+  --pc-mark:var(--px-mark, var(--pc-crest2));
+  --pc-band:var(--px-band, var(--pc-crest2));
+  --pc-tip:var(--px-tip, color-mix(in srgb, var(--pc-wing) 62%, #000));
+  --pc-patch:var(--px-patch, var(--pc-crest));
+  --pc-ow:var(--px-ow, 0px);
+}
+.p-ol{stroke:var(--pip-ink);stroke-width:var(--pc-ow);stroke-linejoin:round}
+.p-body{fill:var(--pc-body)}
+.p-head{fill:var(--pc-head)}
+.p-belly{fill:var(--pc-belly)}
+.p-wingf{fill:var(--pc-wing)}
+.p-wol{fill:none}
+.p-feather{fill:none;stroke:color-mix(in srgb, var(--pc-wing) 62%, #000);stroke-width:1.6;stroke-linecap:round;opacity:.55}
+.p-tail.a{fill:var(--pc-tail)}
+.p-tail.b{fill:var(--pc-tail2)}
+.p-crest .c1{fill:var(--pc-crest)}
+.p-crest .c2{fill:var(--pc-crest2)}
+.p-crest .c3{fill:var(--pc-crest)}
+.p-face{fill:var(--pc-face)}
+.p-ring{fill:var(--pc-ring)}
+.p-bareline{fill:none;stroke:color-mix(in srgb, var(--pc-head) 70%, #000);stroke-width:1.3;stroke-linecap:round;opacity:.55}
+.p-stripes,.p-wstripes{fill:none;stroke:color-mix(in srgb, var(--pc-head) 40%, #000);stroke-width:1.9;stroke-linecap:round;opacity:.6}
+.p-wstripes{stroke:color-mix(in srgb, var(--pc-wing) 45%, #000)}
+.p-band{fill:var(--pc-band)}
+.p-tip{fill:var(--pc-tip)}
+.p-patch{fill:var(--pc-patch)}
+.p-collar{fill:var(--pc-mark)}
+.p-cheekmark{fill:var(--pc-mark)}
+.p-cere{fill:var(--pc-mark);stroke:var(--pip-ink);stroke-width:1.1;stroke-linejoin:round}
+.p-throat circle{fill:var(--pip-ink);opacity:.75}
 .p-eyes ellipse,.p-eyes circle{fill:var(--pip-ink)}
 .p-eyes .p-glint{fill:#fff}
 .p-line{fill:none;stroke:var(--pip-ink);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
 .p-line.thin{stroke-width:2.4}
-.p-beak{fill:var(--pip-beak);stroke:var(--pip-ink);stroke-width:1.8;stroke-linejoin:round}
+.p-beak{fill:var(--pc-beak);stroke:var(--pip-ink);stroke-width:1.8;stroke-linejoin:round}
 .p-beak-hi{fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;opacity:.9}
 .p-mouth{fill:#2A2F33;stroke:var(--pip-ink);stroke-width:1.4;stroke-linejoin:round}
 .p-tongue{fill:#FF8A80}
@@ -54,6 +91,11 @@
 .pip.sleep .p-z text{animation:zz 3s ease-in-out infinite}
 .pip.sleep .p-z text:nth-child(2){animation-delay:1.2s}
 .pip.think .p-crest{transform:rotate(-6deg)}
+.pip.oops .p-crest{transform:rotate(7deg) scaleY(.82);transition:transform .4s var(--ease)}
+.pip.sleep .p-crest{transform:scaleY(.7)}
+.pip.wow .cr-fan .p-crest{animation:none;transform:scale(1.12)}
+.pip.cheer .cr-fan .p-crest{animation:fanup .5s var(--spring) 2 alternate}
+@keyframes fanup{from{transform:scale(1)}to{transform:scale(1.16) rotate(-3deg)}}
 .pip.fly .p-wing.l{animation:flapL .13s linear infinite alternate}
 .pip.fly .p-wing.r{animation:flapR .13s linear infinite alternate}
 .pip.fly .p-feet{opacity:.4}
@@ -72,7 +114,6 @@
 .pip-say.up-right::after{right:auto;left:14px}
 @keyframes sayin{from{opacity:0;transform:translateX(34%) translateY(8px) scale(.8)}}
 @keyframes sayinR{from{opacity:0;transform:translateY(8px) scale(.8)}}
-.cast-av.is-pip .p-bob,.cast-av.is-pip .p-eyes{animation:none}
 /* cast portraits */
 .cast-av{display:inline-block;width:var(--av);height:var(--av);border-radius:50%;overflow:hidden;flex:none;background:var(--line-soft);vertical-align:middle}
 .cast-av svg{display:block;width:100%;height:100%}

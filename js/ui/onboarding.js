@@ -1,13 +1,14 @@
 "use strict";
 /* ===================== ONBOARDING ===================== */
-const Onb = { open: false, step: 0, lang: 'de', level: 'A1', goal: 20 };
+const Onb = { open: false, step: 0, lang: 'de', level: 'A1', goal: 20, bird: PIP_DEFAULT, birdName: '' };
+const ONB_STEPS = 6;   // welcome, language, level, goal, your bird, sound
 function openOnboarding(replay, step){
-  Object.assign(Onb, { open: true, step: step || 0, replay: !!replay, lang: S.settings.lang, level: S.langs[S.settings.lang].start || 'A1', goal: S.settings.goal });
+  Object.assign(Onb, { open: true, step: step || 0, replay: !!replay, lang: S.settings.lang, level: S.langs[S.settings.lang].start || 'A1', goal: S.settings.goal, bird: S.settings.pip.preset, birdName: S.settings.pip.name });
   openOverlay('onb'); drawOnb();
 }
 function onbHead(){
   const back = Onb.step > 0 ? h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'Back', html: IC.back, onclick: () => { Onb.step--; drawOnb(); } }) : h('span', { class: 'icon-spacer' });
-  const dots = h('div', { class: 'dots', 'aria-label': 'Step ' + (Onb.step + 1) + ' of 5' }, [0, 1, 2, 3, 4].map(i => h('i', { class: i === Onb.step ? 'on' : i < Onb.step ? 'past' : '' })));
+  const dots = h('div', { class: 'dots', 'aria-label': 'Step ' + (Onb.step + 1) + ' of ' + ONB_STEPS }, [...Array(ONB_STEPS).keys()].map(i => h('i', { class: i === Onb.step ? 'on' : i < Onb.step ? 'past' : '' })));
   const skip = Onb.replay ? h('button', { class: 'linkish small', type: 'button', onclick: () => { Onb.open = false; closeOverlay(); render(); } }, 'Close') : h('span', { class: 'icon-spacer' });
   OV.head.replaceChildren(back, dots, skip);
 }
@@ -21,12 +22,12 @@ function drawOnb(){
   const next = () => { Onb.step++; drawOnb(); };
   if (Onb.step === 0){
     swapBody(h('div', { class: 'onb-step welcome' },
-      h('div', { class: 'hero-lines', html: '<svg viewBox="0 0 340 170" width="100%" height="170"><path class="ln de" d="M30 140 C 110 140 120 60 200 60 L 310 60"/><path class="ln es" d="M30 140 C 110 140 130 120 200 120 L 310 120"/><circle class="st" cx="30" cy="140" r="9"/><circle class="st de" cx="310" cy="60" r="9"/><circle class="st es" cx="310" cy="120" r="9"/><text x="296" y="40" class="lb de" text-anchor="end">Hallo!</text><text x="296" y="148" class="lb es" text-anchor="end">¡Hola!</text></svg>' }, pip('happy', 70, { cls: 'fly-in', say: 'Hi! I’m Pip.', sayPos: 'up-right' })),
+      h('div', { class: 'hero-lines', html: '<svg viewBox="0 0 340 170" width="100%" height="170"><path class="ln de" d="M30 140 C 110 140 120 60 200 60 L 310 60"/><path class="ln es" d="M30 140 C 110 140 130 120 200 120 L 310 120"/><circle class="st" cx="30" cy="140" r="9"/><circle class="st de" cx="310" cy="60" r="9"/><circle class="st es" cx="310" cy="120" r="9"/><text x="296" y="40" class="lb de" text-anchor="end">Hallo!</text><text x="296" y="148" class="lb es" text-anchor="end">¡Hola!</text></svg>' }, pip('happy', 70, { cls: 'fly-in', say: 'Hi! I’m ' + pipName() + '.', sayPos: 'up-right' })),
       h('h1', null, 'Your own language course.'),
       h('p', { class: 'lead' }, 'German and Spanish, from first words to fluent: short lessons, smart review, stories, and a tutor who talks back.'),
       h('button', { class: 'film-card', type: 'button', onclick: () => { Onb.open = false; openFilm({ doneLabel: 'Continue', onDone: () => openOnboarding(Onb.replay, 1) }); } },
         h('span', { class: 'fc-thumb', 'aria-hidden': 'true' }, pip('cheer', 54, { tap: false }), h('span', { class: 'fc-play', html: IC.play })),
-        h('span', { class: 'fc-text' }, h('b', null, 'Watch the intro film'), h('span', { class: 'small muted' }, '35 seconds, with sound. Meet Pip and the cast.'))),
+        h('span', { class: 'fc-text' }, h('b', null, 'Watch the intro film'), h('span', { class: 'small muted' }, '35 seconds, with sound. Meet ' + pipName() + ' and the cast.'))),
       h('ul', { class: 'perks' },
         h('li', null, h('b', null, (coreOrder('de').length + coreOrder('es').length) + ' lessons'), ' from A1 to C2, written for native-level accuracy'),
         h('li', null, h('b', null, STORIES.length + ' illustrated stories'), ' with a recurring cast in Berlin and Mexico City'),
@@ -48,6 +49,14 @@ function drawOnb(){
       h('div', { class: 'opts' }, [[10, 'Casual', 'About 5 minutes a day'], [20, 'Regular', 'About 10 minutes a day'], [30, 'Serious', 'About 15 minutes a day']].map(([g, n, d], i) => h('button', { class: 'opt level-opt', type: 'button', style: '--i:' + i, 'aria-pressed': String(Onb.goal === g), onclick: () => { Onb.goal = g; sfx('tap'); drawOnb(); } },
         h('span', { class: 'cefr' }, g), h('span', null, h('span', { class: 'lo-title' }, n), h('span', { class: 'lo-sub' }, d + ' · ' + g + ' XP')))))));
     onbFoot('Continue', next);
+  } else if (Onb.step === 4){
+    const pre = pipPreset(Onb.bird);
+    const name = h('input', { class: 'input', id: 'onb-bird-name', maxlength: '16', autocomplete: 'off', autocapitalize: 'words', spellcheck: 'false', value: Onb.birdName, placeholder: pre.pet || pre.name, oninput: e => { Onb.birdName = e.target.value; } });
+    swapBody(h('div', { class: 'onb-step' }, h('h1', null, 'Choose your travel buddy'), h('p', { class: 'lead' }, 'A parrot who repeats after you and cheers you on. Tap one to pick it.'),
+      buddyPicker(Onb.bird, id => { if (Onb.birdName === (pipPreset(Onb.bird).pet || pipPreset(Onb.bird).name)) Onb.birdName = ''; Onb.bird = id; sfx('chirp'); haptic(8); drawOnb(); }),
+      h('div', { class: 'field' }, h('label', { for: 'onb-bird-name' }, 'Give it a name'), name),
+      h('p', { class: 'small muted' }, 'You can change its colors, crest, beak, size and markings any time in Me.')));
+    onbFoot('Continue', next);
   } else {
     const out = h('p', { class: 'small', 'aria-live': 'polite' });
     const play = h('button', { class: 'sound-check', type: 'button', onclick: async () => { play.classList.add('live'); out.textContent = 'Playing…'; const r = await speakTest(Onb.lang); play.classList.remove('live'); out.textContent = audioResultText(r, Onb.lang); out.className = 'small ' + (r === 'ok' ? 'good' : 'warn'); } }, h('span', { html: IC.speaker, 'aria-hidden': 'true' }), h('span', null, 'Tap to hear ', h('em', null, LANGS[Onb.lang].test)));
@@ -62,6 +71,8 @@ function drawOnb(){
 function finishOnb(){
   const lang = Onb.lang;
   S.settings.lang = lang; S.settings.goal = Onb.goal; S.settings.onboarded = true; S.settings.seenVersion = APP_VERSION;
+  const p = S.settings.pip, birdName = (Onb.birdName || '').trim();
+  S.settings.pip = cleanPip({ ...p, preset: Onb.bird, name: birdName === (pipPreset(Onb.bird).pet || pipPreset(Onb.bird).name) ? '' : birdName, look: Onb.bird === p.preset ? p.look : null });
   if (S.langs[lang].start !== Onb.level){ S.langs[lang].start = Onb.level; S.langs[lang].startTs = Date.now(); touch(lang); }
   const d = S.days[today()]; if (d && d.xp >= Onb.goal) d.met = true;
   touchSettings();

@@ -57,7 +57,7 @@ function openFeedback(opts = {}){
   const ctxLine = h('label', { class: 'fb-ctx small muted' }, h('input', { type: 'checkbox', checked: true, onchange: e => { withCtx = e.target.checked; } }),
     ' Include where I was: ' + [LANGS[ctx.lang].name, ctx.lessonId || ctx.storyId || ctx.screen, ctx.exType, 'v' + APP_VERSION].filter(Boolean).join(' · '));
   sheet(opts.title || 'Help shape Parlance', h('div', { class: 'field fb-sheet' },
-    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('think', 54, { tap: false }), h('p', { class: 'small muted grow' }, 'Pip reads every note. Ideas are grouped, reviewed and turned into updates, so the more specific, the better.')),
+    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('think', 54, { tap: false }), h('p', { class: 'small muted grow' }, pipName() + ' reads every note. Ideas are grouped, reviewed and turned into updates, so the more specific, the better.')),
     chips, ta, ctxLine),
     [{ label: 'Cancel' }, { label: 'Send', primary: true, run: async close => {
       const text = ta.value.trim();
@@ -65,7 +65,7 @@ function openFeedback(opts = {}){
       const item = { id: fbId(), at: Date.now(), type, text: text.slice(0, 1000), ctx: withCtx ? ctx : { app: APP_VERSION, lang: ctx.lang } };
       const r = await queueFeedback(item);
       close();
-      if (r === 'sent'){ sfx('quest'); toast('Thanks! Pip passed it along.'); }
+      if (r === 'sent'){ sfx('quest'); toast('Thanks! ' + pipName() + ' passed it along.'); }
       else if (r === 'blocked') feedbackFallback(item);
       else { sfx('pop'); toast('Saved. It’ll be sent the next time you open Parlance signed in.'); }
       return true;

@@ -1,69 +1,116 @@
 "use strict";
 /* ===================== ART: Pip, cast portraits, unit signs, story scenes ===================== */
-/* Pip is a parrot: a chatty travel buddy who repeats after you. Body and head take the current
-   line color (petrol in German, saffron in Spanish); crest and tail stay warm red and gold.
-   Moods: happy, cheer, think, oops, sleep, wow. Classes on .pip drive the motion (art.css). */
-const PIP_FACE = {
-  happy: { eyes: '<ellipse cx="50" cy="42.5" rx="4.6" ry="5.4"/><ellipse cx="70" cy="42.5" rx="4.6" ry="5.4"/><circle class="p-glint" cx="51.7" cy="40.3" r="1.6"/><circle class="p-glint" cx="71.7" cy="40.3" r="1.6"/>', beak: 'closed' },
-  cheer: { eyes: '<path class="p-line" d="M44 44.5 Q49.5 37 55 44.5"/><path class="p-line" d="M65 44.5 Q70.5 37 76 44.5"/>', beak: 'open' },
-  think: { eyes: '<ellipse cx="52" cy="40" rx="4.2" ry="5"/><ellipse cx="73" cy="40" rx="4.2" ry="5"/><circle class="p-glint" cx="53.4" cy="38" r="1.4"/><circle class="p-glint" cx="74.4" cy="38" r="1.4"/><path class="p-line thin" d="M66 29.5 Q71 26.5 76.5 29.5"/>', beak: 'closed' },
-  oops: { eyes: '<ellipse cx="49.5" cy="44" rx="4" ry="4.8"/><ellipse cx="70.5" cy="44" rx="4" ry="4.8"/><path class="p-line thin" d="M42 33 L54 36.5"/><path class="p-line thin" d="M78 33 L66 36.5"/>', beak: 'small' },
-  sleep: { eyes: '<path class="p-line" d="M44 43 Q49.5 48 55 43"/><path class="p-line" d="M65 43 Q70.5 48 76 43"/>', beak: 'closed' },
-  wow: { eyes: '<circle cx="49" cy="42" r="6.4"/><circle cx="71" cy="42" r="6.4"/><circle class="p-glint" cx="51.3" cy="39.6" r="2.1"/><circle class="p-glint" cx="73.3" cy="39.6" r="2.1"/>', beak: 'open' }
-};
-const PIP_BEAK = {
-  closed: '<path class="p-beak" d="M60 45 C54 45 51.5 49 52.5 53 C53.5 57 57 60 60 63.5 C63 60 66.5 57 67.5 53 C68.5 49 66 45 60 45 Z"/><path class="p-beak-hi" d="M55.6 49.4 C57 47.8 58.7 47.3 60.4 47.4"/>',
-  small: '<path class="p-mouth" d="M55.5 57.5 Q60 64 64.5 57.5 Q60 59.5 55.5 57.5 Z"/><path class="p-beak" d="M60 44.5 C54 44.5 51.5 48.5 52.5 52.5 C53.5 56 57 58.5 60 61 C63 58.5 66.5 56 67.5 52.5 C68.5 48.5 66 44.5 60 44.5 Z"/><path class="p-beak-hi" d="M55.6 49 C57 47.4 58.7 46.9 60.4 47"/>',
-  open: '<path class="p-mouth" d="M53.5 55 Q60 72 66.5 55 Q60 58.5 53.5 55 Z"/><ellipse class="p-tongue" cx="60" cy="62.5" rx="3.2" ry="2.2"/><path class="p-beak" d="M60 43 C54 43 51.5 47 52.5 51 C53.2 53.8 56.5 56.2 60 58.5 C63.5 56.2 66.8 53.8 67.5 51 C68.5 47 66 43 60 43 Z"/><path class="p-beak-hi" d="M55.6 47.4 C57 45.8 58.7 45.3 60.4 45.4"/>'
-};
-function pipSVG(mood){
-  const f = PIP_FACE[mood] || PIP_FACE.happy;
-  return '<svg class="pip-svg" viewBox="0 0 120 114" aria-hidden="true">' +
-    '<ellipse class="p-shadow" cx="60" cy="109" rx="26" ry="4"/>' +
-    '<g class="p-bob">' +
-      '<path class="p-tail a" d="M64 89 C70 99 74 106 82 112 C78 113.5 73 112.5 70 110.5 C66 104 62 98 59 91 Z"/>' +
-      '<path class="p-tail b" d="M57 90 C58 99 59 106 63 112.5 C59 113.5 55 112.5 53 110.5 C52 104 52 98 53 91 Z"/>' +
-      '<g class="p-crest"><path class="c1" d="M51 23 C43 17 43 9 49 7 C48 12 50 17 54 20 Z"/><path class="c2" d="M60 18.5 C61 8 67 3 74 6 C69 8 66 13 64 19.5 Z"/><path class="c3" d="M55 20.5 C49 10 52 2.5 59 3 C56 8 57 13 60 18.5 Z"/></g>' +
-      '<ellipse class="p-body" cx="60" cy="70" rx="25" ry="28"/>' +
-      '<ellipse class="p-belly" cx="60" cy="79" rx="15" ry="17"/>' +
-      '<path class="p-feet" d="M52.5 96 V101.5 M48.5 102.5 Q52.5 100.5 56.5 102.5 M67.5 96 V101.5 M63.5 102.5 Q67.5 100.5 71.5 102.5"/>' +
-      '<g class="p-wing l" style="transform-origin:43px 58px"><path d="M41 56 C28 62 24.5 80 31 95 C35 96.5 40 90.5 43 82.5 C45.2 74.5 45.5 64 44.5 58 Z"/><path class="p-feather" d="M33.5 88.5 L38.5 84.5 M31.5 81.5 L37.5 78 M32 74 L38.5 71.5"/></g>' +
-      '<g class="p-wing r" style="transform-origin:77px 58px"><path d="M79 56 C92 62 95.5 80 89 95 C85 96.5 80 90.5 77 82.5 C74.8 74.5 74.5 64 75.5 58 Z"/><path class="p-feather" d="M86.5 88.5 L81.5 84.5 M88.5 81.5 L82.5 78 M88 74 L81.5 71.5"/></g>' +
-      '<circle class="p-head" cx="60" cy="42" r="24"/>' +
-      '<ellipse class="p-face" cx="49" cy="42" rx="10.5" ry="11"/><ellipse class="p-face" cx="71" cy="42" rx="10.5" ry="11"/>' +
-      '<g class="p-eyes">' + f.eyes + '</g>' +
-      '<circle class="p-cheek" cx="41" cy="54" r="3.6"/><circle class="p-cheek" cx="79" cy="54" r="3.6"/>' +
-      '<g class="p-beakg">' + PIP_BEAK[f.beak] + '</g>' +
-      '<g class="p-spark"><path d="M92 8 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6z"/><path d="M28 14 l1 2.4 2.4 1 -2.4 1 -1 2.4 -1 -2.4 -2.4 -1 2.4 -1z"/><path d="M99 30 l.8 2 2 .8 -2 .8 -.8 2 -.8 -2 -2 -.8 2 -.8z"/></g>' +
-    '</g>' +
-    '<g class="p-z"><text x="88" y="26">z</text><text x="98" y="14">z</text></g>' +
-    '</svg>';
+/* ----- Pip: the learner's bird -----
+   Birds are drawn and animated by the skeletal rig in rig.js from the species art in birds.js.
+   A look is { body, crest, beak, tail, wing, face, marks[], size, outline, c: { region: '#RRGGBB' } }:
+   body is the species; crest, beak, tail, wing and face can each come from any species ('none' for no
+   crest). Presets, palettes and color regions live in config.js.
+   Moods: happy, cheer, think, oops, sleep, wow. Actions: hop, fly, flyin, talking. */
+const PIP_MOODS = ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow'];
+const PIP_PART_KEYS = ['crest', 'beak', 'tail', 'wing', 'face'];
+/* the learner's chosen look (Settings → pip), or the default preset's */
+function pipSetting(){ return (typeof S !== 'undefined' && S && S.settings && S.settings.pip) || null; }
+function pipPreset(id){ const p = pipSetting(); return PIP_PRESETS[id || (p && p.preset)] || PIP_PRESETS[PIP_DEFAULT]; }
+function pipLook(){ const p = pipSetting(); return (p && p.look) || pipPreset().look; }
+function pipName(){ const p = pipSetting(); return (p && p.name) || pipPreset().pet || pipPreset().name; }
+function pipKind(){ return pipPreset().kind; }
+/* which species can lend a part: body = every species; crest also offers none */
+function pipChoices(key){
+  const ids = Object.keys(BIRD_SKINS);
+  if (key === 'body') return ids;
+  const has = ids.filter(id => BIRD_SKINS[id].parts[key]);
+  return key === 'crest' ? [...has, 'none'] : has;
+}
+/* the markings a look's parts can show */
+function pipMarksFor(look){
+  const sk = id => BIRD_SKINS[id] || null, out = new Set();
+  const add = o => { if (o) for (const k of Object.keys(o)) out.add(k); };
+  const b = sk(look.body) || BIRD_SKINS[BIRD_DEFAULT_SKIN];
+  add(b.parts.body.marks); add(b.parts.head.marks);
+  for (const k of PIP_PART_KEYS){ const s = sk(look[k]); if (s && s.parts[k]) add(s.parts[k].marks); }
+  const bk = sk(look.beak); if (bk && bk.parts.beak && bk.parts.beak.cere) out.add('cere');
+  return PIP_MARKS.filter(([k]) => out.has(k)).map(([k]) => k);
+}
+/* --px-* custom properties for a look's colors and outline */
+function pipVars(look){
+  const c = (look && look.c) || {};
+  let s = '';
+  for (const [k] of PIP_PARTS) if (c[k]) s += '--px-' + k + ':' + c[k] + ';';
+  s += '--px-olon:' + (look && look.outline ? 1 : 0) + ';';
+  return s;
+}
+/* clean a stored or edited look. Unknown species ids are kept (a newer version may know them; the rig
+   falls back to the default species for anything it can't draw), so nothing a learner picked is lost. */
+function cleanLook(l, base){
+  base = base || PIP_PRESETS[PIP_DEFAULT].look;
+  l = l && typeof l === 'object' && !Array.isArray(l) ? l : {};
+  const id = (v, fb) => typeof v === 'string' && /^[a-z][a-z0-9-]{0,15}$/.test(v) ? v : fb;
+  const c = {};
+  const lc = l.c && typeof l.c === 'object' ? l.c : {};
+  for (const [k] of PIP_PARTS){ const v = lc[k]; if (typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v)) c[k] = v.toUpperCase(); }
+  const marks = [...new Set((Array.isArray(l.marks) ? l.marks : []).filter(m => PIP_MARKS.some(([k]) => k === m)))];
+  const out = { body: id(l.body, base.body) };
+  for (const k of PIP_PART_KEYS) out[k] = id(l[k], base[k]);
+  return Object.assign(out, { size: ['s', 'm', 'l'].includes(l.size) ? l.size : base.size, outline: typeof l.outline === 'boolean' ? l.outline : !!base.outline, marks, c });
+}
+function cleanPip(p){
+  const o = p && typeof p === 'object' && !Array.isArray(p) ? p : {};
+  const preset = PIP_PRESETS[o.preset] ? o.preset : PIP_DEFAULT;
+  const name = typeof o.name === 'string' ? o.name.replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16) : '';
+  const look = o.look && typeof o.look === 'object' ? cleanLook(o.look, PIP_PRESETS[preset].look) : null;
+  return { ...o, preset, name, look };   // fields a newer version adds survive
+}
+/* a still drawing of a bird in a mood (no animation clock) */
+function pipSVG(mood, look){
+  const model = rigModel(look || pipLook());
+  return rigSVG(model, rigPose(model, { mood: mood || 'happy', still: true, seed: 1 }, RIG_STILL[mood] || 0));
 }
 const PIP_SAYS = {
   de: { cheer: ['Super!', 'Toll gemacht!', 'Wunderbar!', 'Klasse!', 'Sehr gut!', 'Weiter so!'], oops: ['Fast!', 'Kein Problem!', 'Gleich klappt’s!', 'Nochmal!'], hello: ['Hallo!', 'Los geht’s!', 'Alles einsteigen!', 'Bereit?', 'Gute Fahrt!'], sleep: ['Gute Nacht!'] },
   es: { cheer: ['¡Genial!', '¡Muy bien!', '¡Excelente!', '¡Increíble!', '¡Así se hace!', '¡Bravo!'], oops: ['¡Casi!', '¡No pasa nada!', '¡Ya casi!', '¡Otra vez!'], hello: ['¡Hola!', '¡Vámonos!', '¡Todos a bordo!', '¿Listos?', '¡Buen viaje!'], sleep: ['¡Buenas noches!'] }
 };
 function pickSay(lang, kind){ const l = PIP_SAYS[lang] || PIP_SAYS.de; const a = l[kind] || l.hello; return a[Math.floor(Math.random() * a.length)]; }
-/* pip(mood, size, {say, lang, tap}) -> element. Tapping Pip makes it hop and say something in the target language. */
+/* pip(mood, size, {say, lang, tap, cls, sayPos, look, still}) -> element. The bird breathes, blinks,
+   glances around and acts out its mood. Tapping makes it hop and say something in the target language.
+   Pass look to draw a look other than the learner's (previews). */
 function pip(mood, size, opts = {}){
-  const el = h('span', { class: 'pip ' + (mood || 'happy') + (opts.cls ? ' ' + opts.cls : ''), style: '--pip:' + (size || 72) + 'px', 'aria-hidden': opts.say ? null : 'true' });
-  el.innerHTML = pipSVG(mood);
+  mood = mood || 'happy';
+  const el = h('span', { class: 'pip ' + mood + (opts.cls ? ' ' + opts.cls : ''), style: '--pip:' + (size || 72) + 'px', 'aria-hidden': opts.say ? null : 'true' });
+  const model = rigModel(opts.look || pipLook());
+  const still = !!opts.still || reduced();
+  const b = { el, model, t0: rigNow(), state: { mood, moodT: 0, seed: 1 + Math.floor(Math.random() * 1e6), still, act: opts.cls && /\bfly-in\b/.test(opts.cls) ? 'flyin' : null, actT: 0, fly: !!(opts.cls && /\bfly\b/.test(opts.cls)) } };
+  el._bird = b; el._look = opts.look || null;
+  el.innerHTML = rigSVG(model, rigPose(model, b.state, still ? (RIG_STILL[mood] || 0) : 0));
+  if (!still) rigStart(b);
   if (opts.say){ el.append(h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : ''), role: 'note' }, opts.say)); }
   if (opts.tap !== false){
     el.addEventListener('click', e => {
       e.stopPropagation();
       const lang = opts.lang || (typeof S !== 'undefined' ? S.settings.lang : 'de');
-      const line = pickSay(lang, mood === 'oops' ? 'oops' : mood === 'cheer' ? 'cheer' : 'hello');
-      el.classList.remove('hop'); void el.getBoundingClientRect(); el.classList.add('hop');
-      const b = el.querySelector('.pip-say') || h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : '') });
-      b.textContent = line; if (!b.parentNode) el.append(b);
-      b.classList.remove('pop'); void b.getBoundingClientRect(); b.classList.add('pop');
-      sfx('chirp'); setTimeout(() => speak(line, lang, false, CAST.pip), 180); haptic(8);
+      const line = pickSay(lang, b.state.mood === 'oops' ? 'oops' : b.state.mood === 'cheer' ? 'cheer' : 'hello');
+      pipAct(el, 'hop');
+      const bub = el.querySelector('.pip-say') || h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : '') });
+      bub.textContent = line; if (!bub.parentNode) el.append(bub);
+      bub.classList.remove('pop'); void bub.getBoundingClientRect(); bub.classList.add('pop');
+      sfx('chirp'); haptic(8);
+      setTimeout(() => { speak(line, lang, false, pipVoice(el._look)); pipTalk(el, 0.5 + line.length * 0.07); }, 180);
     });
   }
   return el;
 }
-function setPipMood(el, mood){ if (!el) return; el.classList.remove('happy', 'cheer', 'think', 'oops', 'sleep', 'wow'); el.classList.add(mood); const say = el.querySelector('.pip-say'); el.innerHTML = pipSVG(mood); if (say) el.append(say); }
+/* the bird's voice: smaller birds chirp higher */
+function pipVoice(look){ const s = (look || pipLook()).size; return { pitch: s === 's' ? 1.5 : s === 'l' ? 1.2 : 1.35, rate: 1 }; }
+function pipT(b){ return rigNow() - b.t0; }
+/* one-shot actions: hop */
+function pipAct(el, act){ const b = el && el._bird; if (!b) return; b.state.act = act; b.state.actT = pipT(b); if (b.state.still) rigApply(b, rigPose(b.model, b.state, b.state.actT + 0.35)); }
+/* the beak moves while the bird talks */
+function pipTalk(el, secs){ const b = el && el._bird; if (!b) return; b.state.speaking = true; clearTimeout(b.talkT); b.talkT = setTimeout(() => { b.state.speaking = false; }, secs * 1000); }
+function setPipMood(el, mood){
+  const b = el && el._bird; if (!b) return;
+  el.classList.remove(...PIP_MOODS); el.classList.add(mood);
+  b.state.mood = mood; b.state.moodT = pipT(b);
+  if (b.state.still) rigApply(b, rigPose(b.model, b.state, b.state.moodT + (RIG_STILL[mood] || 0)));
+}
 
 /* ----- cast portraits ----- */
 const HAIR = {
@@ -103,7 +150,7 @@ function avatarSVG(id){
 }
 function avatar(id, size, cls){
   const el = h('span', { class: 'cast-av' + (id === 'pip' ? ' is-pip' : '') + (cls ? ' ' + cls : ''), style: '--av:' + (size || 40) + 'px', title: CAST[id] ? CAST[id].name : '' });
-  el.innerHTML = id === 'pip' ? pipSVG('happy') : avatarSVG(id);
+  el.innerHTML = id === 'pip' ? pipSVG('happy', { ...pipLook(), size: 'm' }) : avatarSVG(id);
   return el;
 }
 

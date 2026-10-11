@@ -265,8 +265,17 @@ async function main(){
   footBtn('Continue').click();
   [...w.document.querySelectorAll('.level-opt')].find(b => b.textContent.startsWith('30')).click();
   footBtn('Continue').click();
+  ok(w.document.querySelectorAll('.onb-step .bd-preset').length === Object.keys(E('PIP_PRESETS')).length, 'onboarding offers every bird');
+  ok(w.document.querySelectorAll('.dots i').length === 6 && w.document.querySelectorAll('.dots i.past').length === 4, 'six onboarding steps');
+  [...w.document.querySelectorAll('.onb-step .bd-preset')].find(b => b.textContent.includes('Kakadu')).click();
+  ok(w.document.querySelector('.onb-step .bd-preset[aria-pressed="true"]').textContent.includes('Kakadu'), 'bird picked');
+  { const nm = w.document.querySelector('#onb-bird-name'); ok(nm.placeholder === 'Kakadu', 'name placeholder is the bird name'); nm.value = 'Coco'; nm.dispatchEvent(new w.Event('input')); }
+  footBtn('Continue').click();
   footBtn('Start learning').click();
   ok(P.S.settings.onboarded && P.S.settings.lang === 'es' && P.S.settings.goal === 30 && P.S.langs.es.start === 'B2', 'onboarding saved ' + JSON.stringify([P.S.settings.lang, P.S.settings.goal, P.S.langs.es.start]));
+  ok(P.S.settings.pip.preset === 'kakadu' && P.S.settings.pip.name === 'Coco' && P.S.settings.pip.look === null, 'onboarding saved the bird ' + JSON.stringify(P.S.settings.pip));
+  ok(E('pipName()') === 'Coco' && E('CAST.pip.name') === 'Coco' && /cockatoo/.test(E('CAST.pip.role')), 'the bird’s name is used everywhere');
+  ok(w.document.querySelector('.hero .pip .cr-fan'), 'home shows the chosen bird');
   // badges earned along the way
   for (const b of ['first', 'both', 'levelA1', 'levelB1', 'levelC2', 'flawless', 'words1000', 'story1', 'stories8']) ok(P.S.badges[b], 'badge ' + b);
   // gloss popover

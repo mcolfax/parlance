@@ -25,7 +25,7 @@ function viewTalk(){
 }
 function talkInstructions(){
   const L = LANGS[Talk.lang]; const c = CAST[Talk.who];
-  const persona = Talk.who === 'pip' ? 'Your name is Pip. You are a cheerful, curious parrot who loves languages and travel. Like any parrot you enjoy repeating a good phrase back, and you occasionally mention flying, feathers or your favorite snacks.' : 'Your name is ' + c.name + ' (' + c.role + '). Stay in that persona while you play this role.';
+  const persona = Talk.who === 'pip' ? 'Your name is ' + pipName() + '. You are a cheerful, curious ' + pipKind() + ' (a kind of parrot) who loves languages and travel. Like any parrot you enjoy repeating a good phrase back, and you occasionally mention flying, feathers or your favorite snacks.' : 'Your name is ' + c.name + ' (' + c.role + '). Stay in that persona while you play this role.';
   return 'You are a friendly ' + L.name + ' conversation partner for an English-speaking learner at CEFR level ' + Talk.level + '. ' + L.dialect + '\n' +
     persona + '\nRoleplay: ' + Talk.scen.prompt + '\n' +
     'Rules:\n- Stay in character and write "reply" only in ' + L.name + ', at level ' + Talk.level + ' (' + LEVEL_GUIDE[Talk.level] + ').\n' +

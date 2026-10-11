@@ -32,7 +32,7 @@ function reduced(){ try { return window.matchMedia && window.matchMedia('(prefer
 function same(a, b){ return JSON.stringify(a) === JSON.stringify(b); }
 function hashStr(s){ let x = 2166136261; for (let i = 0; i < s.length; i++){ x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; }
 function haptic(p){ try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
-function busy(){ return !!(Run.active || Talk.open || Onb.open || Story.open || Film.open || Studio.open); }
+function busy(){ return !!(Run.active || Talk.open || Onb.open || Story.open || Film.open || Studio.open || (typeof Buddy !== 'undefined' && Buddy.open)); }
 /* little particle bursts for right answers, pairs, chests */
 function burst(x, y, opts = {}){
   if (reduced() || !document.body) return;
