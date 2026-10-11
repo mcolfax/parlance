@@ -1,0 +1,374 @@
+<title>Pip Rig Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.185.0/build/three.module.min.js"}}</script>
+<style>
+/* Layout: a rig sheet. The live Blender rig and its controls on the left (sticky on wide screens); the concept
+   match, the moods and how to edit Pip in Blender on the right. On a phone it is one column, stage first. */
+:root{
+  --ground:#F3F7EC; --paper:#FFFFFF; --paper-2:#F7FAF2; --ink:#15301F; --muted:#56705F; --rule:#D7E3CB;
+  --stage:#E8F0DD; --chip:#E2ECD5; --green:#1F8A4C; --green-ink:#FFFFFF; --orange-text:#A65300; --red:#D9402B;
+  --concept-bg:#F0F4E4;
+  --display:"Fredoka", "Nunito", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body:"Nunito", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --r-sm:10px; --r-md:16px; --r-lg:22px;
+  --shadow:0 1px 2px rgb(21 48 31 / .06), 0 8px 24px rgb(21 48 31 / .07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1913; --paper:#16231B; --paper-2:#1B2A20; --ink:#E4EEE5; --muted:#9BB3A1; --rule:#2B3E31;
+    --stage:#1B2B21; --chip:#22352A; --green:#4CC27E; --green-ink:#06210F; --orange-text:#FFB067; --red:#FF6B57;
+    --shadow:0 1px 2px rgb(0 0 0 / .35), 0 8px 24px rgb(0 0 0 / .3);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1913; --paper:#16231B; --paper-2:#1B2A20; --ink:#E4EEE5; --muted:#9BB3A1; --rule:#2B3E31;
+  --stage:#1B2B21; --chip:#22352A; --green:#4CC27E; --green-ink:#06210F; --orange-text:#FFB067; --red:#FF6B57;
+  --shadow:0 1px 2px rgb(0 0 0 / .35), 0 8px 24px rgb(0 0 0 / .3);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ground);color:var(--ink)}
+body{font:400 16px/1.55 var(--body);-webkit-text-size-adjust:100%}
+.page{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:20px 64px;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.1;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,6vw,52px);letter-spacing:-.01em}
+h2{font-size:24px}
+h3{font-size:17px}
+p{margin:0}
+.eyebrow{font:500 12px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:62ch;color:var(--muted);font-size:17px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+code,.mono{font-family:var(--mono);font-size:.88em}
+header{display:flex;flex-direction:column;gap:10px;padding-top:8px}
+.facts{display:flex;flex-wrap:wrap;gap:6px 16px;font:500 13px/1.3 var(--mono);color:var(--muted)}
+.facts b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+
+.layout{display:flex;flex-direction:column;gap:28px}
+.col{display:contents}
+.panel-stage{order:1}.sec-compare{order:2}.sec-moods{order:3}.sec-blender{order:4}.sec-new{order:5}
+@media (min-width:980px){
+  .layout{display:grid;grid-template-columns:minmax(360px,420px) minmax(0,1fr);gap:36px;align-items:start}
+  .col{display:flex;flex-direction:column;gap:24px;min-width:0}
+  .col-left{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto;scrollbar-width:thin;padding-bottom:8px}
+}
+section,.panel{display:flex;flex-direction:column;gap:14px;min-width:0}
+.sec-head{display:flex;flex-direction:column;gap:6px}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow)}
+
+/* stage */
+.stage{position:relative;background:var(--stage);border-radius:var(--r-lg);overflow:hidden;aspect-ratio:1/1.08;max-height:62vh;max-width:100%;display:grid;place-items:center;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.stage.follow{touch-action:none}
+.stage .pip{width:min(80%,340px);aspect-ratio:204/258;max-width:100%;margin-top:4%;cursor:pointer}
+.stage .note{position:absolute;inset:auto 16px 16px;text-align:center;font-size:14px;color:var(--muted)}
+.hud{position:absolute;inset:12px 14px auto;display:flex;justify-content:space-between;gap:8px;font:500 12px/1.2 var(--mono);color:var(--muted);pointer-events:none}
+.hud b{color:var(--ink);font-weight:500}
+.bubble{position:absolute;left:50%;top:9%;transform:translateX(-10%);background:var(--paper);color:var(--ink);border:1.5px solid var(--rule);border-radius:var(--r-md);padding:7px 12px;font:600 16px/1.2 var(--display);box-shadow:var(--shadow);pointer-events:none;opacity:0;transition:opacity .2s,transform .3s cubic-bezier(.2,1.4,.4,1);white-space:nowrap}
+.bubble.on{opacity:1;transform:translateX(-10%) translateY(-4px)}
+.bubble::after{content:"";position:absolute;left:22px;bottom:-7px;width:11px;height:11px;background:var(--paper);border-right:1.5px solid var(--rule);border-bottom:1.5px solid var(--rule);transform:rotate(45deg)}
+.group-label{font:500 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{appearance:none;border:1.5px solid transparent;background:var(--chip);color:var(--ink);font:700 14px/1 var(--body);padding:9px 12px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform .12s,background .15s}
+.chip:active{transform:scale(.95)}
+.chip[aria-pressed="true"]{background:var(--green);color:var(--green-ink)}
+.chip:disabled{opacity:.45;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{appearance:none;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);font:700 14px/1 var(--body);padding:10px 14px;border-radius:12px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+.btn:active{transform:scale(.97)}
+.btn.toggle[aria-pressed="true"]{border-color:var(--green);color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--paper))}
+.btn:disabled{opacity:.45;cursor:default}
+.chip:focus-visible,.btn:focus-visible,.cbtn:focus-visible,.seg button:focus-visible,.mood-play:focus-visible,input:focus-visible{outline:2.5px solid var(--red);outline-offset:2px}
+.seg{display:inline-flex;background:var(--chip);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{appearance:none;border:0;background:none;color:var(--ink);font:700 13px/1 var(--body);padding:8px 11px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--paper);box-shadow:var(--shadow)}
+
+/* compare */
+.cmp{padding:14px;display:flex;flex-direction:column;gap:12px}
+.cmp-box{position:relative;width:min(100%,340px);aspect-ratio:370/608;max-width:100%;margin:0 auto;border-radius:var(--r-md);overflow:hidden;background:var(--concept-bg);touch-action:pan-y}
+.cmp-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cmp-box .layer{position:absolute;inset:0;background:var(--concept-bg);clip-path:inset(0 0 0 var(--cut,50%))}
+.cmp-box .layer img{object-fit:contain}
+.cmp-box.overlay .layer{clip-path:none;background:none;opacity:.55}
+.cmp-box .cut{position:absolute;top:0;bottom:0;left:var(--cut,50%);width:2px;margin-left:-1px;background:var(--red);pointer-events:none}
+.cmp-box.overlay .cut{display:none}
+.cmp-box .tag{position:absolute;top:8px;font:500 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;background:rgb(255 255 255 / .85);color:#15301F;padding:4px 6px;border-radius:6px}
+.cmp-box .tag.l{left:8px}.cmp-box .tag.r{right:8px}
+.cmp-box.overlay .tag{display:none}
+.cmp-box .wait{position:absolute;inset:auto 0 12px;text-align:center;font:500 12px/1.2 var(--mono);color:#56705F}
+input[type=range]{width:100%;accent-color:var(--green)}
+
+/* moods */
+.moods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:560px){.moods{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1180px){.moods{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.mood{position:relative;background:var(--paper);border:1.5px solid var(--rule);border-radius:var(--r-md);padding:8px 10px 10px;display:flex;flex-direction:column;gap:4px}
+.mood[aria-current="true"]{border-color:var(--green)}
+.mood-play{appearance:none;border:0;background:none;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:4px;border-radius:12px}
+.mood .art{background:var(--paper-2);border-radius:12px;aspect-ratio:240/304;display:grid;place-items:center;overflow:hidden}
+.mood .art img{width:100%;height:100%;object-fit:contain}
+.mood .art .ph{width:38%;aspect-ratio:1;border-radius:50%;background:var(--chip)}
+.mood .name{font:600 16px/1.2 var(--display)}
+.mood .use{font-size:13px;line-height:1.35;color:var(--muted)}
+.cbtn{appearance:none;border:0;background:none;color:var(--muted);font:700 12px/1 var(--body);padding:6px 0 0;cursor:pointer;display:inline-flex;gap:5px;align-items:center;align-self:flex-start}
+.cbtn:hover{color:var(--green)}
+.cbtn svg{width:14px;height:14px}
+[data-comments="off"] .cbtn{display:none}
+
+/* blender */
+.steps{padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.steps ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;max-width:66ch}
+.steps li::marker{font:600 15px var(--display);color:var(--green)}
+.kbd{font:500 12px/1 var(--mono);background:var(--chip);border:1px solid var(--rule);border-bottom-width:2px;border-radius:6px;padding:2px 5px;white-space:nowrap}
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:720px){.cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fact{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.fact h3{font-size:16px}
+.fact p{font-size:14px;color:var(--muted)}
+ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:66ch}
+@media (prefers-reduced-motion: reduce){.chip,.btn{transition:none}.bubble{transition:none}}
+</style>
+
+<div class="page">
+  <header>
+    <span class="eyebrow">Parlance · Pip · round 4 · Blender rig</span>
+    <h1>Pip, rigged in Blender</h1>
+    <p class="lede">This is Pip's Blender rig, playing in the browser with three.js. The drawing is traced from your model sheet, and it now hangs on real bones: wings curl and bend, the crest and tail swing after every move, and one mood blends into the next. Tap Pip to hop, pick a mood or a move, or let Pip follow your finger.</p>
+    <div class="facts"><span><b id="f-bones">103</b> bones</span><span><b id="f-moods">17</b> moods</span><span><b id="f-moves">11</b> moves</span><span><b>Blender 5.2</b> source file</span><span><b>three.js 0.185</b> player</span></div>
+  </header>
+
+  <div class="layout">
+    <div class="col col-left">
+      <section class="panel panel-stage" aria-label="Live Pip" data-comment-target>
+        <div class="stage" id="stage">
+          <div class="hud"><span>mood <b id="hud-mood">happy</b></span><span id="hud-state">loading the rig…</span></div>
+          <div class="bubble" id="bubble" aria-live="polite"></div>
+          <div class="pip" id="pip" role="img" aria-label="Pip, the Parlance parrot, live"></div>
+          <p class="note" id="note" hidden></p>
+        </div>
+        <div class="row">
+          <button class="btn toggle" id="follow" type="button" aria-pressed="false">Follow my finger</button>
+          <button class="btn" id="say" type="button">Say a line</button>
+          <button class="btn toggle" id="slow" type="button" aria-pressed="false">Slow motion</button>
+          <button class="cbtn" type="button" data-comment>Comment</button>
+        </div>
+        <div class="group-label">Moods</div>
+        <div class="chips" id="mood-chips"></div>
+        <div class="group-label">Moves, on top of any mood</div>
+        <div class="chips" id="move-chips"></div>
+      </section>
+    </div>
+
+    <div class="col col-right">
+      <section class="sec-compare" aria-labelledby="cmp-h" data-comment-target>
+        <div class="sec-head">
+          <span class="eyebrow">Match</span>
+          <h2 id="cmp-h">Concept and rig, side by side</h2>
+          <p class="muted">Drag the line to wipe between your concept (left) and the Blender rig (right), or overlay them.</p>
+        </div>
+        <div class="card cmp">
+          <div class="row">
+            <div class="seg" id="cmp-pick" role="group" aria-label="Concept drawing"></div>
+            <button class="btn toggle" id="cmp-overlay" type="button" aria-pressed="false">Overlay</button>
+          </div>
+          <div class="cmp-box" id="cmp-box">
+            <img id="cmp-concept" alt="">
+            <div class="layer"><img id="cmp-rig" alt="Pip's Blender rig in the same pose"></div>
+            <div class="cut"></div>
+            <span class="tag l">Concept</span><span class="tag r">Blender rig</span>
+            <span class="wait" id="cmp-wait">Rendering the rig…</span>
+          </div>
+          <label class="small muted" for="cmp-cut">Wipe</label>
+          <input type="range" id="cmp-cut" min="0" max="100" value="50">
+          <button class="cbtn" type="button" data-comment>Comment</button>
+        </div>
+      </section>
+
+      <section class="sec-moods" aria-labelledby="moods-h">
+        <div class="sec-head">
+          <span class="eyebrow">Library</span>
+          <h2 id="moods-h">Moods</h2>
+          <p class="muted">Each mood is one action in the Blender file. Tap one to play it on the stage.</p>
+        </div>
+        <div class="moods" id="moods"></div>
+      </section>
+
+      <section class="sec-blender" aria-labelledby="blend-h" data-comment-target>
+        <div class="sec-head">
+          <span class="eyebrow">Editing</span>
+          <h2 id="blend-h">Change Pip in Blender</h2>
+          <p class="muted">Blender is free. Every pose and move you see here is in one file you can open and adjust by eye.</p>
+        </div>
+        <div class="card steps">
+          <ol>
+            <li>Install <b>Blender 5.2 LTS</b> from blender.org (free, Mac or Windows).</li>
+            <li>Open <code>design/rig/blender/pip.blend</code> from the Parlance repo. Press <span class="kbd">1</span> on the number pad (or View › Viewpoint › Front) to see Pip from the front.</li>
+            <li>Click Pip's bones, switch to Pose Mode, and open the Dope Sheet's Action Editor. Each mood is an action there: pick one, scrub the timeline, and rotate a bone with <span class="kbd">R</span> to change a pose. Keys go in with <span class="kbd">I</span>.</li>
+            <li>Which eyes, beak or wings show is a set of small <code>show_…</code> bones: scale 1 shows a drawing, 0 hides it.</li>
+            <li>Two control bones beside Pip turn it round: move <code>ctl_facing</code> to X −2 cm and the whole bird faces left; <code>ctl_head</code> does the same for the head alone.</li>
+            <li>Save, then export with <code>design/rig/blender/build/export.py</code> (Blender's Scripting tab › Open › Run Script), or ask Claude to re-export Pip. The player picks up the new <code>pip.gltf.json</code>.</li>
+          </ol>
+          <button class="cbtn" type="button" data-comment>Comment</button>
+        </div>
+        <div class="cols">
+          <div class="fact"><h3>In the Blender file</h3><p>The drawing, its bones, the wing, crest and tail chains that bend, the controls that turn Pip round, and every mood and move as an action.</p></div>
+          <div class="fact"><h3>Added by the player</h3><p>Breathing, blinking, quick glances, looking at your finger, talking, the far wing opening as it swings out, and the springy follow-through on the crest, tail and wing tips.</p></div>
+        </div>
+      </section>
+
+      <section class="sec-new" aria-labelledby="new-h" data-comment-target>
+        <div class="sec-head">
+          <span class="eyebrow">This round</span>
+          <h2 id="new-h">What changed</h2>
+        </div>
+        <ul class="plain">
+          <li>Pip's far wing opens into a whole wing as soon as it swings away from the body (shrug, wow, think, a hop), instead of the thin sliver that hangs against the body.</li>
+          <li>Oops turns Pip to face left, like the worried drawing on your model sheet: wings held together, eyes up, the sweat drop behind the head.</li>
+          <li>When Pip looks past the front, the head turns round with it, so the beak, eyes and crest point the way Pip is looking. Try Look around.</li>
+          <li>Turns stop where the drawing holds up, so the eyes stay on the head and the belly on the body. Pupils stay inside the eye whites, and the head's outline sits over the eyes.</li>
+        </ul>
+        <button class="cbtn" type="button" data-comment>Comment</button>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="blender/pip3d.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const h = (tag, attrs = {}, ...kids) => { const el = document.createElement(tag); for (const k in attrs) { if (k === 'class') el.className = attrs[k]; else if (k.startsWith('on')) el.addEventListener(k.slice(2), attrs[k]); else el.setAttribute(k, attrs[k]); } for (const c of kids) if (c != null) el.append(c); return el; };
+  const SRC = 'blender/pip.gltf.json';
+  const MOODS = [
+    ['happy', 'Happy', 'Default. Learn screen, lesson intros, About.'],
+    ['cheer', 'Cheer', 'Right answer, lesson complete, finished course.'],
+    ['oops', 'Oops', 'Wrong answer. Worried, not upset.'],
+    ['think', 'Think', 'Hints, “jump ahead?”, Studio, Talk without a tutor.'],
+    ['wow', 'Wow', 'A new version is out, big milestones.'],
+    ['sleep', 'Sleep', 'Nothing due in Review, no feedback yet.'],
+    ['wave', 'Wave', 'Hello, onboarding, coming back after a break.'],
+    ['point', 'Point', 'Tutorials: “look here”.'],
+    ['listen', 'Listen', 'Listening exercises and audio questions.'],
+    ['ready', 'Ready', 'Before a test or a hard lesson.'],
+    ['proud', 'Proud', 'Badges, streak days, a level done.'],
+    ['laugh', 'Laugh', 'Funny moments in stories.'],
+    ['love', 'Love', 'Thanks for your feedback.'],
+    ['shrug', 'Shrug', 'Skipped a question, “no problem”.'],
+    ['sad', 'Sad', 'A streak ended. Gentle, never guilt.'],
+    ['dance', 'Dance', 'Celebrations and the theme song.'],
+    ['fly', 'Fly', 'Intro film, moving between screens.']
+  ];
+  const MOVES = [['hop', 'Hop'], ['nod', 'Nod'], ['shake', 'Shake head'], ['lookAround', 'Look around'], ['surprise', 'Jump'], ['wobble', 'Wobble'], ['bow', 'Bow'], ['flap', 'Flap']];
+  const LINES = [['Hallo! Ich bin Pip.', 'de-DE'], ['¡Hola! Soy Pip.', 'es-MX'], ['Super gemacht!', 'de-DE'], ['¡Muy bien!', 'es-MX'], ['Los geht’s!', 'de-DE'], ['¡Casi! ¿Otra vez?', 'es-MX']];
+  const CROPS = [
+    { key: 'happy', label: 'Neutral', img: 'reference/pip-happy.webp', alt: 'Concept art of Pip, neutral pose', view: [23.5, -10, 185, 304] },
+    { key: 'cheer', label: 'Cheer', img: 'reference/pip-cheer.webp', alt: 'Concept art of Pip, cheering', view: [32.25, -10, 185, 304] },
+    { key: 'oops', label: 'Worried', img: 'reference/pip-oops.webp', alt: 'Concept art of Pip, worried', view: [34.5, -9, 180.5, 296.6] }
+  ];
+  let pip = null, mood = 'happy';
+
+  /* ----- chips ----- */
+  const moodChips = $('mood-chips'), moveChips = $('move-chips');
+  for (const [id, name] of MOODS) moodChips.append(h('button', { class: 'chip', type: 'button', 'data-m': id, 'aria-pressed': String(id === 'happy'), disabled: '', onclick: () => setMood(id) }, name));
+  for (const [id, name] of MOVES) moveChips.append(h('button', { class: 'chip', type: 'button', disabled: '', onclick: () => { if (pip) pip.play(id); } }, name));
+  function setMood(id) {
+    mood = id;
+    if (pip) pip.set(id);
+    $('hud-mood').textContent = id;
+    for (const b of moodChips.children) b.setAttribute('aria-pressed', String(b.dataset.m === id));
+    for (const c of document.querySelectorAll('.mood')) c.setAttribute('aria-current', String(c.dataset.m === id));
+  }
+
+  /* ----- mood library ----- */
+  const grid = $('moods'), arts = {};
+  for (const [id, name, use] of MOODS) {
+    const art = h('div', { class: 'art' }, h('div', { class: 'ph' }));
+    arts[id] = art;
+    const play = h('button', { class: 'mood-play', type: 'button', 'aria-label': 'Play ' + name + ' on the stage', onclick: () => { setMood(id); if (matchMedia('(max-width: 979px)').matches) $('stage').scrollIntoView({ behavior: 'smooth', block: 'center' }); } },
+      art, h('span', { class: 'name' }, name), h('span', { class: 'use' }, use));
+    grid.append(h('div', { class: 'mood', 'data-m': id, 'aria-current': String(id === 'happy'), 'data-comment-target': '' }, play, h('button', { class: 'cbtn', type: 'button', 'data-comment': '' }, 'Comment')));
+  }
+
+  /* ----- compare ----- */
+  const pick = $('cmp-pick'), box = $('cmp-box');
+  let crop = 0, rigShots = [];
+  CROPS.forEach((c, i) => pick.append(h('button', { type: 'button', 'aria-pressed': String(i === 0), onclick: () => showCrop(i) }, c.label)));
+  function showCrop(i) {
+    crop = i;
+    const c = CROPS[i];
+    $('cmp-concept').src = c.img; $('cmp-concept').alt = c.alt;
+    if (rigShots[i]) $('cmp-rig').src = rigShots[i];
+    for (const [k, b] of [...pick.children].entries()) b.setAttribute('aria-pressed', String(k === i));
+  }
+  showCrop(0);
+  $('cmp-cut').addEventListener('input', e => box.style.setProperty('--cut', e.target.value + '%'));
+  const drag = e => { const r = box.getBoundingClientRect(); const v = Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)); box.style.setProperty('--cut', v + '%'); $('cmp-cut').value = Math.round(v); };
+  box.addEventListener('pointerdown', e => { if (box.classList.contains('overlay')) return; box.setPointerCapture(e.pointerId); drag(e); });
+  box.addEventListener('pointermove', e => { if (box.hasPointerCapture(e.pointerId)) drag(e); });
+  $('cmp-overlay').addEventListener('click', e => { const on = box.classList.toggle('overlay'); e.currentTarget.setAttribute('aria-pressed', String(on)); });
+
+  /* ----- stage controls ----- */
+  const stage = $('stage');
+  $('pip').addEventListener('click', () => { if (pip) pip.hop(); });
+  const follow = $('follow');
+  let following = false;
+  follow.addEventListener('click', () => { following = !following; follow.setAttribute('aria-pressed', String(following)); stage.classList.toggle('follow', following); if (!following && pip) pip.look(null); });
+  stage.addEventListener('pointermove', e => { if (following && pip) pip.lookAtPoint(e.clientX, e.clientY); });
+  stage.addEventListener('pointerleave', () => { if (following && pip) pip.look(null); });
+  $('slow').addEventListener('click', e => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', String(on)); if (pip) pip.speed = on ? 0.3 : 1; });
+  let line = 0, bubbleT = 0;
+  $('say').addEventListener('click', () => {
+    if (!pip) return;
+    const [text, lang] = LINES[line++ % LINES.length];
+    const bubble = $('bubble');
+    bubble.textContent = text; bubble.classList.add('on');
+    clearTimeout(bubbleT);
+    const done = () => { pip.talking(false); bubbleT = setTimeout(() => bubble.classList.remove('on'), 900); };
+    // speak with a German or Spanish voice when the device has one; otherwise Pip mouths the line
+    const synth = window.speechSynthesis;
+    const voice = synth && typeof SpeechSynthesisUtterance === 'function' && synth.getVoices().find(v => v.lang && v.lang.startsWith(lang.slice(0, 2)));
+    if (voice) {
+      const u = new SpeechSynthesisUtterance(text); u.voice = voice; u.lang = voice.lang; u.rate = 0.95;
+      u.onstart = () => pip.talking(true); u.onend = done; u.onerror = done;
+      synth.cancel(); synth.speak(u);
+    } else pip.say(text).then(done);
+  });
+
+  /* ----- comments: each card can open the viewer's comment box on itself ----- */
+  let comments = null;
+  document.body.dataset.comments = 'off';
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-comment]');
+    if (!b || !comments) return;
+    const el = b.closest('[data-comment-target]') || b.parentElement;
+    try { await comments.openComposer({ element: el }); }
+    catch (err) { if (err && ['unavailable', 'not_granted', 'capability_disabled', 'capability_removed'].includes(err.code)) document.body.dataset.comments = 'off'; }
+  });
+  if (window.claude && typeof window.claude.use === 'function') window.claude.use('comments').then(c => { comments = c; if (c) document.body.dataset.comments = 'on'; }, () => {});
+
+  /* ----- load the rig ----- */
+  const fail = err => {
+    $('hud-state').textContent = 'not loaded';
+    const note = $('note'); note.hidden = false;
+    note.textContent = 'Pip’s rig didn’t load here (' + (err && err.message ? err.message : 'no WebGL') + '). Try another browser, or reload.';
+    $('cmp-wait').textContent = 'The rig didn’t load.';
+  };
+  Pip3D.create($('pip'), { src: SRC, mood: 'happy' }).then(async p => {
+    pip = p;
+    $('hud-state').textContent = 'Blender rig · three.js';
+    $('f-moods').textContent = p.moods.length; $('f-moves').textContent = p.moves.length;
+    let n = 0; p.scene.traverse(o => { if (o.isBone) n++; }); $('f-bones').textContent = n;
+    for (const b of document.querySelectorAll('.chip')) b.removeAttribute('disabled');
+    if (mood !== 'happy') p.set(mood);
+    // stills come from one hidden renderer, after the live one is up
+    const shots = await Pip3D.stills(MOODS.map(([id]) => ({ mood: id })), { src: SRC, width: 240, height: 304, pixelRatio: 2 });
+    MOODS.forEach(([id, name], i) => { arts[id].replaceChildren(h('img', { src: shots[i], alt: 'Pip, ' + name.toLowerCase(), loading: 'lazy' })); });
+    rigShots = await Pip3D.stills(CROPS.map(c => ({ mood: c.key, view: c.view })), { src: SRC, width: 370, height: 608, pixelRatio: 1.5 });
+    $('cmp-wait').remove();
+    showCrop(crop);
+  }).catch(fail);
+})();
+</script>

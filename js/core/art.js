@@ -1,69 +1,59 @@
 "use strict";
 /* ===================== ART: Pip, cast portraits, unit signs, story scenes ===================== */
-/* Pip is a parrot: a chatty travel buddy who repeats after you. Body and head take the current
-   line color (palm green in German, mango in Spanish); crest and tail stay warm red and gold.
-   Moods: happy, cheer, think, oops, sleep, wow. Classes on .pip drive the motion (art.css). */
-const PIP_FACE = {
-  happy: { eyes: '<ellipse cx="50" cy="42.5" rx="4.6" ry="5.4"/><ellipse cx="70" cy="42.5" rx="4.6" ry="5.4"/><circle class="p-glint" cx="51.7" cy="40.3" r="1.6"/><circle class="p-glint" cx="71.7" cy="40.3" r="1.6"/>', beak: 'closed' },
-  cheer: { eyes: '<path class="p-line" d="M44 44.5 Q49.5 37 55 44.5"/><path class="p-line" d="M65 44.5 Q70.5 37 76 44.5"/>', beak: 'open' },
-  think: { eyes: '<ellipse cx="52" cy="40" rx="4.2" ry="5"/><ellipse cx="73" cy="40" rx="4.2" ry="5"/><circle class="p-glint" cx="53.4" cy="38" r="1.4"/><circle class="p-glint" cx="74.4" cy="38" r="1.4"/><path class="p-line thin" d="M66 29.5 Q71 26.5 76.5 29.5"/>', beak: 'closed' },
-  oops: { eyes: '<ellipse cx="49.5" cy="44" rx="4" ry="4.8"/><ellipse cx="70.5" cy="44" rx="4" ry="4.8"/><path class="p-line thin" d="M42 33 L54 36.5"/><path class="p-line thin" d="M78 33 L66 36.5"/>', beak: 'small' },
-  sleep: { eyes: '<path class="p-line" d="M44 43 Q49.5 48 55 43"/><path class="p-line" d="M65 43 Q70.5 48 76 43"/>', beak: 'closed' },
-  wow: { eyes: '<circle cx="49" cy="42" r="6.4"/><circle cx="71" cy="42" r="6.4"/><circle class="p-glint" cx="51.3" cy="39.6" r="2.1"/><circle class="p-glint" cx="73.3" cy="39.6" r="2.1"/>', beak: 'open' }
-};
-const PIP_BEAK = {
-  closed: '<path class="p-beak" d="M60 45 C54 45 51.5 49 52.5 53 C53.5 57 57 60 60 63.5 C63 60 66.5 57 67.5 53 C68.5 49 66 45 60 45 Z"/><path class="p-beak-hi" d="M55.6 49.4 C57 47.8 58.7 47.3 60.4 47.4"/>',
-  small: '<path class="p-mouth" d="M55.5 57.5 Q60 64 64.5 57.5 Q60 59.5 55.5 57.5 Z"/><path class="p-beak" d="M60 44.5 C54 44.5 51.5 48.5 52.5 52.5 C53.5 56 57 58.5 60 61 C63 58.5 66.5 56 67.5 52.5 C68.5 48.5 66 44.5 60 44.5 Z"/><path class="p-beak-hi" d="M55.6 49 C57 47.4 58.7 46.9 60.4 47"/>',
-  open: '<path class="p-mouth" d="M53.5 55 Q60 72 66.5 55 Q60 58.5 53.5 55 Z"/><ellipse class="p-tongue" cx="60" cy="62.5" rx="3.2" ry="2.2"/><path class="p-beak" d="M60 43 C54 43 51.5 47 52.5 51 C53.2 53.8 56.5 56.2 60 58.5 C63.5 56.2 66.8 53.8 67.5 51 C68.5 47 66 43 60 43 Z"/><path class="p-beak-hi" d="M55.6 47.4 C57 45.8 58.7 45.3 60.4 45.4"/>'
-};
-function pipSVG(mood){
-  const f = PIP_FACE[mood] || PIP_FACE.happy;
-  return '<svg class="pip-svg" viewBox="0 0 120 114" aria-hidden="true">' +
-    '<ellipse class="p-shadow" cx="60" cy="109" rx="26" ry="4"/>' +
-    '<g class="p-bob">' +
-      '<path class="p-tail a" d="M64 89 C70 99 74 106 82 112 C78 113.5 73 112.5 70 110.5 C66 104 62 98 59 91 Z"/>' +
-      '<path class="p-tail b" d="M57 90 C58 99 59 106 63 112.5 C59 113.5 55 112.5 53 110.5 C52 104 52 98 53 91 Z"/>' +
-      '<g class="p-crest"><path class="c1" d="M51 23 C43 17 43 9 49 7 C48 12 50 17 54 20 Z"/><path class="c2" d="M60 18.5 C61 8 67 3 74 6 C69 8 66 13 64 19.5 Z"/><path class="c3" d="M55 20.5 C49 10 52 2.5 59 3 C56 8 57 13 60 18.5 Z"/></g>' +
-      '<ellipse class="p-body" cx="60" cy="70" rx="25" ry="28"/>' +
-      '<ellipse class="p-belly" cx="60" cy="79" rx="15" ry="17"/>' +
-      '<path class="p-feet" d="M52.5 96 V101.5 M48.5 102.5 Q52.5 100.5 56.5 102.5 M67.5 96 V101.5 M63.5 102.5 Q67.5 100.5 71.5 102.5"/>' +
-      '<g class="p-wing l" style="transform-origin:43px 58px"><path d="M41 56 C28 62 24.5 80 31 95 C35 96.5 40 90.5 43 82.5 C45.2 74.5 45.5 64 44.5 58 Z"/><path class="p-feather" d="M33.5 88.5 L38.5 84.5 M31.5 81.5 L37.5 78 M32 74 L38.5 71.5"/></g>' +
-      '<g class="p-wing r" style="transform-origin:77px 58px"><path d="M79 56 C92 62 95.5 80 89 95 C85 96.5 80 90.5 77 82.5 C74.8 74.5 74.5 64 75.5 58 Z"/><path class="p-feather" d="M86.5 88.5 L81.5 84.5 M88.5 81.5 L82.5 78 M88 74 L81.5 71.5"/></g>' +
-      '<circle class="p-head" cx="60" cy="42" r="24"/>' +
-      '<ellipse class="p-face" cx="49" cy="42" rx="10.5" ry="11"/><ellipse class="p-face" cx="71" cy="42" rx="10.5" ry="11"/>' +
-      '<g class="p-eyes">' + f.eyes + '</g>' +
-      '<circle class="p-cheek" cx="41" cy="54" r="3.6"/><circle class="p-cheek" cx="79" cy="54" r="3.6"/>' +
-      '<g class="p-beakg">' + PIP_BEAK[f.beak] + '</g>' +
-      '<g class="p-spark"><path d="M92 8 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6z"/><path d="M28 14 l1 2.4 2.4 1 -2.4 1 -1 2.4 -1 -2.4 -2.4 -1 2.4 -1z"/><path d="M99 30 l.8 2 2 .8 -2 .8 -.8 2 -.8 -2 -2 -.8 2 -.8z"/></g>' +
-    '</g>' +
-    '<g class="p-z"><text x="88" y="26">z</text><text x="98" y="14">z</text></g>' +
-    '</svg>';
+/* Pip is a parrot: a chatty travel buddy who repeats after you. Pip is drawn by the rig (rig.js) from the shared bird
+   (bird.js) and Pip's part sheet (pip.js), traced from the model sheet; design/rig/ has the Blender file, the tools and
+   the review pages. pip() is alive: it breathes, blinks, glances, plays each mood's move, hops when tapped and moves
+   its beak while it talks. pipSVG() is a still for small places and the intro film. Colors are the --pip-* tokens.
+   Screens ask for these moods; the rig has more (wave, love, sad, dance, fly…), and any of them works here too. */
+const PIP_MOODS = ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow'];
+const PIP_VIEW = [-8, 14, 256, 244];     // Pip's frame in rig units: the 120 x 114 box the screens are laid out for
+const PIP_HEAD = [38, 18, 164, 164];     // head and shoulders, for avatars
+const pipMood = mood => (PIP.moods[mood] ? mood : 'happy');
+function pipCSS(){
+  if (typeof document === 'undefined' || document.getElementById('rig-css-pip')) return;
+  document.head.append(h('style', { id: 'rig-css-pip' }, Rig.css(PIP)));
+}
+/* pipSVG(mood, size, view) -> SVG markup: a still of the mood, with outlines weighted for its size in px */
+function pipSVG(mood, size, view){
+  pipCSS();
+  return Rig.svg(PIP, pipMood(mood), { view: view || PIP_VIEW, size: size || 72, cls: 'pip-svg', style: false });
 }
 const PIP_SAYS = {
   de: { cheer: ['Super!', 'Toll gemacht!', 'Wunderbar!', 'Klasse!', 'Sehr gut!', 'Weiter so!'], oops: ['Fast!', 'Kein Problem!', 'Gleich klappt’s!', 'Nochmal!'], hello: ['Hallo!', 'Los geht’s!', 'Alles einsteigen!', 'Bereit?', 'Gute Fahrt!'], sleep: ['Gute Nacht!'] },
   es: { cheer: ['¡Genial!', '¡Muy bien!', '¡Excelente!', '¡Increíble!', '¡Así se hace!', '¡Bravo!'], oops: ['¡Casi!', '¡No pasa nada!', '¡Ya casi!', '¡Otra vez!'], hello: ['¡Hola!', '¡Vámonos!', '¡Todos a bordo!', '¿Listos?', '¡Buen viaje!'], sleep: ['¡Buenas noches!'] }
 };
 function pickSay(lang, kind){ const l = PIP_SAYS[lang] || PIP_SAYS.de; const a = l[kind] || l.hello; return a[Math.floor(Math.random() * a.length)]; }
-/* pip(mood, size, {say, lang, tap}) -> element. Tapping Pip makes it hop and say something in the target language. */
+/* pip(mood, size, {say, sayPos, lang, tap, cls}) -> element. A live rig; tapping Pip makes it hop and say something
+   in the target language. With cls "fly-in" Pip flies in on spread wings and lands in its mood. */
 function pip(mood, size, opts = {}){
-  const el = h('span', { class: 'pip ' + (mood || 'happy') + (opts.cls ? ' ' + opts.cls : ''), style: '--pip:' + (size || 72) + 'px', 'aria-hidden': opts.say ? null : 'true' });
-  el.innerHTML = pipSVG(mood);
+  size = size || 72; mood = mood || 'happy';
+  const el = h('span', { class: 'pip ' + mood + (opts.cls ? ' ' + opts.cls : ''), style: '--pip:' + size + 'px', 'aria-hidden': opts.say ? null : 'true' });
+  pipCSS();
+  const flyIn = /(^|\s)fly-in(\s|$)/.test(opts.cls || '');
+  const rig = Rig.create(PIP, { mood: flyIn ? 'fly' : pipMood(mood), size, view: PIP_VIEW, cls: 'pip-svg' });
+  el.rig = rig; el.append(rig.el);
+  if (flyIn) setTimeout(() => rig.set(pipMood(mood)), 1500);   // the fly-in in art.css takes 1.6s from 0.2s
   if (opts.say){ el.append(h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : ''), role: 'note' }, opts.say)); }
   if (opts.tap !== false){
     el.addEventListener('click', e => {
       e.stopPropagation();
       const lang = opts.lang || (typeof S !== 'undefined' ? S.settings.lang : 'de');
       const line = pickSay(lang, mood === 'oops' ? 'oops' : mood === 'cheer' ? 'cheer' : 'hello');
-      el.classList.remove('hop'); void el.getBoundingClientRect(); el.classList.add('hop');
+      rig.hop();
       const b = el.querySelector('.pip-say') || h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : '') });
       b.textContent = line; if (!b.parentNode) el.append(b);
       b.classList.remove('pop'); void b.getBoundingClientRect(); b.classList.add('pop');
-      sfx('chirp'); setTimeout(() => speak(line, lang, false, CAST.pip), 180); haptic(8);
+      sfx('chirp'); haptic(8);
+      setTimeout(() => { rig.talking(true); speak(line, lang, false, CAST.pip).then(() => rig.talking(false)); }, 180);
     });
   }
   return el;
 }
-function setPipMood(el, mood){ if (!el) return; el.classList.remove('happy', 'cheer', 'think', 'oops', 'sleep', 'wow'); el.classList.add(mood); const say = el.querySelector('.pip-say'); el.innerHTML = pipSVG(mood); if (say) el.append(say); }
+function setPipMood(el, mood){
+  if (!el) return;
+  el.classList.remove(...PIP_MOODS); el.classList.add(mood);
+  if (el.rig) el.rig.set(pipMood(mood));
+}
 
 /* ----- cast portraits ----- */
 const HAIR = {
@@ -81,7 +71,7 @@ const HAIR = {
   cap: { back: '<path d="M20.5 29 C20.5 25 21 23 22 22 L22 30 Z M43.5 29 C43.5 25 43 23 42 22 L42 30 Z"/>', front: '' }
 };
 function avatarSVG(id){
-  const c = CAST[id]; if (!c || !c.look) return pipSVG('happy');
+  const c = CAST[id]; if (!c || !c.look) return pipSVG('happy', 64, PIP_HEAD);
   const L = c.look, hs = HAIR[L.style] || HAIR.short;
   const fill = (s, col) => s ? '<g fill="' + col + '">' + s + '</g>' : '';
   let s = '<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="' + L.bg + '"/>';
@@ -103,7 +93,7 @@ function avatarSVG(id){
 }
 function avatar(id, size, cls){
   const el = h('span', { class: 'cast-av' + (id === 'pip' ? ' is-pip' : '') + (cls ? ' ' + cls : ''), style: '--av:' + (size || 40) + 'px', title: CAST[id] ? CAST[id].name : '' });
-  el.innerHTML = id === 'pip' ? pipSVG('happy') : avatarSVG(id);
+  el.innerHTML = id === 'pip' ? pipSVG('happy', size || 40, PIP_HEAD) : avatarSVG(id);
   return el;
 }
 

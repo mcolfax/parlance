@@ -46,6 +46,9 @@
 <script src="js/core/text.js"></script>
 <script src="js/core/content.js"></script>
 <script src="content/cast.js"></script>
+<script src="js/core/rig.js"></script>
+<script src="js/core/bird.js"></script>
+<script src="js/core/pip.js"></script>
 <script src="js/core/art.js"></script>
 <script src="js/core/state.js"></script>
 <script src="js/core/audio.js"></script>
@@ -56,7 +59,7 @@
 const Run = { active: false }, Talk = { open: false }, Onb = { open: false }, Story = { open: false }, Film = { open: false }, Studio = { open: false };
 const root = document.documentElement;
 const css = n => getComputedStyle(root).getPropertyValue(n).trim();
-const COLORS = ['--bg', '--surface', '--surface-2', '--ink', '--muted', '--hair', '--hair-2', '--line', '--line-soft', '--line-text', '--line-edge', '--de', '--es', '--ok', '--ok-bg', '--bad', '--bad-bg', '--warn', '--warn-bg', '--flame', '--sun', '--der', '--die', '--das', '--pl', '--gold', '--pip-accent', '--pip-accent-2', '--pip-beak', '--film-bg', '--film-card'];
+const COLORS = ['--bg', '--surface', '--surface-2', '--ink', '--muted', '--hair', '--hair-2', '--line', '--line-soft', '--line-text', '--line-edge', '--de', '--es', '--ok', '--ok-bg', '--bad', '--bad-bg', '--warn', '--warn-bg', '--flame', '--sun', '--der', '--die', '--das', '--pl', '--gold', '--pip-body', '--pip-belly', '--pip-crest', '--pip-beak', '--film-bg', '--film-card'];
 const TYPES = ['--type-h1', '--type-h2', '--type-title', '--type-title-s', '--type-body', '--type-button', '--type-label', '--type-small', '--type-eyebrow', '--type-num'];
 const RADII = ['--r-xs', '--r-sm', '--r-md', '--r', '--r-lg', '--r-xl', '--r-pill'];
 const SPACE = ['--sp-1', '--sp-2', '--sp-3', '--sp-4', '--sp-5', '--sp-6'];
@@ -81,7 +84,7 @@ function draw(){
       h('div', { class: 'demo-row' }, h('button', { class: 'btn btn-primary' }, 'Primary'), h('button', { class: 'btn btn-ghost' }, 'Ghost'), h('button', { class: 'btn btn-quiet' }, 'Quiet'), h('button', { class: 'btn btn-primary btn-sm' }, 'Small'), h('button', { class: 'btn btn-primary shine' }, 'Hero CTA'), h('button', { class: 'linkish' }, 'Link')),
       h('div', { class: 'chips' }, h('button', { class: 'chip', 'aria-pressed': 'true' }, 'Selected'), h('button', { class: 'chip' }, 'Chip'), h('span', { class: 'chip static ok' }, ic('check'), 'Done'), h('span', { class: 'lvl-badge' }, 'B1'), h('span', { class: 'cefr' }, 'C2')),
       h('div', { class: 'demo-row' }, h('input', { class: 'input', placeholder: 'Input', style: 'max-width:260px' }), h('span', { class: 'toggle' }, h('input', { type: 'checkbox', checked: true, 'aria-label': 'Toggle' }), h('span')), h('div', { class: 'stat', style: 'width:140px' }, h('span', { class: 'num' }, ic('flame', 'flame'), '12'), h('span', { class: 'lbl' }, 'day streak')))),
-    sec('Pip the parrot', 'Six moods. Tap one to hear it. Classes: happy, cheer, think, oops, sleep, wow; add fly or hop for motion.', h('div', { class: 'art-row' }, ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow'].map(m => h('figure', null, pip(m, 96, { lang: root.dataset.lang || 'de' }), m)), h('figure', null, pip('happy', 96, { cls: 'fly' }), 'fly'))),
+    sec('Pip the parrot', 'Drawn by the rig from the model sheet (js/core/rig.js, bird.js, pip.js; the Blender file and tools are in design/rig). The six moods the app's screens use, then a few more the rig has. Tap one to hop and hear it.', h('div', { class: 'art-row' }, ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow', 'wave', 'love', 'sad', 'fly'].map(m => h('figure', null, pip(m, 96, { lang: root.dataset.lang || 'de' }), m)), h('figure', null, h('span', { class: 'pip', style: '--pip:96px', html: pipSVG('happy', 96) }), 'still'), h('figure', null, avatar('pip', 56), 'avatar'))),
     sec('Cast', null, h('div', { class: 'art-row' }, Object.keys(CAST).map(id => h('figure', null, avatar(id, 64), CAST[id].name)))),
     sec('Unit signs', null, h('div', { class: 'art-row' }, Object.keys(UNIT_ART).map(t => h('figure', { title: t }, unitSign(t, 52), t.length > 16 ? t.slice(0, 15) + '…' : t)))),
     sec('Badges and chest', null, h('div', { class: 'art-row' }, Object.keys(BADGE_ART).map((k, i) => h('figure', null, medal(k, i % 3 !== 2, 64), k)), h('figure', null, h('span', { class: 'chest ready', html: chestSVG() }), 'chest'))),

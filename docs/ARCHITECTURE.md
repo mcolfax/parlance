@@ -8,7 +8,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 |---|---|---|
 | `styles/tokens.css` | Design tokens: every color, type role, radius, spacing step, shadow, motion curve and layer | restyle anything globally |
 | `styles/base.css` | Reset, typography, buttons, chips, cards, fields, toggles, tab bar, overlays, sheets, toasts | change a shared building block |
-| `styles/art.css` | Pip the parrot, cast portraits, unit signs, story scenes, medals, the word popover | change illustrations or Pip's motion |
+| `styles/art.css` | Pip's box and speech bubble, cast portraits, unit signs, story scenes, medals, the word popover | change illustrations |
 | `styles/components.css` | Screen-level styles grouped by feature | change one screen |
 | `styles/film.css`, `styles/features.css` | Intro film; feedback, Studio, update banner, What's new | change those features |
 | `styleguide.html` | Living style guide rendered from the tokens and art functions | review the design system |
@@ -22,7 +22,8 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `js/core/engine.js` | XP, streaks, spaced repetition, quests, badges, lesson status, exercises, grading | change learning logic |
 | `js/core/remote.js` | Live content packs, update banner, announcements, What's new, sharing a lesson | change live updates |
 | `js/core/host.js` | The web version's accounts and database: the same `window.claude.use()` surface, backed by Supabase | change how the web version signs in or stores data |
-| `js/core/art.js` | Pip, cast portraits, unit signs, scenes, chest, medals (pure SVG) | change illustrations |
+| `js/core/rig.js`, `js/core/bird.js`, `js/core/pip.js` | Pip's rig: the SVG runtime (blending, moves, blinks, springs, the head turn), the shared bird (skeleton, poses, faces, moods, moves) and Pip's part sheet traced from the model sheet. `design/rig/` holds the Blender file, the tracing tools and the review pages | change how Pip looks or moves (read `design/rig/README.md` first) |
+| `js/core/art.js` | `pip()` (a live Pip that hops and talks when tapped) and `pipSVG()` (a still), cast portraits, unit signs, scenes, chest, medals (pure SVG) | change illustrations |
 | `content/*.js` | Lessons, stories, cast, glossary (data only) | add or fix built-in content |
 | `js/ui/*.js` | One file per screen: learn, review, stories, talk, me, runner (lessons), onboarding, film, feedback, studio | change a screen |
 | `js/main.js` | Boot order | rarely |

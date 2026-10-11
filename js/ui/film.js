@@ -26,6 +26,11 @@ function kv(t, keys){
 }
 const fade = (a, b, c, d) => [[a, 0], [b, 1], [c, 1], [d, 0]];
 function inner(svg){ return svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, ''); }
+/* Pip in the film: the rig's still for a mood ('fly' spreads the wings), in the 120 x 114 box the film places and moves */
+function filmPip(mood){
+  const svg = pipSVG(mood, 110), lw = (svg.match(/--rig-lw:([\d.]+)/) || [0, '3'])[1];
+  return '<g class="rig rig-pip" style="--rig-lw:' + lw + '" transform="scale(' + (120 / PIP_VIEW[2]).toFixed(4) + ') translate(' + -PIP_VIEW[0] + ' ' + -PIP_VIEW[1] + ')">' + inner(svg) + '</g>';
+}
 
 /* ----- the cast of the film ----- */
 const FILM_CAST = ['lena', 'jonas', 'weber', 'emre', 'sofia', 'diego', 'carmen', 'mateo'];
@@ -100,7 +105,7 @@ function filmSVG(){
     '<g id="f-end"><text x="180" y="444" class="f-end de">Los geht’s!</text><text x="180" y="482" class="f-end es">¡Vámonos!</text><text x="180" y="516" class="f-end en">Let’s go.</text></g>' +
     /* Pip on top of everything */
     '<g id="f-bubble"><rect x="-72" y="-20" width="144" height="36" rx="18" class="f-bub"/><path d="M-6 15 L4 26 L10 15 Z" class="f-bub"/><text x="0" y="5" class="f-bub-t" id="f-bubble-t">Hi! I’m Pip.</text></g>' +
-    '<g id="f-pip"><g transform="translate(-60 -57)" class="pip happy" id="f-pip-in">' + inner(pipSVG('happy')) + '</g></g>' +
+    '<g id="f-pip"><g transform="translate(-60 -57)" class="pip happy" id="f-pip-in">' + filmPip('happy') + '</g></g>' +
     '</svg>';
 }
 
@@ -155,7 +160,7 @@ function openFilm(opts = {}){
   Film.svg = stage.querySelector('svg');
   Film.els = {}; Film.actors = filmActors();
   for (const id of Object.keys(Film.actors)){ const el = Film.svg.querySelector('#' + id); if (el) Film.els[id] = el; }
-  Film.pipIn = Film.svg.querySelector('#f-pip-in'); Film.pipMood = 'happy'; Film.pipCls = '';
+  Film.pipIn = Film.svg.querySelector('#f-pip-in'); Film.pipMood = 'happy'; Film.pipLook = 'happy'; Film.pipCls = '';
   Film.lens = {};
   for (const id of ['f-line1']){ const el = Film.els[id]; let L = 420; try { L = el.getTotalLength() || 420; } catch (e) {} Film.lens[id] = L; el.style.strokeDasharray = L; }
   const rp = Film.svg.querySelector('.f-route'); let RL = 560; try { RL = rp.getTotalLength() || 560; } catch (e) {} Film.lens['f-route'] = RL; rp.style.strokeDasharray = RL;
@@ -237,7 +242,9 @@ function filmRender(t){
   // Pip mood + flying
   let mood = 'happy', cls = '';
   for (const [mt, m, c] of FILM_PIP) if (t >= mt){ mood = m; cls = c; }
-  if (mood !== Film.pipMood){ Film.pipMood = mood; Film.pipIn.innerHTML = inner(pipSVG(mood)); }
+  const look = cls === 'fly' ? 'fly' : mood;
+  if (look !== Film.pipLook){ Film.pipLook = look; Film.pipIn.innerHTML = filmPip(look); }
+  Film.pipMood = mood;
   if (('pip ' + mood + (cls ? ' ' + cls : '')) !== Film.pipIn.getAttribute('class')) Film.pipIn.setAttribute('class', 'pip ' + mood + (cls ? ' ' + cls : ''));
   // route stations light up as Pip passes; chest opens; streak counts
   ROUTE_PTS.forEach((_, i) => { const st = Film.svg.querySelector('#f-rst' + i); if (st) st.classList.toggle('lit', t >= 27.0 + i * 0.6); });

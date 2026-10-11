@@ -114,7 +114,7 @@ function routeStrip(){
     h('div', { class: 'row' }, h('span', { class: 'eyebrow' }, 'Your route'), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, 'Now on ' + cur + ' · ' + LEVEL_NAME[cur])),
     h('div', { class: 'route-track' }, h('span', { class: 'route-fill', style: 'width:' + fill + '%' }),
       LEVELS.map((lv, i) => h('button', { class: 'lvl' + (levelComplete(lang, lv) ? ' done' : i === ci ? ' cur' : ''), type: 'button', 'aria-label': lv + ' ' + LEVEL_NAME[lv] + ', ' + st[lv].done + ' of ' + st[lv].total + ' lessons' + (i === ci ? ', you are here' : ''), onclick: () => { UI.open.add(lv); render(); const el = document.getElementById('lv-' + lv); if (el) el.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }); } },
-        i === ci ? h('span', { class: 'route-pip', 'aria-hidden': 'true', html: pipSVG('happy') }) : h('i'), h('span', null, lv), h('small', null, st[lv].done + '/' + st[lv].total)))));
+        i === ci ? h('span', { class: 'route-pip', 'aria-hidden': 'true', html: pipSVG('happy', 40) }) : h('i'), h('span', null, lv), h('small', null, st[lv].done + '/' + st[lv].total)))));
 }
 function stationList(lessons, lang){
   const nx = nextLesson(lang);
