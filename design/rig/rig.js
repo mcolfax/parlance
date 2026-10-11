@@ -53,7 +53,11 @@ const Rig = (() => {
     if (def._c) return def._c;
     const byId = {};
     const bones = def.bones.map((b, i) => {
-      const o = { id: b.id, i, x: b.x, y: b.y, parent: -1, kids: [], turn: b.turn || null };
+      const T = def.turn || {};
+      let turn = b.turn || null;
+      /* a feature's angle on the head's sphere comes from where it is drawn, unless the bone names one */
+      if (turn && turn.R && turn.phi == null) turn = Object.assign({}, turn, { phi: Math.asin(clamp((b.x - (T.cx || 120)) / turn.R, -1, 1)) / DEG });
+      const o = { id: b.id, i, x: b.x, y: b.y, parent: -1, kids: [], turn };
       if (byId[b.id]) throw new Error('Rig: duplicate bone ' + b.id);
       byId[b.id] = o;
       if (b.parent){
@@ -136,15 +140,17 @@ const Rig = (() => {
   function addCh(c, ch, v, w) { if (MULT[ch]) c[ch] *= 1 + (v - 1) * w; else c[ch] += v * w; }
   function drivers(c, def, chans, params) {
     const T = def.turn || { head: 35, body: 0.6 };
-    const th = params.turn * T.head;
-    const thb = (params.bodyTurnSet ? params.bodyTurn : params.turn * (T.body == null ? 0.6 : T.body)) * T.head;
+    /* turn 0 faces front; the drawings were made at turn T.setup, so features move by the difference */
+    const kb = T.body == null ? 0.6 : T.body, s0 = T.setup || 0;
+    const th = (params.turn - s0) * T.head;
+    const thb = ((params.bodyTurnSet ? params.bodyTurn : params.turn * kb) - s0 * kb) * T.head;
     for (const b of c.bones){
       const s = b.turn; if (!s) continue;
-      const ch = chans[b.i], t = s.body ? thb : th;
+      const ch = chans[b.i], t = s.body ? thb : th, abs = t + (s.body ? s0 * kb : s0) * T.head;
       if (s.R){ const phi = s.phi || 0; ch.x += s.R * (Math.sin((phi + t) * DEG) - Math.sin(phi * DEG)); if (s.squash){ ch.sx *= clamp(Math.cos((phi + t) * DEG) / Math.cos(phi * DEG), 0.35, 1.35); } }
       if (s.near) { const k = 1 + s.near * (t / T.head); ch.sx *= k; ch.sy *= k; }
       if (s.wx) ch.sx *= clamp(1 + s.wx * (t / T.head), 0.4, 1.6);   // foreshorten width only
-      if (s.flip) { const k = clamp(t / s.flip, -1, 1); ch.sx *= Math.abs(k) < 0.04 ? 0.04 * Math.sign(k || 1) : k; }
+      if (s.flip) { const k = clamp(abs / s.flip, -1, 1); ch.sx *= Math.abs(k) < 0.04 ? 0.04 * Math.sign(k || 1) : k; }
       if (s.dx) ch.x += s.dx * (t / T.head);
       if (s.rot) ch.r += s.rot * (t / T.head);
     }
@@ -196,6 +202,11 @@ const Rig = (() => {
     let s = '.rig-' + id + '{overflow:visible}';
     for (const k in P) s += '.rig-' + id + ' .k-' + k + '{fill:' + v(k) + '}';
     s += '.rig-' + id + ' .o{stroke:' + v('ink') + ';stroke-width:calc(var(--rig-lw,2) * 1px);stroke-linejoin:round;stroke-linecap:round}';
+    const lmin = L.min || 1.7;
+    s += '.rig-' + id + ' .ol{fill:none;stroke:' + v('ink') + ';stroke-width:calc(var(--rig-lw,2) * 1px);stroke-linejoin:round;stroke-linecap:round}';
+    s += '.rig-' + id + ' .ol2{fill:none;stroke:' + v('ink') + ';stroke-width:calc(var(--rig-lw,2) * ' + (L.thin || 0.5) + 'px);stroke-linejoin:round;stroke-linecap:round}';
+    /* drawn ink shapes (brows, pupils, feather lines) put on weight as the outline does when the bird is small */
+    s += '.rig-' + id + ' .k-ink{stroke:' + v('ink') + ';stroke-width:calc((var(--rig-lw,' + lmin + ') - ' + lmin + ') * ' + (L.grow == null ? 0.6 : L.grow) + 'px);stroke-linejoin:round}';
     s += '.rig-' + id + ' .ln{fill:none;stroke:' + v('ink') + ';stroke-width:calc(var(--rig-lw,2) * ' + (L.feature || 1.25) + 'px);stroke-linecap:round;stroke-linejoin:round}';
     s += '.rig-' + id + ' .ln2{fill:none;stroke:' + v('ink') + ';stroke-width:calc(var(--rig-lw,2) * ' + (L.detail || 0.75) + 'px);stroke-linecap:round;stroke-linejoin:round}';
     s += '.rig-' + id + ' .gl{fill:none;stroke:' + v('gloss') + ';stroke-linecap:round}';

@@ -42,22 +42,23 @@ Pip, and later Kiwi, Mango, Kakadu and Rojo, are **cut-out vector rigs**. Each b
 
 ## The shared skeleton
 
-Pivots are in setup space. Bones marked *turn* move with the head turn; *spring* bones swing on their own.
+Pivots are in setup space. Bones marked *turn* move with the head turn; *spring* bones swing on their own. A turning
+feature's angle on the head's sphere comes from where it is drawn (x 120 is the middle of the head).
 
 | Bone | Parent | Pivot | Role |
 |---|---|---|---|
-| root | | 120, 250 | Whole bird: position, hops, squash and stretch around the feet |
+| root | | 114, 250 | Whole bird: position, hops, squash and stretch around the feet |
 | shadow | | 120, 251 | Ground shadow; follows root x and shrinks as the bird lifts |
-| legL, legR | root | 99/141, 230 | Legs stay planted when the body leans (turn) |
-| body | root | 120, 236 | Lean and breathing, pivoting at the bottom |
-| torso | body | 120, 160 | Body shape, belly, wings, tail; twists against a head turn |
-| tail | torso | 120, 208 | Spring; flips to the far side with the turn |
-| belly | torso | 120, 194 | Turn |
-| wingL, wingR | torso | 86/154, 164 | Shoulders. Rest angle is hanging down; positive r raises the left wing |
+| legL, legR | root | 95.8/129.4, 231 | Legs stay planted when the body leans (turn) |
+| body | root | 113, 236 | Lean and breathing, pivoting at the bottom |
+| torso | body | 118, 170 | Body shape, belly, wings, tail; twists a little against a head turn |
+| tail | torso | 110, 206 | Spring; shortens toward front view and flips to the far side past it |
+| belly | torso | 126, 195 | Turn |
+| wingL, wingR | torso | 97/150, 165/164 | Shoulders. Rest angle is hanging down; positive r raises the left wing |
 | head | body | 120, 158 | Neck |
-| crest | head | 120, 66 | Crest root (turn); crest1–3 are springs |
-| eyeL/R → pupilL/R, browL/R | head | 90/150, 118 | Eye patch (turn, foreshortens), pupil (look-at), brow (lifts and tilts) |
-| beak → jaw | head | 120, 128 / 132 | Upper beak (turn); jaw drops while talking |
+| crest | head | 123, 62 | Crest root (turn); crest1–3 are springs, drawn in front of the head |
+| eyeL/R → pupilL/R, browL/R | head | 95.9/156.3, 118.6/114.6 | Eye patch (turn, foreshortens), pupil (look-at), brow (lifts and tilts) |
+| beak → jaw | head | 128.7, 124 / 134 | Upper beak (turn); jaw drops while talking |
 | cheekL/R, sweat, fxHead | head | | Blush, sweat drop, head effects |
 | fx | root | 120, 110 | Body effects (sparkles, notes) |
 
@@ -65,12 +66,12 @@ Pivots are in setup space. Bones marked *turn* move with the head turn; *spring*
 
 A bird file calls `Bird.make({ id, name, palette, parts, pivots })`. Use `pip.js` as the template.
 
-1. **Start from the concept sheet** in `reference/`, at 1 px = 0.5 unit with the head centred on x 120 and the ground on y 250. Measure head, eye patches, belly, wings, tail and feet first (color masks and silhouette profiles work well), then trace.
+1. **Start from the concept sheet** in `reference/`, at 1 px = 0.5 unit with the head centred on x 120 and the ground on y 250. Pip is traced straight from it with the scripts in `tools/trace/` (see its README): the neutral drawing is the setup pose, turned a little to the viewer's right (`turn.setup` 0.22, so turn 0 still faces front), and outlines are strokes (`ol`, `ol2` for the beak) only where the sheet has ink. The belly and eye patches have no outline, the head runs into the chest without a chin line, and the crest sits in front of the crown.
 2. **Draw every slot below.** Missing drawings fail `check.js`, because shared poses ask for them.
    - `head.on`, `body.on`, `belly.on`, `tail.fan`, `crest1/2/3.on`, `patchL/R.on`
    - `pupilL/R`: open, wide, wet, happy, closed, blink, lidded, squeeze, heart
    - `browL/R.arc`
-   - `beak`: closed, open. `mouth`: closed, smile, frown, grin, open, wide, o
+   - `beak`: closed, open, up (the raised upper beak for wide mouths). `mouth`: closed, smile, frown, grin, open, wide, o. Closed mouths (closed, smile, frown, o) are whole beaks; open ones are the lower beak under the upper one
    - `wingL/R`: folded, spread, both at the hanging rest angle around the shoulder pivot. Author the spread wing raised and wrap it in `rotate(-132 86 164)`, as Pip does.
    - `legL/R`: stand, tuck
 3. **Species extras** are extra bones and slots: Kakadu's five-feather crest, Rojo's face patch lines, Kiwi's cere and throat dots. Pass `bones` (after their parents) and `slots` (a function that edits the shared draw order).
