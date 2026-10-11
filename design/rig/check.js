@@ -1,8 +1,8 @@
 /* Checks every bird's rig data and renders each mood and part once.
    Usage: node design/rig/check.js   (ends with "ok", or lists what's wrong and exits 1) */
-const Rig = require('./rig.js');
-const Bird = require('./bird.js');
-const birds = [require('./pip.js')];
+const Rig = require('../../js/core/rig.js');
+const Bird = require('../../js/core/bird.js');
+const birds = [require('../../js/core/pip.js')];
 const SKELETON = Bird.BIRD.bones.map(b => b.id);
 let fail = 0;
 const bad = (who, msg) => { console.log('FAIL ' + who + ': ' + msg); fail++; };

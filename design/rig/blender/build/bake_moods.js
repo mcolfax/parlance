@@ -1,6 +1,6 @@
 /* Bake every mood (and the layered moves) of the SVG rig into sparse keyframes for Blender.
    Values are what the SVG rig shows: pose + face + move, with the 2.5D turn and the look offsets folded in.
-   Usage: node bake_moods.js <rig dir> <out.json>
+   Usage: node bake_moods.js <dir with rig.js and pip.js, js/core> <out.json>
    Output: { moods: { name: { loop, dur, bones: { bone: { ch: [[t, v, ease], …] } }, slots: { slot: [[t, att]] }, depth: { slot: d } } },
              moves: { name: { loop, dur, bones: … } } }   (moves are offsets from rest, for layering on any mood) */
 const path = require('path');

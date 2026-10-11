@@ -1,12 +1,13 @@
 # Character rig
 
-Pip, and later Kiwi, Mango, Kakadu and Rojo, are traced from their model sheets and rigged in **Blender**. The
-Blender file is the source for poses and moves, and a small three.js player shows it in the browser. See
-[`blender/README.md`](blender/README.md) for how to open, edit and export Pip.
+Pip, and later Kiwi, Mango, Kakadu and Rojo, are traced from their model sheets and rigged. The app draws Pip with
+the SVG rig in `js/core/` (runtime, shared bird and Pip's part sheet), and the Blender file is built from the same
+drawings, poses and moves for the three.js player and for editing by eye. See [`blender/README.md`](blender/README.md)
+for how to open, edit and export Pip in Blender.
 
 - **Review page:** [`index.html`](index.html), published for review at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF (private until shared). Each section has a Comment button that opens the viewer's comment box on it. Open it locally with `npm run preview`, then go to http://127.0.0.1:8765/design/rig/index.html.
 - **Blender rig:** `blender/pip.blend`, exported to `blender/pip.gltf.json` and played by `blender/pip3d.js`.
-- **Part sheet and SVG rig:** `pip.js` (the traced drawings), `bird.js` (the shared skeleton, poses and moves) and `rig.js` (an SVG runtime). The Blender build starts from these, and `Rig.svg` still draws small static Pips (avatars, thumbnails) without WebGL. The SVG rig's own review page is `svg.html`.
+- **In the app:** `js/core/pip.js` (the traced drawings), `js/core/bird.js` (the shared skeleton, poses, faces, moods and moves) and `js/core/rig.js` (the SVG runtime). `pip()` and `pipSVG()` in `js/core/art.js` use them, and the Blender build starts from them. The SVG rig's own review page is `svg.html`.
 - **Figma:** the first part sheet is on the Pip page of the [design file](https://www.figma.com/design/ZOAqSm0kQAjzkppKF0jLlS), as described in Figma below.
 - **Check the data:** `node design/rig/check.js` must end with `ok`.
 
@@ -37,9 +38,9 @@ Blender file is the source for poses and moves, and a small three.js player show
 
 | File | What it is |
 |---|---|
-| `rig.js` | The runtime: matrices, pose blending, clips, idle, blink, talk, look-at, springs, 2.5D turn, static SVG export, validation. No dependencies. |
-| `bird.js` | The shared bird: skeleton, slots, poses, faces, moods, moves, springs and the effects any bird can show (sweat, tear, blush, sparkles, notes, zzz, ?, !, hearts). |
-| `pip.js` | Pip's part sheet and palette, and nothing else. |
+| `js/core/rig.js` | The runtime: matrices, pose blending, clips, idle, blink, talk, look-at, springs, 2.5D turn, mirrors, static SVG export, validation. No dependencies. |
+| `js/core/bird.js` | The shared bird: skeleton, slots, poses, faces, moods, moves, springs and the effects any bird can show (sweat, tear, blush, sparkles, notes, zzz, ?, !, hearts). |
+| `js/core/pip.js` | Pip's part sheet and palette, and nothing else. Written by `tools/trace/build_pip.py`. |
 | `index.html` | The review page: the live Blender rig, moods and moves, the concept-vs-rig wipe, the mood library, and how to edit Pip in Blender. |
 | `blender/` | The Blender rig (`pip.blend`), its web export, the three.js player and the build scripts. See its README. |
 | `svg.html` | The SVG rig's review page: live stage, pose library, part sheet, skeleton, puppet sliders. |
@@ -73,7 +74,7 @@ feature's angle on the head's sphere comes from where it is drawn (x 120 is the 
 
 ## Drawing a new bird (the part-sheet spec)
 
-A bird file calls `Bird.make({ id, name, palette, parts, pivots })`. Use `pip.js` as the template.
+A bird file calls `Bird.make({ id, name, palette, parts, pivots })`. Use `js/core/pip.js` as the template.
 
 1. **Start from the concept sheet** in `reference/`, at 1 px = 0.5 unit with the head centred on x 120 and the ground on y 250. Pip is traced straight from it with the scripts in `tools/trace/` (see its README): the neutral drawing is the setup pose, turned a little to the viewer's right (`turn.setup` 0.22, so turn 0 still faces front), and outlines are strokes (`ol`, `ol2` for the beak) only where the sheet has ink. The belly and eye patches have no outline, the head runs into the chest without a chin line, and the crest sits in front of the crown.
 2. **Draw every slot below.** Missing drawings fail `check.js`, because shared poses ask for them.
@@ -106,13 +107,21 @@ Rig.validate(PIP)            // list of problems, [] when fine
 
 Live rigs share one animation frame loop, pause off screen and in background tabs, and hold still (no idle, springs or moves) for people who ask for reduced motion.
 
-## Bringing it into the app (after approval)
+## In the app (since Parlance 4.5.0)
 
-1. Move `rig.js` to `js/core/rig.js` and load it before `js/core/art.js`. Move `bird.js` and the bird files next to it, or fold them into `art.js`.
-2. Put the palette in `styles/tokens.css` as `--pip-*` tokens, with dark values if wanted. The rig already reads `var(--pip-body, …)`. To keep line-colored Pips, set `--pip-body: var(--line)`.
-3. Keep the `pip(mood, size, opts)` and `setPipMood()` API so screens don't change. Big Pips use `Rig.create`; avatars and the route marker use `Rig.svg`. Map tap-to-hop to `pip.hop()` and the spoken line to `pip.talking()`.
-4. The intro film can drive one live rig from its playhead with `set`, `play` and `override`, instead of swapping mood SVGs.
-5. Add the rig checks to `dev/test.js`: validate every bird, render every mood, and check that the moods `pip()` uses exist. Then bump the version and ship.
+- `rig.js`, `bird.js` and `pip.js` live in `js/core/` and load before `js/core/art.js`.
+- `pip(mood, size, opts)` is a live rig (`Rig.create`): it breathes, blinks, glances, plays the mood's move, hops when
+  tapped and moves its beak while the spoken line plays. `setPipMood(el, mood)` blends it to another mood.
+  `pipSVG(mood, size, view)` is a still (`Rig.svg`) for the route marker, avatars (a head-and-shoulders view), the
+  intro film and the Home Screen icons (`dev/icons.js`). Both frame Pip in the 120 x 114 box screens were laid out for.
+- The palette is the `--pip-*` tokens in `styles/tokens.css`. To have Pip wear the language's line color, set
+  `--pip-body: var(--line)` there.
+- Live rigs share one animation frame loop, sleep off screen, and let go of their observers once their screen is
+  gone, so screens that redraw often don't pile them up.
+- `dev/test.js` validates the rig and renders the moods screens use.
+- **Changing Pip:** poses, faces, moods and moves are data in `js/core/bird.js`; the app follows them directly. Then
+  rebuild the Blender file and its export with `blender/build/build.sh`, so the review page matches. A pose edited only
+  in Blender changes the three.js player, not the app.
 
 ## Figma
 

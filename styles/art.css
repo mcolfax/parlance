@@ -1,70 +1,11 @@
 /* ===================== ART =====================
    Pip the parrot, cast portraits, unit signs, story scenes, medals and the tap-to-translate popover.
    ================================================ */
-/* ----- Pip the parrot ----- */
+/* ----- Pip the parrot: drawn and moved by the rig (js/core/rig.js); these style the box it sits in ----- */
 .pip{position:relative;display:inline-block;width:var(--pip);height:calc(var(--pip) * .95);flex:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pip-svg{width:100%;height:100%;display:block;overflow:visible}
-.p-body,.p-head{fill:var(--line)}
-.p-belly{fill:var(--pip-belly)}
-.p-wing path:first-child{fill:var(--pip-wing)}
-.p-feather{fill:none;stroke:color-mix(in srgb, var(--pip-wing) 70%, #000);stroke-width:1.6;stroke-linecap:round;opacity:.55}
-.p-tail.a,.p-crest .c1,.p-crest .c3{fill:var(--pip-accent)}
-.p-tail.b{fill:var(--pip-wing)}
-.p-crest .c2{fill:var(--pip-accent-2)}
-.p-face{fill:var(--pip-face)}
-.p-eyes ellipse,.p-eyes circle{fill:var(--pip-ink)}
-.p-eyes .p-glint{fill:#fff}
-.p-line{fill:none;stroke:var(--pip-ink);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
-.p-line.thin{stroke-width:2.4}
-.p-beak{fill:var(--pip-beak);stroke:var(--pip-ink);stroke-width:1.8;stroke-linejoin:round}
-.p-beak-hi{fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;opacity:.9}
-.p-mouth{fill:#2A2F33;stroke:var(--pip-ink);stroke-width:1.4;stroke-linejoin:round}
-.p-tongue{fill:#FF8A80}
-.p-cheek{fill:#FF8A80;opacity:.45}
-.p-feet{fill:none;stroke:var(--pip-feet);stroke-width:3;stroke-linecap:round}
-.p-shadow{fill:#000;opacity:.12}
-.p-spark{opacity:0;transform-box:fill-box;transform-origin:center}
-.p-spark path{fill:var(--gold)}
-.p-z{opacity:0}
-.p-z text{font:800 15px var(--display);fill:var(--muted)}
-.p-bob{animation:pipbob 3.4s ease-in-out infinite;transform-origin:60px 104px}
-.p-eyes{transform-box:fill-box;transform-origin:center;animation:pipblink 5.2s infinite}
-.p-crest{transform-box:fill-box;transform-origin:50% 100%}
-@keyframes pipbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
-@keyframes pipblink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.12)}}
-@keyframes flapL{from{transform:rotate(0)}to{transform:rotate(42deg)}}
-@keyframes flapR{from{transform:rotate(0)}to{transform:rotate(-42deg)}}
-@keyframes crest{0%,100%{transform:rotate(0)}50%{transform:rotate(-9deg)}}
-@keyframes piphop{0%,100%{transform:translateY(0) scale(1)}30%{transform:translateY(-12px) scale(1.04,.97)}55%{transform:translateY(0) scale(1.06,.93)}75%{transform:translateY(-3px) scale(1)}}
-@keyframes pipwobble{20%{transform:rotate(-7deg)}45%{transform:rotate(6deg)}70%{transform:rotate(-3deg)}100%{transform:rotate(0)}}
-@keyframes spark{0%{opacity:0;transform:scale(.4)}30%{opacity:1;transform:scale(1.15)}100%{opacity:0;transform:scale(.8)}}
-@keyframes zz{0%{opacity:0;transform:translate(0,4px)}30%{opacity:1}100%{opacity:0;transform:translate(7px,-12px)}}
 @keyframes flyin{0%{transform:translate(-110vw,-60px) rotate(-8deg)}70%{transform:translate(6px,4px) rotate(3deg)}100%{transform:none}}
-.pip.cheer .p-eyes,.pip.sleep .p-eyes{animation:none}
-.pip.cheer .p-bob{animation:piphop .8s var(--spring) 2,pipbob 3.4s ease-in-out 1.6s infinite}
-.pip.cheer .p-spark{animation:spark 1.1s ease-out 2}
-.pip.cheer .p-wing.l{animation:flapL .2s ease-in-out 6 alternate}
-.pip.cheer .p-wing.r{animation:flapR .2s ease-in-out 6 alternate}
-.pip.cheer .p-crest{animation:crest .5s ease-in-out 3}
-.pip.oops .p-bob{animation:pipwobble .6s ease both,pipbob 3.4s ease-in-out .6s infinite}
-.pip.wow .p-bob{animation:pipbob 1.4s ease-in-out infinite}
-.pip.wow .p-crest{animation:crest .9s ease-in-out infinite}
-.pip.sleep .p-bob{animation:pipbob 5s ease-in-out infinite}
-.pip.sleep .p-z{opacity:1}
-.pip.sleep .p-z text{animation:zz 3s ease-in-out infinite}
-.pip.sleep .p-z text:nth-child(2){animation-delay:1.2s}
-.pip.think .p-crest{transform:rotate(-6deg)}
-.pip.fly .p-wing.l{animation:flapL .13s linear infinite alternate}
-.pip.fly .p-wing.r{animation:flapR .13s linear infinite alternate}
-.pip.fly .p-feet{opacity:.4}
-.pip.fly .p-shadow{opacity:0}
-.pip.hop .p-bob{animation:piphop .7s var(--spring)}
-.pip.hop .p-spark{animation:spark .9s ease-out}
-.pip.hop .p-wing.l{animation:flapL .15s ease-in-out 4 alternate}
-.pip.hop .p-wing.r{animation:flapR .15s ease-in-out 4 alternate}
 .pip.fly-in{animation:flyin 1.6s var(--ease) .2s both}
-.pip.fly-in .p-wing.l{animation:flapL .13s linear 12 alternate}
-.pip.fly-in .p-wing.r{animation:flapR .13s linear 12 alternate}
 .pip-say{position:absolute;bottom:calc(100% - 4px);right:50%;transform:translateX(34%);background:var(--surface);color:var(--ink);border:1.5px solid var(--hair);border-radius:var(--r-md);padding:6px 10px;font:780 14px/1.2 var(--display);white-space:nowrap;box-shadow:var(--shadow);pointer-events:none;z-index:2;animation:sayin .45s var(--spring) .35s both}
 .pip-say::after{content:"";position:absolute;bottom:-7px;right:28%;width:11px;height:11px;background:var(--surface);border-right:1.5px solid var(--hair);border-bottom:1.5px solid var(--hair);transform:rotate(45deg)}
 .pip-say.pop{animation:sayin .4s var(--spring) both}
@@ -72,12 +13,10 @@
 .pip-say.up-right::after{right:auto;left:14px}
 @keyframes sayin{from{opacity:0;transform:translateX(34%) translateY(8px) scale(.8)}}
 @keyframes sayinR{from{opacity:0;transform:translateY(8px) scale(.8)}}
-.cast-av.is-pip .p-bob,.cast-av.is-pip .p-eyes{animation:none}
 /* cast portraits */
 .cast-av{display:inline-block;width:var(--av);height:var(--av);border-radius:50%;overflow:hidden;flex:none;background:var(--line-soft);vertical-align:middle}
 .cast-av svg{display:block;width:100%;height:100%}
-.cast-av.is-pip{padding:7%}
-.cast-av.is-pip .p-bob,.cast-av.is-pip .p-eyes{animation:none}
+.cast-av.is-pip{padding:6%}
 .av-stack{display:inline-flex;align-items:center}
 .av-stack .cast-av{margin-left:-9px;box-shadow:0 0 0 2px var(--surface)}
 .av-stack .cast-av:first-child{margin-left:0}

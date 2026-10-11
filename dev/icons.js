@@ -1,5 +1,5 @@
-/* Draws the web version's Home Screen icons into media/icons/ from the real art (pipSVG in js/core/art.js) and
-   tokens (styles/tokens.css): Pip in the German line color on the Spanish one. Run it again after changing Pip.
+/* Draws the web version's Home Screen icons into media/icons/ from the real art (pipSVG in js/core/art.js, drawn by
+   Pip's rig) and tokens (styles/tokens.css): Pip on the Spanish line color. Run it again after changing Pip.
    Needs Playwright: NODE_PATH="$(npm root -g)" node dev/icons.js */
 const path = require('path');
 const fs = require('fs');
@@ -24,8 +24,8 @@ const ICONS = [   // [file, size, Pip's height as a share of the icon]
       document.head.append(Object.assign(document.createElement('style'), { textContent: '*{animation:none!important;transition:none!important}html,body{margin:0;padding:0;background:var(--es)}' }));
       const box = document.createElement('div');
       box.style.cssText = 'width:' + size + 'px;height:' + size + 'px;display:grid;place-items:center;background:var(--es)';
-      box.innerHTML = '<span class="pip happy" style="--pip:' + Math.round(size * share) + 'px">' + pipSVG('happy') + '</span>';
-      box.querySelector('.p-shadow').remove();
+      box.innerHTML = '<span class="pip happy" style="--pip:' + Math.round(size * share) + 'px">' + pipSVG('happy', Math.round(size * share)) + '</span>';
+      box.querySelector('[data-s="shadow"]').remove();
       document.body.replaceChildren(box);
     }, [size, share]);
     await page.screenshot({ path: path.join(OUT, file), clip: { x: 0, y: 0, width: size, height: size } });

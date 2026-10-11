@@ -8,7 +8,7 @@ const { execSync } = require('child_process');
 let chromium;
 try { ({ chromium } = require('playwright')); }
 catch (e){ ({ chromium } = require(path.join(execSync('npm root -g').toString().trim(), 'playwright'))); }
-const RIG = path.join(__dirname, '..') + path.sep;
+const RIG = path.join(__dirname, '..', '..', '..', 'js', 'core') + path.sep;   // rig.js, bird.js and pip.js
 const OUT = process.argv[2] || os.tmpdir();
 fs.mkdirSync(OUT, { recursive: true });
 (async () => {

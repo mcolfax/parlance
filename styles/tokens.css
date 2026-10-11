@@ -15,7 +15,7 @@
   --flame:#E8412C; --sun:#FFD23F;
   --der:#2360C6; --die:#C22E29; --das:#00737D; --pl:#7847B3;
   --gold:#B8860B;
-  --pip-face:#FBFEFD; --pip-ink:#13262B; --ice:#CFE6F7;
+  --ice:#CFE6F7;
   --sc-warm:#E9A23B; --sc-red:#D9604C; --sc-sage:#7FB5A0; --sc-night:#1C2D3B; --sc-house:#C9D6D4; --sc-glow:rgb(255 214 120 / .38); --sc-glowbox:#FFE9B8; --sc-crate:#B98A5A; --sc-moon:#F5E7B5;
   --edge:0 2px 0 var(--hair);   /* the soft ledge under cards */
   --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(21 48 31 / .08);
@@ -44,9 +44,13 @@
   --dur-fast:.15s; --dur:.3s; --dur-slow:.6s;
   /* layers */
   --z-tabs:20; --z-overlay:50; --z-sheet:80; --z-toast:90; --z-pop:95; --z-banner:100; --z-fx:120;
-  /* Pip the parrot */
-  --pip-belly:color-mix(in srgb, var(--line) 36%, #fff); --pip-wing:color-mix(in srgb, var(--line) 72%, #000);
-  --pip-accent:#E4572E; --pip-accent-2:#F2B544; --pip-beak:#F6E9D2; --pip-feet:#8D99A6;
+  /* Pip the parrot: the colors of the model sheet. The rig (js/core/rig.js) fills each drawing with --pip-<role>.
+     To have Pip wear the language's line color instead, set --pip-body: var(--line) and --pip-body2: var(--line-edge). */
+  --pip-ink:#0B2A1E; --pip-body:#06777C; --pip-body2:#056C70; --pip-belly:#F9EFD6; --pip-face:#FCF7E9;
+  --pip-beak:#F6B340; --pip-beak2:#E39A2E; --pip-mouth:#3E2519; --pip-tongue:#F3674E;
+  --pip-crest:#EE5F35; --pip-crest2:#F7B440; --pip-tail:#F06137; --pip-tail2:#CD5229; --pip-feet:#808783;
+  --pip-glint:#FDFDF9; --pip-gloss:#6CC3C2; --pip-gloss2:#FDE59A; --pip-shadow:rgb(20 48 31 / .14);
+  --pip-blush:#FF8C8C; --pip-sweat:#A4DBF6; --pip-sweat2:#4CA3D6; --pip-spark:#F6B33F; --pip-heart:#F0565A;
   /* intro film (always dark, like a cinema) */
   --film-bg:#10241A; --film-ink:#F3FAF0; --film-muted:#A3BFA9; --film-card:#1A3A28; --film-line:#43BF73;
   --line:var(--de); --line-ink:var(--de-ink); --line-text:var(--de-text); --line-soft:var(--de-soft); --line-glow:var(--de-glow); --line-edge:var(--de-edge); --line-soft-edge:var(--de-soft-edge);
@@ -59,7 +63,7 @@
     --ok:#6BD99A; --ok-bg:#103222; --bad:#FF8C7F; --bad-bg:#3A1714; --warn:#F5CF5B; --warn-bg:#332A0E;
     --flame:#FF6A4D; --sun:#FFD84F;
     --der:#7BA8FF; --die:#FF7C75; --das:#4FD1D9; --pl:#C49CFF; --gold:#E8B84A;
-    --pip-face:#EAF3F2; --pip-ink:#0D1B1F; --ice:#1D3A52;
+    --ice:#1D3A52; --pip-shadow:rgb(0 0 0 / .32);
     --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
     --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(0 0 0 / .3);
     --shadow-lg:0 2px 6px rgb(0 0 0 / .4), 0 24px 60px rgb(0 0 0 / .45);
@@ -73,7 +77,7 @@
   --ok:#6BD99A; --ok-bg:#103222; --bad:#FF8C7F; --bad-bg:#3A1714; --warn:#F5CF5B; --warn-bg:#332A0E;
   --flame:#FF6A4D; --sun:#FFD84F;
   --der:#7BA8FF; --die:#FF7C75; --das:#4FD1D9; --pl:#C49CFF; --gold:#E8B84A;
-  --pip-face:#EAF3F2; --pip-ink:#0D1B1F; --ice:#1D3A52;
+  --ice:#1D3A52; --pip-shadow:rgb(0 0 0 / .32);
   --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
   --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(0 0 0 / .3);
   --shadow-lg:0 2px 6px rgb(0 0 0 / .4), 0 24px 60px rgb(0 0 0 / .45);

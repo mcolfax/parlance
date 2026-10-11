@@ -238,9 +238,10 @@ const Rig = (() => {
     const st = document.createElement('style'); st.id = sid; st.textContent = css(def);
     (document.head || document.documentElement).appendChild(st);
   }
-  /* Line weight that reads at any size: about 1.35 screen px, kept within a range of character units. */
-  function lineWidth(def, px) {
-    const L = def.lines || {}, vb = def.view;
+  /* Line weight that reads at any size: about 1.35 screen px, kept within a range of character units. px is the
+     width the view box (def.view unless given) is drawn at. */
+  function lineWidth(def, px, view) {
+    const L = def.lines || {}, vb = view || def.view;
     if (!px) return L.base || 2;
     const perUnit = px / vb[2];
     return clamp((L.px || 1.35) / perUnit, L.min || 1.7, L.max || 3.8);
@@ -292,7 +293,7 @@ const Rig = (() => {
     const { c, d, W, A } = staticFrame(def, spec);
     const vb = opts.view || def.view;
     const order = c.slots.slice().sort((a, b) => d.z[a.i] - d.z[b.i] || a.i - b.i);
-    let s = '<svg xmlns="' + NS + '" class="rig rig-' + def.id + (opts.cls ? ' ' + opts.cls : '') + '" viewBox="' + vb.join(' ') + '" style="--rig-lw:' + f3(lineWidth(def, opts.size)) + '"' + (opts.size ? ' width="' + opts.size + '" height="' + Math.round(opts.size * vb[3] / vb[2]) + '"' : '') + ' aria-hidden="true">';
+    let s = '<svg xmlns="' + NS + '" class="rig rig-' + def.id + (opts.cls ? ' ' + opts.cls : '') + '" viewBox="' + vb.join(' ') + '" style="--rig-lw:' + f3(lineWidth(def, opts.size, vb)) + '"' + (opts.size ? ' width="' + opts.size + '" height="' + Math.round(opts.size * vb[3] / vb[2]) + '"' : '') + ' aria-hidden="true">';
     if (opts.style !== false) s += '<style>' + css(def) + '</style>';
     for (const sl of order){
       const att = d.s[sl.i];
@@ -321,14 +322,20 @@ const Rig = (() => {
   }
 
   /* ----- live instances ----- */
-  const live = new Set();
-  let raf = 0, lastT = 0;
+  const live = new Set(), made = new Set();
+  let raf = 0, lastT = 0, swept = 0;
   function tick(now) {
     raf = 0;
     const t = now / 1000, dt = lastT ? Math.min(t - lastT, 0.1) : 1 / 60;
     lastT = t;
     for (const r of live) r._frame(t, dt);
+    if (t - swept > 4){ swept = t; sweep(); }
     if (live.size) raf = requestAnimationFrame(tick); else lastT = 0;
+  }
+  /* a rig whose element has left the page lets go of its observer, so screens that redraw often don't pile them up;
+     it picks up again if its element comes back */
+  function sweep() {
+    for (const r of made) if (!r.el.isConnected){ made.delete(r); live.delete(r); if (io) io.unobserve(r.el); r._gone = true; }
   }
   const wake = () => { if (!raf && live.size && typeof requestAnimationFrame === 'function') raf = requestAnimationFrame(tick); };
   const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(es => { for (const e of es){ const r = e.target._rig; if (r){ r._visible = e.isIntersecting; r._sync(); } } }) : null;
@@ -352,13 +359,14 @@ const Rig = (() => {
   function create(def, opts = {}) {
     const c = compile(def);
     injectCSS(def);
-    const vb = def.view;
+    const vb = opts.view || def.view;
+    sweep();
     const el = document.createElementNS(NS, 'svg');
     el.setAttribute('viewBox', vb.join(' '));
     el.setAttribute('class', 'rig rig-' + def.id + (opts.cls ? ' ' + opts.cls : ''));
     el.setAttribute('aria-hidden', 'true');
     if (opts.size){ el.setAttribute('width', opts.size); el.setAttribute('height', Math.round(opts.size * vb[3] / vb[2])); }
-    el.style.setProperty('--rig-lw', f3(lineWidth(def, opts.size)));
+    el.style.setProperty('--rig-lw', f3(lineWidth(def, opts.size, vb)));
     let html = '<g class="rig-slots">';
     for (const sl of c.slots){
       html += '<g data-s="' + sl.id + '">';
@@ -446,7 +454,7 @@ const Rig = (() => {
     };
     R.pause = () => { R._running = false; R._sync(); return R; };
     R.resume = () => { R._running = true; R._sync(); return R; };
-    R.destroy = () => { live.delete(R); if (io) io.unobserve(el); };
+    R.destroy = () => { live.delete(R); made.delete(R); if (io) io.unobserve(el); };
     R.setDebug = on => { R.debug = !!on; if (!on) debugG.innerHTML = ''; if (!R._running) R.render(); return R; };
     R.snapshot = function () {
       const b = cur || baseNow(R.time), out = { bones: {}, params: {}, slots: {} };
@@ -456,6 +464,7 @@ const Rig = (() => {
       return out;
     };
     R._sync = function () {
+      if (R._gone && el.isConnected){ R._gone = false; made.add(R); if (io) io.observe(el); }
       const on = R._running && R._visible;
       if (on && !live.has(R)){ live.add(R); wake(); }
       else if (!on && live.has(R)) live.delete(R);
@@ -580,10 +589,11 @@ const Rig = (() => {
     };
 
     el._rig = R;
+    made.add(R);
     if (io) io.observe(el);
     /* sized by CSS: keep the line weight right for whatever size it lands at */
     if (!opts.size && typeof ResizeObserver === 'function'){
-      new ResizeObserver(() => { const w = el.getBoundingClientRect().width; if (w) el.style.setProperty('--rig-lw', f3(lineWidth(def, w))); }).observe(el);
+      new ResizeObserver(() => { const w = el.getBoundingClientRect().width; if (w) el.style.setProperty('--rig-lw', f3(lineWidth(def, w, vb))); }).observe(el);
     }
     R.set(opts.mood || def.restMood || 'happy', { dur: 0, clip: opts.intro !== false });
     if (opts.look) R.look(opts.look[0], opts.look[1]);

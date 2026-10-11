@@ -1,7 +1,7 @@
-"""Assemble design/rig/pip.js from the traced drawings (trace/t2.json, trace/t2c.json) and the hand-drawn variants."""
+"""Assemble js/core/pip.js from the traced drawings (trace/t2.json, trace/t2c.json) and the hand-drawn variants."""
 import os, json, re, math
 SP = os.environ.get('TRACE_DIR', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'work'))
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'pip.js')
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', 'js', 'core', 'pip.js')
 A = json.load(open(SP + '/trace/t2.json')); C = json.load(open(SP + '/trace/t2c.json'))
 FARWING = json.load(open(SP + '/trace/farwing.json'))['matrix']   # from fit_far_wing.py
 ROOM = json.load(open(SP + '/trace/room.json'))                    # from fit_pupil_room.py

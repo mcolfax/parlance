@@ -1,6 +1,6 @@
 # Tracing Pip from the model sheet
 
-These scripts turned `reference/pip-sheet.webp` into the drawings in `pip.js`. They need Python 3 with numpy, scipy,
+These scripts turned `reference/pip-sheet.webp` into the drawings in `js/core/pip.js`. They need Python 3 with numpy, scipy,
 opencv-python-headless, pillow and potracer, and work in `work/` (set `TRACE_DIR` to change it).
 
 1. `segment.py sheet.png x0 x1 work/n` splits a crop of the sheet into color classes at 4x (n = neutral, x 0…370;
@@ -11,7 +11,7 @@ opencv-python-headless, pillow and potracer, and work in `work/` (set `TRACE_DIR
 3. `fit_far_wing.py` fits the far wing's open drawing (the near wing, mirrored and opened to 70% of its width) onto
    the traced far wing, and `fit_pupil_room.py` measures how far each pupil can move inside its eye white. Both read
    `trace_neutral.py`'s masks.
-4. `build_pip.py` writes `pip.js` from both traces, those two fits, and the hand-drawn states (blink, sad and
+4. `build_pip.py` writes `js/core/pip.js` from both traces, those two fits, and the hand-drawn states (blink, sad and
    surprised beaks…).
 5. `compose.js`, `cmp.py` and `zoomgrid.py` check the result against the sheet: concept, render and onion skin.
 

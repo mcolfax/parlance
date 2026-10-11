@@ -615,8 +615,13 @@ async function main(){
     ok(G.E('Film.t') > 18.5, 'film plays forward ' + G.E('Film.t'));
     G.E('filmSeek(35.5)'); [...G.w.document.querySelectorAll('.overlay.film .ov-foot button')].find(b => b.textContent === 'Close').click();
     ok(G.P.S.settings.filmSeen && !G.E('Film.open'), 'film closes and is remembered');
-    ok(G.w.document.querySelector('.hero .pip .p-beak') && G.w.document.querySelector('.hero .pip .p-crest'), 'Pip is a parrot');
-    for (const m of ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow']) ok(G.E('pipSVG(' + JSON.stringify(m) + ')').includes('p-wing'), 'pip mood ' + m);
+    ok(G.w.document.querySelector('.hero .pip [data-s="beak"]') && G.w.document.querySelector('.hero .pip [data-s="crest2"]'), 'Pip is a parrot');
+    ok(G.E('Rig.validate(PIP).length') === 0, 'Pip rig validates: ' + G.E('Rig.validate(PIP).join("; ")'));
+    for (const m of ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow']){
+      ok(G.E('!!PIP.moods[' + JSON.stringify(m) + ']'), 'the rig has the mood ' + m);
+      const s = G.E('pipSVG(' + JSON.stringify(m) + ')'); ok(s.includes('data-s="wingL"') && !/NaN|undefined/.test(s), 'pip mood ' + m);
+    }
+    { const el = G.E('(() => { const e = pip("oops", 60); document.body.append(e); setPipMood(e, "cheer"); return e.rig.mood; })()'); ok(el === 'cheer', 'a live Pip changes mood ' + el); }
     console.log('page errors (G):', G.errors.length ? G.errors.slice(0, 5) : 'none'); ok(!G.errors.length, 'no page errors G');
     G.dom.window.close();
   }

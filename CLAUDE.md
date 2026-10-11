@@ -23,7 +23,8 @@ Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and exp
   - Sounds are entries in `SOUNDS` in `js/core/audio.js`; play them with `sfx('name')`.
   - Music goes through `Song` and `MEDIA.song`.
   - Icons live in `IC` in `js/core/util.js`.
-  - Pip, the cast and the illustrations are pure SVG functions in `js/core/art.js`.
+  - Pip is drawn by the rig: `js/core/rig.js` (runtime), `js/core/bird.js` (the shared bird: skeleton, poses, moods, moves) and `js/core/pip.js` (Pip's part sheet, written by `design/rig/tools/trace/build_pip.py`). `js/core/art.js` wraps it as `pip()` (alive) and `pipSVG()` (a still). Pip's colors are the `--pip-*` tokens.
+  - The cast and the illustrations are pure SVG functions in `js/core/art.js`.
 - **Content is data** in `content/*.js`.
   - A lesson needs 4+ vocab, 3+ sentences, and blanks with exactly one `___` and 2+ distinct options.
   - Spanish is Latin American: *ustedes*, never *vosotros*.

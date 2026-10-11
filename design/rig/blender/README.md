@@ -17,7 +17,7 @@ swinging as stiff pieces.
 | `pip.gltf.json` | What the player loads. Made from `pip.blend` by `build/export.py`; don't edit it by hand. |
 | `pip3d.js` | The player: mood blends, moves layered on top, drawing swaps, and the live parts (below). |
 | `build/export.py` | Exports `pip.blend` to `pip.gltf.json`. Run it after every edit. |
-| `build/build.sh` | Rebuilds `pip.blend` from scratch from the traced part sheet (`../pip.js`) and the SVG rig's moods (`../bird.js`). It overwrites hand edits, so use it only to start over. |
+| `build/build.sh` | Rebuilds `pip.blend` from scratch from the traced part sheet (`js/core/pip.js`) and the SVG rig's moods (`js/core/bird.js`). It overwrites hand edits, so use it only to start over. |
 | `build/*.py`, `build/bake_moods.js` | The steps `build.sh` runs: flatten the drawings to polygons, build the meshes and bones, bake the moods into actions. |
 
 ## How the rig is built
@@ -26,7 +26,7 @@ swinging as stiff pieces.
    ink shapes) becomes a flat mesh with a palette material. Pip stands in Blender's front plane (X right, Z up); 1
    part-sheet unit is 1 cm, and x 120 / ground y 250 of the sheet sit at the origin. Draw order is depth: later
    slots sit nearer the camera.
-2. **Bones.** The 28 bones of the shared bird skeleton (`../bird.js`), with pivots from the trace, plus bending
+2. **Bones.** The 29 bones of the shared bird skeleton (`js/core/bird.js`), with pivots from the trace, plus bending
    chains: three bones down each wing drawing, two along each crest feather, three along the tail. Chain meshes are
    skinned with smooth weights; other drawings ride their bone. Every bone's local Z axis points at the viewer, so a
    bone's turn in the picture is its Z rotation.
