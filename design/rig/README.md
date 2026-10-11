@@ -2,7 +2,8 @@
 
 Pip, and later Kiwi, Mango, Kakadu and Rojo, are **cut-out vector rigs**. Each bird is a sheet of separate SVG drawings hung on one shared skeleton. Small data files describe the poses and moves, and a dependency-free runtime (`rig.js`) plays them. It's the model Spine and Rive use, built to fit Parlance: plain SVG, classic scripts, colors from tokens, no build step.
 
-- **Review page:** [`index.html`](index.html), published for review at https://claude.ai/artifact/PENDING. Open it locally with `npm run preview`, then go to http://127.0.0.1:8765/design/rig/index.html.
+- **Review page:** [`index.html`](index.html), published for review at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF (private until shared). Each pose has a Comment button that opens the viewer's comment box on that pose. Open it locally with `npm run preview`, then go to http://127.0.0.1:8765/design/rig/index.html.
+- **Figma:** the part sheet is on the Pip page of the [design file](https://www.figma.com/design/ZOAqSm0kQAjzkppKF0jLlS), as described in Figma below.
 - **Check the data:** `node design/rig/check.js` must end with `ok`.
 
 ## Why this method
@@ -36,6 +37,8 @@ Pip, and later Kiwi, Mango, Kakadu and Rojo, are **cut-out vector rigs**. Each b
 | `index.html` | The review page: live stage, moods and moves, concept-vs-rig wipe, pose library, part sheet, skeleton, puppet sliders. |
 | `check.js` | Validates every bird and renders every mood once. |
 | `reference/` | Concept art. `pip-happy/cheer/oops.webp` are crops aligned to rig units (1 px = 0.5 unit) for the compare view; `*-sheet.webp` are the full model sheets for each bird. |
+| `tools/bake.js` | Exports the drawings as plain SVG and the moods as instance matrices for Figma or another vector tool. |
+| `tools/figma-state.json` | The Figma node IDs made for the rig, and what's still to do there. |
 
 ## The shared skeleton
 
@@ -99,6 +102,16 @@ Live rigs share one animation frame loop, pause off screen and in background tab
 3. Keep the `pip(mood, size, opts)` and `setPipMood()` API so screens don't change. Big Pips use `Rig.create`; avatars and the route marker use `Rig.svg`. Map tap-to-hop to `pip.hop()` and the spoken line to `pip.talking()`.
 4. The intro film can drive one live rig from its playhead with `set`, `play` and `override`, instead of swapping mood SVGs.
 5. Add the rig checks to `dev/test.js`: validate every bird, render every mood, and check that the moods `pip()` uses exist. Then bump the version and ship.
+
+## Figma
+
+The Pip page of the design file has a **Pip rig** section beneath the four parrot explorations:
+
+- A **Pip rig** variable collection with the 20 palette roles. Each variable's web code syntax is the CSS variable the code reads (`var(--pip-body)` …).
+- **Part sheet:** every drawing is a component in rig units (1 px = 1 unit, ground at y 250), one component set per slot (`Pip/pupilL` with variants `drawing=open`, `drawing=happy`…), colors bound to those variables. Each component's description gives its bone, pivot and origin.
+- **Still to do:** the pose frames, built from instances of those parts so editing a part updates every pose, plus clearing the loading shimmer on the two sections. The Figma Starter plan allows 20 MCP calls a month and they ran out partway. When calls are available again, run `node design/rig/tools/bake.js`. Build each pose frame (204 x 258) by placing an instance of each listed component with `relativeTransform = [[a, c, e], [b, d, f]]` from `poses.json`, using the IDs in `tools/figma-state.json`.
+
+The code is the source of truth. If a part is redrawn in Figma, copy the path back into the bird's file.
 
 ## Room to grow
 
