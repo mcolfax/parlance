@@ -5,15 +5,15 @@ function greetingWord(lang){
   if (lang === 'de') return hr < 11 ? 'Guten Morgen' : hr < 18 ? 'Guten Tag' : 'Guten Abend';
   return hr < 12 ? 'Buenos días' : hr < 19 ? 'Buenas tardes' : 'Buenas noches';
 }
-function topBar(opts = {}){
+function topBar(){
   const lang = S.settings.lang;
   return h('header', { class: 'top' },
-    h('div', { class: 'brand' }, h('span', { class: 'mark', 'aria-hidden': 'true' }, h('i'), h('i')), 'Parlance'),
-    opts.music && MEDIA.song ? musicBtn() : null,
+    h('div', { class: 'brand' }, h('span', { class: 'mark', 'aria-hidden': 'true' }, h('i'), h('i')), h('span', { class: 'brand-name' }, 'Parlance')),
+    MEDIA.song ? musicBtn() : null,
     h('div', { class: 'seg', role: 'group', 'aria-label': 'Language' },
       ['de', 'es'].map(l => h('button', { type: 'button', 'aria-pressed': String(lang === l), onclick: () => setLang(l) }, LANGS[l].native))));
 }
-/* Home-screen music switch. Turning it on starts the song right away (the tap counts as permission to play). */
+/* The music switch, on every tab's top bar. Turning it on starts the song right away (the tap counts as permission to play). */
 function musicBtn(){
   const on = homeMusicOn();
   return h('button', { class: 'icon-btn music-btn' + (on ? ' on' : ''), type: 'button', 'aria-pressed': String(on), 'aria-label': on ? 'Music on. Tap to turn it off.' : 'Music off. Tap to turn it on.', html: on ? IC.music : IC.musicOff,
@@ -59,11 +59,14 @@ function heroCard(){
   const started = Object.keys(S.langs[lang].done).length > 0;
   const mood = pipMoodNow();
   const say = mood === 'wow' ? (lang === 'de' ? 'Deine Serie!' : '¡Tu racha!') : mood === 'cheer' ? pickSay(lang, 'cheer') : pipHello(lang);
+  // Pip waves hello and mouths its line when you come to Learn, and through the redraws right after (sync, profile), not on every redraw
+  if (UI.animate) UI.helloAt = Date.now();
+  const arriving = Date.now() - UI.helloAt < 1500;
   return h('section', { class: 'hero' },
     h('div', { class: 'hero-art', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')),
     h('div', { class: 'hero-top' },
       h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Next stop · ' + nx.level + ' ' + LEVEL_NAME[nx.level]), h('h2', null, nx.title), h('p', { class: 'muted' }, where + ' · about ' + minutesFor(nx) + ' min')),
-      pip(mood, 80, { cls: 'hero-pip', say })),
+      pip(mood, 80, { cls: 'hero-pip', say, mouth: arriving && mood !== 'sleep', wave: arriving && mood === 'happy' })),
     h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => startLesson(nx.id) }, started ? 'Continue' : 'Start your first lesson'));
 }
 function questCard(){
@@ -104,7 +107,7 @@ function wordOfDay(){
   return h('section', { class: 'card wotd' },
     h('div', { class: 'row' }, h('span', { class: 'eyebrow' }, 'Word of the day'), h('span', { class: 'spacer' }), h('span', { class: 'lvl-badge' }, l.level)),
     h('div', { class: 'row wotd-main' }, speakBtn(v.t, lang, 'Play the word'), h('div', { class: 'grow' }, h('div', { class: 'wotd-t' }, itemText(v, lang)), h('div', { class: 'muted' }, v.e.slice(0, 3).join(', ')))),
-    ex ? h('div', { class: 'wotd-ex' }, h('div', null, sayText(ex.t, lang, { gloss: true })), h('div', { class: 'small muted' }, ex.e[0])) : null,
+    ex ? h('div', { class: 'wotd-ex' }, h('div', null, sayText(ex.t, lang, { gloss: true, en: ex.e[0] })), h('div', { class: 'small muted' }, ex.e[0])) : null,
     h('button', { class: 'linkish small', type: 'button', onclick: () => isDone(lang, l.id) || lessonState(lang, l, nextLesson(lang)) !== 'locked' ? startLesson(l.id) : confirmLocked(l) }, 'From “' + l.title + '” · practice it'));
 }
 function routeStrip(){
@@ -130,15 +133,15 @@ function stationList(lessons, lang){
   }));
 }
 function confirmLocked(l){
-  sheet('Jump ahead?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('think', 56, { tap: false }), h('p', { class: 'grow' }, '“' + l.title + '” is further along your route. You can take it now; nothing is skipped for good.')),
+  sheet('Jump ahead?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('point', 56, { tap: false }), h('p', { class: 'grow' }, '“' + l.title + '” is further along your route. You can take it now; nothing is skipped for good.')),
     [{ label: 'Not now' }, { label: 'Start lesson', primary: true, run: () => { startLesson(l.id); } }]);
 }
 function levelSection(lang, lv){
   const st = levelStats(lang)[lv]; const units = COURSE[lang].units.map((u, ui) => ({ u, ui })).filter(x => x.u.level === lv);
   if (!units.length) return null;
   const nx = nextLesson(lang);
-  if (UI.openLang !== lang){ UI.openLang = lang; UI.open = new Set(); }
-  if (!UI.open.size) UI.open.add(nx ? nx.level : lv);
+  /* the first time (and after a reset) open the level you're on; after that, only what you open, so every level can close */
+  if (UI.openLang !== lang){ UI.openLang = lang; UI.open = new Set([nx ? nx.level : lv]); }
   const open = UI.open.has(lv);
   const pct = st.total ? st.done / st.total : 0;
   const sec = h('section', { class: 'lvl-sec' + (open ? ' open' : '') + (levelComplete(lang, lv) ? ' complete' : ''), id: 'lv-' + lv });
@@ -157,7 +160,7 @@ function levelSection(lang, lv){
 }
 function viewLearn(){
   const lang = S.settings.lang;
-  const v = h('div', { class: 'view' }, topBar({ music: true }), greetBlock(), heroCard(), questCard(), wordOfDay(), routeStrip());
+  const v = h('div', { class: 'view' }, topBar(), greetBlock(), heroCard(), questCard(), wordOfDay(), routeStrip());
   for (const lv of LEVELS){ const s = levelSection(lang, lv); if (s) v.append(s); }
   v.append(genSection());
   if (UI.justDone){ const id = UI.justDone; setTimeout(() => { if (UI.justDone === id) UI.justDone = null; }, 1600); }

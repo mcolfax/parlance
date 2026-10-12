@@ -17,11 +17,11 @@ function viewMe(){
   const lang = S.settings.lang; const st = streakInfo(); const L = S.langs[lang];
   const v = h('div', { class: 'view' }, topBar());
   const lessonsDone = Object.keys(L.done).length; const words = learnedEntries(lang, 'v').length;
-  const initials = (Me.name || 'You').split(/\s+/).map(x => x[0]).slice(0, 2).join('').toUpperCase();
-  v.append(h('section', { class: 'profile' },
-    Me.avatar ? h('img', { class: 'avatar', src: Me.avatar, alt: '' }) : h('span', { class: 'avatar', 'aria-hidden': 'true' }, initials),
-    h('div', { class: 'grow' }, h('h1', null, Me.name || 'Your progress'), h('p', { class: 'muted small' }, 'Learning ' + LANGS[lang].name + ' · now on ' + currentLevel(lang) + ' ' + LEVEL_NAME[currentLevel(lang)])),
-    pip(st.todayMet ? 'cheer' : 'happy', 56, { cls: 'me-pip' })));
+  const signedOut = Web.on && !(Web.session && Web.session.user);
+  v.append(h('section', { class: 'profile' }, profileAvatar(),
+    h('div', { class: 'grow' }, h('h1', null, Me.name || 'Your progress'), h('p', { class: 'muted small' }, 'Learning ' + LANGS[lang].name + ' · now on ' + currentLevel(lang) + ' ' + LEVEL_NAME[currentLevel(lang)]),
+      signedOut ? h('button', { class: 'linkish small', type: 'button', onclick: () => openWebSignIn('in') }, 'Sign in') : null),
+    pip(st.todayMet ? 'proud' : 'happy', 56, { cls: 'me-pip' })));
   const storiesRead = Object.keys(L.stories).length;
   v.append(h('div', { class: 'stats four' },
     h('div', { class: 'stat' }, h('span', { class: 'num' }, ic('flame', 'flame'), st.count), h('span', { class: 'lbl' }, 'day streak')),
@@ -54,14 +54,14 @@ function viewMe(){
     S.settings.sfx ? h('div', { class: 'field vol' }, h('label', { for: 'sfx-vol' }, 'Effects volume'),
       h('div', { class: 'row' }, h('span', { class: 'small muted' }, 'Soft'), h('input', { type: 'range', id: 'sfx-vol', class: 'f-range grow', min: '0.1', max: '1', step: '0.05', value: String(S.settings.sfxVol),
         oninput: e => { S.settings.sfxVol = +e.target.value; clearTimeout(viewMe.t); viewMe.t = setTimeout(() => { touchSettings(); sfx('ok'); }, 180); } }), h('span', { class: 'small muted' }, 'Loud'))) : null,
-    MEDIA.song ? toggleRow('Music on the home screen', 'homeMusic', 'Our theme song, “' + MEDIA.song.title + '”, plays softly while you’re on Learn.', on => { if (on){ songPrefetch(); songUnlock(); } render(); }) : null,
+    MEDIA.song ? toggleRow('Theme song', 'homeMusic', 'Our theme song, “' + MEDIA.song.title + '”, plays softly as you move between tabs. It pauses for lessons, reviews, stories and Talk.', on => { if (on){ songPrefetch(); songUnlock(); } render(); }) : null,
     MEDIA.song ? h('div', { class: 'field vol' }, h('label', { for: 'music-vol' }, 'Music volume'),
       h('div', { class: 'row' }, h('span', { class: 'small muted' }, 'Soft'), h('input', { type: 'range', id: 'music-vol', class: 'f-range grow', min: '0', max: '1', step: '0.05', value: String(musicVol()),
         onpointerdown: () => songUnlock(),
         oninput: e => { S.settings.musicVol = +e.target.value; previewSong(); clearTimeout(viewMe.mt); viewMe.mt = setTimeout(() => touchSettings(), 250); } }), h('span', { class: 'small muted' }, 'Loud')),
       h('p', { class: 'small muted' }, 'Also sets the music in the intro film.')) : null));
   v.append(h('section', { class: 'card about' },
-    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('happy', 58, { cls: 'about-pip' }), h('div', { class: 'grow' }, h('h3', null, 'Parlance ' + APP_VERSION), h('p', { class: 'small muted' }, 'Tell Pip what to improve. Every note is read, grouped and turned into updates.'))),
+    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('love', 58, { cls: 'about-pip' }), h('div', { class: 'grow' }, h('h3', null, 'Parlance ' + APP_VERSION), h('p', { class: 'small muted' }, 'Tell Pip what to improve. Every note is read, grouped and turned into updates.'))),
     h('div', { class: 'about-actions' },
       h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openFeedback() }, ic('heart'), 'Send feedback'),
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => openFilm() }, ic('play'), 'Watch the intro film'),
@@ -71,7 +71,7 @@ function viewMe(){
     h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => openStudio() }, 'Open Studio')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Practice'),
     h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Daily goal'), h('div', { class: 'chips' }, [[10, 'Casual'], [20, 'Regular'], [30, 'Serious']].map(([g, n]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(S.settings.goal === g), onclick: () => { S.settings.goal = g; const d = S.days[today()]; if (d && d.xp >= g) d.met = true; touchSettings(); render(); } }, n + ' · ' + g + ' XP')))),
-    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Starting level for ' + LANGS[lang].name), h('div', { class: 'chips' }, LEVELS.map(lv => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(L.start === lv), onclick: () => { L.start = lv; L.startTs = Date.now(); touch(lang); UI.open = new Set(); render(); toast('Route starts at ' + lv + ' now'); } }, lv)))),
+    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Starting level for ' + LANGS[lang].name), h('div', { class: 'chips' }, LEVELS.map(lv => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(L.start === lv), onclick: () => { L.start = lv; L.startTs = Date.now(); touch(lang); UI.openLang = null; render(); toast('Route starts at ' + lv + ' now'); } }, lv)))),
     toggleRow('Speaking exercises', 'speaking', 'Say sentences out loud during lessons.'),
     toggleRow('Tutor grading', 'aiGrade', 'If a typed answer doesn’t match, Claude checks whether it’s still right and explains what’s different.')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Tutor access'),
@@ -90,6 +90,13 @@ function viewMe(){
     h('button', { class: 'linkish danger', type: 'button', onclick: resetLang }, 'Reset ' + LANGS[lang].name + ' progress')));
   v.append(h('p', { class: 'small muted center' }, 'German is ' + LANGS.de.variety + '. Spanish is ' + LANGS.es.variety + ' (ustedes, no vosotros).'));
   return v;
+}
+/* your account's photo, else your initials, else a person: never a letter that isn't yours */
+function profileAvatar(){
+  const initials = Me.name.split(/\s+/).filter(Boolean).map(x => [...x][0]).slice(0, 2).join('').toUpperCase();
+  const own = () => h('span', { class: 'avatar', 'aria-hidden': 'true', html: initials ? null : IC.me }, initials || null);
+  if (!Me.avatar) return own();
+  return h('img', { class: 'avatar', alt: '', referrerpolicy: 'no-referrer', onerror: e => e.target.replaceWith(own()), src: Me.avatar });
 }
 function streakCalendar(st){
   const t = today(); const base = parseDay(t);
@@ -123,9 +130,8 @@ function badgesCard(){
 function audioResultText(r, lang){
   if (r === 'recorded') return 'That’s the recorded voice. If it’s quiet, turn up the volume.';
   if (r === 'ok') return 'Sound is working. If it’s quiet, turn up the volume or switch off silent mode.';
-  if (r === 'novoice') return 'No ' + LANGS[lang].name + ' voice is installed. On iPhone, add one in Settings → Accessibility → Spoken Content → Voices, then reopen this page.';
   if (r === 'none') return 'This browser can’t speak text aloud. Try Safari or Chrome.';
-  return 'No sound started. Check that silent mode is off and the volume is up, then try again.';
+  return voiceTrouble(r === 'silent' ? '' : r, lang);   // in plain words, from the reason the voice engine gave (audio.js)
 }
 async function showBackup(){
   const code = await makeBackupCode();
@@ -176,18 +182,29 @@ function openWebNewPassword(){
       catch (e){ toast(webSignInError(e)); return true; }
     } }]);
 }
+/* Chrome hands us an install prompt to call. Safari on iPhone and iPad has none, so its button shows the steps instead. */
 function webHomeScreenCard(){
   if (webStandalone() || !(webIOS() || Web.install)) return null;
-  const add = Web.install ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => {
+  const add = h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => {
+    if (!Web.install){ openHomeScreenHelp(); return; }
     const ev = Web.install; Web.install = null;
     try { await ev.prompt(); } catch (e) {}
     render();
-  } }, 'Add to Home Screen') : null;
+  } }, 'Add to Home Screen');
   return h('section', { class: 'card web-home' },
     h('div', { class: 'row', style: 'align-items:flex-start' }, h('img', { class: 'web-home-ic', src: 'media/icons/icon-180.png', alt: '', width: '48', height: '48' }),
       h('div', { class: 'grow' }, h('h3', null, 'Put Parlance on your Home Screen'),
-        h('p', { class: 'small muted' }, add ? 'It opens full screen, like an app.' : 'Tap the Share button, then Add to Home Screen. Parlance then opens full screen, like an app.'))),
+        h('p', { class: 'small muted' }, Web.install ? 'It opens full screen, like an app.' : 'It opens full screen, like an app. Safari adds it in three taps.'))),
     add);
+}
+function openHomeScreenHelp(){
+  const step = (icon, title, sub) => h('li', { class: 'hs-step' }, h('span', { class: 'hs-ic', html: IC[icon], 'aria-hidden': 'true' }), h('div', null, h('b', null, title), h('span', { class: 'small muted' }, sub)));
+  sheet('Add Parlance to your Home Screen', h('div', { class: 'hs-help' },
+    h('ol', { class: 'hs-steps' },
+      step('share', 'Tap Share in Safari', 'It’s in the bar at the bottom of the screen, or at the top on iPad. On newer iPhones, tap ••• first, then Share.'),
+      step('addHome', 'Tap Add to Home Screen', 'Scroll down the list to find it. You may need to tap View More.'),
+      step('check', 'Tap Add', 'Leave Open as Web App on. Parlance then opens full screen, with Pip as its icon.')),
+    h('p', { class: 'small muted' }, 'Opened Parlance from a link in another app? Open it in Safari first.')), [{ label: 'Got it', primary: true }]);
 }
 function webSignInError(e){
   const why = {
@@ -258,7 +275,7 @@ function openWebSignIn(mode){
 }
 function resetLang(){
   const lang = S.settings.lang;
-  sheet('Reset ' + LANGS[lang].name + '?', h('p', null, 'This clears finished lessons, review items and XP for ' + LANGS[lang].name + '. Lessons your tutor wrote stay. This can’t be undone, so copy a backup code first if you might want it back.'),
+  sheet('Reset ' + LANGS[lang].name + '?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('sad', 56, { tap: false }), h('p', { class: 'grow' }, 'This clears finished lessons, review items and XP for ' + LANGS[lang].name + '. Lessons your tutor wrote stay. This can’t be undone, so copy a backup code first if you might want it back.')),
     [{ label: 'Cancel' }, { label: 'Reset', primary: true, run: () => { const keep = S.langs[lang].start; S.langs[lang] = newLang(); S.langs[lang].start = keep; S.langs[lang].startTs = Date.now(); touch(lang); render(); toast(LANGS[lang].name + ' progress reset'); } }]);
 }
 

@@ -21,7 +21,7 @@ function drawOnb(){
   const next = () => { Onb.step++; drawOnb(); };
   if (Onb.step === 0){
     swapBody(h('div', { class: 'onb-step welcome' },
-      h('div', { class: 'hero-lines', html: '<svg viewBox="0 0 340 170" width="100%" height="170"><path class="ln de" d="M30 140 C 110 140 120 60 200 60 L 310 60"/><path class="ln es" d="M30 140 C 110 140 130 120 200 120 L 310 120"/><circle class="st" cx="30" cy="140" r="9"/><circle class="st de" cx="310" cy="60" r="9"/><circle class="st es" cx="310" cy="120" r="9"/><text x="296" y="40" class="lb de" text-anchor="end">Hallo!</text><text x="296" y="148" class="lb es" text-anchor="end">¡Hola!</text></svg>' }, pip('happy', 70, { cls: 'fly-in', say: 'Hi! I’m Pip.', sayPos: 'up-right' })),
+      h('div', { class: 'hero-lines', html: '<svg viewBox="0 0 340 170" width="100%" height="170"><path class="ln de" d="M30 140 C 110 140 120 60 200 60 L 310 60"/><path class="ln es" d="M30 140 C 110 140 130 120 200 120 L 310 120"/><circle class="st" cx="30" cy="140" r="9"/><circle class="st de" cx="310" cy="60" r="9"/><circle class="st es" cx="310" cy="120" r="9"/><text x="296" y="40" class="lb de" text-anchor="end">Hallo!</text><text x="296" y="148" class="lb es" text-anchor="end">¡Hola!</text></svg>' }, pip('happy', 70, { cls: 'fly-in', say: 'Hi! I’m Pip.', sayPos: 'up-right', mouth: true, wave: true })),
       h('h1', null, 'Your own language course.'),
       h('p', { class: 'lead' }, 'German and Spanish, from first words to fluent: short lessons, smart review, stories, and a tutor who talks back.'),
       h('button', { class: 'film-card', type: 'button', onclick: () => { Onb.open = false; openFilm({ doneLabel: 'Continue', onDone: () => openOnboarding(Onb.replay, 1) }); } },
@@ -65,7 +65,7 @@ function finishOnb(){
   if (S.langs[lang].start !== Onb.level){ S.langs[lang].start = Onb.level; S.langs[lang].startTs = Date.now(); touch(lang); }
   const d = S.days[today()]; if (d && d.xp >= Onb.goal) d.met = true;
   touchSettings();
-  Onb.open = false; UI.open = new Set(); closeOverlay(); UI.animate = true; render(); window.scrollTo(0, 0);
+  Onb.open = false; UI.openLang = null; closeOverlay(); UI.animate = true; render(); window.scrollTo(0, 0);
   sfx('done');
   if (!Onb.replay) toast('Your route starts at ' + Onb.level + '. Have fun!');
 }

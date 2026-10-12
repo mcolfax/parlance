@@ -22,7 +22,7 @@ function showIntro(){
   const l = Run.lesson, lang = Run.lang;
   runHead(l.title);
   const tip = h('div', { class: 'tip' }, h('span', { class: 'eyebrow' }, ic('bulb'), 'Before you start'), h('h3', null, l.tip.title), h('p', { html: rich(l.tip.body) }),
-    l.tip.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e))));
+    l.tip.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e))));
   const words = h('div', { class: 'wordlist' }, l.vocab.map(v => h('div', { class: 'wl-row' }, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang))));
   swapBody([
     h('div', { class: 'intro-head' }, l.core ? unitSign(COURSE[lang].units[l.unit].title, 52) : null, h('span', { class: 'eyebrow' }, (l.core ? 'Unit ' + (l.unit + 1) + ' · ' : '') + l.level + ' ' + LEVEL_NAME[l.level] + ' · ' + LANGS[lang].name), h('h1', null, l.title), h('p', { class: 'muted' }, l.vocab.length + ' words · ' + l.sentences.length + ' phrases · about ' + minutesFor(l) + ' min')),
@@ -128,7 +128,10 @@ function showFeedback(ex, res){
   }
   OV.foot.className = 'ov-foot ' + (res.ok ? 'ok' : 'bad');
   const cont = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => { Run.pos++; nextEx(); } }, 'Continue');
-  const fbPip = pip(res.ok ? 'cheer' : 'oops', 58, { cls: 'fb-pip', tap: false });
+  // Pip cheers a right answer, dances on a run of them, nods at one that counts but isn't word for word, and worries at a miss
+  const run = res.ok && first && res.level === 'exact' && Run.combo >= 3;
+  const fbPip = pip(!res.ok ? 'oops' : run ? 'dance' : res.level === 'exact' ? 'cheer' : 'happy', 58, { cls: 'fb-pip', tap: false, moveFor: run ? 2000 : 0 });
+  if (res.ok && res.level !== 'exact') fbPip.rig.play('nod');
   OV.footIn.replaceChildren(fbPip, fb, cont);
   if (res.ok){ haptic(12); requestAnimationFrame(() => burstAt(fb.querySelector('.fb-ic'), { n: res.level === 'exact' ? 12 : 7, dist: 44 })); if (OV.prog){ OV.prog.classList.remove('glint'); void OV.prog.offsetWidth; OV.prog.classList.add('glint'); } }
   else haptic([18, 40, 18]);
@@ -430,7 +433,7 @@ function showComplete(o){
   swapBody(h('div', { class: 'complete' },
     h('div', { class: 'stamp-wrap' },
       h('div', { class: 'stamp' + (o.gold ? ' gold' : ''), 'aria-hidden': 'true' }, h('span', { class: 's-top' }, o.top), h('span', { class: 's-mid' }, o.title), h('span', { class: 's-bot' }, dateStr)),
-      pip('cheer', 78, { cls: 'complete-pip', say: cheer, lang })),
+      pip(o.gold || o.acc === 1 ? 'dance' : 'cheer', 78, { cls: 'complete-pip', say: cheer, mouth: true, moveFor: 3200, lang })),
     h('h1', null, o.h1),
     o.sub ? h('p', { class: 'muted' }, o.sub) : null,
     h('div', { class: 'tiles3' },

@@ -1,10 +1,14 @@
--- The web version's database (Supabase project "Parlance", applied as migration parlance_documents).
+-- The web version's database (Supabase project "Parlance", applied as migrations parlance_documents and parlance_friends).
 -- One document store with the same paths and access rules as the Claude artifact:
---   content/<id>              read: anyone           write: owner
---   proposals/<id>            read: owner            write: owner
---   feedback/<id>             read: owner            write: owner
---   feedback/<self>           read/write: that signed-in person
---   data/users/<self>/<slice> read/write: that signed-in person only
+--   content/<id>                    read: anyone           write: owner
+--   proposals/<id>                  read: owner            write: owner
+--   feedback/<id>                   read: owner            write: owner
+--   feedback/<self>                 read/write: that signed-in person
+--   data/users/<self>/<slice>       read/write: that signed-in person only
+--   cards/<self>/<secret>/card      read: anyone signed in who knows the path   write: that person
+--   inbox/<uid>/<secret>/<from>     read: anyone signed in who knows the path   write: <from> (their own note) or <uid> (clearing it)
+-- Friends (js/core/social.js): the secret is part of each person's invite code, so only people they invite can find their
+-- card or leave them a note. Collections are listed by exact path (doc_list), so nobody can list cards or inboxes without it.
 -- Clients never touch the tables directly: every read and write goes through the functions below (js/core/host.js).
 -- To make someone an owner (Studio, live content), after they have signed in once:
 --   insert into public.owners (user_id) select id from auth.users where email = '<their email>';
@@ -46,6 +50,7 @@ begin
   if s[1] = 'content' and n = 2 then return true; end if;
   if s[1] = 'data' and s[2] = 'users' and n = 4 and me is not null and s[3] = me then return true; end if;
   if s[1] = 'feedback' and n = 2 and me is not null and s[2] = me then return true; end if;
+  if s[1] in ('cards', 'inbox') and n = 4 and me is not null then return true; end if;
   if s[1] in ('proposals', 'feedback') and n = 2 then return public.is_owner(); end if;
   return false;
 end $$;
@@ -57,6 +62,8 @@ begin
   if me is null then return false; end if;
   if s[1] = 'data' and s[2] = 'users' and n = 4 and s[3] = me then return true; end if;
   if s[1] = 'feedback' and n = 2 and s[2] = me then return true; end if;
+  if s[1] = 'cards' and n = 4 and s[2] = me then return true; end if;
+  if s[1] = 'inbox' and n = 4 and (s[4] = me or s[2] = me) then return true; end if;
   if s[1] in ('content', 'proposals', 'feedback') and n = 2 then return public.is_owner(); end if;
   return false;
 end $$;
@@ -92,6 +99,13 @@ begin
   if not found then raise exception 'no document at %', p using errcode = 'P0002'; end if;
 end $$;
 
+create function public.doc_delete(p text) returns void
+language plpgsql security definer set search_path = '' as $$
+begin
+  if not public.can_write(p) then raise exception 'not allowed to write %', p using errcode = '42501'; end if;
+  delete from public.docs x where x.path = p;
+end $$;
+
 create function public.profile_set(n text) returns void
 language plpgsql security definer set search_path = '' as $$
 begin
@@ -106,7 +120,7 @@ language sql stable security definer set search_path = '' as $$
 $$;
 
 revoke all on function public.is_owner(), public.can_read(text), public.can_write(text), public.doc_get(text), public.doc_list(text),
-  public.doc_set(text, jsonb), public.doc_update(text, jsonb), public.profile_set(text), public.profile_names(text[]) from public, anon, authenticated;
+  public.doc_set(text, jsonb), public.doc_update(text, jsonb), public.doc_delete(text), public.profile_set(text), public.profile_names(text[]) from public, anon, authenticated;
 grant execute on function public.doc_get(text), public.doc_list(text) to anon, authenticated;
-grant execute on function public.doc_set(text, jsonb), public.doc_update(text, jsonb), public.is_owner(),
+grant execute on function public.doc_set(text, jsonb), public.doc_update(text, jsonb), public.doc_delete(text), public.is_owner(),
   public.profile_set(text), public.profile_names(text[]) to authenticated;

@@ -32,7 +32,10 @@ async function webFetch(path, opt = {}){
 function webRpc(fn, args){ return webFetch('/rest/v1/rpc/' + fn, { body: args || {} }); }
 
 /* ----- session ----- */
-function webUser(u){ const m = (u && u.user_metadata) || {}; return { id: u.id, email: u.email || '', name: String(m.name || m.full_name || '').trim().slice(0, 40) }; }
+function webUser(u){
+  const m = (u && u.user_metadata) || {}, pic = String(m.avatar_url || m.picture || '');   // Google sign-in brings a photo
+  return { id: u.id, email: u.email || '', name: String(m.name || m.full_name || '').trim().slice(0, 40), avatar: /^https:\/\//.test(pic) ? pic : '' };
+}
 function webKeep(s){ Web.session = s; if (s) writeJSON(WEB_SESSION, s); else { try { localStorage.removeItem(WEB_SESSION); } catch (e) {} } }
 function webAdopt(r){   // a token response from Supabase Auth, or the fragment Google sign-in returns with
   const now = Math.floor(Date.now() / 1000);
@@ -96,7 +99,8 @@ function webDoc(path){
   return { id: path.split('/').pop(), path,
     async get(){ return webSnap(path, await webRpc('doc_get', { p: path })); },
     async set(d){ await webRpc('doc_set', { p: path, d: JSON.parse(JSON.stringify(d)) }); },
-    async update(d){ await webRpc('doc_update', { p: path, d: JSON.parse(JSON.stringify(d)) }); } };
+    async update(d){ await webRpc('doc_update', { p: path, d: JSON.parse(JSON.stringify(d)) }); },
+    async delete(){ await webRpc('doc_delete', { p: path }); } };
 }
 function webCollection(c){
   const get = async () => { const docs = ((await webRpc('doc_list', { c })) || []).map(r => webSnap(r.path, r.data)); return { docs, size: docs.length, empty: !docs.length }; };
@@ -123,7 +127,7 @@ const webDownloads = {   // saves a file through the browser, like the artifact'
 };
 const webUserApi = {
   async id(){ return Web.session && Web.session.user ? Web.session.user.id : null; },
-  async me(){ const u = Web.session && Web.session.user; return { id: u ? u.id : null, name: u ? u.name : '', avatarUrl: '' }; },
+  async me(){ const u = Web.session && Web.session.user; return { id: u ? u.id : null, name: u ? u.name : '', avatarUrl: (u && u.avatar) || '' }; },
   async isOwner(){ if (!Web.session) return false; try { return !!(await webRpc('is_owner')); } catch (e){ return false; } },
   async profiles(ids){ const o = {}; for (const r of (await webRpc('profile_names', { ids })) || []) o[r.id] = { name: r.name }; return o; }
 };
