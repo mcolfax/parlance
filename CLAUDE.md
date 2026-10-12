@@ -42,7 +42,7 @@ npm run preview      # http://127.0.0.1:8765/_preview.html
 npm run files        # JSON map of the files to publish next to index.html
 npm run web          # builds the web version into dist/ (what Vercel serves)
 NODE_PATH="$(npm root -g)" node dev/icons.js   # redraws media/icons/ from Pip (needs Playwright)
-node dev/voices.js   # records new lines into media/voice/ (needs GOOGLE_TTS_KEY; --dry counts them)
+node dev/voices.js   # records new lines into media/voice/ (Google key: the environment's network secret; --dry counts them)
 ```
 
 A GitHub Action (`keep-awake.yml`) reads the web database three times a day so the free Supabase project doesn't pause. If it fails, the web version's database is down.
@@ -52,7 +52,7 @@ The preview runs without the artifact runtime, so there is no account sync, data
 ## Shipping a release
 
 1. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once.
-2. If lesson or story text changed, run `node dev/voices.js` so the new lines are recorded. Without `GOOGLE_TTS_KEY`, say so: those lines use the device's voice until they are recorded.
+2. If lesson or story text changed, run `node dev/voices.js` so the new lines are recorded. If Google turns the key down, say so: those lines use the device's voice until they are recorded.
 3. Run `npm test`. It must end with `FAIL 0`.
 4. Commit to `main` and push. Vercel deploys the web version from `main` on its own.
 5. Publish with the Artifact tool:

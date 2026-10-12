@@ -2,7 +2,9 @@
    It loads the app, asks it for every line it can say (voiceLines() in js/core/audio.js), keeps every clip already
    recorded with the same voice and speed, records only what is new, and writes one mp3 pack per unit, one for the
    stories and one for common lines, plus an index per language. Packs left with no lines are deleted.
-   Usage: GOOGLE_TTS_KEY=... node dev/voices.js [--dry] [--list] [--only de-common,de-1-1] [--max-chars 300000]
+   The Google key comes from the Claude Code environment: a network secret that adds an X-Goog-Api-Key header to requests
+   for texttospeech.googleapis.com, or a GOOGLE_TTS_KEY environment variable. Never put it in the repo.
+   Usage: node dev/voices.js [--dry] [--list] [--only de-common,de-1-1] [--max-chars 300000]
      --dry        count what would be recorded, without calling Google or writing anything
      --list       print the Chirp 3 HD voices Google has for each language, for choosing MEDIA.voice in js/config.js
      --only       record new lines only in these packs (lines already recorded elsewhere are kept)
@@ -36,9 +38,11 @@ async function fromApp(){
 /* Google Cloud Text-to-Speech */
 async function google(url, body){
   for (let i = 0; ; i++){
-    const r = await fetch(API + url, { method: body ? 'POST' : 'GET', headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': KEY }, body: body ? JSON.stringify(body) : undefined });
+    const headers = { 'Content-Type': 'application/json' }; if (KEY) headers['X-Goog-Api-Key'] = KEY;   // without one, the environment's network secret adds it
+    const r = await fetch(API + url, { method: body ? 'POST' : 'GET', headers, body: body ? JSON.stringify(body) : undefined });
     if (r.ok) return r.json();
     const msg = (await r.text()).slice(0, 400);
+    if ((r.status === 401 || r.status === 403) && /API key|unregistered callers|PERMISSION_DENIED|API_KEY/i.test(msg)) throw new Error('Google turned the key down (' + r.status + '). Check the network secret for texttospeech.googleapis.com (header X-Goog-Api-Key, no prefix) or GOOGLE_TTS_KEY, and that the key may use the Text-to-Speech API: ' + msg);
     if ((r.status === 429 || r.status >= 500) && i < 6){ await sleep(1500 * 2 ** i); continue; }
     throw new Error('Google answered ' + r.status + ' to ' + url + ': ' + msg);
   }
@@ -73,7 +77,6 @@ async function main(){
   const app = await fromApp(), cfg = app.voice;
   if (!cfg) throw new Error('MEDIA.voice is not set in js/config.js');
   const dir = path.join(ROOT, cfg.dir), langs = Object.keys(cfg).filter(k => k !== 'dir');
-  if (!KEY && !DRY) throw new Error('Set GOOGLE_TTS_KEY to a Google Cloud API key that can use the Text-to-Speech API (or use --dry).');
   if (flag('--list')){
     for (const lang of langs){ const loc = localeOf(cfg[lang].narrator); console.log(loc + ': ' + (await voicesFor(loc)).map(v => v.name.split('-').pop() + ' (' + v.ssmlGender.toLowerCase() + ')').join(', ')); }
     return;
