@@ -31,10 +31,13 @@ function chunks(text){
   if (t.length < 180) return [t];
   return t.match(/[^.!?;]+[.!?;]*\s*/g) || [t];
 }
-/* speak() lowers the theme song while a voice is talking */
+/* speak() gives the voice the speaker. On the tabs the theme song pauses while a word is spoken and picks up from the same
+   spot afterwards: on iPhone, Safari's voice can go quiet or stop working while other audio is playing. Under the intro film
+   the song only turns down. If the song was playing, the voice waits a moment for it to pause. */
 function speak(text, lang, slow, vo){
-  songDuck(true);
-  return speakRaw(text, lang, slow, vo).then(r => { songDuck(false); return r; }, () => { songDuck(false); return false; });
+  const paused = songDuck(true);
+  const say = () => speakRaw(text, lang, slow, vo).then(r => { songDuck(false); return r; }, () => { songDuck(false); return false; });
+  return paused ? sleep(SONG_HOLD_MS).then(say) : say();
 }
 function speakRaw(text, lang, slow, vo){
   return new Promise(res => {
@@ -260,10 +263,15 @@ function songStop(ramp){
   clearTimeout(Song.stopT);
   Song.stopT = setTimeout(() => { if (Song.vol === 0){ try { a.pause(); } catch (e) {} } }, (ramp || 0.05) * 1000 + 40);
 }
+/* a voice starts (on) or stops speaking. Returns true when that paused the song on the tabs. */
+const SONG_HOLD_MS = 160;   // longer than the quick fade below plus the pause that follows it
 function songDuck(on){
   Song.ducks = Math.max(0, Song.ducks + (on ? 1 : -1));
   const d = Song.ducks && MEDIA.song ? MEDIA.song.duck : 1;
-  if (d !== Song.duck){ Song.duck = d; if (Song.mode !== 'off') songApply(0.25); }
+  if (d !== Song.duck){ Song.duck = d; if (Song.mode === 'film') songApply(0.25); }   // the film's song only turns down
+  if (Song.ducks && Song.mode === 'home'){ const playing = !!(Song.el && !Song.el.paused); clearTimeout(Song.syncT); songSyncNow(); return playing; }
+  if (!Song.ducks) songSync(400);   // the voice is done: the song picks up where it paused
+  return false;
 }
 /* browsers only let audio start after a tap: the first tap plays the element silently so it can start later */
 function songUnlock(){
@@ -284,13 +292,13 @@ function songGesture(){
 }
 document.addEventListener('pointerdown', songGesture, { capture: true });
 document.addEventListener('keydown', songGesture, { capture: true });
-/* home music: loops on every tab (Learn, Stories, Review, Talk, Me) while no lesson, review, story, chat or film is open, the
-   page is visible and the setting is on. Switching tabs leaves it playing where it is; a lesson pauses it, and it
-   picks up from the same spot afterwards. */
+/* home music: loops on every tab (Learn, Stories, Review, Talk, Friends, Me) while no lesson, review, story, chat or film is
+   open, no voice is speaking, the page is visible and the setting is on. Switching tabs leaves it playing where it is; a
+   lesson or a spoken word pauses it, and it picks up from the same spot afterwards. */
 function musicVol(){ return S.settings.musicVol == null ? 0.6 : S.settings.musicVol; }
 function homeMusicOn(){ return !!(MEDIA.song && S.settings.homeMusic && musicVol() > 0); }
 function homeVol(){ return musicVol() * MEDIA.song.home; }
-function homeMusicWanted(){ return homeMusicOn() && Song.unlocked && !Song.failed && typeof UI !== 'undefined' && !busy() && !document.hidden; }
+function homeMusicWanted(){ return homeMusicOn() && Song.unlocked && !Song.failed && !Song.ducks && typeof UI !== 'undefined' && !busy() && !document.hidden; }
 function songSync(delay){ clearTimeout(Song.syncT); Song.syncT = setTimeout(songSyncNow, delay == null ? 150 : delay); }
 function songSyncNow(){
   if (typeof Film !== 'undefined' && Film.open){ if (Song.mode === 'home'){ Song.mode = 'off'; songStop(0.3); } return; } // the film drives the song while it is open
@@ -298,7 +306,7 @@ function songSyncNow(){
     if (Song.mode !== 'home'){ Song.mode = 'home'; if (Song.el) Song.el.loop = true; songStart(null, homeVol(), 1.2); }
     else if (Song.el && Song.el.paused) songStart(null, homeVol(), 0.8);
     else { Song.vol = homeVol(); songApply(0.3); }
-  } else if (Song.mode === 'home'){ Song.mode = 'off'; songStop(0.5); }
+  } else if (Song.mode === 'home'){ Song.mode = 'off'; songStop(Song.ducks ? 0.08 : 0.5); }   // quick when a voice needs the speaker
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) songSyncNow(); else songSync(300); });
 

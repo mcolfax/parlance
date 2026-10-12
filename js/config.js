@@ -12,7 +12,8 @@ const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
-  { v: '4.8.1', date: '2026-10-12', title: 'A tidier top bar on iPhone', notes: [
+  { v: '4.8.1', date: '2026-10-12', title: 'Clearer tap to hear, and a tidier top bar', notes: [
+    'When you tap a word to hear it, the theme song now pauses while it’s spoken, then picks up where it was. On iPhone the voice could get lost under the music.',
     'On iPhone the top bar now fits the screen, so pages no longer slide sideways. On the smallest phones the Parlance name steps aside and the logo stays.'] },
   { v: '4.8.0', date: '2026-10-11', title: 'Learn with friends', notes: [
     'There’s a new Friends tab. Invite friends with a code or a link and you’re added to each other’s list.',

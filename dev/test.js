@@ -698,7 +698,18 @@ async function main(){
     D.body.dispatchEvent(new M.w.Event('pointerdown', { bubbles: true })); await sleep(700);
     ok(E('Song.unlocked') && E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.loop'), 'first tap starts the looping song on Learn');
     ok(Math.abs(E('Song.vol') - E('homeVol()')) < 1e-9 && E('homeVol()') < 0.5, 'plays softly ' + E('homeVol()'));
-    E('songDuck(true)'); ok(E('Song.duck') === E('MEDIA.song.duck'), 'a speaking voice lowers the song'); E('songDuck(false)'); ok(E('Song.duck') === 1, 'and it comes back up');
+    { /* a spoken word pauses the song on the tabs (iPhone's voice can go quiet while other audio plays), then it picks up where it was */
+      E('Song.el.currentTime = 17'); const said = []; M.w.speechSynthesis = { speaking: false, pending: false, cancel(){}, getVoices: () => [], speak: u => { said.push([u.text, E('Song.el.paused')]); setTimeout(() => { u.onstart && u.onstart(); u.onend && u.onend(); }, 20); } };
+      M.w.SpeechSynthesisUtterance = function(t){ this.text = t; };
+      const p = E('speak("Hallo", "de")'); await sleep(20);
+      ok(E('Song.mode') === 'off' && !said.length, 'a speaking voice pauses the song first');
+      await p; await sleep(220);
+      ok(said.length === 1 && said[0][0] === 'Hallo' && said[0][1] === true, 'the word is spoken while the song is paused ' + JSON.stringify(said));
+      await sleep(500);
+      ok(E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.currentTime') === 17 && E('Song.duck') === 1, 'then the song picks up from the same spot');
+      E('Film.open = true; Song.mode = "film"'); E('songDuck(true)'); ok(E('Song.duck') === E('MEDIA.song.duck') && E('Song.mode') === 'film', 'under the intro film a voice only turns the song down');
+      E('songDuck(false); Film.open = false; Song.mode = "home"'); ok(E('Song.duck') === 1, 'and it comes back up'); await sleep(500);
+    }
     const tab = name => [...D.querySelectorAll('.tab')].find(b => b.textContent.includes(name)).click();
     E('Song.el.currentTime = 42'); const plays0 = E('window.__plays');
     for (const name of ['Stories', 'Review', 'Talk', 'Me']){
