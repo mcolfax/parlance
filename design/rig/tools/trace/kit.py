@@ -88,6 +88,15 @@ class Tracer:
     def closed(self, region, cls='o2'):
         return self.S(cls, [closed_path(region, self.c)])
 
+    def color(self, m, sheet):
+        """the sheet's median color over a mask, as #RRGGBB (sheet: the prepared sheet.png)"""
+        if not hasattr(self, '_rgb'):
+            from PIL import Image
+            self._rgb = np.asarray(Image.open(sheet).convert('RGB'))
+        ys, xs = np.nonzero(ero(m, 4) if ero(m, 4).any() else m)
+        px = self._rgb[ys // 4, xs // 4 + self.c.x0]
+        return '#%02X%02X%02X' % tuple(int(v) for v in np.median(px, 0))
+
     # ---- measures, in units ----
     def bbox(self, m): return bbox_units(m, self.c)
     def centre(self, m): return centroid_units(m, self.c)
@@ -117,6 +126,39 @@ def head_circle(t, head, below=140):
     (qx, qy, qc), *_ = np.linalg.lstsq(A, hb[:, 0] ** 2 + hb[:, 1] ** 2, rcond=None)
     u = t.c.unit(qx, qy)
     return [round(float(u[0]), 2), round(float(u[1]), 2), round(float(np.sqrt(qc + qx ** 2 + qy ** 2) / 8), 2)]
+
+
+def pupil_room(t, white, pupil_ell, keep=0.8):
+    """how far a pupil can move from where it's drawn and stay inside its eye white: [right, left, down, up] in units,
+    the axes of a quarter-ellipse per quadrant, shrunk so every direction fits (as fit_pupil_room.py does for Pip)"""
+    import math
+    P = white.astype(np.uint8)
+    x, y, rx, ry = pupil_ell[:4]
+    def centres(m):
+        ax, ay = max(1, int(round((rx + m) * 8))), max(1, int(round((ry + m) * 8)))
+        return cv2.erode(P, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * ax + 1, 2 * ay + 1))) > 0
+    def at(E, px, py):
+        q = t.P(px, py)
+        return 0 <= q[1] < E.shape[0] and 0 <= q[0] < E.shape[1] and E[q[1], q[0]]
+    lo, hi = -6.0, 6.0
+    for _ in range(30):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if at(centres(mid), x, y) else (lo, mid)
+    E = centres(min(keep, lo - 0.05))
+    def reach(a):
+        r = 0.0
+        while r < 20 and at(E, x + (r + 0.05) * math.cos(a), y + (r + 0.05) * math.sin(a)): r += 0.05
+        return r
+    R = {deg: reach(math.radians(deg)) for deg in range(0, 360, 5)}
+    axes = [R[0], R[180], R[90], R[270]]
+    k = 1.0
+    for deg, r in R.items():
+        a = math.radians(deg); c, sn = math.cos(a), math.sin(a)
+        ax, ay = (axes[0] if c >= 0 else axes[1]), (axes[2] if sn >= 0 else axes[3])
+        if ax > 0 and ay > 0:
+            rr = 1 / math.sqrt((c / ax) ** 2 + (sn / ay) ** 2)
+            if rr > r: k = min(k, r / rr)
+    return [round(v * k, 2) for v in axes]
 
 
 def measure_lw(prefix):

@@ -71,10 +71,17 @@ const Rig = (() => {
     const slotById = {};
     const slots = def.slots.map((s, i) => {
       if (!byId[s.bone]) throw new Error('Rig: slot ' + s.id + ' hangs on a missing bone ' + s.bone);
-      const o = { id: s.id, i, bone: byId[s.bone].i, z: i, att: s.att === undefined ? null : s.att, parts: def.parts[s.id] || {}, blink: s.blink || null };
+      const o = { id: s.id, i, bone: byId[s.bone].i, z: i, att: s.att === undefined ? null : s.att, parts: def.parts[s.id] || {}, blink: s.blink || null, showWith: s.showWith || null };
       slotById[s.id] = o;
       return o;
     });
+    /* a slot that shows its drawing only while another slot shows one of a list (an eye's white goes with the open
+       eyes, not the closed ones) */
+    for (const o of slots) if (o.showWith){
+      const ref = slotById[o.showWith.slot];
+      if (!ref) throw new Error('Rig: slot ' + o.id + ' shows with a missing slot ' + o.showWith.slot);
+      o.showWith = { ref: ref.i, drawings: o.showWith.drawings };
+    }
     const springs = Object.keys(def.springs || {}).map(id => {
       if (!byId[id]) throw new Error('Rig: spring on a missing bone ' + id);
       const s = def.springs[id], n = Math.hypot(s.dir[0], s.dir[1]) || 1;
@@ -254,6 +261,7 @@ const Rig = (() => {
     const d = dense(c, def, resolve(def, spec || def.restMood || {}));
     const chans = d.b.map(o => Object.assign({}, o));
     swapByAngle(c, chans, d.s);
+    follow(c, d.s);
     drivers(c, def, chans, d.p);
     applyLook(c, def, chans, d.p);
     const { W, A } = world(c, chans, null, 0, false);
@@ -276,6 +284,10 @@ const Rig = (() => {
     const ax = Math.max(dx >= 0 ? room[0] : room[1], 1e-3), ay = Math.max(dy >= 0 ? room[2] : room[3], 1e-3);
     const q = (dx / ax) * (dx / ax) + (dy / ay) * (dy / ay);
     return q > 1 ? [dx / Math.sqrt(q), dy / Math.sqrt(q)] : [dx, dy];
+  }
+  /* slots that show only with certain drawings of another slot (showWith) */
+  function follow(c, S) {
+    for (const sl of c.slots) if (sl.showWith) S[sl.i] = sl.showWith.drawings.includes(S[sl.showWith.ref]) ? sl.att : null;
   }
   /* drawings chosen by a bone's angle (def.swaps): either drawing of the pair, by how far the bone has turned from
      rest; `on` keeps a live rig from flickering at the threshold */
@@ -564,6 +576,7 @@ const Rig = (() => {
         if (M.jaw){ const jb = c.byId[M.jaw.bone]; if (jb && M.jaw.drop[mv]) chans[jb.i].y += M.jaw.drop[mv]; }
       }
       swapByAngle(c, chans, S, swapOn);
+      follow(c, S);
       drivers(c, def, chans, P);
       applyLook(c, def, chans, P);
       const { W, A } = world(c, chans, rm ? null : springs, dt, !rm);
