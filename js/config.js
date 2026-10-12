@@ -96,9 +96,9 @@ const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home
     { src: 'media/abc-adventure.webm', type: 'audio/webm; codecs="opus"' }] },
   voice: { dir: 'media/voice',
     de: { narrator: 'de-DE-Chirp3-HD-Erinome', pip: 'de-DE-Chirp3-HD-Leda', lena: 'de-DE-Chirp3-HD-Aoede', jonas: 'de-DE-Chirp3-HD-Puck', weber: 'de-DE-Chirp3-HD-Gacrux', emre: 'de-DE-Chirp3-HD-Algenib', leyla: 'de-DE-Chirp3-HD-Despina', brandt: 'de-DE-Chirp3-HD-Alnilam',
-      kiwi: 'de-DE-Chirp3-HD-Laomedeia', mango: 'de-DE-Chirp3-HD-Callirrhoe', kakadu: 'de-DE-Chirp3-HD-Fenrir', rojo: 'de-DE-Chirp3-HD-Sadachbia' },
+      kiwi: 'de-DE-Chirp3-HD-Laomedeia', mango: 'de-DE-Chirp3-HD-Callirrhoe', kakadu: 'de-DE-Chirp3-HD-Autonoe', rojo: 'de-DE-Chirp3-HD-Sadachbia' },
     es: { narrator: 'es-US-Chirp3-HD-Erinome', pip: 'es-US-Chirp3-HD-Leda', sofia: 'es-US-Chirp3-HD-Sulafat', diego: 'es-US-Chirp3-HD-Achird', carmen: 'es-US-Chirp3-HD-Vindemiatrix', mateo: 'es-US-Chirp3-HD-Zubenelgenubi', valentina: 'es-US-Chirp3-HD-Zephyr', andres: 'es-US-Chirp3-HD-Umbriel',
-      kiwi: 'es-US-Chirp3-HD-Laomedeia', mango: 'es-US-Chirp3-HD-Callirrhoe', kakadu: 'es-US-Chirp3-HD-Fenrir', rojo: 'es-US-Chirp3-HD-Sadachbia' } } };
+      kiwi: 'es-US-Chirp3-HD-Laomedeia', mango: 'es-US-Chirp3-HD-Callirrhoe', kakadu: 'es-US-Chirp3-HD-Autonoe', rojo: 'es-US-Chirp3-HD-Sadachbia' } } };
 /* The birds you can learn with (Me → Your bird). Pip's part sheet (js/core/pip.js) always loads; the others load when
    someone picks one (src). kind is what the bird is, as copy says it ("a budgie"). Its recorded voice is in MEDIA.voice;
    pitch and rate are its voice on the device (rate is recorded too). The drawings, moods and moves are in js/core and
