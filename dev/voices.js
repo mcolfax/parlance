@@ -8,8 +8,13 @@
      --dry        count what would be recorded, without calling Google or writing anything
      --list       print the Chirp 3 HD voices Google has for each language, for choosing MEDIA.voice in js/config.js
      --only       record new lines only in these packs (lines already recorded elsewhere are kept)
-     --max-chars  stop before recording more than this many characters in one run (default 300000; Chirp 3 HD
-                  voices are free for the first million characters a month, then US$30 per million) */
+     --max-chars  stop before recording more than this many characters in one run (default 300000)
+   Recording must never cost anything. Chirp 3 HD voices are free for the first million characters a month (Pacific
+   time), then US$30 per million. So every run adds what it records to dev/voice-usage.json, month by month, and refuses
+   to start a run that would take the month past MONTH_CAP, a margin under the free million. There is no flag to go past
+   it. Characters are counted as UTF-8 bytes (an accented letter counts twice), never fewer than Google counts, and the
+   total is saved as the run goes, so a run that fails partway still counts. Commit dev/voice-usage.json with the
+   recordings so the next session sees it. Learners never call Google: the app only plays these files. */
 const fs = require('fs');
 const path = require('path');
 const { JSDOM, ResourceLoader, VirtualConsole } = require('jsdom');
@@ -17,6 +22,18 @@ const ROOT = path.join(__dirname, '..'), BASE = 'https://parlance.test/', API = 
 const args = process.argv.slice(2), flag = n => args.includes(n), opt = n => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null; };
 const DRY = flag('--dry'), ONLY = opt('--only') ? new Set(opt('--only').split(',')) : null, MAX = +(opt('--max-chars') || 300000);
 const KEY = process.env.GOOGLE_TTS_KEY || '';
+const MONTH_CAP = 900000, USAGE = path.join(ROOT, 'dev', 'voice-usage.json');
+const cost = text => Buffer.byteLength(text, 'utf8');
+const billMonth = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit' }).format(new Date()).slice(0, 7);
+function readUsage(){ try { const u = JSON.parse(fs.readFileSync(USAGE, 'utf8')); return u && u.months ? u : { months: {} }; } catch (e) { return { months: {} }; } }
+const Spent = { month: '', base: 0, run: 0 };
+function saveUsage(){
+  if (!Spent.month) return;
+  const u = readUsage(); u.note = 'Characters recorded with Google Cloud Text-to-Speech per billing month (Pacific time), counted by dev/voices.js. The first 1,000,000 a month are free; the script stops at ' + MONTH_CAP.toLocaleString('en-US') + '.';
+  u.months[Spent.month] = Spent.base + Spent.run;
+  fs.writeFileSync(USAGE, JSON.stringify({ note: u.note, months: u.months }, null, 2) + '\n');
+}
+process.on('exit', saveUsage);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /* the app itself, loaded from disk, says what it can say */
@@ -54,6 +71,7 @@ function stripId3(b){   // a clip is just its mp3 frames, so clips can sit back 
   return b;
 }
 async function record(text, voice, rate){
+  Spent.run += cost(text); saveUsage();   // counted before asking, so even a request that fails counts
   const j = await google('text:synthesize', { input: { text }, voice: { languageCode: localeOf(voice), name: voice }, audioConfig: { audioEncoding: 'MP3', sampleRateHertz: 24000, speakingRate: rate } });
   return stripId3(Buffer.from(j.audioContent, 'base64'));
 }
@@ -95,13 +113,17 @@ async function main(){
       const name = cfg[lang][who] || cfg[lang].narrator, rate = app.rates[who] || 1, id = name + '|' + rate + '|' + key;
       const item = { who, text, pack, key, name, rate, id };
       if (have.has(id)){ item.bytes = have.get(id); keep.push(item); }
-      else if (!ONLY || ONLY.has(pack)){ todo.push(item); chars += text.length; keep.push(item); }
+      else if (!ONLY || ONLY.has(pack)){ todo.push(item); chars += cost(text); keep.push(item); }
     }
     plan[lang] = { keep, todo };
-    console.log(lang + ': ' + keep.length + ' lines (' + (keep.length - todo.length) + ' already recorded), ' + todo.length + ' to record, ' + todo.reduce((n, x) => n + x.text.length, 0) + ' characters');
+    console.log(lang + ': ' + keep.length + ' lines (' + (keep.length - todo.length) + ' already recorded), ' + todo.length + ' to record, ' + todo.reduce((n, x) => n + cost(x.text), 0) + ' characters');
   }
+  const month = billMonth(), used = readUsage().months[month] || 0;
+  console.log('This month (' + month + '): ' + used + ' characters recorded so far, ' + chars + ' in this run, ' + (MONTH_CAP - used) + ' left under the cap.');
   if (DRY) return;
   if (chars > MAX) throw new Error('This run would record ' + chars + ' characters, over --max-chars ' + MAX + '. Raise it to go ahead.');
+  if (used + chars > MONTH_CAP) throw new Error('Stopped: this run would take ' + month + ' to ' + (used + chars) + ' characters, past the ' + MONTH_CAP + ' cap that keeps recording free. Record fewer packs with --only, or wait for next month.');
+  Object.assign(Spent, { month, base: used, run: 0 });
   for (const lang of langs){
     const { keep, todo } = plan[lang]; let done = 0;
     const work = todo.slice();
@@ -126,6 +148,7 @@ async function main(){
     const mb = Object.values(parts).reduce((n, p) => n + p.size, 0) / 1e6;
     console.log(lang + ': wrote ' + packs.length + ' packs, ' + keep.length + ' clips, ' + mb.toFixed(1) + ' MB');
   }
-  console.log('Recorded ' + chars + ' characters this run.');
+  saveUsage();
+  console.log('Recorded ' + Spent.run + ' characters this run; ' + (Spent.base + Spent.run) + ' this month.');
 }
 main().then(() => process.exit(0), e => { console.error(e.message || e); process.exit(1); });

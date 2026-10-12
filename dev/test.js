@@ -776,6 +776,11 @@ async function main(){
       const covered = lines.filter(l => l[0] === lang && ((ix.voices[l[1]] || {}).lines || {})[P.recKey(l[2])]).length, all = lines.filter(l => l[0] === lang).length;
       console.log('recorded voices ' + lang + ': ' + covered + ' of ' + all + ' lines');
     }
+    // recording must never cost anything: the script's monthly cap stays under Google's free million, and no month went past it
+    const cap = +((fs.readFileSync(path.join(ROOT, 'dev', 'voices.js'), 'utf8').match(/MONTH_CAP = (\d+)/) || [])[1]);
+    ok(cap > 0 && cap <= 900000, 'dev/voices.js stops each month at ' + cap + ' characters, under the free 1,000,000');
+    const usageFile = path.join(ROOT, 'dev', 'voice-usage.json');
+    if (fs.existsSync(usageFile)){ const u = JSON.parse(fs.readFileSync(usageFile, 'utf8')); ok(u.months && Object.entries(u.months).every(([m, n]) => /^\d{4}-\d{2}$/.test(m) && n >= 0 && n <= cap), 'every month of recording stayed under the cap ' + JSON.stringify(u.months)); }
   }
   /* ---------- 11. the web version: accounts and the database through Supabase (fake server) ---------- */
   {

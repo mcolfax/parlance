@@ -52,7 +52,7 @@ The preview runs without the artifact runtime, so there is no account sync, data
 ## Shipping a release
 
 1. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once.
-2. If lesson or story text changed, run `node dev/voices.js` so the new lines are recorded. If Google turns the key down, say so: those lines use the device's voice until they are recorded.
+2. If lesson or story text changed, run `node dev/voices.js` so the new lines are recorded, and commit `media/voice/` with `dev/voice-usage.json`. Recording must never cost Matt anything: the script stops at 900,000 characters a month, under Google's free million. Never raise that cap or get around it. If the script stops or Google turns the key down, say so: those lines use the device's voice until they are recorded.
 3. Run `npm test`. It must end with `FAIL 0`.
 4. Commit to `main` and push. Vercel deploys the web version from `main` on its own.
 5. Publish with the Artifact tool:
