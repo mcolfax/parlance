@@ -1,4 +1,4 @@
-<title>Pip SVG Rig</title>
+<title>Parlance SVG Rigs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap">
@@ -88,11 +88,14 @@ section,.panel{display:flex;flex-direction:column;gap:14px;min-width:0}
 .seg{display:inline-flex;background:var(--chip);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
 .seg button{appearance:none;border:0;background:none;color:var(--ink);font:700 13px/1 var(--body);padding:8px 11px;border-radius:9px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--paper);box-shadow:var(--shadow)}
+#bird-pick{width:fit-content;margin-top:4px}
+#bird-pick a{color:var(--ink);font:700 13px/1 var(--body);padding:8px 11px;border-radius:9px;text-decoration:none}
+#bird-pick a[aria-current="true"]{background:var(--paper);box-shadow:var(--shadow)}
 .swatch{width:12px;height:12px;border-radius:50%;display:inline-block;vertical-align:-1px;margin-right:6px;border:1.5px solid rgb(11 42 30 / .5)}
 
 /* compare */
 .cmp{padding:14px;display:flex;flex-direction:column;gap:12px}
-.cmp-box{position:relative;width:min(100%,340px);aspect-ratio:370/608;margin:0 auto;border-radius:var(--r-md);overflow:hidden;background:var(--concept-bg);touch-action:pan-y}
+.cmp-box{position:relative;width:min(100%,340px);aspect-ratio:var(--crop-w,370)/608;margin:0 auto;border-radius:var(--r-md);overflow:hidden;background:var(--concept-bg);touch-action:pan-y}
 .cmp-box img,.cmp-box .layer{position:absolute;inset:0;width:100%;height:100%}
 .cmp-box img{object-fit:cover}
 .cmp-box .layer{background:var(--concept-bg);clip-path:inset(0 0 0 var(--cut,50%))}
@@ -176,7 +179,8 @@ footer{font:400 12px/1.5 var(--mono);color:var(--muted)}
 <div class="page" id="top">
   <header>
     <span class="eyebrow">Parlance · character rig · round 1</span>
-    <h1>Pip, rigged</h1>
+    <h1><span id="bird-name">Pip</span>, rigged</h1>
+    <nav class="seg" id="bird-pick" aria-label="Bird"><a href="#pip">Pip</a> <a href="#kiwi">Kiwi</a> <a href="#mango">Mango</a> <a href="#kakadu">Kakadu</a> <a href="#rojo">Rojo</a></nav>
     <p class="lede">Pip is now a cut-out rig: one skeleton, a sheet of swappable parts and a small animation runtime. Everything on this page is live SVG built from that part sheet. Tap a mood, poke Pip, or pose it yourself. Then comment on anything you’d change.</p>
     <div class="facts" id="facts"></div>
   </header>
@@ -301,9 +305,22 @@ footer{font:400 12px/1.5 var(--mono);color:var(--muted)}
 <script src="../../js/core/rig.js"></script>
 <script src="../../js/core/bird.js"></script>
 <script src="../../js/core/pip.js"></script>
+<script src="../../js/core/kiwi.js"></script>
+<script src="../../js/core/mango.js"></script>
+<script src="../../js/core/kakadu.js"></script>
+<script src="../../js/core/rojo.js"></script>
+<script>
+/* every bird shares the skeleton; #kiwi, #mango, #kakadu or #rojo shows that bird's part sheet instead of Pip's */
+const BIRD_DEFS = { pip: PIP, kiwi: KIWI, mango: MANGO, kakadu: KAKADU, rojo: ROJO };
+addEventListener('hashchange', () => location.reload());
+</script>
 <script>
 "use strict";
 (() => {
+  const BID = BIRD_DEFS[location.hash.slice(1)] ? location.hash.slice(1) : 'pip';
+  const PIP = BIRD_DEFS[BID];
+  document.getElementById('bird-name').textContent = PIP.name;
+  for (const a of document.querySelectorAll('#bird-pick a')) if (a.getAttribute('href') === '#' + BID) a.setAttribute('aria-current', 'true');
   const NS = 'http://www.w3.org/2000/svg';
   const $ = (s, el = document) => el.querySelector(s);
   const h = (tag, attrs = {}, ...kids) => { const el = document.createElement(tag); for (const k in attrs){ const v = attrs[k]; if (v == null || v === false) continue; if (k === 'html') el.innerHTML = v; else if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? '' : v); } for (const c of kids) if (c != null) el.append(c); return el; };
@@ -331,7 +348,7 @@ footer{font:400 12px/1.5 var(--mono);color:var(--muted)}
     ['fly', 'Fly', 'Intro film, moving between screens.', false]
   ];
   const MOVES = [['hop', 'Hop'], ['nod', 'Nod'], ['shake', 'Shake head'], ['lookAround', 'Look around'], ['surprise', 'Jump'], ['wobble', 'Wobble'], ['bow', 'Bow']];
-  const LINES = { de: ['Hallo! Ich bin Pip.', 'Super gemacht!', 'Los geht’s!', 'Fast! Nochmal?'], es: ['¡Hola! Soy Pip.', '¡Muy bien!', '¡Vámonos!', '¡Casi! ¿Otra vez?'] };
+  const LINES = { de: ['Hallo! Ich bin ' + PIP.name + '.', 'Super gemacht!', 'Los geht’s!', 'Fast! Nochmal?'], es: ['¡Hola! Soy ' + PIP.name + '.', '¡Muy bien!', '¡Vámonos!', '¡Casi! ¿Otra vez?'] };
 
   /* ----- live stage ----- */
   const stage = $('#stage');
@@ -396,17 +413,24 @@ footer{font:400 12px/1.5 var(--mono);color:var(--muted)}
   });
 
   /* ----- concept and rig ----- */
-  const CROPS = [
-    { img: 'reference/pip-happy.webp', alt: 'Concept art of Pip, neutral pose', mood: 'happy', x0: 0, cx: 193 },
-    { img: 'reference/pip-cheer.webp', alt: 'Concept art of Pip, cheering', mood: 'cheer', x0: 362, cx: 537.5 },
-    { img: 'reference/pip-oops.webp', alt: 'Concept art of Pip, worried', mood: 'oops', x0: 718, cx: 900 }
+  /* the concept crops: x0 and cx are the crop's left edge and the head's centre on the prepared sheet, w its width in
+     units (tools/trace/crops.py cuts the other birds' crops) */
+  const CROPS = BID === 'pip' ? [
+    { img: 'reference/pip-happy.webp', alt: 'Concept art of Pip, neutral pose', mood: 'happy', x0: 0, cx: 193, w: 185 },
+    { img: 'reference/pip-cheer.webp', alt: 'Concept art of Pip, cheering', mood: 'cheer', x0: 362, cx: 537.5, w: 185 },
+    { img: 'reference/pip-oops.webp', alt: 'Concept art of Pip, worried', mood: 'oops', x0: 718, cx: 900, w: 185 }
+  ] : [
+    { img: 'reference/' + BID + '-happy.webp', alt: 'Concept art of ' + PIP.name + ', neutral pose', mood: 'happy', x0: 0, cx: BID === 'kiwi' ? 185.5 : 185, w: 185 },
+    { img: 'reference/' + BID + '-cheer.webp', alt: 'Concept art of ' + PIP.name + ', cheering', mood: 'cheer', x0: 0, cx: 215, w: 215 }
   ];
+  if (CROPS.length < 3) document.querySelector('#cmp-pick [data-i="2"]').remove();
   const cmpBox = $('#cmp-box'), cmpImg = $('#cmp-img'), cmpRig = $('#cmp-rig'), cmpCut = $('#cmp-cut');
   function showCrop(i) {
     const c = CROPS[i];
     cmpImg.src = c.img; cmpImg.alt = c.alt;
     /* each concept crop is 370 x 608 px at half a rig unit per pixel, centred on the head */
-    cmpRig.innerHTML = Rig.svg(PIP, c.mood, { view: [(c.x0 - c.cx) * 0.5 + 120, -10, 185, 304], size: 340, style: false });
+    cmpBox.style.setProperty('--crop-w', c.w * 2);
+    cmpRig.innerHTML = Rig.svg(PIP, c.mood, { view: [(c.x0 - c.cx) * 0.5 + 120, -10, c.w, 304], size: 340, style: false });
     const s = cmpRig.firstChild; s.removeAttribute('width'); s.removeAttribute('height');
     for (const b of $('#cmp-pick').children) b.setAttribute('aria-pressed', String(+b.dataset.i === i));
   }

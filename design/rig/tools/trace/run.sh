@@ -1,7 +1,8 @@
 #!/bin/sh
 # Trace one of the cast's other birds from its model sheet and write js/core/<bird>.js:
 # prep.py (the sheet into setup space) -> segment.py (color classes, neutral and cheer crops) -> birds/<bird>.py (the
-# trace) -> build_bird.py (the part sheet, from birds/<bird>.tpl.js). Work files go to $TRACE_DIR/<bird> (tools/trace/work).
+# trace) -> build_bird.py (the part sheet, from birds/<bird>.tpl.js) -> crops.py (the concept crops the review page
+# compares against). Work files go to $TRACE_DIR/<bird> (tools/trace/work).
 # Usage: sh design/rig/tools/trace/run.sh <bird> [python]      (python with numpy scipy opencv-python-headless pillow potracer)
 set -e
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -17,3 +18,4 @@ for k in n c; do
 done
 "$PY" "$HERE/birds/$BIRD.py" > "$W/trace.log"
 "$PY" -I "$HERE/build_bird.py" "$BIRD"
+"$PY" -I "$HERE/crops.py" "$BIRD"

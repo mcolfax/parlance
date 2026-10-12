@@ -1,11 +1,12 @@
-<title>Pip Rig Review</title>
+<title>Parlance Bird Rigs</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.185.0/build/three.module.min.js"}}</script>
 <style>
-/* Layout: a rig sheet. The live Blender rig and its controls on the left (sticky on wide screens); the concept
-   match, the moods and how to edit Pip in Blender on the right. On a phone it is one column, stage first. */
+/* Layout: a rig sheet. A bird picker under the title; the live Blender rig and its controls on the left (sticky on
+   wide screens); the concept match, the moods and how to edit the bird in Blender on the right. On a phone it is one
+   column, stage first. */
 :root{
   --ground:#F3F7EC; --paper:#FFFFFF; --paper-2:#F7FAF2; --ink:#15301F; --muted:#56705F; --rule:#D7E3CB;
   --stage:#E8F0DD; --chip:#E2ECD5; --green:#1F8A4C; --green-ink:#FFFFFF; --orange-text:#A65300; --red:#D9402B;
@@ -88,7 +89,7 @@ section,.panel{display:flex;flex-direction:column;gap:14px;min-width:0}
 
 /* compare */
 .cmp{padding:14px;display:flex;flex-direction:column;gap:12px}
-.cmp-box{position:relative;width:min(100%,340px);aspect-ratio:370/608;max-width:100%;margin:0 auto;border-radius:var(--r-md);overflow:hidden;background:var(--concept-bg);touch-action:pan-y}
+.cmp-box{position:relative;width:min(100%,340px);aspect-ratio:var(--crop-w,370)/608;max-width:100%;margin:0 auto;border-radius:var(--r-md);overflow:hidden;background:var(--concept-bg);touch-action:pan-y}
 .cmp-box img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cmp-box .layer{position:absolute;inset:0;background:var(--concept-bg);clip-path:inset(0 0 0 var(--cut,50%))}
 .cmp-box .layer img{object-fit:contain}
@@ -134,19 +135,20 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
 
 <div class="page">
   <header>
-    <span class="eyebrow">Parlance · Pip · round 4 · Blender rig</span>
-    <h1>Pip, rigged in Blender</h1>
-    <p class="lede">This is Pip's Blender rig, playing in the browser with three.js. The drawing is traced from your model sheet, and it now hangs on real bones: wings curl and bend, the crest and tail swing after every move, and one mood blends into the next. Tap Pip to hop, pick a mood or a move, or let Pip follow your finger.</p>
+    <span class="eyebrow">Parlance · the cast · round 5 · Blender rigs</span>
+    <h1><span class="bn">Pip</span>, rigged in Blender</h1>
+    <p class="lede">Every Parlance bird now has a Blender rig, playing in the browser with three.js. Each is traced from its model sheet and hangs on real bones: wings curl and bend, crests and tails swing after every move, and one mood blends into the next. Pick a bird, tap it to hop, choose a mood or a move, or let it follow your finger.</p>
+    <div class="seg" id="bird-pick" role="group" aria-label="Bird"></div>
     <div class="facts"><span><b id="f-bones">103</b> bones</span><span><b id="f-moods">17</b> moods</span><span><b id="f-moves">11</b> moves</span><span><b>Blender 5.2</b> source file</span><span><b>three.js 0.185</b> player</span></div>
   </header>
 
   <div class="layout">
     <div class="col col-left">
-      <section class="panel panel-stage" aria-label="Live Pip" data-comment-target>
+      <section class="panel panel-stage" aria-label="Live bird" data-comment-target>
         <div class="stage" id="stage">
           <div class="hud"><span>mood <b id="hud-mood">happy</b></span><span id="hud-state">loading the rig…</span></div>
           <div class="bubble" id="bubble" aria-live="polite"></div>
-          <div class="pip" id="pip" role="img" aria-label="Pip, the Parlance parrot, live"></div>
+          <div class="pip" id="pip" role="img" aria-label="The bird, live"></div>
           <p class="note" id="note" hidden></p>
         </div>
         <div class="row">
@@ -176,7 +178,7 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
           </div>
           <div class="cmp-box" id="cmp-box">
             <img id="cmp-concept" alt="">
-            <div class="layer"><img id="cmp-rig" alt="Pip's Blender rig in the same pose"></div>
+            <div class="layer"><img id="cmp-rig" alt="The Blender rig in the same pose"></div>
             <div class="cut"></div>
             <span class="tag l">Concept</span><span class="tag r">Blender rig</span>
             <span class="wait" id="cmp-wait">Rendering the rig…</span>
@@ -199,22 +201,22 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
       <section class="sec-blender" aria-labelledby="blend-h" data-comment-target>
         <div class="sec-head">
           <span class="eyebrow">Editing</span>
-          <h2 id="blend-h">Change Pip in Blender</h2>
+          <h2 id="blend-h">Change <span class="bn">Pip</span> in Blender</h2>
           <p class="muted">Blender is free. Every pose and move you see here is in one file you can open and adjust by eye.</p>
         </div>
         <div class="card steps">
           <ol>
             <li>Install <b>Blender 5.2 LTS</b> from blender.org (free, Mac or Windows).</li>
-            <li>Open <code>design/rig/blender/pip.blend</code> from the Parlance repo. Press <span class="kbd">1</span> on the number pad (or View › Viewpoint › Front) to see Pip from the front.</li>
-            <li>Click Pip's bones, switch to Pose Mode, and open the Dope Sheet's Action Editor. Each mood is an action there: pick one, scrub the timeline, and rotate a bone with <span class="kbd">R</span> to change a pose. Keys go in with <span class="kbd">I</span>.</li>
+            <li>Open <code>design/rig/blender/<span class="bid">pip</span>.blend</code> from the Parlance repo. Press <span class="kbd">1</span> on the number pad (or View › Viewpoint › Front) to see the bird from the front.</li>
+            <li>Click the bird's bones, switch to Pose Mode, and open the Dope Sheet's Action Editor. Each mood is an action there: pick one, scrub the timeline, and rotate a bone with <span class="kbd">R</span> to change a pose. Keys go in with <span class="kbd">I</span>.</li>
             <li>Which eyes, beak or wings show is a set of small <code>show_…</code> bones: scale 1 shows a drawing, 0 hides it.</li>
-            <li>Two control bones beside Pip turn it round: move <code>ctl_facing</code> to X −2 cm and the whole bird faces left; <code>ctl_head</code> does the same for the head alone.</li>
-            <li>Save, then export with <code>design/rig/blender/build/export.py</code> (Blender's Scripting tab › Open › Run Script), or ask Claude to re-export Pip. The player picks up the new <code>pip.gltf.json</code>.</li>
+            <li>Two control bones beside the bird turn it round: move <code>ctl_facing</code> to X −2 cm and the whole bird faces left; <code>ctl_head</code> does the same for the head alone.</li>
+            <li>Save, then export with <code>design/rig/blender/build/export.py</code> (Blender's Scripting tab › Open › Run Script), or ask Claude to re-export it. The player picks up the new <code><span class="bid">pip</span>.gltf.json</code>.</li>
           </ol>
           <button class="cbtn" type="button" data-comment>Comment</button>
         </div>
         <div class="cols">
-          <div class="fact"><h3>In the Blender file</h3><p>The drawing, its bones, the wing, crest and tail chains that bend, the controls that turn Pip round, and every mood and move as an action.</p></div>
+          <div class="fact"><h3>In the Blender file</h3><p>The drawing, its bones, the wing, crest and tail chains that bend, the controls that turn the bird round, and every mood and move as an action.</p></div>
           <div class="fact"><h3>Added by the player</h3><p>Breathing, blinking, quick glances, looking at your finger, talking, the far wing opening as it swings out, and the springy follow-through on the crest, tail and wing tips.</p></div>
         </div>
       </section>
@@ -225,10 +227,10 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
           <h2 id="new-h">What changed</h2>
         </div>
         <ul class="plain">
-          <li>Pip's far wing opens into a whole wing as soon as it swings away from the body (shrug, wow, think, a hop), instead of the thin sliver that hangs against the body.</li>
-          <li>Oops turns Pip to face left, like the worried drawing on your model sheet: wings held together, eyes up, the sweat drop behind the head.</li>
-          <li>When Pip looks past the front, the head turns round with it, so the beak, eyes and crest point the way Pip is looking. Try Look around.</li>
-          <li>Turns stop where the drawing holds up, so the eyes stay on the head and the belly on the body. Pupils stay inside the eye whites, and the head's outline sits over the eyes.</li>
+          <li>Kiwi, Mango, Kakadu and Rojo are traced from their model sheets the way Pip was, share Pip's skeleton, and do every mood and move Pip does. In the app, anyone can now choose which bird learns with them.</li>
+          <li>Kakadu's crest is seven feathers that each spring on their own. It fans up when Kakadu cheers or is surprised, and folds down when Kakadu is sad, worried or asleep.</li>
+          <li>Kiwi, Mango and Kakadu face front, as on their sheets, and their bodies turn either way. Rojo stands turned to the right, as Pip does.</li>
+          <li>Mango's, Kakadu's and Rojo's eyes have whites that close with the eye, so a happy or sleepy eye is a line, as on the cheer drawings. Kakadu's closed eyes sit on its pale blue eye-rings.</li>
         </ul>
         <button class="cbtn" type="button" data-comment>Comment</button>
       </section>
@@ -241,7 +243,18 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
 (() => {
   const $ = id => document.getElementById(id);
   const h = (tag, attrs = {}, ...kids) => { const el = document.createElement(tag); for (const k in attrs) { if (k === 'class') el.className = attrs[k]; else if (k.startsWith('on')) el.addEventListener(k.slice(2), attrs[k]); else el.setAttribute(k, attrs[k]); } for (const c of kids) if (c != null) el.append(c); return el; };
-  const SRC = 'blender/pip.gltf.json';
+  /* the birds, and the concept crops each is compared against (view: the crop's box in rig units) */
+  const BIRDS = {
+    pip: { name: 'Pip', crops: [
+      { key: 'happy', label: 'Neutral', view: [23.5, -10, 185, 304] }, { key: 'cheer', label: 'Cheer', view: [32.25, -10, 185, 304] },
+      { key: 'oops', label: 'Worried', view: [34.5, -9, 180.5, 296.6] }] },
+    kiwi: { name: 'Kiwi', crops: [{ key: 'happy', label: 'Neutral', view: [27.25, -10, 185, 304] }, { key: 'cheer', label: 'Cheer', view: [12.5, -10, 215, 304] }] },
+    mango: { name: 'Mango', crops: [{ key: 'happy', label: 'Neutral', view: [27.5, -10, 185, 304] }, { key: 'cheer', label: 'Cheer', view: [12.5, -10, 215, 304] }] },
+    kakadu: { name: 'Kakadu', crops: [{ key: 'happy', label: 'Neutral', view: [27.5, -10, 185, 304] }, { key: 'cheer', label: 'Cheer', view: [12.5, -10, 215, 304] }] },
+    rojo: { name: 'Rojo', crops: [{ key: 'happy', label: 'Neutral', view: [27.5, -10, 185, 304] }, { key: 'cheer', label: 'Cheer', view: [12.5, -10, 215, 304] }] }
+  };
+  let bird = BIRDS[location.hash.slice(1)] ? location.hash.slice(1) : 'pip';
+  const SRC = () => 'blender/' + bird + '.gltf.json';
   const MOODS = [
     ['happy', 'Happy', 'Default. Learn screen, lesson intros, About.'],
     ['cheer', 'Cheer', 'Right answer, lesson complete, finished course.'],
@@ -262,12 +275,7 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
     ['fly', 'Fly', 'Intro film, moving between screens.']
   ];
   const MOVES = [['hop', 'Hop'], ['nod', 'Nod'], ['shake', 'Shake head'], ['lookAround', 'Look around'], ['surprise', 'Jump'], ['wobble', 'Wobble'], ['bow', 'Bow'], ['flap', 'Flap']];
-  const LINES = [['Hallo! Ich bin Pip.', 'de-DE'], ['¡Hola! Soy Pip.', 'es-MX'], ['Super gemacht!', 'de-DE'], ['¡Muy bien!', 'es-MX'], ['Los geht’s!', 'de-DE'], ['¡Casi! ¿Otra vez?', 'es-MX']];
-  const CROPS = [
-    { key: 'happy', label: 'Neutral', img: 'reference/pip-happy.webp', alt: 'Concept art of Pip, neutral pose', view: [23.5, -10, 185, 304] },
-    { key: 'cheer', label: 'Cheer', img: 'reference/pip-cheer.webp', alt: 'Concept art of Pip, cheering', view: [32.25, -10, 185, 304] },
-    { key: 'oops', label: 'Worried', img: 'reference/pip-oops.webp', alt: 'Concept art of Pip, worried', view: [34.5, -9, 180.5, 296.6] }
-  ];
+  const LINES = [['Hallo! Ich bin {name}.', 'de-DE'], ['¡Hola! Soy {name}.', 'es-MX'], ['Super gemacht!', 'de-DE'], ['¡Muy bien!', 'es-MX'], ['Los geht’s!', 'de-DE'], ['¡Casi! ¿Otra vez?', 'es-MX']];
   let pip = null, mood = 'happy';
 
   /* ----- chips ----- */
@@ -295,15 +303,18 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
   /* ----- compare ----- */
   const pick = $('cmp-pick'), box = $('cmp-box');
   let crop = 0, rigShots = [];
-  CROPS.forEach((c, i) => pick.append(h('button', { type: 'button', 'aria-pressed': String(i === 0), onclick: () => showCrop(i) }, c.label)));
+  const crops = () => BIRDS[bird].crops;
+  function cropButtons() {
+    pick.replaceChildren(...crops().map((c, i) => h('button', { type: 'button', 'aria-pressed': String(i === 0), onclick: () => showCrop(i) }, c.label)));
+  }
   function showCrop(i) {
     crop = i;
-    const c = CROPS[i];
-    $('cmp-concept').src = c.img; $('cmp-concept').alt = c.alt;
-    if (rigShots[i]) $('cmp-rig').src = rigShots[i];
+    const c = crops()[i];
+    box.style.setProperty('--crop-w', c.view[2] * 2);
+    $('cmp-concept').src = 'reference/' + bird + '-' + c.key + '.webp'; $('cmp-concept').alt = 'Concept art of ' + BIRDS[bird].name + ', ' + c.label.toLowerCase();
+    if (rigShots[i]) $('cmp-rig').src = rigShots[i]; else $('cmp-rig').removeAttribute('src');
     for (const [k, b] of [...pick.children].entries()) b.setAttribute('aria-pressed', String(k === i));
   }
-  showCrop(0);
   $('cmp-cut').addEventListener('input', e => box.style.setProperty('--cut', e.target.value + '%'));
   const drag = e => { const r = box.getBoundingClientRect(); const v = Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)); box.style.setProperty('--cut', v + '%'); $('cmp-cut').value = Math.round(v); };
   box.addEventListener('pointerdown', e => { if (box.classList.contains('overlay')) return; box.setPointerCapture(e.pointerId); drag(e); });
@@ -322,12 +333,12 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
   let line = 0, bubbleT = 0;
   $('say').addEventListener('click', () => {
     if (!pip) return;
-    const [text, lang] = LINES[line++ % LINES.length];
+    const [said, lang] = LINES[line++ % LINES.length], text = said.replace('{name}', BIRDS[bird].name);
     const bubble = $('bubble');
     bubble.textContent = text; bubble.classList.add('on');
     clearTimeout(bubbleT);
     const done = () => { pip.talking(false); bubbleT = setTimeout(() => bubble.classList.remove('on'), 900); };
-    // speak with a German or Spanish voice when the device has one; otherwise Pip mouths the line
+    // speak with a German or Spanish voice when the device has one; otherwise the bird mouths the line
     const synth = window.speechSynthesis;
     const voice = synth && typeof SpeechSynthesisUtterance === 'function' && synth.getVoices().find(v => v.lang && v.lang.startsWith(lang.slice(0, 2)));
     if (voice) {
@@ -349,26 +360,49 @@ ul.plain{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;m
   });
   if (window.claude && typeof window.claude.use === 'function') window.claude.use('comments').then(c => { comments = c; if (c) document.body.dataset.comments = 'on'; }, () => {});
 
-  /* ----- load the rig ----- */
+  /* ----- load a bird's rig; picking another bird swaps it ----- */
   const fail = err => {
     $('hud-state').textContent = 'not loaded';
     const note = $('note'); note.hidden = false;
-    note.textContent = 'Pip’s rig didn’t load here (' + (err && err.message ? err.message : 'no WebGL') + '). Try another browser, or reload.';
+    note.textContent = BIRDS[bird].name + '’s rig didn’t load here (' + (err && err.message ? err.message : 'no WebGL') + '). Try another browser, or reload.';
     $('cmp-wait').textContent = 'The rig didn’t load.';
   };
-  Pip3D.create($('pip'), { src: SRC, mood: 'happy' }).then(async p => {
-    pip = p;
-    $('hud-state').textContent = 'Blender rig · three.js';
-    $('f-moods').textContent = p.moods.length; $('f-moves').textContent = p.moves.length;
-    let n = 0; p.scene.traverse(o => { if (o.isBone) n++; }); $('f-bones').textContent = n;
-    for (const b of document.querySelectorAll('.chip')) b.removeAttribute('disabled');
-    if (mood !== 'happy') p.set(mood);
-    // stills come from one hidden renderer, after the live one is up
-    const shots = await Pip3D.stills(MOODS.map(([id]) => ({ mood: id })), { src: SRC, width: 240, height: 304, pixelRatio: 2 });
-    MOODS.forEach(([id, name], i) => { arts[id].replaceChildren(h('img', { src: shots[i], alt: 'Pip, ' + name.toLowerCase(), loading: 'lazy' })); });
-    rigShots = await Pip3D.stills(CROPS.map(c => ({ mood: c.key, view: c.view })), { src: SRC, width: 370, height: 608, pixelRatio: 1.5 });
-    $('cmp-wait').remove();
-    showCrop(crop);
-  }).catch(fail);
+  const birdPick = $('bird-pick');
+  for (const id in BIRDS) birdPick.append(h('button', { type: 'button', 'data-b': id, 'aria-pressed': String(id === bird), onclick: () => { if (id !== bird) { history.replaceState(null, '', '#' + id); load(id); } } }, BIRDS[id].name));
+  let loading = 0;
+  async function load(id) {
+    const n = ++loading;
+    bird = id;
+    for (const b of birdPick.children) b.setAttribute('aria-pressed', String(b.dataset.b === id));
+    for (const el of document.querySelectorAll('.bn')) el.textContent = BIRDS[id].name;
+    for (const el of document.querySelectorAll('.bid')) el.textContent = id;
+    $('pip').setAttribute('aria-label', BIRDS[id].name + ', live');
+    if (pip) { pip.destroy(); pip = null; }
+    for (const b of document.querySelectorAll('.chip')) b.setAttribute('disabled', '');
+    for (const k in arts) arts[k].replaceChildren(h('div', { class: 'ph' }));
+    $('hud-state').textContent = 'loading the rig…'; $('note').hidden = true;
+    rigShots = []; cropButtons(); showCrop(0);
+    if (!$('cmp-wait')) box.append(h('span', { class: 'wait', id: 'cmp-wait' }, 'Rendering the rig…'));
+    try {
+      const p = await Pip3D.create($('pip'), { src: SRC(), mood });
+      if (n !== loading) { p.destroy(); return; }
+      pip = p;
+      $('hud-state').textContent = 'Blender rig · three.js';
+      $('f-moods').textContent = p.moods.length; $('f-moves').textContent = p.moves.length;
+      let bones = 0; p.scene.traverse(o => { if (o.isBone) bones++; }); $('f-bones').textContent = bones;
+      for (const b of document.querySelectorAll('.chip')) b.removeAttribute('disabled');
+      // stills come from one hidden renderer, after the live one is up
+      const shots = await Pip3D.stills(MOODS.map(([m]) => ({ mood: m })), { src: SRC(), width: 240, height: 304, pixelRatio: 2 });
+      if (n !== loading) return;
+      MOODS.forEach(([m, name], i) => { arts[m].replaceChildren(h('img', { src: shots[i], alt: BIRDS[id].name + ', ' + name.toLowerCase(), loading: 'lazy' })); });
+      rigShots = [];
+      for (const c of crops()) rigShots.push((await Pip3D.stills([{ mood: c.key, view: c.view }], { src: SRC(), width: c.view[2] * 2, height: 608, pixelRatio: 1.5 }))[0]);
+      if (n !== loading) return;
+      const w = $('cmp-wait'); if (w) w.remove();
+      showCrop(crop);
+    } catch (err) { if (n === loading) fail(err); }
+  }
+  addEventListener('hashchange', () => { const id = location.hash.slice(1); if (BIRDS[id] && id !== bird) load(id); });
+  load(bird);
 })();
 </script>
