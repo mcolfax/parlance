@@ -3,7 +3,7 @@
 Pip, Kiwi, Mango, Kakadu and Rojo are traced from their model sheets and rigged on one shared skeleton. The app draws
 them with the SVG rig in `js/core/` (runtime, shared bird and a part sheet per bird), and each bird's Blender file is
 built from the same drawings, poses and moves for the three.js player and for editing by eye. Learners pick the bird
-they learn with in Me → Your bird (since Parlance 4.9.0; Pip by default). See [`blender/README.md`](blender/README.md)
+they learn with in Me → Your bird (since Parlance 4.10.0; Pip by default). See [`blender/README.md`](blender/README.md)
 for how to open, edit and export a bird in Blender.
 
 - **Review page:** [`index.html`](index.html), published for review at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF (private until shared). Pick a bird at the top (or link to one: `index.html#kakadu`). Each section has a Comment button that opens the viewer's comment box on it. Open it locally with `npm run preview`, then go to http://127.0.0.1:8765/design/rig/index.html.
@@ -130,7 +130,7 @@ Rig.validate(PIP)            // list of problems, [] when fine
 
 Live rigs share one animation frame loop, pause off screen and in background tabs, and hold still (no idle, springs or moves) for people who ask for reduced motion.
 
-## In the app (since Parlance 4.5.0; every bird since 4.9.0)
+## In the app (since Parlance 4.5.0; every bird since 4.10.0)
 
 - `rig.js`, `bird.js` and `pip.js` live in `js/core/` and load before `js/core/art.js`. The other birds' part sheets
   (`kiwi.js`, `mango.js`, `kakadu.js`, `rojo.js`) aren't in `index.html`: `loadMascot(id)` in `art.js` adds one when a
