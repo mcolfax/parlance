@@ -1,6 +1,6 @@
 "use strict";
 /* ===================== AUDIO: SPEECH & EFFECTS ===================== */
-const Voice = { list: [], unlocked: false };
+const Voice = { list: [], unlocked: false, seq: 0, wait: 1500, hinted: false };
 function loadVoices(){ try { Voice.list = window.speechSynthesis ? window.speechSynthesis.getVoices() || [] : []; } catch (e) { Voice.list = []; } }
 if ('speechSynthesis' in window){ loadVoices(); try { window.speechSynthesis.addEventListener('voiceschanged', () => { loadVoices(); if (typeof UI !== 'undefined' && typeof render === 'function' && UI.tab === 'me' && !busy()) render(); }); } catch (e) {} }
 const BAD_VOICE = /eloquence|novelty|bad news|bells|bahh|boing|bubbles|cellos|whisper|zarvox|trinoids|wobble|organ|jester|superstar|good news|deranged|hysterical|pipe|albert|fred|junior|ralph|kathy|grandma|grandpa|rocko|shelley|reed|sandy|flo\b/i;
@@ -31,36 +31,57 @@ function chunks(text){
   if (t.length < 180) return [t];
   return t.match(/[^.!?;]+[.!?;]*\s*/g) || [t];
 }
-/* speak() gives the voice the speaker. On the tabs the theme song pauses while a word is spoken and picks up from the same
-   spot afterwards: on iPhone, Safari's voice can go quiet or stop working while other audio is playing. Under the intro film
-   the song only turns down. If the song was playing, the voice waits a moment for it to pause. */
+/* speak() turns the theme song down while a voice talks, then back up.
+   The voice starts inside the tap that asked for it (Safari on iPhone only speaks reliably that way). If another word is
+   still playing it is cancelled first and the new one follows 70ms later, because Chrome can drop a word spoken straight
+   after a cancel. A voice engine left paused is woken first. If the chosen voice hasn't started after Voice.wait ms it tries
+   once more with the language's standard voice, and if nothing plays at all, a one-time hint says what to check.
+   Resolves true when it spoke, false when nothing played, and null when a newer word took over first. */
 function speak(text, lang, slow, vo){
-  const paused = songDuck(true);
-  const say = () => speakRaw(text, lang, slow, vo).then(r => { songDuck(false); return r; }, () => { songDuck(false); return false; });
-  return paused ? sleep(SONG_HOLD_MS).then(say) : say();
+  songDuck(true);
+  return speakRaw(text, lang, slow, vo).then(r => { songDuck(false); if (r === false && text) speechHint(); return r; }, () => { songDuck(false); return false; });
+}
+function speechHint(){
+  if (Voice.hinted || !('speechSynthesis' in window) || typeof toast !== 'function') return;
+  Voice.hinted = true;
+  toast('The voice didn’t play. Check that your media volume is up and silent mode is off. Me → Sound has a voice test.');
 }
 function speakRaw(text, lang, slow, vo){
   return new Promise(res => {
     if (!('speechSynthesis' in window) || !text) return res(false);
-    const synth = window.speechSynthesis;
-    const go = () => {
-      try {
-        const parts = chunks(text); let started = false, finished = false;
-        const fin = () => { if (!finished){ finished = true; res(started); } };
-        const v = voiceFor(lang);
-        const rate = (slow ? 0.62 : (S.settings.speed === 'relaxed' ? 0.82 : 0.96)) * ((vo && vo.rate) || 1);
-        parts.forEach((p, i) => {
-          const u = new SpeechSynthesisUtterance(p);
-          if (v) u.voice = v;
-          u.lang = (v && v.lang) || LANGS[lang].tts; u.rate = rate; if (vo && vo.pitch) u.pitch = Math.max(0.5, Math.min(1.6, vo.pitch));
-          u.onstart = () => { started = true; };
-          if (i === parts.length - 1){ u.onend = fin; u.onerror = fin; }
-          synth.speak(u);
-        });
-        setTimeout(fin, 9000 + String(text).length * 130);
-      } catch (e) { res(false); }
+    const synth = window.speechSynthesis, id = ++Voice.seq;   // a newer word cancels this one, and its handlers know it
+    let started = false, finished = false, attempt = 0, watch = 0, cap = 0;
+    const fin = ok => { if (finished) return; finished = true; clearTimeout(watch); clearTimeout(cap); res(Voice.seq === id ? ok : (started || null)); };
+    const retry = () => {   // this try made no sound: once more with the language's standard voice, then give up
+      if (finished) return;
+      if (attempt >= 2 || Voice.seq !== id) return fin(started);
+      attempt = 2;
+      try { synth.cancel(); } catch (e) {}
+      run(false, 2);
     };
-    try { if (synth.speaking || synth.pending){ synth.cancel(); setTimeout(go, 70); } else go(); } catch (e) { res(false); }
+    const run = (withVoice, a) => {
+      const parts = chunks(text), v = withVoice ? voiceFor(lang) : null;
+      const rate = (slow ? 0.62 : (S.settings.speed === 'relaxed' ? 0.82 : 0.96)) * ((vo && vo.rate) || 1);
+      parts.forEach((p, i) => {
+        const u = new SpeechSynthesisUtterance(p);
+        if (v) u.voice = v;
+        u.lang = (v && v.lang) || LANGS[lang].tts; u.rate = rate; if (vo && vo.pitch) u.pitch = Math.max(0.5, Math.min(1.6, vo.pitch));
+        u.onstart = () => { if (a === attempt) started = true; };
+        if (i === parts.length - 1){
+          u.onend = () => { if (a === attempt) fin(started); };
+          u.onerror = () => { if (a !== attempt) return; if (started) fin(true); else retry(); };
+        }
+        synth.speak(u);
+      });
+      clearTimeout(watch);
+      watch = setTimeout(() => { if (a === attempt && !started) retry(); }, Voice.wait);
+    };
+    const begin = () => { if (finished || Voice.seq !== id) return fin(null); attempt = 1; try { run(true, 1); } catch (e) { fin(false); } };
+    try {
+      if (synth.paused) synth.resume();   // a voice engine can stay paused after an interruption, and then nothing new plays
+      if (synth.speaking || synth.pending){ synth.cancel(); setTimeout(begin, 70); } else begin();
+    } catch (e) { return fin(false); }
+    cap = setTimeout(() => fin(started), 9000 + String(text).length * 130);
   });
 }
 function speakTest(lang){
@@ -68,6 +89,7 @@ function speakTest(lang){
     if (!('speechSynthesis' in window)) return resolve('none');
     let done = false; const fin = r => { if (!done){ done = true; resolve(r); } };
     try {
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(LANGS[lang].test);
       const v = voiceFor(lang); if (v) u.voice = v; u.lang = (v && v.lang) || LANGS[lang].tts; u.rate = 0.96;
@@ -183,10 +205,10 @@ function musicPlay(score, from, volume){
 function musicVolume(v){ if (Music.bus && SFX.ctx) Music.bus.gain.setTargetAtTime(v, SFX.ctx.currentTime, 0.05); }
 
 /* ----- the theme song (MEDIA.song in config.js) -----
-   One audio file shared by the intro film and the tabs. It is fetched once and played from a local copy,
-   so its volume can run through Web Audio (the only way to set volume on iPhone). If that isn't possible it
-   plays the file directly. Modes: 'off', 'home' (loops softly behind the tabs), 'film' (the intro film drives it). */
-const Song = { el: null, url: '', local: false, routed: false, gain: null, unlocked: false, failed: false, mode: 'off', vol: 0, duck: 1, ducks: 0, fetching: null, syncT: 0, stopT: 0, src: '' };
+   One audio file shared by the intro film and the tabs. It is fetched once and played from a local copy. On iPhone and
+   iPad its volume runs through Web Audio (the only way to set volume there); elsewhere the element's own volume is used
+   (see songRoute). If the local copy isn't possible it plays the file directly. Modes: 'off', 'home' (loops softly behind the tabs), 'film' (the intro film drives it). */
+const Song = { el: null, url: '', local: false, routed: false, volFixed: null, gain: null, unlocked: false, failed: false, mode: 'off', vol: 0, duck: 1, ducks: 0, fetching: null, syncT: 0, stopT: 0, src: '' };
 /* the file to use on this device: the first source the browser says it can play (or the first, if it won't say) */
 function songSrc(){
   if (Song.src) return Song.src;
@@ -225,8 +247,15 @@ function songUseLocal(){
   Song.local = true; a.src = Song.url;
   if (t > 0 || playing){ const go = () => { a.removeEventListener('loadedmetadata', go); try { a.currentTime = t; } catch (e) {} if (playing) songPlayEl(); }; a.addEventListener('loadedmetadata', go); }
 }
+/* iPhone and iPad ignore an audio element's volume, so there the song plays through Web Audio to be turned up and down.
+   Everywhere else the element's own volume does the job and the song stays out of Web Audio: on Android, a song running
+   through Web Audio could keep the speaking voice from being heard. */
+function songVolumeFixed(){
+  if (Song.volFixed == null){ try { const a = document.createElement('audio'); a.volume = 0.5; Song.volFixed = Math.abs(a.volume - 0.5) > 0.01; } catch (e) { Song.volFixed = true; } }
+  return Song.volFixed;
+}
 function songRoute(){
-  if (Song.routed || !Song.el) return;
+  if (Song.routed || !Song.el || !songVolumeFixed()) return;
   const c = sfxCtx(); if (!c || !c.createMediaElementSource) return;
   try {
     const src = c.createMediaElementSource(Song.el); Song.gain = c.createGain(); Song.gain.gain.value = songLevel();
@@ -263,15 +292,11 @@ function songStop(ramp){
   clearTimeout(Song.stopT);
   Song.stopT = setTimeout(() => { if (Song.vol === 0){ try { a.pause(); } catch (e) {} } }, (ramp || 0.05) * 1000 + 40);
 }
-/* a voice starts (on) or stops speaking. Returns true when that paused the song on the tabs. */
-const SONG_HOLD_MS = 160;   // longer than the quick fade below plus the pause that follows it
+/* a voice starts (on) or stops speaking: the song turns down under it (MEDIA.song.duck), then comes back up */
 function songDuck(on){
   Song.ducks = Math.max(0, Song.ducks + (on ? 1 : -1));
   const d = Song.ducks && MEDIA.song ? MEDIA.song.duck : 1;
-  if (d !== Song.duck){ Song.duck = d; if (Song.mode === 'film') songApply(0.25); }   // the film's song only turns down
-  if (Song.ducks && Song.mode === 'home'){ const playing = !!(Song.el && !Song.el.paused); clearTimeout(Song.syncT); songSyncNow(); return playing; }
-  if (!Song.ducks) songSync(400);   // the voice is done: the song picks up where it paused
-  return false;
+  if (d !== Song.duck){ Song.duck = d; if (Song.mode !== 'off') songApply(on ? 0.15 : 0.6); }
 }
 /* browsers only let audio start after a tap: the first tap plays the element silently so it can start later */
 function songUnlock(){
@@ -293,12 +318,12 @@ function songGesture(){
 document.addEventListener('pointerdown', songGesture, { capture: true });
 document.addEventListener('keydown', songGesture, { capture: true });
 /* home music: loops on every tab (Learn, Stories, Review, Talk, Friends, Me) while no lesson, review, story, chat or film is
-   open, no voice is speaking, the page is visible and the setting is on. Switching tabs leaves it playing where it is; a
-   lesson or a spoken word pauses it, and it picks up from the same spot afterwards. */
+   open, the page is visible and the setting is on. Switching tabs leaves it playing where it is; a lesson pauses it, and it
+   picks up from the same spot afterwards. A speaking voice turns it down. */
 function musicVol(){ return S.settings.musicVol == null ? 0.6 : S.settings.musicVol; }
 function homeMusicOn(){ return !!(MEDIA.song && S.settings.homeMusic && musicVol() > 0); }
 function homeVol(){ return musicVol() * MEDIA.song.home; }
-function homeMusicWanted(){ return homeMusicOn() && Song.unlocked && !Song.failed && !Song.ducks && typeof UI !== 'undefined' && !busy() && !document.hidden; }
+function homeMusicWanted(){ return homeMusicOn() && Song.unlocked && !Song.failed && typeof UI !== 'undefined' && !busy() && !document.hidden; }
 function songSync(delay){ clearTimeout(Song.syncT); Song.syncT = setTimeout(songSyncNow, delay == null ? 150 : delay); }
 function songSyncNow(){
   if (typeof Film !== 'undefined' && Film.open){ if (Song.mode === 'home'){ Song.mode = 'off'; songStop(0.3); } return; } // the film drives the song while it is open
@@ -306,7 +331,7 @@ function songSyncNow(){
     if (Song.mode !== 'home'){ Song.mode = 'home'; if (Song.el) Song.el.loop = true; songStart(null, homeVol(), 1.2); }
     else if (Song.el && Song.el.paused) songStart(null, homeVol(), 0.8);
     else { Song.vol = homeVol(); songApply(0.3); }
-  } else if (Song.mode === 'home'){ Song.mode = 'off'; songStop(Song.ducks ? 0.08 : 0.5); }   // quick when a voice needs the speaker
+  } else if (Song.mode === 'home'){ Song.mode = 'off'; songStop(0.5); }
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) songSyncNow(); else songSync(300); });
 
