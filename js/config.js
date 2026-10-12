@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.8.3';
+const APP_VERSION = '4.9.0';
 const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,6 +12,10 @@ const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.9.0', date: '2026-10-12', title: 'Natural voices', notes: [
+    'A natural recorded voice now reads every word, sentence and story in the course, and it sounds the same on every phone.',
+    'Every story character has a voice of their own, and so does Pip. The slow button and Relaxed speed slow the voice down without making it deeper.',
+    'Talk and lessons made for you still use your phone’s voice. To use your phone’s voice for everything, turn off Natural voices in Me → Sound.'] },
   { v: '4.8.3', date: '2026-10-12', title: 'A voice for every phone', notes: [
     'If your phone doesn’t have the exact voice Parlance asks for, like Mexican Spanish on many Android phones, Parlance now uses the Spanish or German voice your phone does have.',
     'When the voice can’t play, Parlance tells you why in plain words, for example that your phone needs a Spanish voice, and Me → Sound’s voice test says the same.'] },
