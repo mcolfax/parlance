@@ -155,7 +155,10 @@ const KAKADU = (() => {
     /* its pupils nearly fill their whites: they move a little, and tuck under the ring's edge in 3D */
     look: { room: { pupilL: [1.4, 1.4, 1.1, 1.1], pupilR: [1.4, 1.4, 1.1, 1.1] }, x: 3, y: 3 },
     springs: Object.assign(springs, { crest1: springs.crest1, crest2: Object.assign({}, springs.crest2, { squash: 0.3 }), crest3: springs.crest3, tail: { len: 26, dir: [0.6, 0.8], k: 140, d: 10, limit: 8 } }),
-    swaps: [],
+    /* a wing's drawing follows its angle, as Pip's far wing does: the folded wing while it hangs, the open one once it has
+       swung more than 15 degrees away (either way). Without it a wing on its way up or down, or held out by a mood like
+       think or laugh, shows as the folded wing rotated, a thin blade sticking out. */
+    swaps: ['L', 'R'].map(s => ({ slot: 'wing' + s, bone: 'wing' + s, from: 'folded', to: 'spread', deg: 15 })),
     clip: [{ slot: 'pupilL', by: 'eyeL', drawings: ['open', 'wide', 'wet'] }, { slot: 'pupilR', by: 'eyeR', drawings: ['open', 'wide', 'wet'] }],
     poses: {
       stand: { params: { turn: 0 } },

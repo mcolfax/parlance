@@ -117,7 +117,11 @@ const KIWI = (() => {
     /* no eye whites: the whole eye moves a little */
     look: { room: { pupilL: [1.6, 1.6, 1.2, 1.4], pupilR: [1.6, 1.6, 1.2, 1.4] } },
     springs: { tail: { len: 34, dir: [1, 0.45], k: 120, d: 9, limit: 12 } },
-    swaps: [], clip: [],
+    /* a wing's drawing follows its angle, as Pip's far wing does: the folded wing while it hangs, the open one once it has
+       swung more than 15 degrees away (either way). Without it a wing on its way up or down, or held out by a mood like
+       think or laugh, shows as the folded wing rotated, a thin blade sticking out. */
+    swaps: ['L', 'R'].map(s => ({ slot: 'wing' + s, bone: 'wing' + s, from: 'folded', to: 'spread', deg: 15 })),
+    clip: [],
     poses: {
       stand: { params: { turn: 0 } },
       cheer: { slots: B.both('wing', 'spread'), bones: { wingL: { r: C.raise.L }, wingR: { r: C.raise.R }, body: { sy: 1.02 } }, z: { wingL: 3.5, wingR: 3.6 }, params: { turn: 0 } }

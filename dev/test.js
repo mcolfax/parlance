@@ -683,6 +683,13 @@ async function main(){
     { const r = G.E('(() => { const e = pip("sleep", 60, { lang: "de" }); document.body.append(e); e.click(); return e.rig.mood; })()'); ok(r === 'wow', 'a sleeping Pip wakes with a start when tapped: ' + r); }
     { const r = G.E('(() => { const e = pip("dance", 60, { tap: false, moveFor: 1 }); document.body.append(e); return e.rig.playing("dance"); })()'); await sleep(40);
       ok(r && !G.E('[...document.querySelectorAll(".pip")].pop().rig.playing("dance")'), 'moveFor ends a looping move'); }
+    // a mood's looping clip ends with the mood: after the hello wave the bird rests, its wing still, not waving on
+    { const r = G.E('(() => { const e = pip("happy", 60, { tap: false }); document.body.append(e); const R = e.rig, wr = R.def.bones.findIndex(b => b.id === "wingR");' +
+        ' R.set("wave"); const a = R.playing("wave"); let flap = 0; for (let i = 0; i < 20; i++){ R._frame(0, 0.05); flap = Math.max(flap, Math.abs(R.frame.chans[wr].r)); }' +
+        ' R.set("dance"); const b = [R.playing("wave"), R.playing("dance")]; R.set("happy"); const c = R.playing("dance");' +
+        ' let rest = 0; for (let i = 0; i < 40; i++){ R._frame(0, 0.05); if (i > 14) rest = Math.max(rest, Math.abs(R.frame.chans[wr].r)); } return [a, b, c, flap, rest]; })()');
+      ok(r[0] === true && r[1][0] === false && r[1][1] === true && r[2] === false, 'a mood’s looping clip ends when the mood changes ' + JSON.stringify(r));
+      ok(r[3] > 20 && r[4] < 3, 'the far wing waves in the wave and hangs still after it (' + r[3].toFixed(1) + '° then ' + r[4].toFixed(1) + '°)'); }
     if (G.E('pipMoodNow()') === 'happy'){ G.E('UI.tab = "learn"; UI.animate = true; render()'); await sleep(400); ok(G.E('document.querySelector(".hero .pip").rig.mood') === 'wave', 'Pip waves hello on Learn'); }
     console.log('page errors (G):', G.errors.length ? G.errors.slice(0, 5) : 'none'); ok(!G.errors.length, 'no page errors G');
     G.dom.window.close();
@@ -701,6 +708,13 @@ async function main(){
     for (let i = 0; i < 100 && opts().some(o => o.disabled); i++) await sleep(25);
     ok(opts().every(o => !o.disabled && o.querySelector('.pip')), 'every bird loads in the picker');
     ok(B.E('Object.keys(MASCOTS).every(id => Bird.birds[id] && Rig.validate(Bird.birds[id]).length === 0)'), 'every bird’s rig validates');
+    for (const id of ['kiwi', 'mango', 'kakadu', 'rojo']){
+      // a wing's drawing follows its angle, so one on its way up or down is never the folded wing rotated into a blade
+      ok(B.E('Bird.birds.' + id + '.swaps.map(w => w.slot).sort().join()') === 'wingL,wingR', id + ': both wings swap their drawing by angle');
+      const r = B.E('(() => { const e = pip("happy", 60, { tap: false, def: Bird.birds.' + id + ' }); document.body.append(e); const R = e.rig, wr = R.def.bones.findIndex(b => b.id === "wingR");' +
+        ' R.set("wave"); for (let i = 0; i < 12; i++) R._frame(0, 0.05); R.set("happy"); let rest = 0; for (let i = 0; i < 40; i++){ R._frame(0, 0.05); if (i > 14) rest = Math.max(rest, Math.abs(R.frame.chans[wr].r)); } e.remove(); return rest; })()');
+      ok(r < 3, id + ': its wing hangs still after the hello wave (' + r.toFixed(1) + '°)');
+    }
     ok(B.E('Object.keys(MASCOTS).every(id => PIP_MOODS.every(m => !/NaN|undefined/.test(pipSVG(m, 72, null, Bird.birds[id]))))'), 'every bird draws every mood');
     opts().find(o => o.dataset.bird === 'kiwi').click();
     ok(opts().find(o => o.dataset.bird === 'kiwi').getAttribute('aria-checked') === 'true' && B.P.S.settings.mascot === 'pip', 'tapping a bird picks it, not saved yet');

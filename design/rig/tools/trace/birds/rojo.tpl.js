@@ -85,7 +85,10 @@ __TRACED__
     look: { room: C.room },
     /* the long tail hangs down to the left */
     springs: { tail: { len: 60, dir: [-1, 0.8], k: 110, d: 9, limit: 10 } },
-    swaps: [],
+    /* a wing's drawing follows its angle, as Pip's far wing does: the folded wing while it hangs, the open one once it has
+       swung more than 15 degrees away (either way). Without it a wing on its way up or down, or held out by a mood like
+       think or laugh, shows as the folded wing rotated, a thin blade sticking out. */
+    swaps: ['L', 'R'].map(s => ({ slot: 'wing' + s, bone: 'wing' + s, from: 'folded', to: 'spread', deg: 15 })),
     clip: [{ slot: 'pupilL', by: 'eyeL', drawings: ['open', 'wide', 'wet'] }, { slot: 'pupilR', by: 'eyeR', drawings: ['open', 'wide', 'wet'] }],
     poses: {
       cheer: { slots: B.both('wing', 'spread'), bones: { wingL: { r: C.raise.L }, wingR: { r: C.raise.R }, body: { sy: 1.02 }, head: { r: -3 } }, z: { wingL: 3.5, wingR: 3.6 }, params: { turn: 0.08 } }

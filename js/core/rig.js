@@ -398,6 +398,7 @@ const Rig = (() => {
       onEvent: null
     };
     let from = dense(c, def, resolve(def, def.restMood || {})), to = from, b0 = 0, bdur = 0, bease = EASE.out, switchAt = 0.3;
+    let moodClip = null;   // the clip the current mood started (R.set), which ends with the mood
     let clips = [], blinkAt = 1.5 + Math.random() * 2, blinkT = -1, glanceAt = 2.5 + Math.random() * 3, glance = { x: 0, y: 0, tx: 0, ty: 0, until: 0 };
     let talk = null, babble = false, babbleNext = 0, babbleV = null, lookTarget = null, cur = null;
     const springs = c.springs.map(s => Object.assign({}, s));
@@ -431,7 +432,12 @@ const Rig = (() => {
       if (typeof spec === 'string'){
         R.mood = spec;
         const m = def.moods && def.moods[spec];
-        if (m && m.clip && o.clip !== false) R.play(m.clip, { then: m.then });
+        /* a mood's clip lasts as long as the mood: the wave that greets you must not go on swinging a wing once the bird is
+           happy again (a looping clip never ends by itself) */
+        const next = m && m.clip && o.clip !== false ? m.clip : null;
+        if (moodClip && moodClip !== next) R.stop(moodClip);
+        moodClip = next;
+        if (next) R.play(next, { then: m.then });
       }
       if (!R._running) R.render();
       return R;

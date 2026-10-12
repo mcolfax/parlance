@@ -106,7 +106,7 @@ script (`birds/<bird>.py`) and a template (`birds/<bird>.tpl.js`), put together 
 3. **Species extras** are extra bones and slots: Kakadu's seven crest feathers (`crest1`–`crest7`) and the tuft over
    their roots, Mango's crest tuft, the eye slots that go with an open eye (`showWith`). Pass `bones` (after their
    parents; a bone with a shared bone's id changes that bone, its turn say) and `slots` (a function that edits the
-   shared draw order). A bird without Pip's far-wing swap or eye clips passes `swaps: []` or its own `clip`.
+   shared draw order). A bird whose wings are both whole (front-facing: Kiwi, Mango, Kakadu, Rojo) swaps both wings, `folded` to `spread` by angle, so a wing on its way up never shows as the folded wing rotated into a blade; one without Pip's eye clips passes its own `clip`.
 4. **Palette roles.** Fill classes are `k-<role>`, strokes are `s-<role>`, and a rim on a filled shape is `t-<role>`. Add `o` for the ink outline, `ln` for feature lines and `ln2` for fine detail. Every role a drawing uses must be in the palette (`check.js` checks); `kit.color` measures each from the sheet. Effect colors default in `bird.js`. Each bird's colors are also tokens in `styles/tokens.css` (`--kiwi-body` …).
 5. **Pivots** only move when a bird's proportions need it (`pivots: { wingL: [84, 166] }`). Keep angles and names the same so every pose still works.
 6. **Tune with an overlay.** `node tools/trace/compare.js <bird> out.png [mood] [n|c]` renders the rig over the
@@ -118,7 +118,7 @@ script (`birds/<bird>.py`) and a template (`birds/<bird>.tpl.js`), put together 
 ```js
 const pip = Rig.create(PIP, { mood: 'happy' });   // live SVG; size by CSS or { size: 96 }
 el.append(pip.el);
-pip.set('cheer');            // blend to a mood (plays its move); also takes a pose object
+pip.set('cheer');            // blend to a mood (plays its move, which ends when the next mood is set); also takes a pose object
 pip.play('hop');             // layer a move; pip.stop('wave')
 pip.say('Hallo! Ich bin Pip.');   // lip-sync from text; pip.talking(true|false) while a voice plays
 pip.look(x, y);              // −1…1, or pip.lookAtPoint(clientX, clientY); pip.look(null) to let go

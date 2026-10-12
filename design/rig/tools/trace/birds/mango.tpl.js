@@ -90,7 +90,10 @@ __TRACED__
     ],
     look: { room: C.room },
     springs: { crest2: { len: 18, dir: [0.1, -1], k: 150, d: 8, limit: 18, squash: 0.3 }, tail: { len: 24, dir: [0, 1], k: 140, d: 10, limit: 8 } },
-    swaps: [],
+    /* a wing's drawing follows its angle, as Pip's far wing does: the folded wing while it hangs, the open one once it has
+       swung more than 15 degrees away (either way). Without it a wing on its way up or down, or held out by a mood like
+       think or laugh, shows as the folded wing rotated, a thin blade sticking out. */
+    swaps: ['L', 'R'].map(s => ({ slot: 'wing' + s, bone: 'wing' + s, from: 'folded', to: 'spread', deg: 15 })),
     clip: [{ slot: 'pupilL', by: 'eyeL', drawings: ['open', 'wide', 'wet'] }, { slot: 'pupilR', by: 'eyeR', drawings: ['open', 'wide', 'wet'] }],
     poses: {
       stand: { params: { turn: 0 } },
