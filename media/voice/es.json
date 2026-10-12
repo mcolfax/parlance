@@ -2444,7 +2444,24 @@
 "sincero":[20,1581408,3456],
 "historias":[20,1584864,5856],
 "exacto":[20,1607904,5664],
-"menciones":[20,1613568,5952]
+"menciones":[20,1613568,5952],
+"centro":[20,1653600,2784],
+"madero":[20,1656384,5664],
+"prisa":[20,1662048,4416],
+"llegan":[20,1666464,4224],
+"huéspedes":[20,1670688,4704],
+"conozco":[20,1692480,4512],
+"atajo":[20,1696992,4512],
+"maneja":[20,1707456,5184],
+"taxi":[20,1712640,4032],
+"maestra":[20,1733760,3552],
+"busco":[20,1760544,5184],
+"alguien":[20,1765728,4896],
+"conozca":[20,1770624,4032],
+"pierden":[20,1774656,4704],
+"ofreciendo":[20,1787232,6144],
+"mire":[20,1839168,3552],
+"faltan":[20,1842720,4032]
 }},
 "pip":{"name":"es-US-Chirp3-HD-Leda","rate":1,"lines":{
 "¡genial!":[0,26112,2496],
@@ -2538,5 +2555,18 @@
 "un mes de renta, y el contrato se firma por un año.":[20,1111584,17472],
 "¿la batería? mientras no ensayes después de las diez de la noche, no hay problema.":[20,1165248,26496],
 "en cuanto firmes. y te advierto: las vecinas de abajo son mis amigas del dominó.":[20,1210944,34272]
+}},
+"valentina":{"name":"es-US-Chirp3-HD-Zephyr","rate":1.04,"lines":{
+"¡buenas tardes! ¿a dónde lo llevo?":[20,1619520,8352],
+"con esta lluvia va a haber mucho tráfico, pero conozco un atajo.":[20,1675392,17088],
+"doce años. antes era maestra, pero me gusta más la calle.":[20,1716672,17088],
+"¿me está ofreciendo trabajo?":[20,1779360,7872],
+"claro que sí. aquí tiene mi tarjeta. y mire: ya llegamos, y faltan cinco para las seis.":[20,1810656,28512]
+}},
+"andres":{"name":"es-US-Chirp3-HD-Umbriel","rate":0.96,"lines":{
+"al centro, por favor, a la calle madero. tengo prisa: a las seis llegan unos huéspedes a mi hotel.":[20,1627872,25728],
+"¿hace mucho que maneja un taxi?":[20,1701504,5952],
+"siempre busco a alguien que conozca bien la ciudad. mis huéspedes se pierden todo el tiempo.":[20,1737312,23232],
+"algo así. ¿podría llevar a mis huéspedes al aeropuerto de vez en cuando?":[20,1793376,17280]
 }}
 }}

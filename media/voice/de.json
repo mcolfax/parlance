@@ -2252,7 +2252,27 @@
 "wochen":[20,1480128,5664],
 "ohne":[20,1502304,4032],
 "ziemlich":[20,1506336,3744],
-"wütenden":[20,1510080,4224]
+"wütenden":[20,1510080,4224],
+"brauche":[20,1536960,5184],
+"dringend":[20,1542144,2784],
+"gegen":[20,1544928,3264],
+"kopfschmerzen":[20,1548192,6912],
+"notdienst":[20,1572480,4992],
+"mittag":[20,1606464,4032],
+"mieterin":[20,1610496,5856],
+"höflichen":[20,1616352,4512],
+"bestimmten":[20,1620864,5856],
+"leid":[20,1647744,4704],
+"genug":[20,1652448,4416],
+"tassen":[20,1675488,3744],
+"tabletten":[20,1698816,6144],
+"höchstens":[20,1704960,5664],
+"emres":[20,1727040,5184],
+"cousine":[20,1732224,5664],
+"brandt":[20,1758240,4032],
+"erzählt":[20,1762272,4032],
+"hoffentlich":[20,1776864,4416],
+"reparieren":[20,1805664,4032]
 }},
 "pip":{"name":"de-DE-Chirp3-HD-Leda","rate":1,"lines":{
 "super!":[0,30720,4224],
@@ -2346,5 +2366,19 @@
 "drei monatsmieten. die muss allerdings vor dem einzug überwiesen werden.":[20,1033728,16992],
 "eine katze wäre okay, ein hund eher nicht – wegen der nachbarn.":[20,1091712,18912],
 "lass dir zeit. aber warte nicht zu lange – es gibt schon drei andere interessenten.":[20,1136160,23904]
+}},
+"brandt":{"name":"de-DE-Chirp3-HD-Alnilam","rate":0.92,"lines":{
+"guten abend. haben sie noch geöffnet? ich brauche dringend etwas gegen kopfschmerzen.":[20,1514304,22656],
+"seit heute mittag. eine mieterin hat mir einen sehr höflichen, aber sehr bestimmten brief geschrieben.":[20,1577472,28992],
+"ehrlich gesagt nur kaffee. drei tassen, bei lena im café.":[20,1656864,18624],
+"danke. sagen sie mal, sind sie nicht emres cousine?":[20,1710624,16416],
+"oh je. hoffentlich nur gutes!":[20,1766304,10560]
+}},
+"leyla":{"name":"de-DE-Chirp3-HD-Despina","rate":1,"lines":{
+"ja, heute nacht habe ich notdienst. seit wann haben sie die kopfschmerzen?":[20,1555104,17376],
+"das tut mir leid. haben sie heute genug getrunken? wasser, meine ich, nicht kaffee.":[20,1626720,21024],
+"dann nehmen sie diese tabletten, höchstens drei am tag, und trinken sie viel wasser.":[20,1679232,19584],
+"genau. und sie sind bestimmt herr brandt, der vermieter. emre hat mir schon viel von ihnen erzählt.":[20,1737888,20352],
+"fast nur gutes. aber reparieren sie bald die heizung, dann sind auch die kopfschmerzen weg.":[20,1781280,24384]
 }}
 }}
