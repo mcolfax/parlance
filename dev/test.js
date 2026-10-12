@@ -2,7 +2,7 @@
    Usage: npm i jsdom@24 && node dev/test.js path/to/index.html
    Covers: every lesson and story through the UI, the answer checker, merges/backup/sync, stable review keys
    and migrations, live content packs, the update banner, feedback, the owner Studio loop, the film, sounds, the theme song,
-   the web version and friends (invites, the league, duels, cheers). */
+   recorded voices, the web version and friends (invites, the league, duels, cheers). */
 const fs = require('fs');
 const path = require('path');
 const { JSDOM, ResourceLoader, VirtualConsole } = require('jsdom');
@@ -848,6 +848,103 @@ async function main(){
     N3.dom.window.close();
     ok(!N.errors.length && !N2.errors.length, 'no page errors N ' + JSON.stringify(N.errors.concat(N2.errors).slice(0, 3)));
     N.dom.window.close(); N2.dom.window.close();
+  }
+  /* ---------- 10b. recorded voices: what gets recorded, playing a clip, and the device voice for everything else ---------- */
+  {
+    const R = await makeDom({ node: true, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+    const E = R.E, P = R.P, W = R.w;
+    const lines = P.voiceLines(), keyOf = (lang, who, t) => lang + '|' + who + '|' + P.recKey(t), have = new Set(lines.map(l => keyOf(l[0], l[1], l[2])));
+    ok(have.size === lines.length && lines.every(l => l[2] && !l[2].includes('___')), 'each recorded line is there once, with no blanks in it');
+    const miss = [], need = (lang, who, t) => { if (!have.has(keyOf(lang, who, t))) miss.push(lang + ' ' + who + ': ' + t); };
+    for (const lang of ['de', 'es']){
+      for (const u of P.COURSE[lang].units) for (const l of u.lessons){
+        for (const x of [...l.vocab, ...l.sentences]) for (const t of [x.t, ...x.alt]){ need(lang, 'narrator', t); W.tileTokens(t).forEach(w => need(lang, 'narrator', w)); }
+        l.blanks.forEach(b => need(lang, 'narrator', W.blankSaid(b))); l.tip.examples.forEach(x => need(lang, 'narrator', x.t));
+      }
+      for (const st of P.STORIES) if (st.lang === lang) for (const it of st.items) if (it.who){ need(lang, it.who, it.t); W.tileTokens(it.t).forEach(w => need(lang, 'narrator', w)); }
+      for (const id of Object.keys(E('MASCOTS'))) [...E('Object.values(PIP_SAYS.' + lang + ').flat()'), E('birdHello("' + id + '", "' + lang + '")')].forEach(t => need(lang, id, t));   // every bird says the same lines, and its hello
+      need(lang, 'narrator', E('LANGS.' + lang + '.test'));
+      const packs = new Set(lines.filter(l => l[0] === lang).map(l => l[3])), unitPacks = P.COURSE[lang].units.map(u => u.lessons[0].id);
+      ok([...packs].every(p => p === lang + '-common' || p === lang + '-stories' || unitPacks.includes(p)) && lines.find(l => l[0] === lang)[3] === lang + '-common', lang + ' lines sit in common, unit and story packs');
+      const voice = E('MEDIA.voice.' + lang), speakers = new Set(lines.filter(l => l[0] === lang).map(l => l[1]));
+      ok([...speakers].every(w => voice[w] && voice[w].startsWith(lang + '-')) && Object.values(voice).every(v => /^[a-z]{2}-[A-Z]{2}-/.test(v)), lang + ' every speaker has a ' + lang + ' voice: ' + [...speakers].join(', '));
+    }
+    ok(!miss.length, 'every line the course can say is recorded ' + JSON.stringify(miss.slice(0, 4)));
+    ok(E('recKey("  Wie geht’s?  ")') === 'wie geht\'s?' && E('recKey("Guten  Morgen")') === E('recKey("guten morgen")'), 'lines match whatever their case, spacing and apostrophes');
+    ok(E('cleanSettings({}).natural') === true && E('cleanSettings({ natural: false }).natural') === false, 'natural voices are on by default');
+    // a fake index and packs
+    const pack = Uint8Array.from({ length: 40 }, (_, i) => i);
+    const idx = { v: 1, lang: 'de', packs: ['de-common.mp3', 'de-1-1.mp3', 'de-stories.mp3'], voices: {
+      narrator: { name: 'n', rate: 1, lines: { [P.recKey('Guten Morgen')]: [1, 5, 10], [P.recKey(E('LANGS.de.test'))]: [0, 0, 4], [P.recKey('Kaputt')]: [1, 30, 99], [P.recKey('Super!')]: [0, 4, 6] } },
+      pip: { name: 'p', rate: 1, lines: { [P.recKey('Super!')]: [0, 20, 6] } },
+      lena: { name: 'l', rate: 1, lines: { [P.recKey('Guten Morgen')]: [1, 15, 10], [P.recKey('Einen Kaffee, bitte.')]: [2, 0, 8] } } } };
+    const fetched = []; W.fetch = async url => { fetched.push(url); if (url === 'media/voice/de.json') return new W.Response(JSON.stringify(idx)); if (/^media\/voice\/de-[\w-]+\.mp3$/.test(url)) return new W.Response(pack); return new W.Response('', { status: 404 }); };
+    const blobs = []; W.URL.createObjectURL = b => { blobs.push(b); return 'blob:clip' + blobs.length; }; W.URL.revokeObjectURL = () => {};
+    E('delete Rec.idx.de; delete Rec.loading.de'); await E('recIndex("de")');   // the index main.js loads at start, now with the fake fetch
+    E('window.__dev = 0; const _sd = speakDevice; speakDevice = function(){ window.__dev++; return _sd.apply(this, arguments); }');
+    const bytesOf = async b => [...new Uint8Array(await b.arrayBuffer())];
+    const played = async (call, expect) => {   // runs a speak() call, checks the clip's bytes, then ends it
+      const before = blobs.length; const pr = E(call); await sleep(40);
+      const got = blobs.length > before ? await bytesOf(blobs[blobs.length - 1]) : null;
+      ok(got && JSON.stringify(got) === JSON.stringify([...pack.slice(expect[0], expect[0] + expect[1])]) && E('Rec.el.getAttribute("src")') === 'blob:clip' + blobs.length && !E('Rec.el.paused'), call + ' plays its clip ' + JSON.stringify(got));
+      E('Rec.el.dispatchEvent(new Event("ended"))'); return pr;
+    };
+    ok(await played('speak("Guten Morgen", "de")', [5, 10]) === true, 'a recorded line resolves once it has played');
+    ok(fetched.includes('media/voice/de.json') && fetched.filter(u => u === 'media/voice/de-1-1.mp3').length === 1, 'the index and the pack are fetched once');
+    await played('speak("guten  morgen", "de", false, CAST.lena)', [15, 10]);
+    await played('speak("Guten Morgen", "de", false, CAST.weber)', [5, 10]);   // no recording of hers: the narrator's
+    E('S.settings.speed = "relaxed"'); await played('speak("Guten Morgen", "de")', [5, 10]); ok(E('Rec.el.playbackRate') === 0.85, 'relaxed speed plays it slower');
+    E('S.settings.speed = "normal"'); await played('speak("Guten Morgen", "de", true)', [5, 10]); ok(E('Rec.el.playbackRate') === 0.7 && E('Rec.el.preservesPitch') === true, 'the slow button slows it without lowering it');
+    ok(E('__dev') === 0, 'none of that used the device voice');
+    let n = blobs.length;
+    ok(await E('speak("Etwas ganz Neues", "de")') === false && E('__dev') === 1 && blobs.length === n, 'a line with no recording uses the device voice');
+    ok(await E('speak("Kaputt", "de")') === false && E('__dev') === 2, 'a clip past the end of its pack uses the device voice');
+    E('S.settings.natural = false'); ok(await E('speak("Guten Morgen", "de")') === false && E('__dev') === 3 && blobs.length === n, 'with natural voices off, the device voice speaks'); E('S.settings.natural = true');
+    // one voice at a time: a new line or closing the screen stops the one playing
+    const first = E('speak("Guten Morgen", "de")'); await sleep(40); const second = E('speak("Guten Morgen", "de", false, CAST.lena)'); await sleep(40);
+    ok(await first === null && E('Rec.el.getAttribute("src")') === 'blob:clip' + blobs.length, 'a new line takes over from the one playing');
+    E('closeOverlay(true)'); ok(await second === null && E('Rec.el.paused'), 'closing the screen stops the voice');
+    const raced = [E('speak("Guten Morgen", "de")'), E('speak("Guten Morgen", "de", false, CAST.lena)')]; await sleep(40);
+    ok(await raced[0] === null && E('__dev') === 3, 'a line still loading gives way to the next'); E('Rec.el.dispatchEvent(new Event("ended"))'); await raced[1];
+    // the packs a story needs are fetched when it opens; Me → Test voice plays the recording
+    E('recWarm("de", ["Einen Kaffee, bitte."])'); await sleep(30); ok(fetched.includes('media/voice/de-stories.mp3'), 'opening a story fetches its pack');
+    const t = E('speakTest("de")'); await sleep(40); E('Rec.el.dispatchEvent(new Event("ended"))'); ok(await t === 'recorded', 'Test voice plays the recorded voice');
+    // when the element can't play: the device voice, or Web Audio for a local copy it refuses
+    const MP = W.HTMLMediaElement.prototype, play = MP.play;
+    MP.play = function(){ return Promise.reject(Object.assign(new Error('needs a tap'), { name: 'NotAllowedError' })); };
+    ok(await E('speak("Guten Morgen", "de")') === false && E('__dev') === 4 && !E('Rec.done'), 'if the browser won’t play it, the device voice speaks'); MP.play = play;
+    const refused = E('speak("Guten Morgen", "de")'); await sleep(40); E('Rec.el.dispatchEvent(new Event("error"))');
+    ok(await refused === false && E('Rec.noBlob') && E('__dev') === 5, 'a refused local copy goes to Web Audio, and without it to the device voice'); E('Rec.noBlob = false');
+    // the first tap unlocks the voice element silently; an index that isn't there means the device voice
+    R.w.document.body.dispatchEvent(new W.Event('pointerdown', { bubbles: true })); await sleep(30);
+    ok(E('Rec.unlocked') && E('Rec.el.paused') && !E('Rec.el.muted'), 'the first tap unlocks the voice element and leaves it ready');
+    E('delete Rec.idx.es; delete Rec.loading.es'); ok(await E('speak("Hola", "es")') === false && E('__dev') === 6, 'before its index loads, a language speaks with the device voice at once');
+    await sleep(30); ok(E('Rec.idx.es') === null && await E('speak("Hola", "es")') === false && E('__dev') === 7, 'and without a Spanish index, it stays with the device voice');
+    // the birds: the learner's bird speaks in its own recorded voice; one not recorded yet uses the device voice at its pitch
+    ok(E('recWho(cast("pip"))') === 'pip' && E('recWho(CAST.pip)') === 'pip' && E('recWho(MASCOTS.kiwi)') === 'kiwi' && E('recWho(Object.assign({ id: "rojo" }, MASCOTS.rojo))') === 'rojo' && E('recWho(CAST.lena)') === 'lena' && E('recWho()') === 'narrator', 'each bird’s voice is its own');
+    await played('speak("Super!", "de", false, cast("pip"))', [20, 6]);
+    ok(await E('speak("Super!", "de", false, MASCOTS.kiwi)') === false && E('__dev') === 8, 'a bird with no recordings yet uses the device voice, not the narrator’s recording');
+    E('Rec.idx.de.voices.kiwi = { name: "k", rate: 1, lines: { "super!": [0, 30, 5] } }'); await played('speak("Super!", "de", false, MASCOTS.kiwi)', [30, 5]);
+    // Me → Sound
+    [...R.w.document.querySelectorAll('.tab')].find(b => b.textContent.includes('Me')).click(); await sleep(400);
+    ok(R.w.document.querySelector('#set-natural') && R.w.document.querySelector('label[for="voice-sel"]').textContent === 'German device voice', 'Me → Sound has the natural voices switch and the device voice');
+    ok(!R.errors.length, 'no page errors R ' + JSON.stringify(R.errors.slice(0, 3)));
+    R.dom.window.close();
+    // the recordings in the repo, if any: every pack is there and every clip is inside its pack and starts on an mp3 frame
+    for (const lang of ['de', 'es']){
+      const f = path.join(ROOT, 'media', 'voice', lang + '.json'); if (!fs.existsSync(f)) continue;
+      const ix = JSON.parse(fs.readFileSync(f, 'utf8')), packs = ix.packs.map(p => fs.existsSync(path.join(ROOT, 'media', 'voice', p)) ? fs.readFileSync(path.join(ROOT, 'media', 'voice', p)) : null);
+      ok(packs.every(Boolean), lang + ' every pack in the index is in media/voice');
+      let bad = 0, clips = 0; for (const v of Object.values(ix.voices)) for (const [p, s, len] of Object.values(v.lines)){ clips++; const b = packs[p]; if (!b || s + len > b.length || b[s] !== 0xFF || (b[s + 1] & 0xE0) !== 0xE0) bad++; }
+      ok(!bad, lang + ' every clip sits inside its pack on an mp3 frame (' + bad + ' bad of ' + clips + ')');
+      const covered = lines.filter(l => l[0] === lang && ((ix.voices[l[1]] || {}).lines || {})[P.recKey(l[2])]).length, all = lines.filter(l => l[0] === lang).length;
+      console.log('recorded voices ' + lang + ': ' + covered + ' of ' + all + ' lines');
+    }
+    // recording must never cost anything: the script's monthly cap stays under Google's free million, and no month went past it
+    const cap = +((fs.readFileSync(path.join(ROOT, 'dev', 'voices.js'), 'utf8').match(/MONTH_CAP = (\d+)/) || [])[1]);
+    ok(cap > 0 && cap <= 900000, 'dev/voices.js stops each month at ' + cap + ' characters, under the free 1,000,000');
+    const usageFile = path.join(ROOT, 'dev', 'voice-usage.json');
+    if (fs.existsSync(usageFile)){ const u = JSON.parse(fs.readFileSync(usageFile, 'utf8')); ok(u.months && Object.entries(u.months).every(([m, n]) => /^\d{4}-\d{2}$/.test(m) && n >= 0 && n <= cap), 'every month of recording stayed under the cap ' + JSON.stringify(u.months)); }
   }
   /* ---------- 11. the web version: accounts and the database through Supabase (fake server) ---------- */
   {

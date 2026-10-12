@@ -34,8 +34,7 @@ function openBirdPicker(){
         for (const k in opts) opts[k].setAttribute('aria-checked', String(k === pick));
         if (!art.rig) return;
         pipBriefly(art.rig, 'cheer', 1600);
-        const hello = lang === 'es' ? '¡Hola! Soy ' + m.name + '.' : 'Hallo! Ich bin ' + m.name + '.';
-        art.rig.talking(true); speak(hello, lang, false, m).then(() => art.rig.talking(false));
+        art.rig.talking(true); speak(birdHello(id, lang), lang, false, m).then(() => art.rig.talking(false));
       } },
       h('span', { class: 'bo-art' }, art),
       h('span', { class: 'grow' }, h('span', { class: 'lo-title' }, m.name), h('span', { class: 'lo-sub' }, m.kind.charAt(0).toUpperCase() + m.kind.slice(1)),
@@ -82,12 +81,13 @@ function viewMe(){
   v.append(birdCard());
   // settings
   const vs = voicesFor(lang);
-  const voiceSel = h('select', { class: 'input', id: 'voice-sel', onchange: e => { S.settings.voices[lang] = e.target.value; touchSettings(); speak(LANGS[lang].test, lang); } },
+  const voiceSel = h('select', { class: 'input', id: 'voice-sel', onchange: e => { S.settings.voices[lang] = e.target.value; touchSettings(); Rec.gen++; recStop(); speakDevice(LANGS[lang].test, lang); } },
     h('option', { value: '' }, 'Best available (automatic)'), vs.map(vc => h('option', { value: vc.voiceURI, selected: S.settings.voices[lang] === vc.voiceURI }, vc.name + ' · ' + vc.lang)));
   const testOut = h('p', { class: 'small muted', 'aria-live': 'polite' });
   const testBtn = h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => { testOut.textContent = 'Playing…'; const r = await speakTest(lang); testOut.textContent = audioResultText(r, lang); } }, ic('speaker'), 'Test voice');
   v.append(h('section', { class: 'card' }, h('h3', null, 'Sound'),
-    h('div', { class: 'field' }, h('label', { for: 'voice-sel' }, LANGS[lang].name + ' voice'), voiceSel),
+    MEDIA.voice ? toggleRow('Natural voices', 'natural', 'Recorded voices read the course. Talk and lessons made for you use your device’s voice.', on => { if (!on) speakStop(); render(); }) : null,
+    h('div', { class: 'field' }, h('label', { for: 'voice-sel' }, LANGS[lang].name + (recOn() ? ' device voice' : ' voice')), voiceSel),
     h('div', { class: 'row wrap' }, testBtn, h('div', { class: 'seg small-seg', role: 'group', 'aria-label': 'Speaking speed' }, [['normal', 'Normal speed'], ['relaxed', 'Relaxed']].map(([k, l]) => h('button', { type: 'button', 'aria-pressed': String(S.settings.speed === k), onclick: () => { S.settings.speed = k; touchSettings(); render(); speak(LANGS[lang].test, lang); } }, l)))),
     testOut,
     toggleRow('Play audio automatically', 'autoplay', 'Speak new words and answers out loud.'),
@@ -169,6 +169,7 @@ function badgesCard(){
     })));
 }
 function audioResultText(r, lang){
+  if (r === 'recorded') return 'That’s the recorded voice. If it’s quiet, turn up the volume.';
   if (r === 'ok') return 'Sound is working. If it’s quiet, turn up the volume or switch off silent mode.';
   if (r === 'none') return 'This browser can’t speak text aloud. Try Safari or Chrome.';
   return voiceTrouble(r === 'silent' ? '' : r, lang);   // in plain words, from the reason the voice engine gave (audio.js)

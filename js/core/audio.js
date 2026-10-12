@@ -27,12 +27,15 @@ function unlockAudio(){
 }
 document.addEventListener('pointerdown', unlockAudio, { capture: true, once: true });
 document.addEventListener('keydown', unlockAudio, { capture: true, once: true });
+document.addEventListener('pointerdown', () => recUnlock(), { capture: true });
+document.addEventListener('keydown', () => recUnlock(), { capture: true });
 function chunks(text){
   const t = String(text).replace(/___/g, '…');
   if (t.length < 180) return [t];
   return t.match(/[^.!?;]+[.!?;]*\s*/g) || [t];
 }
 /* speak() turns the theme song down while a voice talks, then back up.
+   A recorded voice reads the line when there is one (see "recorded voices" below); otherwise the device's voice does.
    The voice starts inside the tap that asked for it (Safari on iPhone only speaks reliably that way). If another word is
    still playing it is cancelled first and the new one follows 70ms later, because Chrome can drop a word spoken straight
    after a cancel. A voice engine left paused is woken first.
@@ -42,7 +45,8 @@ function chunks(text){
    plain words (voiceTrouble). Resolves true when it spoke, false when nothing played, null when a newer word took over. */
 function speak(text, lang, slow, vo){
   songDuck(true);
-  return speakRaw(text, lang, slow, vo).then(r => { songDuck(false); if (r === false && text) speechHint(lang); return r; }, () => { songDuck(false); return false; });
+  const after = r => { songDuck(false); if (Song.mode === 'home' && Song.el && Song.el.paused) songSync(200); return r; };   // iPhone may pause the song while a recording plays
+  return Promise.resolve(speakRaw(text, lang, slow, vo)).then(r => { after(r); if (r === false && text) speechHint(lang); return r; }, () => after(false));
 }
 function speechHint(lang){
   if (Voice.hinted || !('speechSynthesis' in window) || typeof toast !== 'function') return;
@@ -68,7 +72,20 @@ function voicePlans(lang){
   const other = voicesFor(lang).find(x => x !== v); if (other) add({ voice: other, lang: other.lang });
   return plans;
 }
+/* a recorded line when there is one and natural voices are on, the device's own voice otherwise. It decides at once, so
+   the voice starts inside the tap: until the language's index has loaded (main.js loads it at start), the device's voice
+   speaks. A clip whose pack is still on its way plays when the pack arrives, through the voice element the first tap unlocked */
 function speakRaw(text, lang, slow, vo){
+  const my = ++Rec.gen; recStop();
+  if (!text || !recOn()) return speakDevice(text, lang, slow, vo);
+  const device = () => my === Rec.gen ? speakDevice(text, lang, slow, vo) : null;
+  const play = idx => { const c = idx && recClip(idx, text, vo); return c ? recPlay(lang, c, slow, my).then(r => r === null ? device() : r || null) : device(); };
+  if (Rec.idx[lang] === undefined){ recIndex(lang); return speakDevice(text, lang, slow, vo); }
+  return play(Rec.idx[lang]);
+}
+/* stop whatever is speaking */
+function speakStop(){ Rec.gen++; Voice.seq++; recStop(); try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {} }
+function speakDevice(text, lang, slow, vo){
   return new Promise(res => {
     if (!('speechSynthesis' in window) || !text) return res(false);
     const synth = window.speechSynthesis, id = ++Voice.seq;   // a newer word cancels this one, and its handlers know it
@@ -112,10 +129,149 @@ function speakRaw(text, lang, slow, vo){
     cap = setTimeout(() => fin(started), 12000 + String(text).length * 130);
   });
 }
+/* Me → Test voice: the recorded voice when there is one ('recorded'), else a check of the device's voice */
 function speakTest(lang){
+  const my = ++Rec.gen; recStop();
+  const play = idx => { const c = idx && recClip(idx, LANGS[lang].test); return c ? recPlay(lang, c, false, my).then(r => r === null ? speakTestDevice(lang) : 'recorded') : speakTestDevice(lang); };
+  if (!recOn() || Rec.idx[lang] === undefined){ if (recOn()) recIndex(lang); return speakTestDevice(lang); }
+  return play(Rec.idx[lang]);
+}
+function speakTestDevice(lang){
   if (!('speechSynthesis' in window)) return Promise.resolve('none');
   Voice.lastError = '';
-  return speakRaw(LANGS[lang].test, lang).then(r => r ? 'ok' : !voicesFor(lang).length && !Voice.lastError ? 'novoice' : (Voice.lastError || 'silent'));
+  return speakDevice(LANGS[lang].test, lang).then(r => r ? 'ok' : !voicesFor(lang).length && !Voice.lastError ? 'novoice' : (Voice.lastError || 'silent'));
+}
+
+/* ----- recorded voices (MEDIA.voice; dev/voices.js records them) -----
+   <dir>/<lang>.json maps every line the built-in course can say to a clip: [pack, byte offset, byte length] in one of
+   a few mp3 packs (one per unit, one for the stories, one for common lines). Each clip is a whole mp3 on its own, so it
+   plays from a local copy of just its bytes. Lines with no recording (Talk, lessons on demand, live packs, your own
+   saved sentences) use the device's voice. A speaker without a recording of a line falls back to the narrator's. */
+const Rec = { idx: {}, loading: {}, packs: {}, bufs: {}, gen: 0, el: null, url: '', done: null, src: null, t: 0, unlocked: false, noBlob: false };
+function recOn(){ return !!(MEDIA.voice && S.settings.natural !== false); }
+function recKey(text){ return String(text).normalize('NFC').replace(/[‘’ʼ]/g, '\'').replace(/\s+/g, ' ').trim().toLowerCase(); }
+/* whose voice: a cast member, a bird (its MASCOTS entry, or mascot()'s copy with its id) or the narrator */
+function recWho(vo){
+  if (vo){ if (vo.id && MASCOTS[vo.id]) return vo.id; for (const k in CAST) if (CAST[k] === vo) return k; for (const k in MASCOTS) if (MASCOTS[k] === vo) return k; }
+  return 'narrator';
+}
+/* a bird that isn't recorded yet speaks with the device's voice at its own pitch, rather than in someone else's */
+function recClip(idx, text, vo){ const k = recKey(text), v = idx.voices, who = recWho(vo); if (MASCOTS[who] && !v[who]) return null; return (v[who] && v[who].lines[k]) || (v.narrator && v.narrator.lines[k]) || null; }
+function recFetch(url){
+  if (!window.fetch) return Promise.reject(new Error('no fetch'));
+  return fetch(url, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(url + ' ' + r.status); return r; });
+}
+/* the language's index, loaded once (a failed load is tried again a minute later) */
+function recIndex(lang){
+  if (Rec.idx[lang] !== undefined) return Promise.resolve(Rec.idx[lang]);
+  if (!Rec.loading[lang]) Rec.loading[lang] = recFetch(MEDIA.voice.dir + '/' + lang + '.json').then(r => r.json())
+    .then(j => j && j.voices && Array.isArray(j.packs) ? j : null)
+    .catch(() => { setTimeout(() => { delete Rec.idx[lang]; delete Rec.loading[lang]; }, 60000); return null; })
+    .then(j => { Rec.idx[lang] = j; return j; });
+  return Rec.loading[lang];
+}
+function recPack(lang, i){
+  const idx = Rec.idx[lang], name = idx && idx.packs[i]; if (!name) return Promise.resolve(null);
+  const key = lang + '/' + name;
+  if (!Rec.packs[key]) Rec.packs[key] = recFetch(MEDIA.voice.dir + '/' + name).then(r => r.arrayBuffer()).then(b => { Rec.bufs[key] = b; return b; }).catch(() => { delete Rec.packs[key]; return null; });
+  return Rec.packs[key];
+}
+function recHere(lang, i){ const idx = Rec.idx[lang], name = idx && idx.packs[i]; return name ? Rec.bufs[lang + '/' + name] || null : null; }
+/* fetch the packs that hold these lines, so they play at once when their turn comes */
+function recWarm(lang, texts){
+  if (!recOn()) return;
+  recIndex(lang).then(idx => {
+    if (!idx) return; const ps = new Set();
+    for (const t of texts){ const k = recKey(t); for (const v of Object.values(idx.voices)) if (v.lines[k]) ps.add(v.lines[k][0]); }
+    ps.forEach(i => recPack(lang, i));
+  });
+}
+/* plays clip c. Resolves true when it played, false when something else took over, null when it couldn't play.
+   When the pack is already here it starts at once (inside the tap) */
+function recPlay(lang, c, slow, my){
+  const go = buf => {
+    if (my !== Rec.gen) return false;
+    if (!buf || c[1] + c[2] > buf.byteLength) return null;
+    const bytes = buf.slice(c[1], c[1] + c[2]), rate = slow ? 0.7 : S.settings.speed === 'relaxed' ? 0.85 : 1;
+    try { if (window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending)){ Voice.seq++; window.speechSynthesis.cancel(); } } catch (e) {}
+    return (Rec.noBlob ? Promise.resolve('retry') : recElement(bytes, rate)).then(r => r === 'retry' && my === Rec.gen ? recBuffer(bytes, rate, my) : r);
+  };
+  const here = recHere(lang, c[0]);
+  return here ? Promise.resolve(go(here)) : recPack(lang, c[0]).then(go);
+}
+function recEl(){ if (!Rec.el){ const a = new Audio(); a.preload = 'auto'; a.setAttribute('playsinline', ''); Rec.el = a; } return Rec.el; }
+function recUrl(u){ const old = Rec.url; Rec.url = u || ''; return () => { if (old){ try { URL.revokeObjectURL(old); } catch (e) {} } }; }
+/* through one audio element, which plays like other media (it is heard in silent mode) and slows down without dropping in pitch */
+function recElement(bytes, rate){
+  return new Promise(res => {
+    let a, url, started = false;
+    const fin = r => { if (Rec.done !== fin) return; Rec.done = null; clearTimeout(Rec.t); a.onended = a.onerror = a.onplaying = null; res(r); };
+    try { a = recEl(); url = URL.createObjectURL(new Blob([bytes], { type: 'audio/mpeg' })); } catch (e) { return res('retry'); }
+    Rec.done = fin;
+    a.onplaying = () => { started = true; };
+    a.onended = () => fin(true);
+    a.onerror = () => { if (started) return fin(true); Rec.noBlob = true; fin('retry'); };   // a local copy the page may not play: Web Audio instead
+    const release = recUrl(url); a.muted = false; a.src = url; release();
+    try { a.defaultPlaybackRate = a.playbackRate = rate; a.preservesPitch = a.webkitPreservesPitch = true; } catch (e) {}
+    Rec.t = setTimeout(() => fin(true), bytes.byteLength / 4 / rate + 4000);   // mp3 at 32 kbps: 4 bytes a millisecond
+    let p; try { p = a.play(); } catch (e) { return fin(null); }
+    if (p && p.catch) p.catch(e => fin(e && e.name === 'AbortError' ? false : null));
+  });
+}
+/* through Web Audio, when the element can't play a local copy. It can't slow a voice down without lowering it, so a slow
+   request goes to the device's voice */
+function recBuffer(bytes, rate, my){
+  const c = sfxCtx(); if (!c || !c.decodeAudioData || rate < 0.8) return Promise.resolve(null);
+  return new Promise((ok, no) => { const p = c.decodeAudioData(bytes, ok, no); if (p && p.then) p.then(ok, no); }).then(buf => new Promise(res => {
+    if (my !== Rec.gen) return res(false);
+    const s = c.createBufferSource(); s.buffer = buf; s.connect(c.destination);
+    const fin = r => { if (Rec.done !== fin) return; Rec.done = null; if (Rec.src === s) Rec.src = null; clearTimeout(Rec.t); res(r); };
+    Rec.done = fin; Rec.src = s; s.onended = () => fin(true);
+    s.start(); Rec.t = setTimeout(() => fin(true), (buf.duration || 0) * 1000 + 2000);
+  }), () => null);
+}
+function recStop(){
+  const s = Rec.src; Rec.src = null;
+  if (Rec.done) Rec.done(false);
+  if (s){ try { s.stop(); } catch (e) {} }
+  if (Rec.el && !Rec.el.paused){ try { Rec.el.pause(); } catch (e) {} }
+}
+/* the first tap plays the voice element silently, so a recording can start later without a tap of its own (iPhone) */
+function recUnlock(){
+  if (Rec.unlocked || !recOn() || !window.URL || !URL.createObjectURL) return;
+  Rec.unlocked = true;
+  try {
+    const a = recEl(), u = URL.createObjectURL(silentWav()), release = recUrl(u);
+    a.muted = true; a.src = u; release();
+    const p = a.play(), done = () => { if (a.src === u){ try { a.pause(); } catch (e) {} } a.muted = false; };
+    if (p && p.then) p.then(done, () => { a.muted = false; if (a.src === u) Rec.unlocked = false; }); else done();
+  } catch (e) { Rec.unlocked = false; }
+}
+function silentWav(){
+  const n = 400, d = new DataView(new ArrayBuffer(44 + n * 2)); let o = 0;
+  const s = t => { for (const ch of t) d.setUint8(o++, ch.charCodeAt(0)); }, u32 = v => { d.setUint32(o, v, true); o += 4; }, u16 = v => { d.setUint16(o, v, true); o += 2; };
+  s('RIFF'); u32(36 + n * 2); s('WAVEfmt '); u32(16); u16(1); u16(1); u32(8000); u32(16000); u16(2); u16(16); s('data'); u32(n * 2);
+  return new Blob([d.buffer], { type: 'audio/wav' });
+}
+/* what a lesson can say: its tip examples, words and sentences with every accepted form, and its filled-in blanks */
+function lessonSaid(l){
+  const forms = x => [x.t, ...(x.alt || [])];
+  return [...((l.tip && l.tip.examples) || []).map(x => x.t), ...(l.vocab || []).flatMap(forms), ...(l.sentences || []).flatMap(forms), ...(l.blanks || []).map(blankSaid)].filter(t => typeof t === 'string');
+}
+/* every line the built-in course can say, as [lang, speaker, text, pack] in course order: what dev/voices.js records.
+   A line goes in the pack where it first appears. Single words (for tap-a-word and word tiles) use the narrator. Every
+   bird with a voice in MEDIA.voice records the birds' lines and its hello from the picker. */
+function voiceLines(){
+  const out = [], seen = new Set();
+  const add = (lang, who, t, pack) => { t = String(t || '').trim(); const k = lang + '|' + who + '|' + recKey(t); if (!t || t.includes('___') || seen.has(k)) return; seen.add(k); out.push([lang, who, t, pack]); };
+  const all = (lang, who, ts, pack) => { ts.forEach(t => add(lang, who, t, pack)); ts.forEach(t => tileTokens(t).forEach(w => add(lang, 'narrator', w, pack))); };
+  for (const lang of Object.keys(LANGS)){
+    all(lang, 'narrator', [LANGS[lang].hello, LANGS[lang].test], lang + '-common');
+    for (const id in MASCOTS) if (MEDIA.voice[lang] && MEDIA.voice[lang][id]) all(lang, id, [...Object.values(PIP_SAYS[lang] || {}).flat(), birdHello(id, lang)], lang + '-common');
+    for (const u of COURSE[lang].units) for (const l of u.lessons) all(lang, 'narrator', lessonSaid(l), u.lessons[0].id);
+    for (const st of STORIES) if (st.lang === lang) for (const it of st.items) if (it.who && it.t) all(lang, it.who, [it.t], lang + '-stories');
+  }
+  return out;
 }
 /* ----- sound design: every effect is synthesized live, so there are no audio files to load ----- */
 const SFX = { ctx: null, master: null, noise: null };

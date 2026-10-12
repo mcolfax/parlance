@@ -22,6 +22,7 @@ Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and exp
   - Version, release notes, XP, quests, badges, Talk scenarios, the birds learners can pick and media live in `js/config.js`.
   - Sounds are entries in `SOUNDS` in `js/core/audio.js`; play them with `sfx('name')`.
   - Music goes through `Song` and `MEDIA.song`.
+  - Speech goes through `speak()`. Recorded voices are `MEDIA.voice` and `media/voice/`, made by `dev/voices.js`; see "Recorded voices" in `docs/ARCHITECTURE.md`.
   - Icons live in `IC` in `js/core/util.js`.
   - The birds are drawn by the rig: `js/core/rig.js` (runtime), `js/core/bird.js` (the shared bird: skeleton, poses, moods, moves) and a part sheet per bird: `js/core/pip.js` (written by `design/rig/tools/trace/build_pip.py`) and `kiwi.js`, `mango.js`, `kakadu.js`, `rojo.js` (written by `design/rig/tools/trace/run.sh <bird>`; loaded only when picked). `js/core/art.js` wraps them as `pip()` (the learner's bird, alive) and `pipSVG()` (a still). Their colors are the `--pip-*`, `--kiwi-*` … tokens. The birds learners can pick are `MASCOTS` in `js/config.js`; the choice is `settings.mascot`.
   - The cast and the illustrations are pure SVG functions in `js/core/art.js`.
@@ -41,6 +42,7 @@ npm run preview      # http://127.0.0.1:8765/_preview.html
 npm run files        # JSON map of the files to publish next to index.html
 npm run web          # builds the web version into dist/ (what Vercel serves)
 NODE_PATH="$(npm root -g)" node dev/icons.js   # redraws media/icons/ from Pip (needs Playwright)
+node dev/voices.js   # records new lines into media/voice/ (Google key: the environment's network secret; --dry counts them)
 ```
 
 A GitHub Action (`keep-awake.yml`) reads the web database three times a day so the free Supabase project doesn't pause. If it fails, the web version's database is down.
@@ -50,16 +52,17 @@ The preview runs without the artifact runtime, so there is no account sync, data
 ## Shipping a release
 
 1. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once.
-2. Run `npm test`. It must end with `FAIL 0`.
-3. Commit to `main` and push. Vercel deploys the web version from `main` on its own.
-4. Publish with the Artifact tool:
+2. If lesson or story text changed, run `node dev/voices.js` so the new lines are recorded, and commit `media/voice/` with `dev/voice-usage.json`. Recording must never cost Matt anything: the script stops at 900,000 characters a month, under Google's free million. Never raise that cap or get around it. If the script stops or Google turns the key down, say so: those lines use the device's voice until they are recorded.
+3. Run `npm test`. It must end with `FAIL 0`.
+4. Commit to `main` and push. Vercel deploys the web version from `main` on its own.
+5. Publish with the Artifact tool:
    - `file_path`: the absolute path to `index.html`
    - `url`: the artifact URL above
    - `files`: the map from `node dev/files.js "$PWD"`, which gives absolute sources. Sending only the changed files is fine.
    - Leave `capabilities` out so the declared ones carry forward.
    - If the publish is refused because the published files differ from what this session has seen, read them first (Artifact `read` with `paths`), check the differences, then publish.
    - Only served file types publish. For media that means `.mp4`, `.webm`, `.mp3`, `.ogg` or `.wav`, not `.m4a`.
-5. Set `content/config` → `latest` to the new version in **both** homes. Anyone with Parlance open then gets a Refresh banner. Matt can also do this from Me → Studio → Content in each version.
+6. Set `content/config` → `latest` to the new version in **both** homes. Anyone with Parlance open then gets a Refresh banner. Matt can also do this from Me → Studio → Content in each version.
    - Artifact: ArtifactData. Read the doc first and pin `if_version`.
    - Web: Supabase `execute_sql` on project `ibrweunxigetiazzuwiz`:
      `insert into public.docs (path, coll, data) values ('content/config', 'content', '{"kind":"config","latest":"X.Y.Z"}') on conflict (path) do update set data = public.docs.data || excluded.data, updated_at = now();`

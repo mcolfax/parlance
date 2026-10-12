@@ -13,7 +13,7 @@ function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}
    friends: { uid: { code, cAt, at, gone } }; duels: { id: duel }; past: { id: finished duel }; cheers: { uid: day you cheered them };
    seen: { uid: day of their latest cheer you've seen } */
 function newSocial(){ return { on: false, secret: '', since: 0, home: '', name: '', bird: 'pip', friends: {}, duels: {}, past: {}, cheers: {}, seen: {}, ts: 0 }; }
-function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, mascot: 'pip', onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
+function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, natural: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, mascot: 'pip', onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
 function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defaultSettings(), days: {}, badges: {}, stats: {}, langs: { de: newLang(), es: newLang() }, gen: { de: [], es: [] }, social: newSocial() }; }
 function validLesson(l){ return l && typeof l.id === 'string' && typeof l.title === 'string' && Array.isArray(l.vocab) && Array.isArray(l.sentences) && Array.isArray(l.blanks); }
 function cleanLang(x){

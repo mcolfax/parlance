@@ -9,6 +9,8 @@ assembleCourse();
 S = loadLocal();
 reindex();
 applyLang();
+if (recOn()) recIndex(S.settings.lang);   // the recorded voices' index, so the first tap can use it
+setTimeout(() => { if (recOn()) recWarm(S.settings.lang, [LANGS[S.settings.lang].hello, ...Object.values(PIP_SAYS[S.settings.lang] || {}).flat()]); }, 1500); // and the pack with the greetings and the birds' lines
 function boot(){
   render();
   initCaps();
@@ -24,4 +26,4 @@ function boot(){
 if (S.settings.mascot !== 'pip' && MASCOTS[S.settings.mascot]) Promise.race([loadMascot(S.settings.mascot).catch(() => {}), sleep(2500)]).then(boot);
 else boot();
 /* test and debugging hooks */
-window.__parlance = { APP_VERSION, COURSE, STORIES, CAST, BADGES, QUESTS, Packs, Live, buildLesson, glossLookup, checkBadges, questIds, mergeDays, mergeBadges, evaluate, check, answerDiff, closestAnswer, norm, fold, englishVariants, tileTokens, reviewEx, streakInfo, srsUpdate, sanitizeLesson, speechScore, mergeLang, mergeCore, mergeGen, mergeWhole, makeBackupCode, readBackup, defaultState, mergeState, itemKey, resolveKey, migrateCardKeys, validatePack, applyContentDocs, allStories, filmActors, get S(){ return S; }, set S(v){ S = v; } };
+window.__parlance = { APP_VERSION, COURSE, STORIES, CAST, BADGES, QUESTS, Packs, Live, buildLesson, glossLookup, checkBadges, questIds, mergeDays, mergeBadges, evaluate, check, answerDiff, closestAnswer, norm, fold, englishVariants, tileTokens, reviewEx, streakInfo, srsUpdate, sanitizeLesson, speechScore, mergeLang, mergeCore, mergeGen, mergeWhole, makeBackupCode, readBackup, defaultState, mergeState, itemKey, resolveKey, migrateCardKeys, validatePack, applyContentDocs, allStories, filmActors, voiceLines, recKey, get S(){ return S; }, set S(v){ S = v; } };

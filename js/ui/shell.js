@@ -2,7 +2,7 @@
 /* ===================== UI SHELL ===================== */
 const UI = { tab: 'learn', justDone: null, wordFilter: 'v', wordQuery: '', talkLevel: null, genLevel: null, genTopic: '', genBusy: false, genStatus: '', genCtl: null, open: new Set(), openLang: null, animate: true, helloAt: 0 };
 function applyLang(){ document.documentElement.setAttribute('data-lang', S.settings.lang); }
-function setLang(lang){ if (S.settings.lang === lang) return; S.settings.lang = lang; UI.talkLevel = null; UI.genLevel = null; UI.openLang = null; touchSettings(); applyLang(); UI.animate = true; render(); window.scrollTo(0, 0); }
+function setLang(lang){ if (S.settings.lang === lang) return; S.settings.lang = lang; UI.talkLevel = null; UI.genLevel = null; UI.openLang = null; touchSettings(); applyLang(); if (recOn()) recIndex(lang); UI.animate = true; render(); window.scrollTo(0, 0); }
 function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; t.classList.remove('in'); void t.offsetWidth; t.classList.add('in'); clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2800); }
 function sheet(title, body, actions){
   const back = h('div', { class: 'sheet-back', role: 'dialog', 'aria-modal': 'true', 'aria-label': title });
@@ -159,7 +159,7 @@ function openOverlay(kind){
 function closeOverlay(instant){
   const root = OV.root; OV.root = null;
   document.body.classList.remove('locked');
-  try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) {}
+  speakStop();
   songSync(300);
   if (!root) return;
   if (instant || reduced()) root.remove();

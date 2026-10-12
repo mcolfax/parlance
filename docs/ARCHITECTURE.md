@@ -17,8 +17,9 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `js/core/text.js` | Answer normalization, typo/accent tolerance, word-by-word comparison of an answer that counts with the expected one, glossary index | change how answers are checked |
 | `js/core/content.js` | Content helpers, course assembly, live pack validation, stable review keys | change how content is organized |
 | `js/core/state.js` | Saved state, migrations, merging, account sync, backup codes | change what is saved |
-| `js/core/audio.js` | Speech, the synthesized sound library (`SOUNDS`), the music sequencer, the theme-song player (`Song`) | add or tune a sound, change how music behaves |
+| `js/core/audio.js` | Speech (recorded voices first, then the device's voice), the synthesized sound library (`SOUNDS`), the music sequencer, the theme-song player (`Song`) | add or tune a sound, change how music behaves |
 | `media/` | The theme song in two formats: `abc-adventure.mp4` (AAC, for Safari/iPhone and Chrome) and `abc-adventure.webm` (Opus, for browsers without AAC) | swap the song |
+| `media/voice/`, `dev/voices.js` | The recorded voices: an index per language and mp3 packs, made by `dev/voices.js` with Google Cloud Text-to-Speech | after content changes, or to change a voice |
 | `js/core/engine.js` | XP, streaks, spaced repetition, quests, badges, lesson status, exercises, grading | change learning logic |
 | `js/core/remote.js` | Live content packs, update banner, announcements, What's new, sharing a lesson | change live updates |
 | `js/core/host.js` | The web version's accounts and database: the same `window.claude.use()` surface, backed by Supabase | change how the web version signs in or stores data |
@@ -61,9 +62,10 @@ The same files run in two places.
 
 1. Make the change in the relevant file(s).
 2. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once.
-3. Run `npm ci && npm test`. It must report `FAIL 0`.
-4. Commit to `main` in GitHub (`mcolfax/parlance`); Vercel deploys the web version from it. Then republish the same artifact URL with `index.html` as the page and the files `node dev/files.js` lists. Unchanged files are kept.
-5. In Studio → Content, tap **Mark <version> as latest**, in each version. Anyone with Parlance open gets a Refresh banner. Their progress stays.
+3. If lesson or story text changed, run `node dev/voices.js` to record the new lines (see Recorded voices).
+4. Run `npm ci && npm test`. It must report `FAIL 0`.
+5. Commit to `main` in GitHub (`mcolfax/parlance`); Vercel deploys the web version from it. Then republish the same artifact URL with `index.html` as the page and the files `node dev/files.js` lists. Unchanged files are kept.
+6. In Studio → Content, tap **Mark <version> as latest**, in each version. Anyone with Parlance open gets a Refresh banner. Their progress stays.
 
 ## The theme song
 
@@ -77,12 +79,25 @@ The same files run in two places.
 
 ## Your bird
 
-Pip is the bird every learner starts with. In Me → Your bird, anyone can pick Kiwi the budgie, Mango the amazon parrot, Kakadu the cockatoo or Rojo the macaw instead (`MASCOTS` in `config.js`; Parlance 4.9.0).
+Pip is the bird every learner starts with. In Me → Your bird, anyone can pick Kiwi the budgie, Mango the amazon parrot, Kakadu the cockatoo or Rojo the macaw instead (`MASCOTS` in `config.js`; Parlance 4.10.0).
 
 - **One skeleton, five part sheets.** Every bird has the same moods and moves (`js/core/bird.js`), so screens ask `pip(mood)` for a mood and get the learner's bird. Each bird's colors are tokens (`--kiwi-body` …); their effects follow Pip's.
 - **Loaded when picked.** Only Pip's part sheet is in `index.html`. `loadMascot(id)` adds `js/core/<id>.js` with a script tag; `Bird.make` registers each bird in `Bird.birds`. The picker loads all four as it opens. A learner who picked another bird gets its part sheet before the first screen (`js/main.js` waits up to 2.5 s, then Pip stands in until it arrives). A bird picked on another device loads on the next redraw (`ensureMascot`).
 - **Saved and synced.** The choice is `settings.mascot` (schema 6), so it syncs with the other settings. A bird this version doesn't know is kept in the settings and drawn as Pip.
-- **Where it shows.** Every `pip()` and `pipSVG()` (screens, the intro film, the feedback sheet), `avatar('pip')`, and `cast('pip')`, which gives the bird's name and voice wherever Pip speaks (Talk, the lesson finish). Copy that names Pip uses `mascot().name`. Two places stay Pip: the Home Screen icon, and a friend's picture when they chose Pip (`avatar(id, size, cls, true)`).
+- **Where it shows.** Every `pip()` and `pipSVG()` (screens, the intro film, the feedback sheet), `avatar('pip')`, and `cast('pip')`, which gives the bird's name and voice wherever Pip speaks (Talk, the lesson finish). Its recorded voice is `MEDIA.voice[lang][id]` (see "Recorded voices"); `recWho()` knows the bird by its id. Copy that names Pip uses `mascot().name`. Two places stay Pip: the Home Screen icon, and a friend's picture when they chose Pip (`avatar(id, size, cls, true)`).
+
+## Recorded voices
+
+The course is read by recorded neural voices instead of the phone's built-in ones. They are made ahead of time, so both homes play the same files, nothing is called while someone learns, and no key sits in the page.
+
+- **What gets recorded.** `voiceLines()` in `js/core/audio.js` lists every line the built-in course can say: each lesson word and sentence in every accepted form, filled-in blanks, tip examples, story lines in their speaker's voice, the birds' lines (each bird records them, with its hello from the picker), and every single word (for tap-a-word and word tiles).
+- **Who reads it.** `MEDIA.voice` in `js/config.js` gives each speaker a Google voice per language: a narrator for lessons and single words, each cast member, and each bird. A cast member's `rate` in `content/cast.js` (a bird's in `MASCOTS`) is recorded into their lines. A bird with no recordings in the index yet speaks with the device's voice at its own pitch, never in another speaker's recording. Spanish uses Google's US Spanish voices (`es-US`), its Latin American Spanish, because Google has no Mexican Spanish ones.
+- **Files.** `media/voice/<lang>.json` maps each line (lowercased, spacing and apostrophes evened out) to a clip: `[pack, byte offset, byte length]`. The packs are mp3 files: `<lang>-common` (greetings, the voice test, the birds), one per unit named for its first lesson (`de-1-1.mp3`) and `<lang>-stories`. Each clip is a complete mp3, so it plays on its own.
+- **Playing.** `speak()` looks the line up and plays the clip through one audio element, which an iPhone plays in silent mode like other media and can slow down without lowering the voice (the slow button and the Relaxed speed). The first tap unlocks that element. A lesson, review or story fetches its packs when it opens. If the page can't play a local copy, the clip goes through Web Audio.
+- **Everything else uses the device's voice**: Talk, lessons made on demand, live packs, saved sentences, and any line not recorded yet. So does everything when **Me → Sound → Natural voices** is off. A speaker with no recording of a line uses the narrator's.
+- **Recording.** `node dev/voices.js` loads the app, keeps every clip already recorded with the same voice and speed, records only new lines, rewrites the packs and indexes, and deletes packs that no longer have lines. `--dry` counts what it would record; `--list` lists Google's voices; `--only de-common,de-1-1` records new lines only in those packs. The key is a Google Cloud API key restricted to the Text-to-Speech API. It lives in the Claude Code environment as a network secret for `texttospeech.googleapis.com` that adds the header `X-Goog-Api-Key` (no prefix), so sessions never see it; a `GOOGLE_TTS_KEY` environment variable works too. It never goes in the repo.
+- **Cost: never.** Learners never call Google; the app only plays the files. Recording is billed per character after the first million a month (Pacific time), at US$30 per million, and the whole course is about 74,000. `dev/voices.js` keeps a running total per month in `dev/voice-usage.json` and refuses any run that would take the month past 900,000, with no flag to override it. It counts UTF-8 bytes (more than Google counts), counts each line before asking for it, and saves the total as it goes. Commit `dev/voice-usage.json` with the recordings so the next session sees it. `--max-chars` (300,000 by default) also limits a single run.
+- **Changing a voice.** Edit `MEDIA.voice` and run `dev/voices.js`; only that speaker's lines are recorded again.
 
 ## Live content without a release
 
