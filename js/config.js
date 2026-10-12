@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.8.2';
+const APP_VERSION = '4.8.3';
 const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,8 +12,11 @@ const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.8.3', date: '2026-10-12', title: 'A voice for every phone', notes: [
+    'If your phone doesn’t have the exact voice Parlance asks for, like Mexican Spanish on many Android phones, Parlance now uses the Spanish or German voice your phone does have.',
+    'When the voice can’t play, Parlance tells you why in plain words, for example that your phone needs a Spanish voice, and Me → Sound’s voice test says the same.'] },
   { v: '4.8.2', date: '2026-10-12', title: 'Tap to hear on the web version', notes: [
-    'On the web version, tapping a word or a speaker button speaks it again, on Android too. On Android the theme song could keep the voice from being heard; it now plays the same way it does in Claude.',
+    'On the web version, the theme song now plays the same way it does in Claude, so it no longer gets in the way of the voice on Android.',
     'The theme song turns down while the voice speaks, instead of stopping, then comes back up.',
     'If the voice still can’t play, Parlance tells you what to check, like silent mode.'] },
   { v: '4.8.1', date: '2026-10-12', title: 'A tidier top bar on iPhone', notes: [

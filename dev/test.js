@@ -702,8 +702,10 @@ async function main(){
          with the language's standard voice, then a one-time hint */
       let mode = 'ok'; const said = [];
       const synth = { speaking: false, pending: false, paused: false, resumed: 0, getVoices: () => [], resume(){ this.resumed++; this.paused = false; }, cancel(){},
-        speak(u){ said.push({ text: u.text, voice: u.voice ? u.voice.name : '', playing: !E('Song.el.paused'), duck: E('Song.duck') });
-          if (mode === 'ok' || (mode === 'standard' && !u.voice)) setTimeout(() => { u.onstart && u.onstart(); setTimeout(() => u.onend && u.onend(), 20); }, 10); } };
+        speak(u){ said.push({ text: u.text, voice: u.voice ? u.voice.name : '', lang: u.lang, playing: !E('Song.el.paused'), duck: E('Song.duck') });
+          const plain = !u.voice && u.lang.length === 2;   // asking for just the language, like "de"
+          if (mode === 'ok' || (mode === 'standard' && !u.voice) || (mode === 'nolang' && plain)) setTimeout(() => { u.onstart && u.onstart(); setTimeout(() => u.onend && u.onend(), 20); }, 10);
+          else if (mode === 'nolang' || mode === 'refused') setTimeout(() => u.onerror && u.onerror({ error: 'language-unavailable' }), 5); } };
       M.w.speechSynthesis = synth; M.w.SpeechSynthesisUtterance = function(t){ this.text = t; };
       E('Voice.list = [{ name: "Anna (Premium)", lang: "de-DE", voiceURI: "anna" }]; Voice.wait = 120; Voice.hinted = false');
       const p1 = E('speak("Hallo", "de")');
@@ -718,6 +720,16 @@ async function main(){
       E('Voice.hinted = false'); said.length = 0;
       const first = E('speak("Eins", "de")'); mode = 'ok'; const second = E('speak("Zwei", "de")');
       ok(await first === null && await second === true && !E('Voice.hinted'), 'a word cut off by the next tap isn’t a failure');
+      // a phone without the exact voice: the engine refuses it, and the plain language plays straight away
+      mode = 'nolang'; said.length = 0; E('Voice.list = []; Voice.hinted = false');
+      const t0 = Date.now();
+      ok(await E('speak("Morgen", "de")') === true && said.length === 2 && said[0].lang === 'de-DE' && said[1].lang === 'de' && Date.now() - t0 < 100 && !E('Voice.hinted'),
+        'when the phone refuses the exact voice, the plain language plays right away ' + JSON.stringify(said));
+      mode = 'refused'; said.length = 0;
+      ok(await E('speak("Abend", "de")') === false && E('Voice.lastError') === 'language-unavailable' && D.querySelector('#toast').textContent.includes('no German voice'), 'and if it has no voice at all, the hint says so: ' + D.querySelector('#toast').textContent);
+      ok(await E('speakTest("de")') === 'language-unavailable' && E('audioResultText("language-unavailable", "de")').includes('no German voice'), 'Me → Sound’s voice test gives the same reason');
+      mode = 'ok'; ok(await E('speakTest("de")') === 'ok', 'and says when sound works');
+      E('Voice.list = [{ name: "Anna (Premium)", lang: "de-DE", voiceURI: "anna" }]');
       synth.speaking = true; said.length = 0; const late = E('speak("Gut", "de")');
       ok(!said.length, 'while a word is still playing, the next one waits a moment after cancelling it (Chrome can drop it otherwise)'); synth.speaking = false;
       ok(await late === true && said.length === 1 && said[0].text === 'Gut', 'and then plays');
