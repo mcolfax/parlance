@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.10.1';
+const APP_VERSION = '4.10.2';
 const SCHEMA_VERSION = 6;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,9 +12,11 @@ const SCHEMA_VERSION = 6;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
-  { v: '4.10.1', date: '2026-10-12', title: 'Calmer wings', notes: [
+  { v: '4.10.2', date: '2026-10-12', title: 'Calmer wings', notes: [
     'Your bird now stands still after it waves hello. Before, a wing kept flapping up and down on the Learn screen, which looked odd, most of all on Kiwi, Mango, Kakadu and Rojo.',
     'On those four, a wing now opens into a whole wing as it lifts, instead of showing as a thin blade on the way up and down.'] },
+  { v: '4.10.1', date: '2026-10-12', title: 'A voice for every bird', notes: [
+    'Kiwi, Mango, Kakadu and Rojo now speak in natural voices of their own, light and friendly, and each one sounds different from the others and from Pip.'] },
   { v: '4.10.0', date: '2026-10-12', title: 'Choose your bird', notes: [
     'Pip has company. Kiwi the budgie, Mango the amazon parrot, Kakadu the cockatoo and Rojo the macaw can now learn with you instead. Pick one in Me, under Your bird.',
     'Each one is drawn from its own character sheet and does everything Pip does: it cheers, worries, dances, waves, talks and sleeps on every screen, in its own voice.',
@@ -99,9 +101,9 @@ const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home
     { src: 'media/abc-adventure.webm', type: 'audio/webm; codecs="opus"' }] },
   voice: { dir: 'media/voice',
     de: { narrator: 'de-DE-Chirp3-HD-Erinome', pip: 'de-DE-Chirp3-HD-Leda', lena: 'de-DE-Chirp3-HD-Aoede', jonas: 'de-DE-Chirp3-HD-Puck', weber: 'de-DE-Chirp3-HD-Gacrux', emre: 'de-DE-Chirp3-HD-Algenib', leyla: 'de-DE-Chirp3-HD-Despina', brandt: 'de-DE-Chirp3-HD-Alnilam',
-      kiwi: 'de-DE-Chirp3-HD-Laomedeia', mango: 'de-DE-Chirp3-HD-Callirrhoe', kakadu: 'de-DE-Chirp3-HD-Fenrir', rojo: 'de-DE-Chirp3-HD-Sadachbia' },
+      kiwi: 'de-DE-Chirp3-HD-Laomedeia', mango: 'de-DE-Chirp3-HD-Callirrhoe', kakadu: 'de-DE-Chirp3-HD-Autonoe', rojo: 'de-DE-Chirp3-HD-Sadachbia' },
     es: { narrator: 'es-US-Chirp3-HD-Erinome', pip: 'es-US-Chirp3-HD-Leda', sofia: 'es-US-Chirp3-HD-Sulafat', diego: 'es-US-Chirp3-HD-Achird', carmen: 'es-US-Chirp3-HD-Vindemiatrix', mateo: 'es-US-Chirp3-HD-Zubenelgenubi', valentina: 'es-US-Chirp3-HD-Zephyr', andres: 'es-US-Chirp3-HD-Umbriel',
-      kiwi: 'es-US-Chirp3-HD-Laomedeia', mango: 'es-US-Chirp3-HD-Callirrhoe', kakadu: 'es-US-Chirp3-HD-Fenrir', rojo: 'es-US-Chirp3-HD-Sadachbia' } } };
+      kiwi: 'es-US-Chirp3-HD-Laomedeia', mango: 'es-US-Chirp3-HD-Callirrhoe', kakadu: 'es-US-Chirp3-HD-Autonoe', rojo: 'es-US-Chirp3-HD-Sadachbia' } } };
 /* The birds you can learn with (Me → Your bird). Pip's part sheet (js/core/pip.js) always loads; the others load when
    someone picks one (src). kind is what the bird is, as copy says it ("a budgie"). Its recorded voice is in MEDIA.voice;
    pitch and rate are its voice on the device (rate is recorded too). The drawings, moods and moves are in js/core and

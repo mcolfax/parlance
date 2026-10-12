@@ -9,6 +9,8 @@
      --list       print the Chirp 3 HD voices Google has for each language, for choosing MEDIA.voice in js/config.js
      --only       record new lines only in these packs (lines already recorded elsewhere are kept)
      --max-chars  stop before recording more than this many characters in one run (default 300000)
+     --audition   record one line in several voices, to choose between them by ear. It counts toward the monthly cap.
+                  node dev/voices.js --audition de "Super! Toll gemacht!" Leda,Autonoe --out /some/folder
    Recording must never cost anything. Chirp 3 HD voices are free for the first million characters a month (Pacific
    time), then US$30 per million. So every run adds what it records to dev/voice-usage.json, month by month, and refuses
    to start a run that would take the month past MONTH_CAP, a margin under the free million. There is no flag to go past
@@ -95,6 +97,16 @@ async function main(){
   const app = await fromApp(), cfg = app.voice;
   if (!cfg) throw new Error('MEDIA.voice is not set in js/config.js');
   const dir = path.join(ROOT, cfg.dir), langs = Object.keys(cfg).filter(k => k !== 'dir');
+  if (flag('--audition')){
+    const i = args.indexOf('--audition'), lang = args[i + 1], text = args[i + 2], names = String(args[i + 3] || '').split(',').filter(Boolean), out = opt('--out');
+    if (!cfg[lang] || !text || !names.length || !out) throw new Error('Usage: node dev/voices.js --audition <de|es> "<line>" Voice1,Voice2 --out <folder>');
+    const month = billMonth(), used = readUsage().months[month] || 0, chars = cost(text) * names.length;
+    if (used + chars > MONTH_CAP) throw new Error('Stopped: this audition would take ' + month + ' past the ' + MONTH_CAP + ' cap that keeps recording free.');
+    Object.assign(Spent, { month, base: used, run: 0 }); fs.mkdirSync(out, { recursive: true });
+    for (const n of names){ const v = n.includes('-') ? n : localeOf(cfg[lang].narrator) + '-Chirp3-HD-' + n; fs.writeFileSync(path.join(out, lang + '-' + n + '.mp3'), await record(text, v, 1)); }
+    saveUsage(); console.log('Wrote ' + names.length + ' clips to ' + out + '; ' + Spent.run + ' characters, ' + (Spent.base + Spent.run) + ' this month.');
+    return;
+  }
   if (flag('--list')){
     for (const lang of langs){ const loc = localeOf(cfg[lang].narrator); console.log(loc + ': ' + (await voicesFor(loc)).map(v => v.name.split('-').pop() + ' (' + v.ssmlGender.toLowerCase() + ')').join(', ')); }
     return;
