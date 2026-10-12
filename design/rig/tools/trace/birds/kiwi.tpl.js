@@ -4,11 +4,11 @@
    Written by design/rig/tools/trace/build_bird.py from the trace (tools/trace/birds/kiwi.py) and this template
    (birds/kiwi.tpl.js): edit those, not this file.
    The drawings are traced from the model sheet (reference/kiwi-sheet.webp). Kiwi faces front, so turn.setup is 0 and
-   at rest she is the concept drawing. Her head and body are one egg with no line between the yellow and the green:
+   at rest it is the concept drawing. Its head and body are one egg with no line between the yellow and the green:
    the head is the yellow cap and turns about the middle of the circle its outline follows, so it slides round the egg
-   without a seam. Her eyes are all dark, with no whites, so they move only a little when she looks round. The raised
+   without a seam. Its eyes are all dark, with no whites, so they move only a little when it looks round. The raised
    wings, the happy eyes and the open beak come from the cheer drawing; the states the sheet doesn't draw (blinks,
-   hearts, the smile and frown on her little beak…) are drawn here and in bird.js in the same brush style.
+   hearts, the smile and frown on its little beak…) are drawn here and in bird.js in the same brush style.
    Palette roles become CSS custom properties (--kiwi-body …) with these values as fallbacks.
    ========================================================================== */
 const KIWI = (() => {
@@ -69,10 +69,10 @@ __TRACED__
 
   return B.make({
     id: 'kiwi', name: 'Kiwi',
-    /* she faces front: turn 0 is the drawing, and her body turns either way */
+    /* it faces front: turn 0 is the drawing, and its body turns either way */
     turn: { setup: 0, bodyMin: -0.24, cx: hx },
     rest: { turn: 0 },
-    /* her sheet's outline is heavier than Pip's; the beak's line (ol2) is a little over half of it */
+    /* its sheet's outline is heavier than Pip's; the beak's line (ol2) is a little over half of it */
     lines: { min: 3.5, max: 5.6, thin: 0.62 },
     pivots: {
       facing: [120, 250], root: [120, 250], shadow: [120, 252], legL: [C.ankle.L[0], 232], legR: [C.ankle.R[0], 232],
@@ -82,9 +82,9 @@ __TRACED__
       cheekL: [99, 134], cheekR: [141, 134], fx: [120, 120]
     },
     bones: [
-      /* her tail pokes out behind her, low on the right: it slides across as her body turns */
+      /* the tail pokes out behind, low on the right: it slides across as the body turns */
       { id: 'tail', turn: { body: true, dx: -24 } },
-      /* both wings are whole at rest; the far one narrows as she turns */
+      /* both wings are whole at rest; the far one narrows as it turns */
       { id: 'wingL', turn: { body: true, near: 0.05, wx: 0.6 } },
       { id: 'wingR', turn: { body: true, near: -0.05, wx: -0.6 } }
     ],
@@ -96,7 +96,7 @@ __TRACED__
       stand: { params: { turn: 0 } },
       cheer: { slots: B.both('wing', 'spread'), bones: { wingL: { r: C.raise.L }, wingR: { r: C.raise.R }, body: { sy: 1.02 } }, z: { wingL: 3.5, wingR: 3.6 }, params: { turn: 0 } }
     },
-    /* her sheet's neutral face has a closed beak */
+    /* its sheet's neutral face has a closed beak */
     faces: { happy: { slots: { pupilL: 'open', pupilR: 'open', mouth: 'closed', beak: 'closed' } } },
     palette: {
       ink: '#1A3722', mark: '#151514', body: '#8CC44D', body2: '#4D8B49', head: '#F9DF5A', head2: '#E9C643',

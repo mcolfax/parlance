@@ -1,8 +1,8 @@
-"""Trace Kakadu the sulphur-crested cockatoo from his model sheet (reference/kakadu-sheet.webp), prepared by prep.py
+"""Trace Kakadu the sulphur-crested cockatoo from its model sheet (reference/kakadu-sheet.webp), prepared by prep.py
 and segmented by segment.py (run.sh). Writes <work>/trace/t.json: {T: named drawings, meta, consts, notes}.
-Kakadu faces front (turn.setup 0). His crest is seven feathers, each its own bone so it springs and fans: they stand in
-front of the head's line and their roots go in behind the white tuft on his crown, which is drawn over them. The head
-runs into the chest with no chin line. His eyes are whites inside a blue ring (the eye slot, shown while the eye is
+Kakadu faces front (turn.setup 0). Its crest is seven feathers, each its own bone so it springs and fans: they stand in
+front of the head's line and their roots go in behind the white tuft on its crown, which is drawn over them. The head
+runs into the chest with no chin line. Its eyes are whites inside a blue ring (the eye slot, shown while the eye is
 open); a closed or happy eye is a line on a pale blue patch, as on the cheer drawing. The beak is the grey upper beak
 over the open jaw, as Rojo's and Mango's are."""
 import os, sys, json, math

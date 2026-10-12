@@ -4,8 +4,8 @@
    Written by design/rig/tools/trace/build_bird.py from the trace (tools/trace/birds/mango.py) and this template
    (birds/mango.tpl.js): edit those, not this file.
    The drawings are traced from the model sheet (reference/mango-sheet.webp). Mango faces front, so turn.setup is 0
-   and at rest he is the concept drawing. His yellow head ends in a fringe over the green chest with no line; the tuft
-   on his crown is the crest, so it springs. His tail fans out behind his legs and shows either side of them. The
+   and at rest it is the concept drawing. Its yellow head ends in a fringe over the green chest with no line; the tuft
+   on its crown is the crest, so it springs. Its tail fans out behind its legs and shows either side of them. The
    eye's white and its lid line are their own slot, shown only while the eye is open (showWith, as Rojo's), so a
    happy or closed eye is a line on the yellow, as on the cheer drawing. The raised wings, the happy eyes and the open
    beak come from the cheer drawing; the closed beaks are the jaw folded up under the upper beak.
@@ -65,7 +65,7 @@ __TRACED__
 
   return B.make({
     id: 'mango', name: 'Mango',
-    /* he faces front: turn 0 is the drawing, and his body turns either way */
+    /* it faces front: turn 0 is the drawing, and its body turns either way */
     turn: { setup: 0, bodyMin: -0.24 },
     rest: { turn: 0 },
     pivots: {
@@ -82,9 +82,9 @@ __TRACED__
       return sl;
     },
     bones: [
-      /* his tail fans out behind his legs: it slides across as his body turns */
+      /* its tail fans out behind its legs: it slides across as its body turns */
       { id: 'tail', turn: { body: true, dx: -16 } },
-      /* both wings are whole at rest; the far one narrows as he turns */
+      /* both wings are whole at rest; the far one narrows as it turns */
       { id: 'wingL', turn: { body: true, near: 0.05, wx: 0.6 } },
       { id: 'wingR', turn: { body: true, near: -0.05, wx: -0.6 } }
     ],

@@ -1,8 +1,8 @@
-"""Trace Mango the yellow-headed amazon from his model sheet (reference/mango-sheet.webp), prepared by prep.py and
+"""Trace Mango the yellow-headed amazon from its model sheet (reference/mango-sheet.webp), prepared by prep.py and
 segmented by segment.py (run.sh). Writes <work>/trace/t.json: {T: named drawings, meta, consts, notes}.
-Mango faces front (turn.setup 0). His yellow head ends in a fringe that hangs over the green chest with no line; the
-tuft on his crown is cut off as one crest feather, so it springs. The wings hang between the outline and the lines
-down the body's sides; his tail fans out behind his legs, showing either side of them. His eyes have whites inside a
+Mango faces front (turn.setup 0). Its yellow head ends in a fringe that hangs over the green chest with no line; the
+tuft on its crown is cut off as one crest feather, so it springs. The wings hang between the outline and the lines
+down the body's sides; its tail fans out behind its legs, showing either side of them. Its eyes have whites inside a
 line, which go with the open eye (the eye slot, as Rojo's), and there is no patch round them."""
 import os, sys, json
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))

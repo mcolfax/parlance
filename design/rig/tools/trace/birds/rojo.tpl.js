@@ -4,12 +4,12 @@
    Written by design/rig/tools/trace/build_bird.py from the trace (tools/trace/birds/rojo.py) and this template
    (birds/rojo.tpl.js): edit those, not this file.
    The drawings are traced from the model sheet (reference/rojo-sheet.webp). Like Pip, Rojo stands turned a little to
-   the viewer's right (turn.setup), so at rest he is the concept drawing: the head runs into the chest with no chin
+   the viewer's right (turn.setup), so at rest it is the concept drawing: the head runs into the chest with no chin
    line, the near wing hangs over the body's side, the far wing is the strip on the far side and the long tail sweeps
-   out behind to the left. His face is bare white skin round each eye (the patch slot, so it turns with the eye). The
+   out behind to the left. Its face is bare white skin round each eye (the patch slot, so it turns with the eye). The
    eye's white and its line are their own slot, shown only while the eye is open (showWith), so a closed or happy eye
-   is a line on the skin, as on the cheer drawing. His brows are the top of each eye's line: at rest they lie on it,
-   and they lift off it when he frowns or is surprised. The raised wings, the happy eyes and the open beak come from
+   is a line on the skin, as on the cheer drawing. Its brows are the top of each eye's line: at rest they lie on it,
+   and they lift off it when it frowns or is surprised. The raised wings, the happy eyes and the open beak come from
    the cheer drawing; the closed beaks are the open jaw folded up under the upper beak.
    Palette roles become CSS custom properties (--rojo-body …) with these values as fallbacks.
    ========================================================================== */
@@ -80,7 +80,7 @@ __TRACED__
       sl.splice(i + 1, 0, { id: 'eyeL', bone: 'eyeL', att: 'on', showWith: { slot: 'pupilL', drawings: open } }, { id: 'eyeR', bone: 'eyeR', att: 'on', showWith: { slot: 'pupilR', drawings: open } });
       return sl;
     },
-    /* his long tail stays out to the side until he faces right round to the front */
+    /* its long tail stays out to the side until it faces right round to the front */
     bones: [{ id: 'tail', turn: { body: true, flip: 1.6 } }],
     look: { room: C.room },
     /* the long tail hangs down to the left */

@@ -4,10 +4,10 @@
    Written by design/rig/tools/trace/build_bird.py from the trace (tools/trace/birds/kakadu.py) and this template
    (birds/kakadu.tpl.js): edit those, not this file.
    The drawings are traced from the model sheet (reference/kakadu-sheet.webp). Kakadu faces front, so turn.setup is 0
-   and at rest he is the concept drawing. His crest is seven feathers on bones of their own (crest1–crest7, from the
+   and at rest it is the concept drawing. Its crest is seven feathers on bones of their own (crest1–crest7, from the
    shared crest root), so each springs on its own; they stand in front of the head's line and their roots go in behind
-   the white tuft, drawn over them. His moods move the crest the way a cockatoo does: it fans up when he cheers or is
-   surprised, and folds down when he is sad, worried or asleep. His eyes are whites in a blue ring (the eye slot,
+   the white tuft, drawn over them. Its moods move the crest the way a cockatoo does: it fans up when it cheers or is
+   surprised, and folds down when it is sad, worried or asleep. Its eyes are whites in a blue ring (the eye slot,
    shown while the eye is open); a closed or happy eye is a line on a pale blue patch (the patch slot), as on the cheer
    drawing. The raised wings, the happy eyes and the open beak come from the cheer drawing; the closed beaks are the
    jaw folded up under the upper beak.
@@ -124,7 +124,7 @@ const KAKADU = (() => {
 
   return B.make({
     id: 'kakadu', name: 'Kakadu',
-    /* he faces front: turn 0 is the drawing, and his body turns either way */
+    /* it faces front: turn 0 is the drawing, and its body turns either way */
     turn: { setup: 0, bodyMin: -0.24, cx: C.head[0] },
     rest: { turn: 0 },
     pivots: Object.assign({
@@ -135,9 +135,9 @@ const KAKADU = (() => {
       cheekL: [C.eye.L[0] - 6, C.eye.L[1] + 18], cheekR: [C.eye.R[0] + 6, C.eye.R[1] + 18], fx: [120, 120]
     }, piv),
     bones: crestBones.concat([
-      /* his tail shows either side of his legs: it slides across as his body turns */
+      /* its tail shows either side of its legs: it slides across as its body turns */
       { id: 'tail', turn: { body: true, dx: -16 } },
-      /* both wings are whole at rest; the far one narrows as he turns */
+      /* both wings are whole at rest; the far one narrows as it turns */
       { id: 'wingL', turn: { body: true, near: 0.05, wx: 0.6 } },
       { id: 'wingR', turn: { body: true, near: -0.05, wx: -0.6 } }
     ]),
@@ -152,7 +152,7 @@ const KAKADU = (() => {
       sl.splice(j + 1, 0, ...CREST.map(k => ({ id: k, bone: k, att: 'on' })), { id: 'tuft', bone: 'crest', att: 'on' });
       return sl;
     },
-    /* his pupils nearly fill their whites: they move a little, and tuck under the ring's edge in 3D */
+    /* its pupils nearly fill their whites: they move a little, and tuck under the ring's edge in 3D */
     look: { room: { pupilL: [1.4, 1.4, 1.1, 1.1], pupilR: [1.4, 1.4, 1.1, 1.1] }, x: 3, y: 3 },
     springs: Object.assign(springs, { crest1: springs.crest1, crest2: Object.assign({}, springs.crest2, { squash: 0.3 }), crest3: springs.crest3, tail: { len: 26, dir: [0.6, 0.8], k: 140, d: 10, limit: 8 } }),
     swaps: [],

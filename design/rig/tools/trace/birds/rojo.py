@@ -1,9 +1,9 @@
-"""Trace Rojo the scarlet macaw from his model sheet (reference/rojo-sheet.webp), prepared by prep.py and segmented by
+"""Trace Rojo the scarlet macaw from its model sheet (reference/rojo-sheet.webp), prepared by prep.py and segmented by
 segment.py (run.sh). Writes <work>/trace/t.json: {T: named drawings, meta, consts, notes}.
-Rojo stands turned a little to the viewer's right, as Pip does, so his part sheet follows Pip's: the head runs into
+Rojo stands turned a little to the viewer's right, as Pip does, so its part sheet follows Pip's: the head runs into
 the chest with no chin line, the near wing hangs over the body's side, the far wing is a strip on the far side, and the
-long tail sweeps out behind to the left. His face is bare white skin round each eye; the eyes have whites with a line
-round them, and the white skin goes with the eye (the patch slot), so it moves with the eye as he turns his head."""
+long tail sweeps out behind to the left. Its face is bare white skin round each eye; the eyes have whites with a line
+round them, and the white skin goes with the eye (the patch slot), so it moves with the eye as it turns its head."""
 import os, sys, json
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from kit import *

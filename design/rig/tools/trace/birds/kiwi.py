@@ -1,6 +1,6 @@
-"""Trace Kiwi the budgie from her model sheet (reference/kiwi-sheet.webp), prepared by prep.py and segmented by
+"""Trace Kiwi the budgie from its model sheet (reference/kiwi-sheet.webp), prepared by prep.py and segmented by
 segment.py (see run.sh). Writes <work>/trace/t.json: {parts: {slot: {drawing: markup}}, meta, D: named drawings}.
-Kiwi faces front (turn.setup 0). Her head and body are one egg: the yellow head runs into the green body with no line
+Kiwi faces front (turn.setup 0). Its head and body are one egg: the yellow head runs into the green body with no line
 between them, so the head is the yellow cap and the body is the whole egg under it, outline and all. The folded wings
 are the strips between the egg's outline and the creases down its sides; the raised wings come from the cheer
 drawing, where the creases stay on the body."""
