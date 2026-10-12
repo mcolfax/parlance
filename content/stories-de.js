@@ -102,5 +102,20 @@ ST('de-s8', 'C1', 'Höflich, aber bestimmt', 'Polite but firm', 'desk', [
   ['?', 'How long a deadline does Frau Weber suggest?', 'Two weeks|Two days|Two months'],
   ['lena', 'Danke! Ohne Sie hätte ich einen ziemlich wütenden Brief geschrieben.', 'Thank you! Without you I would have written a pretty angry letter.'],
   ['?', 'What would Lena have done without help?', 'Written an angry letter|Moved out|Stopped paying rent']
+]),
+ST('de-s9', 'B1', 'Notdienst in der Apotheke', 'The late-night pharmacy', 'shop', [
+  ['brandt', 'Guten Abend. Haben Sie noch geöffnet? Ich brauche dringend etwas gegen Kopfschmerzen.', 'Good evening. Are you still open? I urgently need something for a headache.'],
+  ['leyla', 'Ja, heute Nacht habe ich Notdienst. Seit wann haben Sie die Kopfschmerzen?', 'Yes, I’m on duty tonight. How long have you had the headache?'],
+  ['brandt', 'Seit heute Mittag. Eine Mieterin hat mir einen sehr höflichen, aber sehr bestimmten Brief geschrieben.', 'Since lunchtime. A tenant wrote me a very polite but very firm letter.'],
+  ['?', 'Why does Herr Brandt come to the pharmacy?', 'He has a headache|He lost his key|He wants to buy coffee'],
+  ['leyla', 'Das tut mir leid. Haben Sie heute genug getrunken? Wasser, meine ich, nicht Kaffee.', 'I’m sorry. Have you had enough to drink today? Water, I mean, not coffee.'],
+  ['brandt', 'Ehrlich gesagt nur Kaffee. Drei Tassen, bei Lena im Café.', 'To be honest, only coffee. Three cups, at Lena’s café.'],
+  ['leyla', 'Dann nehmen Sie diese Tabletten, höchstens drei am Tag, und trinken Sie viel Wasser.', 'Then take these tablets, no more than three a day, and drink plenty of water.'],
+  ['?', 'What does Leyla tell him to do?', 'Take at most three tablets a day and drink water|Drink more coffee|Go straight to the hospital'],
+  ['brandt', 'Danke. Sagen Sie mal, sind Sie nicht Emres Cousine?', 'Thanks. Tell me, aren’t you Emre’s cousin?'],
+  ['leyla', 'Genau. Und Sie sind bestimmt Herr Brandt, der Vermieter. Emre hat mir schon viel von Ihnen erzählt.', 'That’s right. And you must be Herr Brandt, the landlord. Emre has told me a lot about you.'],
+  ['brandt', 'Oh je. Hoffentlich nur Gutes!', 'Oh dear. Only good things, I hope!'],
+  ['leyla', 'Fast nur Gutes. Aber reparieren Sie bald die Heizung, dann sind auch die Kopfschmerzen weg.', 'Almost only good things. But fix the heating soon, and the headaches will be gone too.'],
+  ['?', 'What does Leyla suggest at the end?', 'Fixing the heating soon|Writing a letter|Moving to a new flat']
 ])
 );

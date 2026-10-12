@@ -110,15 +110,20 @@ Live rigs share one animation frame loop, pause off screen and in background tab
 ## In the app (since Parlance 4.5.0)
 
 - `rig.js`, `bird.js` and `pip.js` live in `js/core/` and load before `js/core/art.js`.
-- `pip(mood, size, opts)` is a live rig (`Rig.create`): it breathes, blinks, glances, plays the mood's move, hops when
-  tapped and moves its beak while the spoken line plays. `setPipMood(el, mood)` blends it to another mood.
+- `pip(mood, size, opts)` is a live rig (`Rig.create`): it breathes, blinks, glances, plays the mood's move, looks
+  where you touch the screen, does a different move each time it's tapped (hop, wave, look around, dance, bow, nod; a
+  sleeping Pip wakes with a start) and moves its beak while the spoken line plays. `mouth` mouths its speech bubble,
+  `wave` waves hello first and `moveFor` ends a looping move. `setPipMood(el, mood)` blends it to another mood.
+- Screens use every mood: `wave` greets you on Learn, `dance` celebrates a run of right answers and a flawless lesson,
+  `ready` waits on due reviews, `listen` on Stories and Send feedback, `point` at lessons ahead, `shrug` when there's
+  nothing to show, `proud` once the day's goal is met, `love` by the feedback button and `sad` before a reset.
   `pipSVG(mood, size, view)` is a still (`Rig.svg`) for the route marker, avatars (a head-and-shoulders view), the
   intro film and the Home Screen icons (`dev/icons.js`). Both frame Pip in the 120 x 114 box screens were laid out for.
 - The palette is the `--pip-*` tokens in `styles/tokens.css`. To have Pip wear the language's line color, set
   `--pip-body: var(--line)` there.
 - Live rigs share one animation frame loop, sleep off screen, and let go of their observers once their screen is
   gone, so screens that redraw often don't pile them up.
-- `dev/test.js` validates the rig and renders the moods screens use.
+- `dev/test.js` validates the rig and renders every mood.
 - **Changing Pip:** poses, faces, moods and moves are data in `js/core/bird.js`; the app follows them directly. Then
   rebuild the Blender file and its export with `blender/build/build.sh`, so the review page matches. A pose edited only
   in Blender changes the three.js player, not the app.

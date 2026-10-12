@@ -1,7 +1,8 @@
 /* Parlance end-to-end tests (jsdom). Loads the real multi-file app from the folder that holds index.html.
    Usage: npm i jsdom@24 && node dev/test.js path/to/index.html
    Covers: every lesson and story through the UI, the answer checker, merges/backup/sync, stable review keys
-   and migrations, live content packs, the update banner, feedback, the owner Studio loop, the film, sounds, the theme song and recorded voices. */
+   and migrations, live content packs, the update banner, feedback, the owner Studio loop, the film, sounds, the theme song,
+   recorded voices, the web version and friends (invites, the league, duels, cheers). */
 const fs = require('fs');
 const path = require('path');
 const { JSDOM, ResourceLoader, VirtualConsole } = require('jsdom');
@@ -56,7 +57,7 @@ async function makeDom(opts = {}){
 }
 /* fake shared database with the same surface the app uses (doc/collection/get/set/update/onSnapshot) */
 function fakeDB(store, opts = {}){
-  const listeners = [];
+  const listeners = store.__listeners || (store.__listeners = []);   // shared by every page using this store, like the real database
   const snapOf = p => ({ id: p.split('/').pop(), exists: store.has(p), data: () => store.has(p) ? JSON.parse(JSON.stringify(store.get(p))) : undefined });
   const colDocs = c => [...store.keys()].filter(k => k.startsWith(c + '/') && k.split('/').length === c.split('/').length + 1).sort().map(snapOf);
   const notify = p => { for (const l of listeners) if (p.startsWith(l.c + '/')) l.next({ docs: colDocs(l.c), size: colDocs(l.c).length }); };
@@ -64,7 +65,8 @@ function fakeDB(store, opts = {}){
   const doc = p => ({ id: p.split('/').pop(), path: p,
     async get(){ return snapOf(p); },
     async set(d){ if (deny(p)) throw { code: 'invalid_argument', message: 'nope' }; if (JSON.stringify(d).includes('undefined')) {} store.set(p, JSON.parse(JSON.stringify(d))); notify(p); },
-    async update(d){ if (deny(p)) throw { code: 'invalid_argument', message: 'nope' }; if (!store.has(p)) throw { code: 'invalid_argument' }; store.set(p, { ...store.get(p), ...JSON.parse(JSON.stringify(d)) }); notify(p); } });
+    async update(d){ if (deny(p)) throw { code: 'invalid_argument', message: 'nope' }; if (!store.has(p)) throw { code: 'invalid_argument' }; store.set(p, { ...store.get(p), ...JSON.parse(JSON.stringify(d)) }); notify(p); },
+    async delete(){ if (deny(p)) throw { code: 'invalid_argument', message: 'nope' }; store.delete(p); notify(p); } });
   return { doc, collection: c => ({ path: c, doc: id => doc(c + '/' + id), async get(){ const docs = colDocs(c); return { docs, size: docs.length, empty: !docs.length }; },
     onSnapshot(next){ const l = { c, next }; listeners.push(l); setTimeout(() => next({ docs: colDocs(c), size: colDocs(c).length }), 5); return () => listeners.splice(listeners.indexOf(l), 1); } }) };
 }
@@ -80,9 +82,11 @@ function fakeSupabase(store, opts = {}){
   const issue = id => { const at = 'at' + (++n), rt = 'rt' + n; tokens.set(at, id); refresh.set(rt, id); return { access_token: at, refresh_token: rt, token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: pub(users.get(id)) }; };
   const canRead = (p, me) => { const s = p.split('/'); if (s[0] === 'content' && s.length === 2) return true; if (!me) return false;
     if (s[0] === 'data' && s[1] === 'users' && s.length === 4 && s[2] === me) return true; if (s[0] === 'feedback' && s.length === 2 && s[1] === me) return true;
+    if (['cards', 'inbox'].includes(s[0]) && s.length === 4) return true;
     return ['proposals', 'feedback'].includes(s[0]) && s.length === 2 && owners.has(me); };
   const canWrite = (p, me) => { if (!me) return false; const s = p.split('/');
     if (s[0] === 'data' && s[1] === 'users' && s.length === 4 && s[2] === me) return true; if (s[0] === 'feedback' && s.length === 2 && s[1] === me) return true;
+    if (s[0] === 'cards' && s.length === 4 && s[1] === me) return true; if (s[0] === 'inbox' && s.length === 4 && (s[3] === me || s[1] === me)) return true;
     return ['content', 'proposals', 'feedback'].includes(s[0]) && s.length === 2 && owners.has(me); };
   const res = (status, body) => ({ ok: status >= 200 && status < 300, status, text: async () => body === undefined ? '' : JSON.stringify(body) });
   const denied = p => res(403, { code: '42501', message: 'not allowed ' + p });
@@ -120,6 +124,7 @@ function fakeSupabase(store, opts = {}){
       case 'doc_list': return res(200, [...store.keys()].filter(k => k.slice(0, k.lastIndexOf('/')) === a.c && canRead(k, me)).sort().map(k => ({ path: k, data: store.get(k) })));
       case 'doc_set': if (!canWrite(a.p, me)) return denied(a.p); store.set(a.p, JSON.parse(JSON.stringify(a.d))); return res(204);
       case 'doc_update': if (!canWrite(a.p, me)) return denied(a.p); if (!store.has(a.p)) return res(400, { code: 'P0002', message: 'no document' }); store.set(a.p, { ...store.get(a.p), ...a.d }); return res(204);
+      case 'doc_delete': if (!canWrite(a.p, me)) return denied(a.p); store.delete(a.p); return res(204);
       case 'is_owner': return res(200, !!me && owners.has(me));
       case 'profile_set': if (!me) return denied('profile'); profiles.set(me, a.n); return res(204);
       case 'profile_names': return res(200, me && owners.has(me) ? a.ids.filter(i => profiles.has(i)).map(i => ({ id: i, name: profiles.get(i) })) : []);
@@ -131,6 +136,11 @@ function fakeSupabase(store, opts = {}){
 function storageOf(w){ const o = {}; for (let i = 0; i < w.localStorage.length; i++){ const k = w.localStorage.key(i); o[k] = w.localStorage.getItem(k); } return o; }
 
 async function main(){
+  /* ---------- 0. the style guide's own script parses (it isn't loaded by the app) ---------- */
+  for (const [, code] of fs.readFileSync(path.join(ROOT, 'styleguide.html'), 'utf8').matchAll(/<script>([\s\S]*?)<\/script>/g)){
+    let err = null; try { new (require('vm').Script)(code); } catch (e) { err = e.message; }
+    ok(!err, 'styleguide.html script parses' + (err ? ': ' + err : ''));
+  }
   /* ---------- 1. content engine: every lesson ---------- */
   const A = await makeDom();
   A.P.S.settings.onboarded = true;
@@ -176,7 +186,28 @@ async function main(){
     ok(st.items.filter(x => x.q).length >= 2, 'story questions ' + st.id);
     for (const it of st.items){ if (it.q){ ok(it.o.length === 3 && new Set(it.o).size === 3, 'story q opts ' + st.id + ' ' + it.q); } else { ok(P.CAST[it.who] && P.CAST[it.who].lang === st.lang, 'speaker ' + st.id + ' ' + it.who); ok(it.t && it.e, 'line text ' + st.id); } }
   }
-  ok(P.STORIES.length === 16, 'stories ' + P.STORIES.length);
+  ok(P.STORIES.length === 18, 'stories ' + P.STORIES.length);
+  /* every word in every story has a meaning when tapped, learned yet or not */
+  for (const st of P.STORIES) for (const it of st.items) if (it.t) for (const part of it.t.split(/\s+/)){
+    if (!/[\p{L}]/u.test(part)) continue;
+    const core = A.E('coreWord(' + JSON.stringify(part) + ')');
+    ok(P.glossLookup(core, st.lang), 'story word has a meaning: ' + st.id + ' ' + core);
+  }
+  { const g = (wd, l) => P.glossLookup(wd, l) || {};
+    ok(g('bezahlst', 'de').base === 'bezahlen' && g('gewartet', 'de').base === 'warten' && g('angerufen', 'de').base === 'anrufen' && g('vende', 'es').base === 'vender' && g('llegamos', 'es').base === 'llegar', 'verb forms find their dictionary form');
+    ok(g('Küche', 'de').val === 'kitchen' && g('Este', 'es').val === 'this' && /Lena/.test(g('Lena', 'de').val) && /landlord/.test(g('Brandt', 'de').val) && /taxi/i.test(g('Valentina', 'es').val), 'look-alikes and names ' + JSON.stringify([g('Küche', 'de'), g('Brandt', 'de')])); }
+  /* the cast: a portrait for everyone, Talk scenes played by someone who speaks the language, a part for every friend */
+  for (const [id, c] of Object.entries(P.CAST)){
+    if (id === 'pip') continue;
+    const svg = A.E('avatarSVG(' + JSON.stringify(id) + ')');
+    ok(['de', 'es'].includes(c.lang) && c.look && A.E('!!HAIR[' + JSON.stringify(c.look.style) + ']') && svg.startsWith('<svg') && !/NaN|undefined/.test(svg), 'portrait ' + id);
+    ok(P.STORIES.some(s => s.cast.includes(id)) || A.E('SCENARIOS').some(sc => sc.cast[c.lang] === id), 'has a story or a Talk scene ' + id);
+  }
+  for (const sc of A.E('SCENARIOS')) for (const lang of ['de', 'es']){ const who = sc.cast[lang]; ok(who === 'pip' || (P.CAST[who] && P.CAST[who].lang === lang), 'Talk ' + sc.id + ' ' + lang + ' is played by ' + who); }
+  ok(A.E('avatarSVG("leyla")').includes('evenodd') && A.E('avatarSVG("brandt")').includes(P.CAST.brandt.look.tie) && A.E('avatarSVG("valentina")').includes(P.CAST.valentina.look.ribbon), 'new looks: headscarf, tie, braid ribbons');
+  ok(A.E('FILM_CAST').map(r => r.length).join() === '6,6' && A.E('FILM_CAST.flat().length') === Object.keys(P.CAST).length - 1, 'the film meets everyone ' + JSON.stringify(A.E('FILM_CAST')));
+  ok(A.E('FILM_CUES').filter(c => c[1] === 'pop' && c[0] >= 10 && c[0] < 14).length === 12, 'a pop for every face in the film');
+  { const ch = A.E('chestSVG()'); ok(['ch-lid', 'ch-lidup', 'ch-loot', 'ch-fly', 'ch-rays', 'ch-spark'].every(k => ch.includes('class="' + k)) && !/NaN|undefined/.test(ch) && A.E('chestSVG()') === ch, 'chest drawing'); }
   /* glossary */
   ok(P.glossLookup('ich', 'de') && P.glossLookup('ich', 'de').val === 'I', 'gloss ich');
   ok(P.glossLookup('Kaffee', 'de') && /coffee/.test(P.glossLookup('Kaffee', 'de').val), 'gloss Kaffee ' + JSON.stringify(P.glossLookup('Kaffee', 'de')));
@@ -312,7 +343,16 @@ async function main(){
       E('startReview(false)'); await finishCurrent(); ok(Run().finished, 'review finished'); footBtn('Continue').click();
     }
     ok(Object.values(P.S.langs[lang].cards).filter(c => c.n >= 1).length >= 60, lang + ' reviewed');
-    for (const tab of ['learn', 'stories', 'review', 'talk', 'me']){ E('UI.tab=' + JSON.stringify(tab) + '; render()'); ok(w.document.querySelector('#app').children.length > 0, 'tab ' + tab); }
+    for (const tab of ['learn', 'stories', 'review', 'talk', 'friends', 'me']){ E('UI.tab=' + JSON.stringify(tab) + '; render()'); ok(w.document.querySelector('#app').children.length > 0, 'tab ' + tab); }
+    { /* every level on Learn opens and closes, the last open one too */
+      E('UI.tab="learn"; UI.openLang=null; render()');
+      const openHeads = () => [...w.document.querySelectorAll('.lvl-head[aria-expanded="true"]')];
+      ok(openHeads().length === 1 && w.document.querySelectorAll('.lvl-sec.open .station').length > 0, 'Learn opens one level');
+      openHeads()[0].click(); ok(openHeads().length === 0 && !w.document.querySelector('.lvl-sec.open .station'), 'the open level closes');
+      E('render()'); ok(openHeads().length === 0, 'and stays closed when Learn redraws');
+      w.document.querySelectorAll('.lvl-head')[1].click(); w.document.querySelectorAll('.lvl-head')[2].click(); ok(openHeads().length === 2, 'levels open again');
+      E('setLang(' + JSON.stringify(lang === 'de' ? 'es' : 'de') + '); setLang(' + JSON.stringify(lang) + ')'); ok(openHeads().length === 1, 'switching languages starts fresh');
+    }
     E('UI.wordFilter="all"; UI.wordLimit=5000; UI.tab="review"; render()'); ok(w.document.querySelectorAll('.wrow').length > 500, 'all words ' + w.document.querySelectorAll('.wrow').length);
     E('UI.wordLimit=0; UI.wordFilter="v"; render()'); ok(w.document.querySelectorAll('.wrow').length === 150 && [...w.document.querySelectorAll('#word-list button')].some(b => b.textContent.startsWith('Show more')), 'word list paging');
     /* stories: read every one through the UI */
@@ -364,6 +404,19 @@ async function main(){
   ok(!!word, 'lesson intro has tappable words');
   if (word){ word.click(); const g = w.document.querySelector('.gloss'); ok(g && g.textContent.length > 2, 'gloss popover ' + (g && g.textContent)); w.document.body.dispatchEvent(new w.Event('pointerdown', { bubbles: true })); }
   E('endRun()');
+  { /* a word nothing knows: the popover shows the whole line, and the tutor looks it up when Claude is there */
+    const tap = (txt, en) => { const el = E('(() => { const s = sayText(' + JSON.stringify(txt) + ', "de", { gloss: true, en: ' + JSON.stringify(en) + ' }); document.body.append(s); return s; })()'); el.querySelector('.w').click(); return w.document.querySelector('.gloss:not(.out)'); };
+    const close = () => w.document.body.dispatchEvent(new w.Event('pointerdown', { bubbles: true }));
+    E('window.__aiSample = AI.sample; AI.sample = null');
+    let g = tap('Quatschkopf ist er.', 'He’s a chatterbox.');
+    ok(g && g.querySelector('.gl-e.muted') && g.querySelector('.gl-line') && g.textContent.includes('He’s a chatterbox.'), 'an unknown word shows the line’s translation ' + (g && g.textContent)); close();
+    E('AI.sample = { json: async () => ({ meaning: "silly chatterbox", base: "Quatschkopf" }) }');
+    g = tap('Quatschköpfe sind sie.', 'They’re chatterboxes.'); await sleep(20);
+    ok(g && g.querySelector('.gl-e').textContent === 'silly chatterbox' && !g.querySelector('.gl-e.muted') && /from Quatschkopf/.test(g.textContent) && !g.querySelector('.gl-line'), 'the tutor looks up an unknown word ' + (g && g.textContent)); close();
+    E('AI.sample = { json: async () => { throw new Error("no") } }');
+    g = tap('Quatschköpfe sind sie.', 'They’re chatterboxes.'); ok(g && g.querySelector('.gl-e').textContent === 'silly chatterbox', 'and remembers it'); close();
+    E('AI.sample = window.__aiSample; document.querySelectorAll("body > .say").forEach(x => x.remove())');
+  }
   // quests + chest
   {
     const ids = P.questIds(); ok(ids.length === 3 && ids.every(id => P.QUESTS[id]), 'quests ' + ids);
@@ -510,7 +563,7 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 4, 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 5 && M.P.S.social && M.P.S.social.friends, 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
     for (const lang of ['de', 'es']) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }
@@ -620,11 +673,17 @@ async function main(){
     ok(G.P.S.settings.filmSeen && !G.E('Film.open'), 'film closes and is remembered');
     ok(G.w.document.querySelector('.hero .pip [data-s="beak"]') && G.w.document.querySelector('.hero .pip [data-s="crest2"]'), 'Pip is a parrot');
     ok(G.E('Rig.validate(PIP).length') === 0, 'Pip rig validates: ' + G.E('Rig.validate(PIP).join("; ")'));
-    for (const m of ['happy', 'cheer', 'think', 'oops', 'sleep', 'wow']){
+    for (const m of G.E('PIP_MOODS')){
       ok(G.E('!!PIP.moods[' + JSON.stringify(m) + ']'), 'the rig has the mood ' + m);
       const s = G.E('pipSVG(' + JSON.stringify(m) + ')'); ok(s.includes('data-s="wingL"') && !/NaN|undefined/.test(s), 'pip mood ' + m);
     }
     { const el = G.E('(() => { const e = pip("oops", 60); document.body.append(e); setPipMood(e, "cheer"); return e.rig.mood; })()'); ok(el === 'cheer', 'a live Pip changes mood ' + el); }
+    { const r = G.E('(() => { pipTaps = 0; const e = pip("happy", 60, { lang: "de" }); document.body.append(e); e.click(); const hop = e.rig.playing("hop"); e.click(); return [hop, e.rig.mood, e.rig.home]; })()');
+      ok(r[0] && r[1] === 'wave' && r[2] === 'happy', 'tapping Pip takes turns: a hop, then a wave ' + JSON.stringify(r)); }
+    { const r = G.E('(() => { const e = pip("sleep", 60, { lang: "de" }); document.body.append(e); e.click(); return e.rig.mood; })()'); ok(r === 'wow', 'a sleeping Pip wakes with a start when tapped: ' + r); }
+    { const r = G.E('(() => { const e = pip("dance", 60, { tap: false, moveFor: 1 }); document.body.append(e); return e.rig.playing("dance"); })()'); await sleep(40);
+      ok(r && !G.E('[...document.querySelectorAll(".pip")].pop().rig.playing("dance")'), 'moveFor ends a looping move'); }
+    if (G.E('pipMoodNow()') === 'happy'){ G.E('UI.tab = "learn"; UI.animate = true; render()'); await sleep(400); ok(G.E('document.querySelector(".hero .pip").rig.mood') === 'wave', 'Pip waves hello on Learn'); }
     console.log('page errors (G):', G.errors.length ? G.errors.slice(0, 5) : 'none'); ok(!G.errors.length, 'no page errors G');
     G.dom.window.close();
   }
@@ -639,23 +698,69 @@ async function main(){
     D.body.dispatchEvent(new M.w.Event('pointerdown', { bubbles: true })); await sleep(700);
     ok(E('Song.unlocked') && E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.loop'), 'first tap starts the looping song on Learn');
     ok(Math.abs(E('Song.vol') - E('homeVol()')) < 1e-9 && E('homeVol()') < 0.5, 'plays softly ' + E('homeVol()'));
-    E('songDuck(true)'); ok(E('Song.duck') === E('MEDIA.song.duck'), 'a speaking voice lowers the song'); E('songDuck(false)'); ok(E('Song.duck') === 1, 'and it comes back up');
-    [...D.querySelectorAll('.tab')].find(b => b.textContent.includes('Me')).click(); await sleep(800);
-    ok(E('Song.mode') === 'off' && E('Song.el.paused'), 'song stops off the home screen');
+    { /* a spoken word starts inside the tap, with the song turned down (not off); a voice that won't start gets one retry
+         with the language's standard voice, then a one-time hint */
+      let mode = 'ok'; const said = [];
+      const synth = { speaking: false, pending: false, paused: false, resumed: 0, getVoices: () => [], resume(){ this.resumed++; this.paused = false; }, cancel(){},
+        speak(u){ said.push({ text: u.text, voice: u.voice ? u.voice.name : '', lang: u.lang, playing: !E('Song.el.paused'), duck: E('Song.duck') });
+          const plain = !u.voice && u.lang.length === 2;   // asking for just the language, like "de"
+          if (mode === 'ok' || (mode === 'standard' && !u.voice) || (mode === 'nolang' && plain)) setTimeout(() => { u.onstart && u.onstart(); setTimeout(() => u.onend && u.onend(), 20); }, 10);
+          else if (mode === 'nolang' || mode === 'refused') setTimeout(() => u.onerror && u.onerror({ error: 'language-unavailable' }), 5); } };
+      M.w.speechSynthesis = synth; M.w.SpeechSynthesisUtterance = function(t){ this.text = t; };
+      E('Voice.list = [{ name: "Anna (Premium)", lang: "de-DE", voiceURI: "anna" }]; Voice.wait = 120; Voice.hinted = false');
+      const p1 = E('speak("Hallo", "de")');
+      ok(said.length === 1 && said[0].text === 'Hallo' && said[0].voice === 'Anna (Premium)' && said[0].playing && said[0].duck === E('MEDIA.song.duck'), 'a spoken word starts at once, inside the tap, with the song turned down but still playing ' + JSON.stringify(said));
+      ok(await p1 === true, 'and it reports that it spoke'); await sleep(50);
+      ok(E('Song.duck') === 1 && E('Song.mode') === 'home' && !E('Song.el.paused'), 'then the song comes back up');
+      mode = 'standard'; said.length = 0;
+      ok(await E('speak("Danke", "de")') === true && said.length === 2 && said[0].voice === 'Anna (Premium)' && said[1].voice === '', 'a voice that won’t start gets one more try with the standard voice ' + JSON.stringify(said));
+      ok(!E('Voice.hinted'), 'no hint when the retry works');
+      mode = 'none'; said.length = 0;
+      ok(await E('speak("Bitte", "de")') === false && said.length === 2 && E('Voice.hinted') && D.querySelector('#toast').textContent.includes('silent mode'), 'when nothing plays, a hint says what to check');
+      E('Voice.hinted = false'); said.length = 0;
+      const first = E('speak("Eins", "de")'); mode = 'ok'; const second = E('speak("Zwei", "de")');
+      ok(await first === null && await second === true && !E('Voice.hinted'), 'a word cut off by the next tap isn’t a failure');
+      // a phone without the exact voice: the engine refuses it, and the plain language plays straight away
+      mode = 'nolang'; said.length = 0; E('Voice.list = []; Voice.hinted = false');
+      const t0 = Date.now();
+      ok(await E('speak("Morgen", "de")') === true && said.length === 2 && said[0].lang === 'de-DE' && said[1].lang === 'de' && Date.now() - t0 < 100 && !E('Voice.hinted'),
+        'when the phone refuses the exact voice, the plain language plays right away ' + JSON.stringify(said));
+      mode = 'refused'; said.length = 0;
+      ok(await E('speak("Abend", "de")') === false && E('Voice.lastError') === 'language-unavailable' && D.querySelector('#toast').textContent.includes('no German voice'), 'and if it has no voice at all, the hint says so: ' + D.querySelector('#toast').textContent);
+      ok(await E('speakTest("de")') === 'language-unavailable' && E('audioResultText("language-unavailable", "de")').includes('no German voice'), 'Me → Sound’s voice test gives the same reason');
+      mode = 'ok'; ok(await E('speakTest("de")') === 'ok', 'and says when sound works');
+      E('Voice.list = [{ name: "Anna (Premium)", lang: "de-DE", voiceURI: "anna" }]');
+      synth.speaking = true; said.length = 0; const late = E('speak("Gut", "de")');
+      ok(!said.length, 'while a word is still playing, the next one waits a moment after cancelling it (Chrome can drop it otherwise)'); synth.speaking = false;
+      ok(await late === true && said.length === 1 && said[0].text === 'Gut', 'and then plays');
+      synth.paused = true; await E('speak("Tschüss", "de")');
+      ok(synth.resumed === 1 && !synth.paused, 'a voice engine left paused is woken first');
+      E('Film.open = true; Song.mode = "film"; songDuck(true)'); ok(E('Song.duck') === E('MEDIA.song.duck') && E('Song.mode') === 'film', 'under the intro film a voice turns the song down too');
+      E('songDuck(false); Film.open = false; Song.mode = "home"; Voice.list = []'); ok(E('Song.duck') === 1, 'and it comes back up'); await sleep(300);
+    }
+    const tab = name => [...D.querySelectorAll('.tab')].find(b => b.textContent.includes(name)).click();
+    E('Song.el.currentTime = 42'); const plays0 = E('window.__plays');
+    for (const name of ['Stories', 'Review', 'Talk', 'Me']){
+      tab(name); await sleep(400);
+      ok(E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.currentTime') === 42 && E('window.__plays') === plays0, 'the song keeps playing on ' + name + ', from the same spot');
+      ok(D.querySelector('.top .music-btn.on'), 'music button on ' + name);
+    }
     ok(D.querySelector('#set-homeMusic') && D.querySelector('#music-vol'), 'Me → Sound has the music switch and volume');
     const mv = D.querySelector('#music-vol'); mv.value = '0.3'; mv.dispatchEvent(new M.w.Event('input')); await sleep(50);
-    ok(E('Song.mode') === 'preview' && !E('Song.el.paused') && Math.abs(M.P.S.settings.musicVol - 0.3) < 1e-9, 'moving the slider previews the song');
-    await sleep(2600); ok(E('Song.mode') === 'off' && E('Song.el.paused'), 'preview stops on its own');
-    [...D.querySelectorAll('.tab')].find(b => b.textContent.includes('Learn')).click(); await sleep(500);
-    ok(E('Song.mode') === 'home' && !E('Song.el.paused'), 'back on Learn, the song resumes');
+    ok(E('Song.mode') === 'home' && Math.abs(E('Song.vol') - E('homeVol()')) < 1e-9 && Math.abs(M.P.S.settings.musicVol - 0.3) < 1e-9, 'while it plays, the slider sets its volume');
     D.querySelector('.top .music-btn').click(); await sleep(800);
     ok(!M.P.S.settings.homeMusic && E('Song.mode') === 'off' && E('Song.el.paused') && D.querySelector('.top .music-btn:not(.on)'), 'music button turns it off');
+    const mv2 = D.querySelector('#music-vol'); mv2.value = '0.35'; mv2.dispatchEvent(new M.w.Event('input')); await sleep(50);
+    ok(E('Song.mode') === 'preview' && !E('Song.el.paused') && Math.abs(M.P.S.settings.musicVol - 0.35) < 1e-9, 'with music off, moving the slider previews the song');
+    await sleep(2600); ok(E('Song.mode') === 'off' && E('Song.el.paused'), 'preview stops on its own');
     D.querySelector('.top .music-btn').click(); await sleep(400);
     ok(M.P.S.settings.homeMusic && E('Song.mode') === 'home' && !E('Song.el.paused'), 'and back on');
+    E('Song.el.currentTime = 50'); tab('Learn'); await sleep(500);
+    ok(E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.currentTime') === 50, 'back on Learn, it carries on from the same spot');
     D.querySelector('.hero .btn-primary').click(); await sleep(800);
     ok(E('Run.active') && E('Song.mode') === 'off' && E('Song.el.paused'), 'song stops when a lesson starts');
     E('Run.active = false; closeOverlay(true); render()'); await sleep(500);
-    ok(E('Song.mode') === 'home', 'resumes after the lesson');
+    ok(E('Song.mode') === 'home' && E('Song.el.currentTime') === 50, 'resumes after the lesson, where it paused');
     E('openFilm({ autoplay: false })'); await sleep(300);
     ok(E('Song.mode') === 'off', 'home music stops when the film opens');
     E('filmSeek(10)'); E('filmPlay()'); await sleep(30);
@@ -683,13 +788,21 @@ async function main(){
     E('Song.fetching = null; songPrefetch()'); await sleep(50);
     ok(E('Song.url') === 'blob:parlance-song', 'song fetched into a local copy');
     E('songEl()'); ok(E('Song.local') && E('Song.el.getAttribute("src")') === 'blob:parlance-song', 'element plays the local copy');
+    E('Song.volFixed = true');   // like an iPhone, where an audio element's volume can't be set
     E('Song.el.dispatchEvent(new Event("canplay"))');
-    ok(E('Song.routed') && N.w.__routed === E('Song.el'), 'volume runs through Web Audio');
+    ok(E('Song.routed') && N.w.__routed === E('Song.el'), 'on iPhone the volume runs through Web Audio');
     E('Song.vol = 0.4; songApply(0.1)'); ok(Math.abs(E('Song.gain.gain.value') - 0.4) < 1e-9, 'gain follows the volume');
     const N2 = await makeDom({ node: true, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
     N2.w.fetch = async () => new N2.w.Response(new Uint8Array([0])); N2.w.URL.createObjectURL = () => 'blob:refused';
     N2.E('Song.fetching = null; songPrefetch()'); await sleep(50); N2.E('songEl(); Song.el.dispatchEvent(new Event("error"))');
     ok(!N2.E('Song.failed') && !N2.E('Song.local') && /media\/abc-adventure\.mp4$/.test(N2.E('Song.el.getAttribute("src")')), 'if the local copy is refused, it plays the file directly');
+    // Android and desktop: the element's own volume works, so the song stays out of Web Audio (where it could drown the voice)
+    const N3 = await makeDom({ node: true, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+    N3.w.fetch = async () => new N3.w.Response(new Uint8Array([0, 1])); N3.w.URL.createObjectURL = () => 'blob:parlance-song';
+    N3.E('Song.fetching = null; songPrefetch()'); await sleep(50); N3.E('songEl(); Song.el.dispatchEvent(new Event("canplay"))');
+    ok(!N3.E('songVolumeFixed()') && !N3.E('Song.routed') && !N3.w.__routed, 'where the element sets its own volume, the song stays out of Web Audio');
+    N3.E('Song.vol = 0.4; Song.duck = 0.25; songApply(0.1)'); ok(Math.abs(N3.E('Song.el.volume') - 0.1) < 1e-9, 'and its volume (turned down under a voice) is set on the element');
+    N3.dom.window.close();
     ok(!N.errors.length && !N2.errors.length, 'no page errors N ' + JSON.stringify(N.errors.concat(N2.errors).slice(0, 3)));
     N.dom.window.close(); N2.dom.window.close();
   }
@@ -723,6 +836,7 @@ async function main(){
       lena: { name: 'l', rate: 1, lines: { [P.recKey('Guten Morgen')]: [1, 15, 10], [P.recKey('Einen Kaffee, bitte.')]: [2, 0, 8] } } } };
     const fetched = []; W.fetch = async url => { fetched.push(url); if (url === 'media/voice/de.json') return new W.Response(JSON.stringify(idx)); if (/^media\/voice\/de-[\w-]+\.mp3$/.test(url)) return new W.Response(pack); return new W.Response('', { status: 404 }); };
     const blobs = []; W.URL.createObjectURL = b => { blobs.push(b); return 'blob:clip' + blobs.length; }; W.URL.revokeObjectURL = () => {};
+    E('delete Rec.idx.de; delete Rec.loading.de'); await E('recIndex("de")');   // the index main.js loads at start, now with the fake fetch
     E('window.__dev = 0; const _sd = speakDevice; speakDevice = function(){ window.__dev++; return _sd.apply(this, arguments); }');
     const bytesOf = async b => [...new Uint8Array(await b.arrayBuffer())];
     const played = async (call, expect) => {   // runs a speak() call, checks the clip's bytes, then ends it
@@ -744,10 +858,10 @@ async function main(){
     E('S.settings.natural = false'); ok(await E('speak("Guten Morgen", "de")') === false && E('__dev') === 3 && blobs.length === n, 'with natural voices off, the device voice speaks'); E('S.settings.natural = true');
     // one voice at a time: a new line or closing the screen stops the one playing
     const first = E('speak("Guten Morgen", "de")'); await sleep(40); const second = E('speak("Guten Morgen", "de", false, CAST.lena)'); await sleep(40);
-    ok(await first === false && E('Rec.el.getAttribute("src")') === 'blob:clip' + blobs.length, 'a new line takes over from the one playing');
-    E('closeOverlay(true)'); ok(await second === false && E('Rec.el.paused'), 'closing the screen stops the voice');
+    ok(await first === null && E('Rec.el.getAttribute("src")') === 'blob:clip' + blobs.length, 'a new line takes over from the one playing');
+    E('closeOverlay(true)'); ok(await second === null && E('Rec.el.paused'), 'closing the screen stops the voice');
     const raced = [E('speak("Guten Morgen", "de")'), E('speak("Guten Morgen", "de", false, CAST.lena)')]; await sleep(40);
-    ok(await raced[0] === false && E('__dev') === 3, 'a line still loading gives way to the next'); E('Rec.el.dispatchEvent(new Event("ended"))'); await raced[1];
+    ok(await raced[0] === null && E('__dev') === 3, 'a line still loading gives way to the next'); E('Rec.el.dispatchEvent(new Event("ended"))'); await raced[1];
     // the packs a story needs are fetched when it opens; Me → Test voice plays the recording
     E('recWarm("de", ["Einen Kaffee, bitte."])'); await sleep(30); ok(fetched.includes('media/voice/de-stories.mp3'), 'opening a story fetches its pack');
     const t = E('speakTest("de")'); await sleep(40); E('Rec.el.dispatchEvent(new Event("ended"))'); ok(await t === 'recorded', 'Test voice plays the recorded voice');
@@ -760,7 +874,8 @@ async function main(){
     // the first tap unlocks the voice element silently; an index that isn't there means the device voice
     R.w.document.body.dispatchEvent(new W.Event('pointerdown', { bubbles: true })); await sleep(30);
     ok(E('Rec.unlocked') && E('Rec.el.paused') && !E('Rec.el.muted'), 'the first tap unlocks the voice element and leaves it ready');
-    ok(await E('speak("Hola", "es")') === false && E('Rec.idx.es') === null && E('__dev') === 6, 'without a Spanish index, Spanish uses the device voice');
+    E('delete Rec.idx.es; delete Rec.loading.es'); ok(await E('speak("Hola", "es")') === false && E('__dev') === 6, 'before its index loads, a language speaks with the device voice at once');
+    await sleep(30); ok(E('Rec.idx.es') === null && await E('speak("Hola", "es")') === false && E('__dev') === 7, 'and without a Spanish index, it stays with the device voice');
     // Me → Sound
     [...R.w.document.querySelectorAll('.tab')].find(b => b.textContent.includes('Me')).click(); await sleep(400);
     ok(R.w.document.querySelector('#set-natural') && R.w.document.querySelector('label[for="voice-sel"]').textContent === 'German device voice', 'Me → Sound has the natural voices switch and the device voice');
@@ -795,6 +910,8 @@ async function main(){
     W1.P.S.langs.de.done['de-1-1'] = { at: '2026-10-11', acc: 1, times: 1 }; W1.E('touch("de")');
     W1.E('UI.tab="me"; render()');
     ok(W1.w.document.querySelector('#sync-status').textContent.includes('Sign in to sync'), 'web sync copy when signed out');
+    { const av = W1.w.document.querySelector('.profile .avatar'), link = [...W1.w.document.querySelectorAll('.profile button')].find(b => b.textContent === 'Sign in');
+      ok(av && av.querySelector('svg') && !av.textContent.trim() && link, 'signed out with no name: a person in the avatar, not a letter, and a way to sign in'); }
     // email sign-in is off for now (WEB.email): the sheet offers Google only
     W1.w.document.querySelector('.web-acct button').click(); await sleep(40);
     { const s0 = W1.w.document.querySelector('.sheet'), shown = el => !el.closest('[hidden]'), bs = [...s0.querySelectorAll('button')], g = bs.find(b => b.textContent === 'Continue with Google');
@@ -833,6 +950,7 @@ async function main(){
     ok(W2.E('Me.name') === 'Ana' && sb.profiles.get(uid) === 'Ana', 'name comes from the account');
     W2.E('UI.tab="me"; render()');
     ok(W2.w.document.querySelector('.web-acct').textContent.includes('ana@example.com') && W2.w.document.querySelector('#sync-status').textContent.includes('Parlance account'), 'Me shows the account');
+    ok(W2.w.document.querySelector('.profile .avatar').textContent === 'A' && W2.w.document.querySelector('.profile h1').textContent === 'Ana' && ![...W2.w.document.querySelectorAll('.profile button')].length, 'signed in: your initial and name, no sign-in link');
     await W2.E('queueFeedback({ id: "fw1", at: 1, type: "idea", text: "More food words", ctx: {} })');
     ok(store.get('feedback/' + uid) && store.get('feedback/' + uid).items[0].text === 'More food words', 'feedback reaches the database');
     let denied = null; try { await W2.E('Live.db.doc("content/x").set({ kind: "pack" })'); } catch (e) { denied = e; }
@@ -860,12 +978,16 @@ async function main(){
     ok(outs === 1 && !W3.E('Web.session') && !W3.w.localStorage.getItem('parlance.web.session'), 'signing out forgets the session');
     ok(!W3.errors.length, 'no page errors W3 ' + JSON.stringify(W3.errors.slice(0, 3)));
     W3.dom.window.close();
-    // coming back from Google: the session arrives in the URL fragment
-    const t = sb.issue(uid);
+    // coming back from Google: the session arrives in the URL fragment, and Google's photo becomes the avatar
+    const t = sb.issue(uid); sb.users.get(uid).meta.avatar_url = 'https://lh3.googleusercontent.com/a/ana';
     const W4 = await makeDom({ web: sb, hash: '#access_token=' + t.access_token + '&expires_in=3600&refresh_token=' + t.refresh_token + '&token_type=bearer' });
     for (let i = 0; i < 60 && W4.E('Remote.status') !== 'synced'; i++) await sleep(25);
     ok(W4.E('Remote.status') === 'synced' && W4.E('Web.session.user.id') === uid && W4.w.location.hash === '', 'Google sign-in lands signed in, URL cleaned');
     ok(W4.P.S.langs.de.done['de-1-1'], 'account progress loads on a new device');
+    W4.E('UI.tab="me"; render()');
+    { const img = W4.w.document.querySelector('.profile img.avatar'); ok(img && img.getAttribute('src') === 'https://lh3.googleusercontent.com/a/ana' && img.getAttribute('referrerpolicy') === 'no-referrer', 'Google photo as the avatar');
+      if (img) img.dispatchEvent(new W4.w.Event('error'));
+      ok(W4.w.document.querySelector('.profile .avatar').textContent === 'A', 'a photo that won’t load falls back to your initial'); }
     // changing your name, and saving a backup file
     W4.E('openWebName()'); await sleep(20);
     const nameSheet = [...W4.w.document.querySelectorAll(".sheet")].pop(), newNameIn = nameSheet.querySelector("input");
@@ -895,7 +1017,11 @@ async function main(){
     const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
     const homeCard = async opts => { const X = await makeDom({ web: sb, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } }, ...opts }); await sleep(60); X.E('UI.tab="me"; render()'); return X; };
     const H1 = await homeCard({ ua: IPHONE });
-    ok(H1.w.document.querySelector('.web-home') && H1.w.document.querySelector('.web-home').textContent.includes('Tap the Share button, then Add to Home Screen'), 'iPhone Safari shows the Home Screen tip');
+    const iosBtn = H1.w.document.querySelector('.web-home button');
+    ok(iosBtn && iosBtn.textContent === 'Add to Home Screen', 'iPhone Safari gets an Add to Home Screen button too');
+    if (iosBtn){ iosBtn.click(); await sleep(30); }
+    const help = H1.w.document.querySelector('.sheet .hs-steps');
+    ok(help && help.querySelectorAll('.hs-step').length === 3 && /Tap Share/.test(help.textContent) && /Add to Home Screen/.test(help.textContent) && H1.w.document.querySelector('.web-home'), 'and it shows Safari’s steps');
     H1.dom.window.close();
     const H2 = await homeCard({ ua: IPHONE, standalone: true });
     ok(!H2.w.document.querySelector('.web-home'), 'no tip once Parlance opens from the Home Screen');
@@ -915,6 +1041,206 @@ async function main(){
     const built = fs.readFileSync(path.join(ROOT, 'dist', 'index.html'), 'utf8'), manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist', 'manifest.webmanifest'), 'utf8'));
     ok(built.startsWith('<!doctype html>') && built.includes('window.PARLANCE_WEB = true') && built.includes('rel="manifest"') && built.includes('rel="apple-touch-icon" href="media/icons/icon-180.png"'), 'web build page');
     ok(manifest.display === 'standalone' && /^#[0-9A-F]{6}$/i.test(manifest.theme_color) && manifest.icons.every(i => fs.existsSync(path.join(ROOT, 'dist', i.src))) && fs.existsSync(path.join(ROOT, 'dist', 'media', 'icons', 'icon-180.png')), 'web manifest and icons ' + JSON.stringify(manifest.icons.map(i => i.src)));
+  }
+  /* ---------- 12. friends: invites, the league, duels, cheers, removing (learners sharing one database) ---------- */
+  {
+    const store = new Map();
+    const seed = () => ({ 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0', filmSeen: true } } });
+    const btnIn = (root, t) => [...root.querySelectorAll('button')].find(b => b.textContent.trim() === t);
+    const lastSheet = X => [...X.w.document.querySelectorAll('.sheet-back:not(.out) .sheet')].pop();
+    const started = async X => { for (let i = 0; i < 80 && !X.E('Social.started'); i++) await sleep(25); };
+    const M = await makeDom({ claude: fakeClaude(store, { uid: 'u_matt', name: 'Matt Colfax' }), seed: seed() });
+    const A = await makeDom({ claude: fakeClaude(store, { uid: 'u_ana', name: 'Ana López' }), seed: seed() });
+    await started(M); await started(A);
+    ok(M.E('Social.started') && A.E('Social.started') && M.E('socialState()') === 'ok', 'friends start once signed in');
+    // the tab: an intro, then your card and an invite
+    M.E('UI.tab="friends"; render()');
+    const md = M.w.document;
+    const tabBtn = [...md.querySelectorAll('.tab')].find(b => b.textContent.includes('Friends'));
+    ok(md.querySelectorAll('.tab').length === 6 && tabBtn && tabBtn.getAttribute('aria-current') === 'page', 'Friends has its own tab');
+    ok(md.querySelector('.fr-hero') && md.querySelector('.fr-hero').textContent.includes('Learn with friends') && md.querySelector('.fr-privacy'), 'friends intro explains who sees your card');
+    btnIn(md.querySelector('.fr-hero'), 'Invite a friend').click(); await sleep(40);
+    let sh = lastSheet(M);
+    ok(sh && sh.querySelector('#fr-name') && sh.querySelector('#fr-name').value === 'Matt' && sh.querySelectorAll('.fr-bird').length === M.E('BIRDS.length') && M.E('BIRDS.length') >= 13, 'card setup starts with your first name and a choice of pictures');
+    sh.querySelectorAll('.fr-bird')[2].click();
+    btnIn(lastSheet(M), 'Continue').click(); await sleep(450);
+    const mattCard = [...store.keys()].find(k => k.startsWith('cards/u_matt/'));
+    ok(mattCard && /^cards\/u_matt\/[A-Za-z0-9]{24}\/card$/.test(mattCard) && store.get(mattCard).name === 'Matt' && store.get(mattCard).bird === 'jonas', 'card published at a secret path: ' + mattCard);
+    sh = lastSheet(M);
+    const invite = sh && sh.querySelector('textarea') ? sh.querySelector('textarea').value : '';
+    const mattCode = M.E('myCode()');
+    ok(/^Pc1\.[A-Za-z0-9]{24}\.u_matt$/.test(mattCode) && invite.includes(mattCode) && invite.includes('claude.ai/artifact/'), 'invite carries the code and the link: ' + invite);
+    btnIn(sh, 'Copy invite') && M.w.document.querySelectorAll('.sheet-back').forEach(b => b.remove());
+    // Ana pastes the whole message
+    A.E('UI.tab="friends"; render()');
+    const ad = A.w.document;
+    btnIn(ad.querySelector('.fr-hero'), 'I have an invite').click(); await sleep(40);
+    lastSheet(A).querySelector('#fr-name').value = 'Ana';
+    btnIn(lastSheet(A), 'Continue').click(); await sleep(450);
+    sh = lastSheet(A);
+    ok(sh && sh.querySelector('h3').textContent === 'Add a friend', 'after the card, the invite box opens');
+    sh.querySelector('textarea').value = 'P' + 'c1.nope';
+    btnIn(sh, 'Add friend').click(); await sleep(60);
+    ok(sh.querySelector('.web-msg').textContent.includes('doesn’t look like a Parlance invite'), 'a broken invite is explained');
+    sh.querySelector('textarea').value = invite;
+    btnIn(sh, 'Add friend').click(); await sleep(300);
+    ok(A.E('friendIds()').includes('u_matt') && A.E('friendName("u_matt")') === 'Matt', 'Ana added Matt from his invite');
+    for (let i = 0; i < 60 && !M.E('friendIds().includes("u_ana")'); i++) await sleep(25);
+    ok(M.E('friendIds().includes("u_ana")'), 'Matt got Ana back through his inbox');
+    for (let i = 0; i < 40 && [...store.keys()].some(k => k.startsWith('inbox/')); i++) await sleep(25);
+    ok(![...store.keys()].some(k => k.startsWith('inbox/')), 'inbox notes are cleared once read');
+    ok(M.P.S.badges.friend && A.P.S.badges.friend, 'both get the first-friend badge');
+    // the league
+    A.E('addXP(40, "de")'); await A.E('socialPublish(true)');
+    await M.E('socialRefresh(true)'); M.E('UI.tab="friends"; render()');
+    let rows = [...md.querySelectorAll('.fr-league li')];
+    ok(rows.length === 2 && rows[0].textContent.includes('Ana') && rows[0].textContent.includes('40') && rows[1].textContent.includes('You'), 'league ranks Ana first by XP: ' + rows.map(r => r.textContent).join(' | '));
+    M.E('addXP(55, "de")');
+    btnIn(md, 'Goal days').click();
+    rows = [...md.querySelectorAll('.fr-league li')];
+    ok(rows[0].textContent.includes('Matt') && /1\s*goal day/.test(rows[0].textContent), 'goal days rank you first once your goal is met: ' + rows.map(r => r.textContent).join(' | '));
+    btnIn(md, 'Streak').click();
+    ok(md.querySelector('.fr-league .flame'), 'streak league');
+    // a duel: Matt challenges, Ana accepts
+    btnIn(md, 'Challenge a friend').click(); await sleep(30);
+    sh = lastSheet(M);
+    btnIn(sh, 'Most lessons').click();
+    btnIn(lastSheet(M), 'Send challenge').click(); await sleep(200);
+    const did = Object.keys(M.P.S.social.duels)[0];
+    ok(did && M.P.S.social.duels[did].state === 'pending' && store.get(M.E('cardPath(Remote.uid, S.social.secret)')).duels.length === 1, 'challenge sent');
+    await A.E('socialRefresh(true)'); A.E('render()');
+    ok(A.E('socialAlerts()') === 1 && ad.querySelector('.tab .badge.dot[aria-label="New from friends"]'), 'Ana sees the challenge, with a dot on the tab');
+    const al = ad.querySelector('.fr-alert');
+    ok(al && al.textContent.includes('Matt challenged you') && al.textContent.includes('Most lessons'), 'challenge card: ' + (al && al.textContent));
+    btnIn(al, 'Accept').click(); await sleep(200);
+    const ad1 = A.P.S.social.duels[did];
+    ok(ad1 && ad1.state === 'on' && ad1.start === A.E('today()') && ad1.end === A.E('addDays(today(), 6)'), 'Ana accepted: the week starts today');
+    await M.E('socialRefresh(true)');
+    ok(M.P.S.social.duels[did].state === 'on' && M.P.S.social.duels[did].end === ad1.end, 'Matt picks up the dates from Ana’s card');
+    A.E('bumpQuest("lessons", 2); addXP(1, "de")'); await A.E('socialPublish(true)');
+    await M.E('socialRefresh(true)'); M.E('render()');
+    const duelBox = md.querySelector('.fr-duel');
+    ok(duelBox && duelBox.textContent.includes('You vs Ana') && duelBox.textContent.includes('Ana is ahead') && duelBox.textContent.includes('7 days left'), 'duel shows the score: ' + (duelBox && duelBox.textContent));
+    ok(M.E('socialChallenge') && btnIn(md, 'Challenge a friend'), 'challenge button stays');
+    // the week ends: Matt did more lessons, so Matt wins
+    const past = M.E('addDays(today(), -8)'), pastEnd = M.E('addDays(today(), -2)');
+    for (const X of [M, A]){ X.E('Object.assign(S.social.duels[' + JSON.stringify(did) + '], { start: ' + JSON.stringify(past) + ', end: ' + JSON.stringify(pastEnd) + ' })'); }
+    M.E('S.days[' + JSON.stringify(M.E('addDays(today(), -3)')) + '] = { xp: 30, met: true, q: { lessons: 4 } }'); await M.E('socialPublish(true)');
+    A.E('S.days[' + JSON.stringify(A.E('addDays(today(), -3)')) + '] = { xp: 12, met: false, q: { lessons: 1 } }'); await A.E('socialPublish(true)');
+    const xpBefore = M.P.S.langs.de.xp;
+    await M.E('socialRefresh(true)');
+    const res = M.P.S.social.past[did];
+    ok(res && res.me === 4 && res.them === 1 && M.P.S.social.duels[did].state === 'done', 'duel settled: ' + JSON.stringify(res));
+    ok(M.P.S.langs.de.xp === xpBefore + M.E('XP.duelWin') && M.P.S.badges.rival, 'the winner gets bonus XP and a badge');
+    M.E('render()');
+    ok(md.querySelector('.fr-duel.done.won') && md.querySelector('.fr-duel.done').textContent.includes('You beat Ana'), 'finished duel shows the result');
+    await M.E('socialRefresh(true)');
+    ok(M.P.S.langs.de.xp === xpBefore + M.E('XP.duelWin'), 'the bonus is paid once');
+    await A.E('socialRefresh(true)');
+    ok(A.P.S.social.past[did] && A.P.S.social.past[did].me === 1 && A.P.S.social.past[did].them === 4, 'Ana sees the same result from her side');
+    // cheers
+    await M.E('socialCheer("u_ana")');
+    await A.E('socialRefresh(true)'); A.E('UI.tab="friends"; render()');
+    const ch = ad.querySelector('.fr-alert.cheer');
+    ok(ch && ch.textContent.includes('Matt cheered you on'), 'Ana sees Matt’s cheer');
+    btnIn(ch, 'Cheer back').click(); await sleep(150);
+    ok(!ad.querySelector('.fr-alert.cheer') && A.P.S.social.cheers.u_matt === A.E('today()') && A.E('socialAlerts()') === 0, 'cheering back clears the card');
+    await M.E('socialRefresh(true)');
+    ok(M.E('cheerFrom("u_ana")'), 'Matt gets the cheer back');
+    // a friend's sheet
+    M.E('UI.tab="friends"; render()');
+    [...md.querySelectorAll('.fr-league li')].find(li => li.textContent.includes('Ana')).querySelector('button').click(); await sleep(30);
+    sh = lastSheet(M);
+    ok(sh && sh.querySelector('h3').textContent === 'Ana' && sh.querySelector('.fr-week') && sh.textContent.includes('1 won, 0 lost'), 'friend sheet with the week and your duel record: ' + (sh && sh.textContent));
+    M.w.document.querySelectorAll('.sheet-back').forEach(b => b.remove());
+    // a third friend, then removing one: the old card goes, the others get the new code
+    const B = await makeDom({ claude: fakeClaude(store, { uid: 'u_bo', name: 'Bo' }), seed: seed() });
+    await started(B);
+    await B.E('socialSaveCard("Bo", "pip")');
+    const rb = await B.E('socialAccept(' + JSON.stringify(mattCode) + ')');
+    ok(rb && rb.ok, 'Bo adds Matt');
+    for (let i = 0; i < 60 && !M.E('friendIds().includes("u_bo")'); i++) await sleep(25);
+    ok(M.E('friendIds().length') === 2, 'Matt has two friends');
+    await M.E('socialRemove("u_bo")');
+    const newCard = M.E('cardPath(Remote.uid, S.social.secret)');
+    ok(!store.has(mattCard) && store.has(newCard) && newCard !== mattCard, 'removing a friend moves your card to a new secret');
+    for (let i = 0; i < 60 && A.E('S.social.friends.u_matt.code') !== M.E('myCode()'); i++) await sleep(25);
+    ok(A.E('S.social.friends.u_matt.code') === M.E('myCode()'), 'Ana got Matt’s new code in her inbox');
+    await A.E('socialRefresh(true)');
+    ok(A.E('friendCard("u_matt")') && A.E('friendCard("u_matt").name') === 'Matt', 'Ana still sees Matt');
+    await B.E('socialRefresh(true)'); B.E('UI.tab="friends"; render()');
+    ok(!B.E('friendCard("u_matt")') && B.w.document.querySelector('.fr-league li.gone') && B.w.document.querySelector('.fr-league li.gone').textContent.includes('Not sharing right now'), 'Bo no longer sees Matt');
+    const r0 = await B.E('socialAccept(' + JSON.stringify(mattCode) + ')');
+    ok(r0.error && r0.error.includes('isn’t active anymore'), 'the old invite stops working');
+    // codes from the other home, and your own
+    const rw = await A.E('socialAccept("Pw1.abcdefghijklmnopqrstuvwx.0000-1111")');
+    ok(rw.error && rw.error.includes('web version'), 'an invite from the web version is explained: ' + rw.error);
+    const ro = await A.E('socialAccept(myCode())');
+    ok(ro.error && ro.error.includes('your own invite'), 'your own invite is caught');
+    // friends sync privately with the rest of your progress, and a second device carries on
+    await M.E('syncNow(true)');
+    const ms = JSON.parse(store.get('data/users/u_matt/social').blob);
+    ok(ms.friends.u_ana && ms.friends.u_bo.gone && ms.secret === M.E('S.social.secret') && ms.on, 'friends saved to your account');
+    const M2 = await makeDom({ claude: fakeClaude(store, { uid: 'u_matt', name: 'Matt Colfax' }), seed: seed() });
+    await started(M2);
+    ok(M2.E('friendIds().join()') === 'u_ana' && M2.E('S.social.secret') === M.E('S.social.secret'), 'a second device has the same friends and card');
+    await M2.E('socialRefresh(true)');
+    ok(M2.E('friendCard("u_ana").name') === 'Ana', 'and reads their cards');
+    // backups don't carry friends across homes
+    const merged = M.E('mergeWhole(S, mergeState(defaultState(), { social: { on: true, home: "w", secret: "abcdefghijklmnopqrstuvwx", since: 9e12, friends: { x: { code: "Pw1.abcdefghijklmnopqrstuvwx.x", at: 1 } } } }))');
+    ok(merged.social.home === 'c' && !merged.social.friends.x, 'a backup from the web version leaves your friends alone');
+    // leaving
+    await A.E('socialLeave()');
+    ok(!A.E('S.social.on') && !A.E('friendIds().length') && ![...store.keys()].some(k => k.startsWith('cards/u_ana/')), 'leaving Friends deletes your card');
+    A.E('render()');
+    ok(ad.querySelector('.fr-hero'), 'and brings back the intro');
+    // view-only visitors can't make a card
+    const V = await makeDom({ claude: fakeClaude(new Map(), { readOnly: true, uid: 'u_view' }), seed: seed() });
+    for (let i = 0; i < 40 && V.E('Remote.status') !== 'device'; i++) await sleep(25);
+    V.E('UI.tab="friends"; render()');
+    ok(V.E('socialState()') === 'readonly' && V.w.document.querySelector('.fr-hero .notice').textContent.includes('can only be viewed'), 'view-only copy explains why Friends is off');
+    const N = await makeDom({ seed: seed() });
+    N.E('UI.tab="friends"; render()');
+    ok(N.w.document.querySelector('.fr-hero .notice') && N.w.document.querySelector('.fr-hero .notice').textContent.includes('Claude account'), 'without Claude, Friends says what it needs');
+    for (const X of [M, A, B, M2, V, N]){ ok(!X.errors.length, 'no page errors (friends) ' + JSON.stringify(X.errors.slice(0, 3))); X.dom.window.close(); }
+  }
+  /* ---------- 12b. friends on the web: an invite link waits through sign-in ---------- */
+  {
+    const store = new Map(), sb = fakeSupabase(store);
+    const mk = (id, email, name) => { sb.users.set(id, { id, email, password: 'x', meta: { name } }); const t = sb.issue(id); return JSON.stringify({ access_token: t.access_token, refresh_token: t.refresh_token, expires_at: t.expires_at, user: { id, email, name } }); };
+    const ana = '00000001-0000-4000-8000-0000000000aa', bo = '00000002-0000-4000-8000-0000000000bb';
+    const st = { 'parlance.v2': JSON.stringify({ settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0', filmSeen: true } }) };
+    const WA = await makeDom({ web: sb, storage: { ...st, 'parlance.web.session': mk(ana, 'ana@example.com', 'Ana') } });
+    for (let i = 0; i < 80 && !WA.E('Social.started'); i++) await sleep(25);
+    ok(WA.E('Social.started') && WA.E('socialHome()') === 'w', 'friends run on the web version');
+    await WA.E('socialSaveCard("Ana", "sofia")');
+    const code = WA.E('myCode()'), text = WA.E('inviteText()');
+    ok(/^Pw1\./.test(code) && text.includes('parlance-iota.vercel.app/?friend=' + encodeURIComponent(code)), 'web invites are links: ' + text);
+    let denied = null; try { await WA.E('Remote.db.doc("cards/' + bo + '/abcdefghijklmnopqrstuvwx/card").set({ name: "fake" })'); } catch (e) { denied = e; }
+    ok(denied && denied.code === 'invalid_argument', 'nobody writes someone else’s card');
+    // Bo opens the link signed out: the invite waits; after signing in, Parlance offers to add Ana
+    const WB0 = await makeDom({ web: sb, storage: st, hash: '?friend=' + encodeURIComponent(code) });
+    await sleep(100);
+    ok(WB0.w.location.search === '' && JSON.parse(WB0.w.localStorage.getItem('parlance.invite')).code === code, 'the invite waits in the browser and the link is tidied');
+    WB0.E('UI.tab="friends"; render()');
+    ok(WB0.w.document.querySelector('.fr-hero').textContent.includes('Sign in to accept'), 'signed out, the invite asks you to sign in');
+    const keep = storageOf(WB0.w); WB0.dom.window.close();
+    const WB = await makeDom({ web: sb, storage: { ...keep, 'parlance.web.session': mk(bo, 'bo@example.com', 'Bo') } });
+    let offer = null;
+    for (let i = 0; i < 120 && !offer; i++){ await sleep(25); offer = [...WB.w.document.querySelectorAll('.sheet')].find(s => s.querySelector('h3').textContent === 'Ana invited you'); }
+    ok(!!offer, 'after signing in, Parlance offers to add Ana');
+    if (offer){ [...offer.querySelectorAll('button')].find(b => b.textContent === 'Add Ana').click(); await sleep(300); }
+    const setup = [...WB.w.document.querySelectorAll('.sheet-back:not(.out) .sheet')].pop();
+    ok(setup && setup.querySelector('#fr-name').value === 'Bo', 'Bo makes a card first');
+    if (setup){ [...setup.querySelectorAll('button')].find(b => b.textContent === 'Continue').click(); await sleep(700); }
+    ok(WB.E('friendIds().join()') === ana && !WB.w.localStorage.getItem('parlance.invite'), 'Bo and Ana are friends; the invite is used up');
+    ok(WB.E('UI.tab') === 'friends', 'Bo lands on Friends');
+    await WA.E('Remote.db.collection(inboxPath(Remote.uid, S.social.secret)).get().then(s => readInbox(s.docs, Social.inboxKey))');
+    ok(WA.E('friendIds().join()') === bo && ![...store.keys()].some(k => k.startsWith('inbox/')), 'Ana adds Bo back and clears her inbox');
+    WA.E('Social.blocked = true; UI.tab = "friends"; render()');
+    ok(WA.E('socialState()') === 'notready' && WA.w.document.querySelector('.fr-hero .notice').textContent.includes('isn’t ready on the web version'), 'if the web database can’t take cards yet, Friends says so');
+    WA.E('Social.blocked = false');
+    for (const X of [WA, WB]){ ok(!X.errors.length, 'no page errors (web friends) ' + JSON.stringify(X.errors.slice(0, 3))); X.dom.window.close(); }
   }
   console.log('PASS', passes, 'FAIL', fails);
   process.exit(fails ? 1 : 0);

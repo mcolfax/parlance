@@ -2,6 +2,8 @@
 /* ===================== CAST =====================
    Recurring characters appear in stories and play the roles in Talk.
    Story items: [speaker, target line, English] or ['?', question, 'correct|wrong|wrong'].
+   look (drawn by avatarSVG() in js/core/art.js): skin, hair (the scarf color for 'hijab'), style (a key of HAIR),
+   shirt, bg, and optionally brow, ribbon (braid ties), tie (a necktie color), glasses, beard, mustache, freckles, earrings.
    ========================================================== */
 const CAST = {
   lena:   { name: 'Lena', lang: 'de', role: 'Runs a tiny café in Berlin', pitch: 1.12, rate: 1.0,
@@ -12,6 +14,10 @@ const CAST = {
             look: { skin: '#F1D2BE', hair: '#C9CED3', style: 'silver', shirt: '#7847B3', bg: '#E9E0F5', glasses: true, earrings: true } },
   emre:   { name: 'Emre', lang: 'de', role: 'Owns the corner shop', pitch: 0.84, rate: 1.0,
             look: { skin: '#C98E64', hair: '#1E1B1A', style: 'short', shirt: '#C22E29', bg: '#F9E2DF', beard: true } },
+  leyla:  { name: 'Leyla', lang: 'de', role: 'Pharmacist, Emre’s cousin', pitch: 1.08, rate: 1.0,
+            look: { skin: '#D6A07A', hair: '#B83A68', brow: '#2B1D18', style: 'hijab', shirt: '#F7F5EF', bg: '#FBE3EA' } },
+  brandt: { name: 'Herr Brandt', lang: 'de', role: 'Lena’s landlord, strict but fair', pitch: 0.8, rate: 0.92,
+            look: { skin: '#F0C9AE', hair: '#9A9087', style: 'bald', shirt: '#3D5A80', bg: '#E1EAF2', glasses: true, tie: '#E9A23B' } },
   sofia:  { name: 'Sofía', lang: 'es', role: 'Doctor in Mexico City', pitch: 1.12, rate: 1.0,
             look: { skin: '#D9A27A', hair: '#2B1D18', style: 'long', shirt: '#1A8448', bg: '#DBF0E4', earrings: true } },
   diego:  { name: 'Diego', lang: 'es', role: 'Chef, Sofía’s brother', pitch: 0.88, rate: 1.0,
@@ -20,5 +26,9 @@ const CAST = {
             look: { skin: '#B97E58', hair: '#BDBDBD', style: 'bun', shirt: '#C22E29', bg: '#F9E2DF', earrings: true } },
   mateo:  { name: 'Mateo', lang: 'es', role: 'Musician, makes the coffee', pitch: 0.96, rate: 1.0,
             look: { skin: '#A86B48', hair: '#1E1B1A', style: 'cap', shirt: '#2360C6', bg: '#DCE6F7' } },
+  valentina: { name: 'Valentina', lang: 'es', role: 'Taxi driver who knows every street', pitch: 1.06, rate: 1.04,
+            look: { skin: '#8A5A3C', hair: '#1E1B1A', style: 'braids', ribbon: '#FFD23F', shirt: '#00737D', bg: '#D6F0EC', earrings: true } },
+  andres: { name: 'Andrés', lang: 'es', role: 'Runs a family hotel downtown', pitch: 0.9, rate: 0.96,
+            look: { skin: '#B07A52', hair: '#2B1D18', style: 'side', shirt: '#8E3B46', bg: '#F6E1E4', mustache: true } },
   pip:    { name: 'Pip', lang: '*', role: 'Your parrot and travel buddy', pitch: 1.35, rate: 1.0 }
 };
