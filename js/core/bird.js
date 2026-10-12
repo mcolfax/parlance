@@ -317,6 +317,7 @@ const Bird = (() => {
      say) go after their parents; a bone with a shared bone's id changes that bone instead (its turn, say). `slots`
      may be a function that edits the shared draw order. A bird without some of the shared drawings (no crest, no
      eye whites) simply leaves those slots out; `swaps` and `clip` then say what it has instead. */
+  const birds = {};   // every bird made so far, by id: the app's mascots load their part sheets when picked
   function make(skin) {
     const pv = skin.pivots || {};
     const merge = (a, b) => Object.assign({}, a, b);
@@ -329,7 +330,7 @@ const Bird = (() => {
     const parts = {};
     for (const id of Object.keys(FX_PARTS).concat(Object.keys(skin.parts))) parts[id] = merge(FX_PARTS[id], skin.parts[id]);
     const pick = k => (skin[k] !== undefined ? skin[k] : BIRD[k]);
-    return merge(BIRD, {
+    return (birds[skin.id] = merge(BIRD, {
       id: skin.id, name: skin.name,
       palette: merge(FX_PALETTE, skin.palette),
       rest: merge(BIRD.rest, skin.rest), turn: merge(BIRD.turn, skin.turn), lines: merge(BIRD.lines, skin.lines), look: merge(BIRD.look, skin.look),
@@ -338,7 +339,7 @@ const Bird = (() => {
       springs: merge(BIRD.springs, skin.springs),
       swaps: pick('swaps'), clip: pick('clip'), idle: pick('idle'), mouth: pick('mouth'), visemes: pick('visemes'), view: pick('view'),
       poses: merge(BIRD.poses, skin.poses), faces: merge(BIRD.faces, skin.faces), moods: merge(BIRD.moods, skin.moods), clips: merge(BIRD.clips, skin.clips)
-    });
+    }));
   }
 
   /* The eye drawings every bird has, from its traced open eye and happy arc: wide, wet, closed, blink, lidded,
@@ -363,6 +364,6 @@ const Bird = (() => {
     };
   }
 
-  return { make, BIRD, sym, both, eyes, draw: { mirror: M, path: p, ellipse: e, circle: ci, gloss, rim, taper, xform, star: STAR, heart: HEART, note: NOTE, z: Z } };
+  return { make, birds, BIRD, sym, both, eyes, draw: { mirror: M, path: p, ellipse: e, circle: ci, gloss, rim, taper, xform, star: STAR, heart: HEART, note: NOTE, z: Z } };
 })();
 if (typeof module !== 'undefined') module.exports = Bird;

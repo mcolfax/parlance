@@ -94,7 +94,7 @@ function friendAlerts(){
   const items = [];
   for (const d of incomingDuels()){
     const who = friendName(d.a);
-    items.push(h('div', { class: 'fr-alert' }, avatar(friendBird(d.a), 44),
+    items.push(h('div', { class: 'fr-alert' }, avatar(friendBird(d.a), 44, null, true),
       h('div', { class: 'grow' }, h('b', null, who + ' challenged you'), h('span', { class: 'small muted' }, FRIENDS.metrics[d.metric].label + ' in ' + FRIENDS.duel + ' days. Win and you get ' + XP.duelWin + ' XP.')),
       h('div', { class: 'fr-alert-acts' },
         h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: async e => { e.currentTarget.disabled = true; await socialAnswer(d, true); sfx('combo'); toast('The duel is on. Good luck!'); render(); } }, 'Accept'),
@@ -102,7 +102,7 @@ function friendAlerts(){
   }
   for (const id of friendIds()){
     if (!cheerFrom(id)) continue;
-    items.push(h('div', { class: 'fr-alert cheer' }, avatar(friendBird(id), 44),
+    items.push(h('div', { class: 'fr-alert cheer' }, avatar(friendBird(id), 44, null, true),
       h('div', { class: 'grow' }, h('b', null, friendName(id) + ' cheered you on'), h('span', { class: 'small muted' }, 'Keep going. Send one back?')),
       h('div', { class: 'fr-alert-acts' },
         cheeredToday(id) ? null : h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => { cheerSeen(id); await socialCheer(id); sfx('pop'); toast('Cheer sent to ' + friendName(id)); render(); } }, 'Cheer back'),
@@ -117,7 +117,7 @@ function leagueCard(){
     return h('li', { class: (r.me ? 'me' : '') + (r.gone ? ' gone' : '') + (rank === 1 && val > 0 ? ' first' : ''), style: '--i:' + i },
       h('button', { class: 'fr-row', type: 'button', onclick: () => r.me ? openCardSetup() : openFriend(r.id) },
         h('span', { class: 'fr-rank', 'aria-label': r.gone ? null : 'Rank ' + rank }, r.gone ? '·' : rank),
-        avatar(r.bird, 42),
+        avatar(r.bird, 42, null, true),
         h('span', { class: 'fr-who' }, h('span', { class: 'fr-name' }, r.name, r.me ? h('span', { class: 'fr-you' }, 'You') : null),
           h('span', { class: 'fr-sub' }, r.gone ? 'Not sharing right now' : [r.sub, r.me ? '' : awayText(r.active)].filter(Boolean).join(' · ') || 'Just getting started')),
         r.gone ? null : h('span', { class: 'fr-val' }, m === 'streak' ? ic('flame', 'flame') : null, h('b', null, val), h('small', null, metricUnit(m, val)))));
@@ -143,7 +143,7 @@ function duelsCard(){
       const bar = (label, n, mine) => h('div', { class: 'fr-bar' + (mine ? ' mine' : '') }, h('span', { class: 'fr-bar-l' }, label), h('span', { class: 'fr-bar-t' }, h('i', { style: 'width:' + Math.round(n / max * 100) + '%' })), h('b', null, n));
       const ahead = sc.me > sc.them ? 'You’re ahead' : sc.me < sc.them ? who + ' is ahead' : 'Neck and neck';
       card.append(h('div', { class: 'fr-duel' },
-        h('div', { class: 'row' }, h('span', { class: 'av-stack' }, avatar(S.social.bird, 30), avatar(friendBird(other), 30)),
+        h('div', { class: 'row' }, h('span', { class: 'av-stack' }, avatar(S.social.bird, 30, null, true), avatar(friendBird(other), 30, null, true)),
           h('div', { class: 'grow' }, h('b', null, 'You vs ' + who), h('span', { class: 'small muted' }, mt.label + ' · ' + (d.start > t ? 'starts soon' : duelLeft(d)))),
           h('span', { class: 'fr-tag' }, ahead)),
         bar('You', sc.me, true), bar(who, sc.them, false)));
@@ -151,14 +151,14 @@ function duelsCard(){
       const p = S.social.past[d.id] || { me: 0, them: 0 };
       const res = p.none ? 'Your duel with ' + who + ' ended' : p.me > p.them ? 'You beat ' + who + '!' : p.me < p.them ? who + ' won this one' : 'A tie with ' + who;
       card.append(h('div', { class: 'fr-duel done' + (!p.none && p.me > p.them ? ' won' : '') },
-        h('div', { class: 'row' }, p.me > p.them && !p.none ? medal('duel', true, 34) : avatar(friendBird(other), 30),
+        h('div', { class: 'row' }, p.me > p.them && !p.none ? medal('duel', true, 34) : avatar(friendBird(other), 30, null, true),
           h('div', { class: 'grow' }, h('b', null, res), h('span', { class: 'small muted' }, mt.label + (p.none ? '' : ' · ' + p.me + ' to ' + p.them) + (!p.none && p.me > p.them ? ' · +' + XP.duelWin + ' XP' : ''))),
           h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'Dismiss', html: IC.close, onclick: () => { socialCloseDuel(d); render(); } }))));
     } else {
       const expired = d.state === 'pending' && Date.now() - d.at > FRIENDS.answer * DAY_MS;
       const line = d.state === 'declined' ? who + ' said not now' : expired ? who + ' didn’t answer' : 'Waiting for ' + who + ' to accept';
       card.append(h('div', { class: 'fr-duel waiting' },
-        h('div', { class: 'row' }, avatar(friendBird(other), 30),
+        h('div', { class: 'row' }, avatar(friendBird(other), 30, null, true),
           h('div', { class: 'grow' }, h('b', null, line), h('span', { class: 'small muted' }, mt.label + ' · ' + FRIENDS.duel + ' days')),
           h('button', { class: 'linkish small', type: 'button', onclick: () => { socialCloseDuel(d); render(); } }, d.state === 'pending' && !expired ? 'Cancel' : 'Dismiss'))));
     }
@@ -170,7 +170,7 @@ function duelsCard(){
 }
 function myCardRow(){
   return h('section', { class: 'card flat fr-mine' },
-    h('div', { class: 'row' }, avatar(S.social.bird, 44),
+    h('div', { class: 'row' }, avatar(S.social.bird, 44, null, true),
       h('div', { class: 'grow' }, h('b', null, S.social.name || 'Your card'), h('span', { class: 'small muted' }, 'This is how friends see you. ' + friendIds().length + ' ' + plural(friendIds().length, 'friend') + '.')),
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => openCardSetup() }, 'Edit')));
 }
@@ -183,7 +183,7 @@ function openCardSetup(next){
   let bird = CAST[S.social.bird] ? S.social.bird : 'pip';
   const name = h('input', { class: 'input', id: 'fr-name', type: 'text', maxlength: '24', autocomplete: 'given-name', value: S.social.name || firstName() });
   const grid = h('div', { class: 'fr-birds', role: 'radiogroup', 'aria-label': 'Your picture' });
-  const draw = () => grid.replaceChildren(...BIRDS.map(id => h('button', { class: 'fr-bird', type: 'button', role: 'radio', 'aria-checked': String(id === bird), 'aria-label': CAST[id].name, onclick: () => { bird = id; sfx('select'); draw(); } }, avatar(id, 48))));
+  const draw = () => grid.replaceChildren(...BIRDS.map(id => h('button', { class: 'fr-bird', type: 'button', role: 'radio', 'aria-checked': String(id === bird), 'aria-label': CAST[id].name, onclick: () => { bird = id; sfx('select'); draw(); } }, avatar(id, 48, null, true))));
   draw();
   const body = h('div', { class: 'field' },
     h('p', { class: 'small muted' }, 'This is what your friends see. Only people you invite can see it.'),
@@ -250,7 +250,7 @@ async function offerInvite(fromTap){
   let card = null; try { card = await fetchCard(code); } catch (e) {}
   if (!card){ clearInvite(); if (fromTap) toast('That invite isn’t active anymore. Ask your friend for a new one.'); return; }
   const who = card.name || 'A friend';
-  sheet(who + ' invited you', h('div', { class: 'fr-offer' }, avatar(card.bird, 72), h('p', null, who + ' wants to learn with you on Parlance. Add each other to race in the weekly league and challenge each other to duels.')),
+  sheet(who + ' invited you', h('div', { class: 'fr-offer' }, avatar(card.bird, 72, null, true), h('p', null, who + ' wants to learn with you on Parlance. Add each other to race in the weekly league and challenge each other to duels.')),
     [{ label: 'Not now', run: () => { clearInvite(); } }, { label: 'Add ' + who, primary: true, run: () => {
       needCard(async () => {
         const r = await socialAccept(code); clearInvite();
@@ -273,7 +273,7 @@ function openFriend(id){
   const past = Object.values(S.social.past).filter(p => p && p.with === id && !p.none);
   const won = past.filter(p => p.me > p.them).length, lost = past.filter(p => p.me < p.them).length;
   const body = h('div', { class: 'fr-friend' },
-    h('div', { class: 'row' }, avatar(c.bird, 64), h('div', { class: 'grow' }, h('p', { class: 'small muted' }, langLine(c.langs) || 'Just getting started'), h('p', { class: 'small muted' }, activeText(lastActive(c))))),
+    h('div', { class: 'row' }, avatar(c.bird, 64, null, true), h('div', { class: 'grow' }, h('p', { class: 'small muted' }, langLine(c.langs) || 'Just getting started'), h('p', { class: 'small muted' }, activeText(lastActive(c))))),
     h('div', { class: 'stats' },
       h('div', { class: 'stat' }, h('span', { class: 'num' }, ic('flame', 'flame'), friendStreak(c)), h('span', { class: 'lbl' }, 'day streak')),
       h('div', { class: 'stat' }, h('span', { class: 'num' }, sumDays(c.days, from, t, 0)), h('span', { class: 'lbl' }, 'XP this week')),
@@ -299,7 +299,7 @@ function openChallenge(pick){
   const busyWith = new Set(myDuels().filter(d => d.state === 'on' || (d.state === 'pending' && Date.now() - d.at < FRIENDS.answer * DAY_MS)).map(duelOther));
   const people = h('div', { class: 'chips' }), goals = h('div', { class: 'chips' });
   const draw = () => {
-    people.replaceChildren(...ids.map(id => h('button', { class: 'chip fr-chip', type: 'button', 'aria-pressed': String(who === id), onclick: () => { who = id; sfx('select'); draw(); } }, avatar(friendBird(id), 24), friendName(id))));
+    people.replaceChildren(...ids.map(id => h('button', { class: 'chip fr-chip', type: 'button', 'aria-pressed': String(who === id), onclick: () => { who = id; sfx('select'); draw(); } }, avatar(friendBird(id), 24, null, true), friendName(id))));
     goals.replaceChildren(...Object.entries(FRIENDS.metrics).map(([k, mt]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(metric === k), onclick: () => { metric = k; sfx('select'); draw(); } }, mt.label)));
   };
   draw();

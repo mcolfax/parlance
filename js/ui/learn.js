@@ -91,7 +91,7 @@ function openChest(){
   const got = checkBadges({});
   const big = h('div', { class: 'chest big', html: chestSVG() });
   const xp = h('p', { class: 'chest-xp' }, '+' + bonus + ' XP');
-  sheet('Today’s chest', h('div', { class: 'chest-sheet' }, big, xp, h('p', { class: 'small muted center' }, 'Three quests, one chest. Pip will have new ones for you tomorrow.'), badgeStrip(got)), [{ label: 'Collect', primary: true }]);
+  sheet('Today’s chest', h('div', { class: 'chest-sheet' }, big, xp, h('p', { class: 'small muted center' }, 'Three quests, one chest. ' + mascot().name + ' will have new ones for you tomorrow.'), badgeStrip(got)), [{ label: 'Collect', primary: true }]);
   setTimeout(() => { big.classList.add('open'); burstAt(big, { n: 22, dist: 90, vars: ['--gold', '--line', '--gold', '--ok'] }); sfx('chest'); haptic([12, 40, 12]); }, 420);
   UI.animate = false; render();
 }

@@ -13,6 +13,47 @@ function previewSong(){
   clearTimeout(previewSong.t);
   previewSong.t = setTimeout(() => { if (Song.mode === 'preview'){ Song.mode = 'off'; songStop(0.6); } }, 1600);
 }
+/* ----- your bird: Pip, or another of the Parlance birds (MASCOTS in config.js) ----- */
+function birdCard(){
+  const m = mascot();
+  return h('section', { class: 'card bird-card' },
+    h('div', { class: 'row' }, pip('happy', 64, { cls: 'bird-me' }),
+      h('div', { class: 'grow' }, h('h3', null, 'Your bird'), h('p', { class: 'small muted' }, m.name + ' is ' + aKind(m.kind) + '. ' + m.blurb))),
+    h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => openBirdPicker() }, 'Choose your bird'));
+}
+/* each bird's part sheet loads as the picker opens; the one you tap cheers in its own voice */
+function openBirdPicker(){
+  let pick = MASCOTS[S.settings.mascot] ? S.settings.mascot : 'pip';
+  const lang = S.settings.lang, ids = Object.keys(MASCOTS), failed = new Set(), opts = {};
+  const opt = id => {
+    const m = MASCOTS[id], def = Bird.birds[id], ready = !!def;
+    const art = ready ? pip('happy', 72, { def, tap: false }) : h('span', { class: 'bo-ph' + (failed.has(id) ? ' off' : '') });
+    const b = h('button', { class: 'bird-opt', type: 'button', role: 'radio', 'data-bird': id, 'aria-checked': String(id === pick), 'aria-label': m.name + ', ' + aKind(m.kind), disabled: !ready,
+      onclick: () => {
+        pick = id; sfx('select'); haptic(8);
+        for (const k in opts) opts[k].setAttribute('aria-checked', String(k === pick));
+        if (!art.rig) return;
+        pipBriefly(art.rig, 'cheer', 1600);
+        const hello = lang === 'es' ? '¡Hola! Soy ' + m.name + '.' : 'Hallo! Ich bin ' + m.name + '.';
+        art.rig.talking(true); speak(hello, lang, false, m).then(() => art.rig.talking(false));
+      } },
+      h('span', { class: 'bo-art' }, art),
+      h('span', { class: 'grow' }, h('span', { class: 'lo-title' }, m.name), h('span', { class: 'lo-sub' }, m.kind.charAt(0).toUpperCase() + m.kind.slice(1)),
+        h('span', { class: 'small muted' }, failed.has(id) ? 'Couldn’t load ' + m.name + ' just now. Check your connection and try again.' : ready ? m.blurb : 'On the way…')));
+    if (opts[id]) opts[id].replaceWith(b);
+    return (opts[id] = b);
+  };
+  const list = h('div', { class: 'bird-list', role: 'radiogroup', 'aria-label': 'Your bird' }, ids.map(opt));
+  for (const id of ids) if (!Bird.birds[id]) loadMascot(id).then(() => opt(id), () => { failed.add(id); opt(id); });
+  sheet('Choose your bird', h('div', { class: 'field' }, h('p', { class: 'small muted' }, 'Your bird learns with you. It cheers, worries, dances and chats on every screen, and talks in its own voice.'), list),
+    [{ label: 'Cancel' }, { label: 'Save', primary: true, run: () => {
+      if (pick === S.settings.mascot) return;
+      S.settings.mascot = pick; touchSettings();
+      if (!busy()) render();
+      const me = document.querySelector('.bird-me'); if (me && me.rig) pipBriefly(me.rig, 'wave', 2200);
+      toast(MASCOTS[pick].name + ' is learning with you now.');
+    } }]);
+}
 function viewMe(){
   const lang = S.settings.lang; const st = streakInfo(); const L = S.langs[lang];
   const v = h('div', { class: 'view' }, topBar());
@@ -38,6 +79,7 @@ function viewMe(){
       h('span', { class: 'goal-line', style: 'bottom:' + (24 + Math.round(goal / max * 100)) + 'px' }, h('span', null, goal)),
       days.map((k, i) => h('div', { class: 'bar' + (vals[i] >= goal ? '' : ' miss') + (k === t ? ' today' : '') }, h('i', { style: 'height:' + Math.max(3, Math.round(vals[i] / max * 100)) + 'px;--d:' + i }), h('span', null, names[parseDay(k).getDay()])))),
     h('p', { class: 'small muted' }, 'The dashed line is your daily goal. Miss one day a week and your streak freeze covers it.')));
+  v.append(birdCard());
   // settings
   const vs = voicesFor(lang);
   const voiceSel = h('select', { class: 'input', id: 'voice-sel', onchange: e => { S.settings.voices[lang] = e.target.value; touchSettings(); speak(LANGS[lang].test, lang); } },
@@ -60,7 +102,7 @@ function viewMe(){
         oninput: e => { S.settings.musicVol = +e.target.value; previewSong(); clearTimeout(viewMe.mt); viewMe.mt = setTimeout(() => touchSettings(), 250); } }), h('span', { class: 'small muted' }, 'Loud')),
       h('p', { class: 'small muted' }, 'Also sets the music in the intro film.')) : null));
   v.append(h('section', { class: 'card about' },
-    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('love', 58, { cls: 'about-pip' }), h('div', { class: 'grow' }, h('h3', null, 'Parlance ' + APP_VERSION), h('p', { class: 'small muted' }, 'Tell Pip what to improve. Every note is read, grouped and turned into updates.'))),
+    h('div', { class: 'row', style: 'align-items:flex-start' }, pip('love', 58, { cls: 'about-pip' }), h('div', { class: 'grow' }, h('h3', null, 'Parlance ' + APP_VERSION), h('p', { class: 'small muted' }, 'Tell ' + mascot().name + ' what to improve. Every note is read, grouped and turned into updates.'))),
     h('div', { class: 'about-actions' },
       h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openFeedback() }, ic('heart'), 'Send feedback'),
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => openFilm() }, ic('play'), 'Watch the intro film'),
@@ -164,7 +206,7 @@ function webAccountRow(){
 }
 function openWebName(){
   const input = h('input', { class: 'input', type: 'text', maxlength: '40', autocomplete: 'given-name', 'aria-label': 'Your name', value: (Web.session && Web.session.user && Web.session.user.name) || '' });
-  sheet('Your name', h('div', { class: 'field' }, h('p', { class: 'small muted' }, 'Pip greets you by your first name.'), input),
+  sheet('Your name', h('div', { class: 'field' }, h('p', { class: 'small muted' }, mascot().name + ' greets you by your first name.'), input),
     [{ label: 'Cancel' }, { label: 'Save', primary: true, run: async () => {
       const n = input.value.trim(); if (!n){ toast('Add your name'); return true; }
       try { const u = await webUpdateUser({ data: { name: n } }); Me.name = u.name; render(); toast('Name saved'); }

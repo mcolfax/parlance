@@ -453,7 +453,7 @@ function showComplete(o){
   if (o.quests && o.quests.length) setTimeout(() => sfx('quest'), 700);
   if (o.badges && o.badges.length) setTimeout(() => sfx('badge'), 1100);
   confetti(OV.root, o.gold ? 180 : 110);
-  if (S.settings.autoplay) setTimeout(() => { if (OV.root) speak(cheer, lang, false, CAST.pip); }, 900);
+  if (S.settings.autoplay) setTimeout(() => { if (OV.root) speak(cheer, lang, false, mascot()); }, 900);
 }
 
 function countUp(el, to, ms){

@@ -30,6 +30,7 @@ function renderTabs(){
       id === 'friends' && socialAlerts() ? h('span', { class: 'badge dot', 'aria-label': 'New from friends' }) : null))));
 }
 function render(){
+  ensureMascot();
   applyLang();
   closeGloss();
   const views = { learn: viewLearn, stories: viewStories, review: viewReview, talk: viewTalk, friends: viewFriends, me: viewMe };

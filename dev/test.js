@@ -563,7 +563,7 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 5 && M.P.S.social && M.P.S.social.friends, 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 6 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
     for (const lang of ['de', 'es']) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }
@@ -686,6 +686,49 @@ async function main(){
     if (G.E('pipMoodNow()') === 'happy'){ G.E('UI.tab = "learn"; UI.animate = true; render()'); await sleep(400); ok(G.E('document.querySelector(".hero .pip").rig.mood') === 'wave', 'Pip waves hello on Learn'); }
     console.log('page errors (G):', G.errors.length ? G.errors.slice(0, 5) : 'none'); ok(!G.errors.length, 'no page errors G');
     G.dom.window.close();
+  }
+  /* ---------- 9b. your bird: the other birds' rigs, the picker in Me, loading a picked bird, unknown birds ---------- */
+  {
+    const B = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+    ok(B.P.S.settings.mascot === 'pip' && B.E('mascot().name') === 'Pip', 'Pip is the bird by default');
+    ok(B.E('Object.keys(Bird.birds).join()') === 'pip', 'only Pip’s part sheet loads at first: ' + B.E('Object.keys(Bird.birds).join()'));
+    B.E('UI.tab = "me"; render()');
+    const card = B.w.document.querySelector('.bird-card');
+    ok(card && card.textContent.includes('Pip is a parrot') && card.querySelector('.pip[data-bird="pip"]'), 'Me shows your bird');
+    [...card.querySelectorAll('button')].find(b => b.textContent === 'Choose your bird').click();
+    const opts = () => [...B.w.document.querySelectorAll('.sheet .bird-opt')];
+    ok(opts().length === 5 && opts()[0].getAttribute('aria-checked') === 'true' && !opts()[0].disabled, 'the picker lists five birds, Pip chosen');
+    for (let i = 0; i < 100 && opts().some(o => o.disabled); i++) await sleep(25);
+    ok(opts().every(o => !o.disabled && o.querySelector('.pip')), 'every bird loads in the picker');
+    ok(B.E('Object.keys(MASCOTS).every(id => Bird.birds[id] && Rig.validate(Bird.birds[id]).length === 0)'), 'every bird’s rig validates');
+    ok(B.E('Object.keys(MASCOTS).every(id => PIP_MOODS.every(m => !/NaN|undefined/.test(pipSVG(m, 72, null, Bird.birds[id]))))'), 'every bird draws every mood');
+    opts().find(o => o.dataset.bird === 'kiwi').click();
+    ok(opts().find(o => o.dataset.bird === 'kiwi').getAttribute('aria-checked') === 'true' && B.P.S.settings.mascot === 'pip', 'tapping a bird picks it, not saved yet');
+    const ts0 = B.P.S.settings.ts;
+    [...B.w.document.querySelectorAll('.sheet-actions button')].find(b => b.textContent === 'Save').click(); await sleep(250);
+    ok(B.P.S.settings.mascot === 'kiwi' && B.P.S.settings.ts >= ts0, 'Save keeps Kiwi');
+    ok(B.w.document.querySelector('.bird-card .pip[data-bird="kiwi"] .rig-kiwi') && B.w.document.querySelector('.profile .pip[data-bird="kiwi"]'), 'Me now shows Kiwi');
+    ok(B.w.document.querySelector('#toast').textContent.includes('Kiwi'), 'a toast says Kiwi is learning with you');
+    ok(B.E('avatar("pip", 40).querySelector(".rig-kiwi") && avatar("pip", 40, null, true).querySelector(".rig-pip")'), 'cast avatars show your bird; a friend’s Pip picture stays Pip');
+    ok(B.E('cast("pip").name') === 'Kiwi' && B.E('cast("pip").pitch') === B.E('MASCOTS.kiwi.pitch') && B.E('cast("lena").name') === 'Lena', 'Kiwi speaks for Pip, in its own voice');
+    ok(B.E('(() => { Object.assign(Talk, { who: "pip", lang: "de", level: "A1", scen: { prompt: "x" } }); return talkInstructions(); })()').includes('Your name is Kiwi. You are a cheerful, curious budgie'), 'Talk’s persona is your bird');
+    B.E('openFilm({ autoplay: false }); filmSeek(6)');
+    ok(B.w.document.querySelector('.film-cap').textContent === 'Meet Kiwi, a budgie who loves to repeat after you.' && B.w.document.querySelector('#f-pip-in .rig-kiwi'), 'the film stars your bird: ' + B.w.document.querySelector('.film-cap').textContent);
+    B.E('endFilm(false)'); await sleep(50);
+    console.log('page errors (B2):', B.errors.length ? B.errors.slice(0, 5) : 'none'); ok(!B.errors.length, 'no page errors B2');
+    B.dom.window.close();
+    // a learner who picked Kakadu sees Kakadu from the first screen
+    const K = await makeDom({ seed: { 'parlance.v2': { v: 6, settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0', mascot: 'kakadu' } } } });
+    for (let i = 0; i < 100 && !K.w.document.querySelector('.hero .pip'); i++) await sleep(25);
+    ok(K.w.document.querySelector('.hero .pip[data-bird="kakadu"] [data-s="crest2"]') && K.E('Object.keys(Bird.birds).sort().join()') === 'kakadu,pip', 'a picked bird loads before the first screen');
+    console.log('page errors (K):', K.errors.length ? K.errors.slice(0, 5) : 'none'); ok(!K.errors.length, 'no page errors K');
+    K.dom.window.close();
+    // a bird from a newer version is kept, and drawn as Pip
+    const U = await makeDom({ seed: { 'parlance.v2': { v: 6, settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0', mascot: 'phoenix' } } } });
+    ok(U.P.S.settings.mascot === 'phoenix' && U.E('mascotId()') === 'pip' && U.w.document.querySelector('.hero .pip[data-bird="pip"]'), 'an unknown bird is kept and drawn as Pip');
+    ok(U.E('mergeCore({ settings: { mascot: "phoenix", ts: 2 } }, { settings: { mascot: "pip", ts: 1 } }).settings.mascot') === 'phoenix', 'merges keep a bird this version doesn’t know');
+    console.log('page errors (U):', U.errors.length ? U.errors.slice(0, 5) : 'none'); ok(!U.errors.length, 'no page errors U');
+    U.dom.window.close();
   }
   /* ---------- 10. theme song: home loop, film score, settings, fallbacks ---------- */
   {

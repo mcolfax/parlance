@@ -1,31 +1,67 @@
 "use strict";
 /* ===================== ART: Pip, cast portraits, unit signs, story scenes ===================== */
-/* Pip is a parrot: a chatty travel buddy who repeats after you. Pip is drawn by the rig (rig.js) from the shared bird
-   (bird.js) and Pip's part sheet (pip.js), traced from the model sheet; design/rig/ has the Blender file, the tools and
-   the review pages. pip() is alive: it breathes, blinks, glances, plays each mood's move, mouths its speech bubble,
+/* Pip is a parrot: a chatty travel buddy who repeats after you. Learners can pick another bird to learn with instead
+   (Me → Your bird): Kiwi the budgie, Mango the amazon parrot, Kakadu the cockatoo or Rojo the macaw (MASCOTS in
+   config.js). Every bird is drawn by the rig (rig.js) from the shared bird (bird.js) and its own part sheet (pip.js,
+   kiwi.js…), traced from its model sheet; design/rig/ has the Blender files, the tools and the review pages. pip()
+   draws the learner's bird, alive: it breathes, blinks, glances, plays each mood's move, mouths its speech bubble,
    looks where you touch the screen, does a different move each time it's tapped and moves its beak while it talks.
-   pipSVG() is a still for small places and the intro film. Colors are the --pip-* tokens. Any mood the rig has
-   (bird.js) works here: happy, cheer, think, oops, sleep, wow, wave, point, sad, laugh, shrug, proud, love, listen,
-   fly, dance, ready. */
+   pipSVG() is a still for small places and the intro film. Colors are the --pip-* (--kiwi-* …) tokens. Any mood the
+   rig has (bird.js) works here, for every bird: happy, cheer, think, oops, sleep, wow, wave, point, sad, laugh, shrug,
+   proud, love, listen, fly, dance, ready. */
 const PIP_MOODS = Object.keys(PIP.moods);
-const PIP_VIEW = [-8, 14, 256, 244];     // Pip's frame in rig units: the 120 x 114 box the screens are laid out for
+const PIP_VIEW = [-8, 14, 256, 244];     // the bird's frame in rig units: the 120 x 114 box the screens are laid out for
 const PIP_HEAD = [38, 18, 164, 164];     // head and shoulders, for avatars
 const pipMood = mood => (PIP.moods[mood] ? mood : 'happy');
-function pipCSS(){
-  if (typeof document === 'undefined' || document.getElementById('rig-css-pip')) return;
-  document.head.append(h('style', { id: 'rig-css-pip' }, Rig.css(PIP)));
+/* the learner's bird. Pip's part sheet always loads; another bird's loads when it's picked (loadMascot), and Pip
+   stands in until it has. A bird this version doesn't know is drawn as Pip. */
+function mascotId(){ const id = typeof S !== 'undefined' && S && S.settings ? S.settings.mascot : 'pip'; return MASCOTS[id] && Bird.birds[id] ? id : 'pip'; }
+function mascotDef(){ return Bird.birds[mascotId()]; }
+function mascot(){ const id = mascotId(), m = MASCOTS[id]; return Object.assign({ id, lang: '*', role: 'Your ' + m.kind + ' and travel buddy' }, m); }
+/* "a budgie", "an amazon parrot" */
+function aKind(kind){ return (/^[aeiou]/i.test(kind) ? 'an ' : 'a ') + kind; }
+/* a speaker by cast id, where 'pip' is the learner's bird: its name, role and voice */
+function cast(id){ return id === 'pip' ? mascot() : CAST[id]; }
+const mascotLoads = {};
+function loadMascot(id){
+  if (Bird.birds[id]) return Promise.resolve(Bird.birds[id]);
+  const m = MASCOTS[id];
+  if (!m || !m.src || typeof document === 'undefined') return Promise.reject(new Error('No bird called ' + id));
+  return mascotLoads[id] || (mascotLoads[id] = new Promise((res, rej) => {
+    const el = document.createElement('script');
+    const fail = () => { delete mascotLoads[id]; el.remove(); rej(new Error('Couldn’t load ' + m.name)); };
+    el.src = m.src;
+    el.onload = () => (Bird.birds[id] ? res(Bird.birds[id]) : fail());
+    el.onerror = fail;
+    document.head.append(el);
+  }));
 }
-/* pipSVG(mood, size, view) -> SVG markup: a still of the mood, with outlines weighted for its size in px */
-function pipSVG(mood, size, view){
-  pipCSS();
-  return Rig.svg(PIP, pipMood(mood), { view: view || PIP_VIEW, size: size || 72, cls: 'pip-svg', style: false });
+/* the picked bird, if its part sheet hasn't loaded yet (picked on another device, say): load it and redraw */
+function ensureMascot(){
+  const id = typeof S !== 'undefined' && S && S.settings && S.settings.mascot;
+  if (!id || Bird.birds[id] || !MASCOTS[id] || ensureMascot.on === id) return;
+  ensureMascot.on = id;
+  loadMascot(id).then(() => { ensureMascot.on = null; if (S.settings.mascot === id && !busy()) render(); },
+    () => setTimeout(() => { ensureMascot.on = null; }, 30000));   // offline: try again on a redraw a little later
+}
+function pipCSS(def){
+  def = def || mascotDef();
+  if (typeof document === 'undefined' || document.getElementById('rig-css-' + def.id)) return;
+  document.head.append(h('style', { id: 'rig-css-' + def.id }, Rig.css(def)));
+}
+/* pipSVG(mood, size, view, def) -> SVG markup: a still of the mood, with outlines weighted for its size in px. def is
+   the learner's bird unless given. */
+function pipSVG(mood, size, view, def){
+  def = def || mascotDef();
+  pipCSS(def);
+  return Rig.svg(def, pipMood(mood), { view: view || PIP_VIEW, size: size || 72, cls: 'pip-svg', style: false });
 }
 const PIP_SAYS = {
   de: { cheer: ['Super!', 'Toll gemacht!', 'Wunderbar!', 'Klasse!', 'Sehr gut!', 'Weiter so!'], oops: ['Fast!', 'Kein Problem!', 'Gleich klappt’s!', 'Nochmal!'], hello: ['Hallo!', 'Los geht’s!', 'Alles einsteigen!', 'Bereit?', 'Gute Fahrt!'], sleep: ['Gute Nacht!'] },
   es: { cheer: ['¡Genial!', '¡Muy bien!', '¡Excelente!', '¡Increíble!', '¡Así se hace!', '¡Bravo!'], oops: ['¡Casi!', '¡No pasa nada!', '¡Ya casi!', '¡Otra vez!'], hello: ['¡Hola!', '¡Vámonos!', '¡Todos a bordo!', '¿Listos?', '¡Buen viaje!'], sleep: ['¡Buenas noches!'] }
 };
 function pickSay(lang, kind){ const l = PIP_SAYS[lang] || PIP_SAYS.de; const a = l[kind] || l.hello; return a[Math.floor(Math.random() * a.length)]; }
-/* a mood for a little while, then back to the Pip's own mood (rig.home) */
+/* a mood for a little while, then back to the bird's own mood (rig.home) */
 function pipBriefly(rig, mood, ms){
   rig.set(mood); clearTimeout(rig.settle);
   rig.settle = setTimeout(() => { if (rig.mood === mood) rig.set(rig.home); }, ms);
@@ -39,16 +75,17 @@ function pipTap(rig){
   const t = PIP_TAPS[pipTaps++ % PIP_TAPS.length];
   if (t.mood && rig.mood === rig.home) pipBriefly(rig, t.mood, t.ms); else rig.play(t.move || 'hop');
 }
-/* pip(mood, size, {say, sayPos, mouth, wave, moveFor, lang, tap, cls}) -> element. A live rig; tapping Pip makes it move
-   and say something in the target language. With say and mouth, Pip mouths the line as its bubble pops up; with wave,
-   Pip waves hello first; moveFor (ms) ends a looping move, like dance, after a while. With cls "fly-in" Pip flies in on
-   spread wings and lands in its mood. */
+/* pip(mood, size, {say, sayPos, mouth, wave, moveFor, lang, tap, cls, def}) -> element. A live rig of the learner's bird
+   (or def); tapping it makes it move and say something in the target language. With say and mouth, it mouths the line
+   as its bubble pops up; with wave, it waves hello first; moveFor (ms) ends a looping move, like dance, after a while.
+   With cls "fly-in" it flies in on spread wings and lands in its mood. */
 function pip(mood, size, opts = {}){
   size = size || 72; mood = mood || 'happy';
-  const el = h('span', { class: 'pip ' + mood + (opts.cls ? ' ' + opts.cls : ''), style: '--pip:' + size + 'px', 'aria-hidden': opts.say ? null : 'true' });
-  pipCSS();
+  const def = opts.def || mascotDef();
+  const el = h('span', { class: 'pip ' + mood + (opts.cls ? ' ' + opts.cls : ''), style: '--pip:' + size + 'px', 'data-bird': def.id, 'aria-hidden': opts.say ? null : 'true' });
+  pipCSS(def);
   const flyIn = /(^|\s)fly-in(\s|$)/.test(opts.cls || '');
-  const rig = Rig.create(PIP, { mood: flyIn ? 'fly' : pipMood(mood), size, view: PIP_VIEW, cls: 'pip-svg' });
+  const rig = Rig.create(def, { mood: flyIn ? 'fly' : pipMood(mood), size, view: PIP_VIEW, cls: 'pip-svg' });
   rig.home = pipMood(mood);
   el.rig = rig; el.append(rig.el);
   const land = () => (opts.wave ? pipBriefly(rig, 'wave', 2200) : rig.set(rig.home));
@@ -69,7 +106,7 @@ function pip(mood, size, opts = {}){
       b.textContent = line; if (!b.parentNode) el.append(b);
       b.classList.remove('pop'); void b.getBoundingClientRect(); b.classList.add('pop');
       sfx('chirp'); haptic(8);
-      setTimeout(() => { rig.talking(true); speak(line, lang, false, CAST.pip).then(() => rig.talking(false)); }, 180);
+      setTimeout(() => { rig.talking(true); speak(line, lang, false, MASCOTS[def.id]).then(() => rig.talking(false)); }, 180);
     });
   }
   return el;
@@ -79,7 +116,7 @@ function setPipMood(el, mood){
   el.classList.remove(...PIP_MOODS); el.classList.add(mood);
   if (el.rig){ clearTimeout(el.rig.settle); el.rig.home = pipMood(mood); el.rig.set(el.rig.home); }
 }
-/* live Pips glance at where you touch the screen, then go back to looking where their mood looks */
+/* live birds glance at where you touch the screen, then go back to looking where their mood looks */
 if (typeof document !== 'undefined') document.addEventListener('pointerdown', e => {
   for (const el of document.querySelectorAll('.pip')){
     const rig = el.rig; if (!rig || el.contains(e.target)) continue;
@@ -137,9 +174,12 @@ function avatarSVG(id){
   if (L.earrings) s += '<circle cx="20.6" cy="33.5" r="1.5" fill="#E8B84A"/><circle cx="43.4" cy="33.5" r="1.5" fill="#E8B84A"/>';
   return s + '</svg>';
 }
-function avatar(id, size, cls){
-  const el = h('span', { class: 'cast-av' + (id === 'pip' ? ' is-pip' : '') + (cls ? ' ' + cls : ''), style: '--av:' + (size || 40) + 'px', title: CAST[id] ? CAST[id].name : '' });
-  el.innerHTML = id === 'pip' ? pipSVG('happy', size || 40, PIP_HEAD) : avatarSVG(id);
+/* avatar(id, size, cls, asIs): a cast member's portrait. 'pip' is the learner's bird, or Pip itself with asIs (a
+   friend's chosen picture) */
+function avatar(id, size, cls, asIs){
+  const def = id === 'pip' ? (asIs ? PIP : mascotDef()) : null;
+  const el = h('span', { class: 'cast-av' + (def ? ' is-pip' : '') + (cls ? ' ' + cls : ''), style: '--av:' + (size || 40) + 'px', title: def ? def.name : CAST[id] ? CAST[id].name : '' });
+  el.innerHTML = def ? pipSVG('happy', size || 40, PIP_HEAD, def) : avatarSVG(id);
   return el;
 }
 

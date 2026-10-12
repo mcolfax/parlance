@@ -51,6 +51,37 @@
   --pip-crest:#EE5F35; --pip-crest2:#F7B440; --pip-tail:#F06137; --pip-tail2:#CD5229; --pip-feet:#808783;
   --pip-glint:#FDFDF9; --pip-gloss:#6CC3C2; --pip-gloss2:#FDE59A; --pip-shadow:rgb(20 48 31 / .14);
   --pip-blush:#FF8C8C; --pip-sweat:#A4DBF6; --pip-sweat2:#4CA3D6; --pip-spark:#F6B33F; --pip-heart:#F0565A;
+  /* the other birds a learner can pick (MASCOTS in js/config.js): the colors of their model sheets. Their effects (the
+     shadow, blush, sweat drop, sparkles and hearts) are Pip's, so they change with the theme the same way. */
+  /* Kiwi the budgie */
+  --kiwi-glint:#FFFFFF; --kiwi-gloss:#BCDC73; --kiwi-ink:#1A3722; --kiwi-mark:#151514; --kiwi-body:#8CC44D;
+  --kiwi-body2:#4D8B49; --kiwi-head:#F9DF5A; --kiwi-head2:#E9C643; --kiwi-cheek:#2975BB; --kiwi-cere:#489DD0;
+  --kiwi-cere2:#78C5EE; --kiwi-beak:#F1AF67; --kiwi-beak2:#E39A55; --kiwi-mouth:#5D3A2C; --kiwi-tongue:#E1847B;
+  --kiwi-tail:#4A884C; --kiwi-tail2:#3E7341; --kiwi-feet:#EBAB9D; --kiwi-shine:#4A725F; --kiwi-shine2:#22432F;
+  --kiwi-shadow:var(--pip-shadow); --kiwi-blush:var(--pip-blush); --kiwi-sweat:var(--pip-sweat);
+  --kiwi-sweat2:var(--pip-sweat2); --kiwi-spark:var(--pip-spark); --kiwi-heart:var(--pip-heart);
+  /* Mango the amazon parrot */
+  --mango-glint:#FFFFFF; --mango-gloss:rgb(255 255 255 / .45); --mango-head:#FDD325; --mango-head2:#FDDC58;
+  --mango-body:#2E9353; --mango-body2:#227740; --mango-wing:#E54623; --mango-wing2:#1072BC; --mango-tail:#2A8B4E;
+  --mango-feet:#8B8A83; --mango-white:#FDFDFC; --mango-pupil:#22160B; --mango-beak:#F6E2B9; --mango-beak3:#725D31;
+  --mango-beak2:#BAAF93; --mango-mouth:#472A1C; --mango-ink:#16471E; --mango-tongue:#F1796E;
+  --mango-shadow:var(--pip-shadow); --mango-blush:var(--pip-blush); --mango-sweat:var(--pip-sweat);
+  --mango-sweat2:var(--pip-sweat2); --mango-spark:var(--pip-spark); --mango-heart:var(--pip-heart);
+  /* Kakadu the cockatoo */
+  --kakadu-glint:#FFFFFF; --kakadu-gloss:rgb(255 255 255 / .45); --kakadu-body:#FEFBF0; --kakadu-body2:#F2EDDB;
+  --kakadu-brow:#3B4245; --kakadu-crest:#F9E256; --kakadu-crest2:#FAEE8E; --kakadu-crest3:#FDC63C;
+  --kakadu-tail:#FDD044; --kakadu-feet:#5D6B72; --kakadu-ring:#BFDFEE; --kakadu-ring2:#6E96AE; --kakadu-white:#FAFBFC;
+  --kakadu-pupil:#142124; --kakadu-beak:#606D74; --kakadu-beak0:#8A9AA2; --kakadu-mouth:#2E291F;
+  --kakadu-tongue:#EF856E; --kakadu-ink:#133924; --kakadu-shadow:var(--pip-shadow); --kakadu-blush:var(--pip-blush);
+  --kakadu-sweat:var(--pip-sweat); --kakadu-sweat2:var(--pip-sweat2); --kakadu-spark:var(--pip-spark);
+  --kakadu-heart:var(--pip-heart);
+  /* Rojo the macaw */
+  --rojo-glint:#FFFFFF; --rojo-gloss:#FE8462; --rojo-body:#EA3F21; --rojo-body2:#B02C11; --rojo-wing:#FED53C;
+  --rojo-wing2:#2667D8; --rojo-tail:#2665D7; --rojo-feet:#6B6B76; --rojo-feet2:#4F5158; --rojo-face:#FEF6E7;
+  --rojo-white:#FAFAF9; --rojo-beak:#FFEDCC; --rojo-beak0:#FEF9EB; --rojo-mouth:#34231B; --rojo-beak3:#ADA595;
+  --rojo-beak2:#FAEDCF; --rojo-ink:#0F2815; --rojo-tongue:#F1757D; --rojo-shadow:var(--pip-shadow);
+  --rojo-blush:var(--pip-blush); --rojo-sweat:var(--pip-sweat); --rojo-sweat2:var(--pip-sweat2);
+  --rojo-spark:var(--pip-spark); --rojo-heart:var(--pip-heart);
   /* the daily chest (chestSVG() in js/core/art.js): inked like Pip, wood with gold fittings, coins and a gem inside */
   --chest-ink:var(--pip-ink); --chest-wood:#C97B36; --chest-wood2:#A35F27; --chest-wood3:#6F3A15; --chest-inside:#3A1E0B;
   --chest-metal:#F7BD45; --chest-metal2:#CF8A1E; --chest-gloss:#FFF6DE; --chest-coin:#FFD447; --chest-coin2:#DE9E1A;

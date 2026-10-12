@@ -26,7 +26,7 @@ function drawOnb(){
       h('p', { class: 'lead' }, 'German and Spanish, from first words to fluent: short lessons, smart review, stories, and a tutor who talks back.'),
       h('button', { class: 'film-card', type: 'button', onclick: () => { Onb.open = false; openFilm({ doneLabel: 'Continue', onDone: () => openOnboarding(Onb.replay, 1) }); } },
         h('span', { class: 'fc-thumb', 'aria-hidden': 'true' }, pip('cheer', 54, { tap: false }), h('span', { class: 'fc-play', html: IC.play })),
-        h('span', { class: 'fc-text' }, h('b', null, 'Watch the intro film'), h('span', { class: 'small muted' }, '35 seconds, with sound. Meet Pip and the cast.'))),
+        h('span', { class: 'fc-text' }, h('b', null, 'Watch the intro film'), h('span', { class: 'small muted' }, '35 seconds, with sound. Meet ' + mascot().name + ' and the cast.'))),
       h('ul', { class: 'perks' },
         h('li', null, h('b', null, (coreOrder('de').length + coreOrder('es').length) + ' lessons'), ' from A1 to C2, written for native-level accuracy'),
         h('li', null, h('b', null, STORIES.length + ' illustrated stories'), ' with a recurring cast in Berlin and Mexico City'),

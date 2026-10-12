@@ -26,10 +26,11 @@ function kv(t, keys){
 }
 const fade = (a, b, c, d) => [[a, 0], [b, 1], [c, 1], [d, 0]];
 function inner(svg){ return svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, ''); }
-/* Pip in the film: the rig's still for a mood ('fly' spreads the wings), in the 120 x 114 box the film places and moves */
+/* the learner's bird in the film: the rig's still for a mood ('fly' spreads the wings), in the 120 x 114 box the film
+   places and moves */
 function filmPip(mood){
   const svg = pipSVG(mood, 110), lw = (svg.match(/--rig-lw:([\d.]+)/) || [0, '3'])[1];
-  return '<g class="rig rig-pip" style="--rig-lw:' + lw + '" transform="scale(' + (120 / PIP_VIEW[2]).toFixed(4) + ') translate(' + -PIP_VIEW[0] + ' ' + -PIP_VIEW[1] + ')">' + inner(svg) + '</g>';
+  return '<g class="rig rig-' + mascotDef().id + '" style="--rig-lw:' + lw + '" transform="scale(' + (120 / PIP_VIEW[2]).toFixed(4) + ') translate(' + -PIP_VIEW[0] + ' ' + -PIP_VIEW[1] + ')">' + inner(svg) + '</g>';
 }
 
 /* ----- the cast of the film: a row of friends for each city; each face pops in on its own beat ----- */
@@ -37,7 +38,7 @@ const FILM_CAST = ['de', 'es'].map(l => Object.keys(CAST).filter(id => CAST[id].
 const filmCastAt = (r, i) => { const row = FILM_CAST[r], gap = Math.min(72, 300 / row.length); return { x: 180 + (i - (row.length - 1) / 2) * gap, y: r ? 540 : 286, t: [10.0, 12.2][r] + i * Math.min(0.4, 1.6 / row.length) }; };
 const ROUTE_PTS = [[64, 520], [116, 446], [158, 372], [204, 300], [250, 232], [296, 160]];
 const FILM_CAPTIONS = [
-  [4.8, 9.0, 'Meet Pip, a parrot who loves to repeat after you.'],
+  [4.8, 9.0, 'Meet {bird}, {a kind} who loves to repeat after you.'],   // the learner's bird
   [9.3, 15.0, 'German with friends in Berlin. Spanish with friends in Mexico City.'],
   [15.3, 21.0, 'Short lessons, real stories, and a tutor who talks back.'],
   [21.3, 26.0, 'Daily quests, streaks and badges keep you going.'],
@@ -105,7 +106,7 @@ function filmSVG(){
     /* scene 7: end card */
     '<g id="f-end"><text x="180" y="444" class="f-end de">Los geht’s!</text><text x="180" y="482" class="f-end es">¡Vámonos!</text><text x="180" y="516" class="f-end en">Let’s go.</text></g>' +
     /* Pip on top of everything */
-    '<g id="f-bubble"><rect x="-72" y="-20" width="144" height="36" rx="18" class="f-bub"/><path d="M-6 15 L4 26 L10 15 Z" class="f-bub"/><text x="0" y="5" class="f-bub-t" id="f-bubble-t">Hi! I’m Pip.</text></g>' +
+    '<g id="f-bubble"><rect x="-72" y="-20" width="144" height="36" rx="18" class="f-bub"/><path d="M-6 15 L4 26 L10 15 Z" class="f-bub"/><text x="0" y="5" class="f-bub-t" id="f-bubble-t">Hi! I’m ' + esc(mascot().name) + '.</text></g>' +
     '<g id="f-pip"><g transform="translate(-60 -57)" class="pip happy" id="f-pip-in">' + filmPip('happy') + '</g></g>' +
     '</svg>';
 }
@@ -151,7 +152,7 @@ function openFilm(opts = {}){
   const close = h('button', { class: 'icon-btn plain f-x', type: 'button', 'aria-label': 'Close the film', html: IC.close, onclick: () => endFilm(false) });
   Film.muteBtn = h('button', { class: 'chip f-mute', type: 'button', 'aria-pressed': 'true', onclick: () => { Film.muted = !Film.muted; Film.muteBtn.setAttribute('aria-pressed', String(!Film.muted)); Film.muteBtn.replaceChildren(ic('speaker'), Film.muted ? 'Sound off' : 'Sound on'); if (Film.muted) filmMusicStop(); else if (Film.playing) filmMusicStart(); } }, ic('speaker'), 'Sound on');
   OV.head.replaceChildren(close, h('div', { class: 'ov-title grow' }, 'Welcome to Parlance'), Film.muteBtn);
-  const stage = h('div', { class: 'film-stage', html: filmSVG(), role: 'img', 'aria-label': 'Intro film: Pip the parrot shows you around Parlance' });
+  const stage = h('div', { class: 'film-stage', html: filmSVG(), role: 'img', 'aria-label': 'Intro film: ' + mascot().name + ' the ' + mascot().kind + ' shows you around Parlance' });
   Film.caption = h('div', { class: 'film-cap', 'aria-live': 'polite' });
   Film.big = h('button', { class: 'film-big', type: 'button', 'aria-label': 'Play', html: '<svg viewBox="0 0 24 24" width="40" height="40"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>' });
   Film.big.addEventListener('click', e => { e.stopPropagation(); filmPlay(); });
@@ -263,7 +264,7 @@ function filmRender(t){
   }
   // captions, bubble text, controls
   const cap = FILM_CAPTIONS.find(c => t >= c[0] && t < c[1]);
-  const txt = cap ? cap[2] : '';
+  const m = mascot(), txt = cap ? cap[2].replace('{bird}', m.name).replace('{a kind}', aKind(m.kind)) : '';
   if (Film.caption.textContent !== txt){ Film.caption.textContent = txt; Film.caption.classList.toggle('on', !!txt); }
   if (Film.range && document.activeElement !== Film.range) Film.range.value = t.toFixed(1);
   if (Film.time) Film.time.textContent = fmtTime(t) + ' / ' + fmtTime(FILM_DUR);

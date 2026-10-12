@@ -3,8 +3,8 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.8.3';
-const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+const APP_VERSION = '4.9.0';
+const SCHEMA_VERSION = 6;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
    functions that apply the same access rules as the artifact (dev/supabase.sql).
@@ -12,6 +12,11 @@ const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.9.0', date: '2026-10-12', title: 'Choose your bird', notes: [
+    'Pip has company. Kiwi the budgie, Mango the amazon parrot, Kakadu the cockatoo and Rojo the macaw can now learn with you instead. Pick one in Me, under Your bird.',
+    'Each one is drawn from its own character sheet and does everything Pip does: it cheers, worries, dances, waves, talks and sleeps on every screen, in its own voice.',
+    'Kakadu’s crest shows how it feels. It fans up when you get one right and folds down when you miss.',
+    'Your bird follows you to your other devices when you sign in.'] },
   { v: '4.8.3', date: '2026-10-12', title: 'A voice for every phone', notes: [
     'If your phone doesn’t have the exact voice Parlance asks for, like Mexican Spanish on many Android phones, Parlance now uses the Spanish or German voice your phone does have.',
     'When the voice can’t play, Parlance tells you why in plain words, for example that your phone needs a Spanish voice, and Me → Sound’s voice test says the same.'] },
@@ -77,6 +82,16 @@ const RELEASES = [
 ];
 /* Media. The theme song plays under the intro film and loops softly behind the tabs.
    home/film are volume multipliers on the learner's music volume; duck is how low it goes while a voice speaks. */
+/* The birds you can learn with (Me → Your bird). Pip's part sheet (js/core/pip.js) always loads; the others load when
+   someone picks one (src). kind is what the bird is, as copy says it ("a budgie"); pitch and rate are its voice. The
+   drawings, moods and moves are in js/core and design/rig. */
+const MASCOTS = {
+  pip:    { name: 'Pip',    kind: 'parrot',        blurb: 'Chatty and curious. Repeats every word.', pitch: 1.35, rate: 1.0 },
+  kiwi:   { name: 'Kiwi',   kind: 'budgie',        blurb: 'Small, quick and always cheerful.', pitch: 1.55, rate: 1.04, src: 'js/core/kiwi.js' },
+  mango:  { name: 'Mango',  kind: 'amazon parrot', blurb: 'Sunny and steady. Never in a hurry.', pitch: 1.2, rate: 0.96, src: 'js/core/mango.js' },
+  kakadu: { name: 'Kakadu', kind: 'cockatoo',      blurb: 'Wears every feeling on its crest.', pitch: 1.1, rate: 1.0, src: 'js/core/kakadu.js' },
+  rojo:   { name: 'Rojo',   kind: 'macaw',         blurb: 'Big, bold and a little dramatic.', pitch: 0.95, rate: 0.98, src: 'js/core/rojo.js' }
+};
 const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home: 0.6, film: 1, duck: 0.25,
   sources: [ // first one the browser can play wins: AAC for Safari/iPhone and Chrome, Opus for Chromium and Firefox builds without AAC
     { src: 'media/abc-adventure.mp4', type: 'audio/mp4; codecs="mp4a.40.2"' },

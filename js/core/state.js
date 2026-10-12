@@ -13,7 +13,7 @@ function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}
    friends: { uid: { code, cAt, at, gone } }; duels: { id: duel }; past: { id: finished duel }; cheers: { uid: day you cheered them };
    seen: { uid: day of their latest cheer you've seen } */
 function newSocial(){ return { on: false, secret: '', since: 0, home: '', name: '', bird: 'pip', friends: {}, duels: {}, past: {}, cheers: {}, seen: {}, ts: 0 }; }
-function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
+function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, mascot: 'pip', onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
 function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defaultSettings(), days: {}, badges: {}, stats: {}, langs: { de: newLang(), es: newLang() }, gen: { de: [], es: [] }, social: newSocial() }; }
 function validLesson(l){ return l && typeof l.id === 'string' && typeof l.title === 'string' && Array.isArray(l.vocab) && Array.isArray(l.sentences) && Array.isArray(l.blanks); }
 function cleanLang(x){
@@ -32,6 +32,7 @@ function cleanSettings(x){
   s.sfxVol = Math.max(0, Math.min(1, isFinite(+s.sfxVol) ? +s.sfxVol : 0.8));
   s.musicVol = Math.max(0, Math.min(1, isFinite(+s.musicVol) ? +s.musicVol : 0.6));
   s.homeMusic = s.homeMusic !== false;
+  if (typeof s.mascot !== 'string' || !s.mascot) s.mascot = 'pip';   // a bird this version doesn't know is kept, and drawn as Pip
   return s;
 }
 function cleanSocial(x){
@@ -48,7 +49,8 @@ function cleanSocial(x){
 const MIGRATIONS = [
   { to: 3, run: st => { st.badges = obj(st.badges); st.stats = obj(st.stats); } },
   { to: 4, run: st => { for (const l of ['de', 'es']) if (st.langs[l]) st.langs[l].cards = migrateCardKeys(st.langs[l].cards || {}); } },
-  { to: 5, run: st => { st.social = cleanSocial(st.social); } }
+  { to: 5, run: st => { st.social = cleanSocial(st.social); } },
+  { to: 6, run: st => { st.settings = cleanSettings(st.settings); } }   // the bird you learn with (settings.mascot)
 ];
 function migrate(st){
   const from = +st.v || 1;

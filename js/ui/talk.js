@@ -16,7 +16,7 @@ function viewTalk(){
     const locked = sc.min && li < LEVELS.indexOf(sc.min);
     const who = sc.cast[lang];
     return h('button', { class: 'scen', type: 'button', disabled: locked, onclick: () => openTalk(sc, lv) },
-      h('span', { class: 'scen-top' }, avatar(who, 40), h('span', { class: 'scen-who' }, CAST[who].name)),
+      h('span', { class: 'scen-top' }, avatar(who, 40), h('span', { class: 'scen-who' }, cast(who).name)),
       h('span', { class: 'st-title' }, sc.title), h('span', { class: 'st-meta' }, locked ? 'From ' + sc.min + ' up' : sc.desc));
   })));
   v.append(h('section', { class: 'card' }, h('div', { class: 'dictate-coach' }, h('span', { class: 'coach-mic', html: IC.mic, 'aria-hidden': 'true' }),
@@ -24,8 +24,8 @@ function viewTalk(){
   return v;
 }
 function talkInstructions(){
-  const L = LANGS[Talk.lang]; const c = CAST[Talk.who];
-  const persona = Talk.who === 'pip' ? 'Your name is Pip. You are a cheerful, curious parrot who loves languages and travel. Like any parrot you enjoy repeating a good phrase back, and you occasionally mention flying, feathers or your favorite snacks.' : 'Your name is ' + c.name + ' (' + c.role + '). Stay in that persona while you play this role.';
+  const L = LANGS[Talk.lang]; const c = cast(Talk.who);
+  const persona = Talk.who === 'pip' ? 'Your name is ' + c.name + '. You are a cheerful, curious ' + c.kind + ' who loves languages and travel. Like any parrot you enjoy repeating a good phrase back, and you occasionally mention flying, feathers or your favorite snacks.' : 'Your name is ' + c.name + ' (' + c.role + '). Stay in that persona while you play this role.';
   return 'You are a friendly ' + L.name + ' conversation partner for an English-speaking learner at CEFR level ' + Talk.level + '. ' + L.dialect + '\n' +
     persona + '\nRoleplay: ' + Talk.scen.prompt + '\n' +
     'Rules:\n- Stay in character and write "reply" only in ' + L.name + ', at level ' + Talk.level + ' (' + LEVEL_GUIDE[Talk.level] + ').\n' +
@@ -41,7 +41,7 @@ function openTalk(sc, level){
   openOverlay('talk');
   const back = h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'End conversation', html: IC.back, onclick: endTalk });
   const auto = h('button', { class: 'chip', type: 'button', 'aria-pressed': String(!!S.settings.autoplay), onclick: () => { S.settings.autoplay = !S.settings.autoplay; touchSettings(); auto.setAttribute('aria-pressed', String(S.settings.autoplay)); } }, ic('speaker'), 'Voice');
-  OV.head.replaceChildren(back, avatar(Talk.who, 36), h('div', { class: 'ov-title grow' }, h('span', { class: 'ov-name' }, CAST[Talk.who].name), h('span', { class: 'ov-sub muted' }, sc.title + ' · ' + level)), auto);
+  OV.head.replaceChildren(back, avatar(Talk.who, 36), h('div', { class: 'ov-title grow' }, h('span', { class: 'ov-name' }, cast(Talk.who).name), h('span', { class: 'ov-sub muted' }, sc.title + ' · ' + level)), auto);
   Talk.chat = h('div', { class: 'chat', 'aria-live': 'polite' });
   OV.bodyIn.replaceChildren(Talk.chat);
   drawComposer(); drawTalk(); talkCall();
@@ -115,7 +115,7 @@ async function talkCall(){
     if (mine && mine.corr === 'pending') mine.corr = r.correction && typeof r.correction === 'object' ? r.correction : { needed: false, explanation: '' };
     Talk.log.push({ role: 'tutor', text: r.reply.trim(), en: String(r.reply_en || ''), hint: String(r.hint || ''), fresh: true });
     Talk.busy = false; drawTalk();
-    if (S.settings.autoplay){ await speak(r.reply, Talk.lang, false, CAST[Talk.who]); if (Talk.open && Talk.handsFree && Talk.mic) talkListen(Talk.mic); }
+    if (S.settings.autoplay){ await speak(r.reply, Talk.lang, false, cast(Talk.who)); if (Talk.open && Talk.handsFree && Talk.mic) talkListen(Talk.mic); }
   } catch (e){
     if (!Talk.open) return;
     Talk.busy = false;
@@ -130,7 +130,7 @@ function drawTalk(){
   Talk.log.forEach(m => {
     if (m.role === 'tutor'){
       const en = h('div', { class: 'en', hidden: !m.showEn }, m.en);
-      const vo = CAST[Talk.who];
+      const vo = cast(Talk.who);
       nodes.push(h('div', { class: 'msg-row tutor' }, avatar(Talk.who, 30), h('div', { class: 'msg tutor' + (m.fresh ? ' fresh' : '') }, h('div', { class: 't' }, sayText(m.text, lang, { gloss: true, en: m.en })), en,
         h('div', { class: 'msg-actions' }, speakBtn(m.text, lang, null, vo), slowBtn(m.text, lang, vo), m.en ? h('button', { class: 'linkish small', type: 'button', onclick: () => { m.showEn = !m.showEn; drawTalk(); } }, m.showEn ? 'Hide translation' : 'Translate') : null))));
       m.fresh = false;
@@ -144,7 +144,7 @@ function drawTalk(){
       else if (c && c.explanation) nodes.push(h('div', { class: 'corr good' }, h('div', null, h('b', null, 'Natural. '), c.explanation)));
     }
   });
-  if (Talk.busy) nodes.push(h('div', { class: 'msg-row tutor' }, avatar(Talk.who, 30), h('div', { class: 'typing', 'aria-label': CAST[Talk.who].name + ' is typing' }, h('i'), h('i'), h('i'))));
+  if (Talk.busy) nodes.push(h('div', { class: 'msg-row tutor' }, avatar(Talk.who, 30), h('div', { class: 'typing', 'aria-label': cast(Talk.who).name + ' is typing' }, h('i'), h('i'), h('i'))));
   if (Talk.err) nodes.push(h('div', { class: 'notice' }, Talk.err, ' ', h('button', { class: 'linkish', type: 'button', onclick: () => talkCall() }, 'Try again')));
   Talk.chat.replaceChildren(...nodes);
   requestAnimationFrame(() => { if (OV.body) OV.body.scrollTo({ top: OV.body.scrollHeight, behavior: reduced() ? 'auto' : 'smooth' }); });
