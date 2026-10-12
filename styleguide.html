@@ -89,7 +89,7 @@ function draw(){
     sec('Friends', 'The Friends tab (js/ui/friends.js): a cheer, the weekly league with you highlighted, and a duel. Friends pick Pip or a cast portrait as their picture.',
       h('div', { class: 'fr-alert cheer', style: 'max-width:420px' }, avatar('sofia', 44), h('div', { class: 'grow' }, h('b', null, 'Sofía cheered you on'), h('span', { class: 'small muted' }, 'Keep going. Send one back?')),
         h('div', { class: 'fr-alert-acts' }, h('button', { class: 'btn btn-quiet btn-sm', type: 'button' }, 'Cheer back'), h('button', { class: 'linkish small', type: 'button' }, 'Dismiss'))),
-      h('ol', { class: 'fr-league', style: 'max-width:420px' }, [['1', 'lena', 'Lena', 'German B1', 182, 'top'], ['2', 'jonas', 'Jonas', 'German A2', 96, 'me']].map(([rank, id, name, sub, xp, cls]) =>
+      h('ol', { class: 'fr-league', style: 'max-width:420px' }, [['1', 'lena', 'Lena', 'German B1', 182, 'first'], ['2', 'jonas', 'Jonas', 'German A2', 96, 'me']].map(([rank, id, name, sub, xp, cls]) =>
         h('li', { class: cls }, h('div', { class: 'fr-row' }, h('span', { class: 'fr-rank' }, rank), avatar(id, 42),
           h('span', { class: 'fr-who' }, h('span', { class: 'fr-name' }, name, cls === 'me' ? h('span', { class: 'fr-you' }, 'You') : null), h('span', { class: 'fr-sub' }, sub)),
           h('span', { class: 'fr-val' }, h('b', null, xp), h('small', null, 'XP')))))),

@@ -514,7 +514,7 @@ li.locked .st-title{color:var(--muted)}
 .fr-row:active{background:var(--surface-2)}
 .fr-league li.me .fr-row{background:var(--line-soft)}
 .fr-rank{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;font:800 14px var(--body);color:var(--muted);background:var(--hair-2);font-variant-numeric:tabular-nums}
-.fr-league li.top .fr-rank{background:var(--gold);color:var(--surface)}
+.fr-league li.first .fr-rank{background:var(--gold);color:var(--surface)}
 .fr-who{display:flex;flex-direction:column;min-width:0}
 .fr-name{font:700 17px/1.25 var(--body);display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden;white-space:nowrap}
 .fr-you{font:800 11px/1 var(--body);letter-spacing:.05em;text-transform:uppercase;padding:3px 6px;border-radius:5px;background:var(--line);color:var(--line-ink)}

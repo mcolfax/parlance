@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.8.0';
+const APP_VERSION = '4.8.3';
 const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,6 +12,15 @@ const SCHEMA_VERSION = 5;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.8.3', date: '2026-10-12', title: 'A voice for every phone', notes: [
+    'If your phone doesn’t have the exact voice Parlance asks for, like Mexican Spanish on many Android phones, Parlance now uses the Spanish or German voice your phone does have.',
+    'When the voice can’t play, Parlance tells you why in plain words, for example that your phone needs a Spanish voice, and Me → Sound’s voice test says the same.'] },
+  { v: '4.8.2', date: '2026-10-12', title: 'Tap to hear on the web version', notes: [
+    'On the web version, the theme song now plays the same way it does in Claude, so it no longer gets in the way of the voice on Android.',
+    'The theme song turns down while the voice speaks, instead of stopping, then comes back up.',
+    'If the voice still can’t play, Parlance tells you what to check, like silent mode.'] },
+  { v: '4.8.1', date: '2026-10-12', title: 'A tidier top bar on iPhone', notes: [
+    'On iPhone the top bar now fits the screen, so pages no longer slide sideways. On the smallest phones the Parlance name steps aside and the logo stays.'] },
   { v: '4.8.0', date: '2026-10-11', title: 'Learn with friends', notes: [
     'There’s a new Friends tab. Invite friends with a code or a link and you’re added to each other’s list.',
     'Race each other up the weekly league by XP, goal days or streak. It starts fresh every Monday.',
@@ -68,7 +77,7 @@ const RELEASES = [
 ];
 /* Media. The theme song plays under the intro film and loops softly behind the tabs.
    home/film are volume multipliers on the learner's music volume; duck is how low it goes while a voice speaks. */
-const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home: 0.6, film: 1, duck: 0.3,
+const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home: 0.6, film: 1, duck: 0.25,
   sources: [ // first one the browser can play wins: AAC for Safari/iPhone and Chrome, Opus for Chromium and Firefox builds without AAC
     { src: 'media/abc-adventure.mp4', type: 'audio/mp4; codecs="mp4a.40.2"' },
     { src: 'media/abc-adventure.webm', type: 'audio/webm; codecs="opus"' }] } };

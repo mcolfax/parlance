@@ -8,7 +8,7 @@ function greetingWord(lang){
 function topBar(){
   const lang = S.settings.lang;
   return h('header', { class: 'top' },
-    h('div', { class: 'brand' }, h('span', { class: 'mark', 'aria-hidden': 'true' }, h('i'), h('i')), 'Parlance'),
+    h('div', { class: 'brand' }, h('span', { class: 'mark', 'aria-hidden': 'true' }, h('i'), h('i')), h('span', { class: 'brand-name' }, 'Parlance')),
     MEDIA.song ? musicBtn() : null,
     h('div', { class: 'seg', role: 'group', 'aria-label': 'Language' },
       ['de', 'es'].map(l => h('button', { type: 'button', 'aria-pressed': String(lang === l), onclick: () => setLang(l) }, LANGS[l].native))));

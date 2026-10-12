@@ -128,9 +128,8 @@ function badgesCard(){
 }
 function audioResultText(r, lang){
   if (r === 'ok') return 'Sound is working. If it’s quiet, turn up the volume or switch off silent mode.';
-  if (r === 'novoice') return 'No ' + LANGS[lang].name + ' voice is installed. On iPhone, add one in Settings → Accessibility → Spoken Content → Voices, then reopen this page.';
   if (r === 'none') return 'This browser can’t speak text aloud. Try Safari or Chrome.';
-  return 'No sound started. Check that silent mode is off and the volume is up, then try again.';
+  return voiceTrouble(r === 'silent' ? '' : r, lang);   // in plain words, from the reason the voice engine gave (audio.js)
 }
 async function showBackup(){
   const code = await makeBackupCode();

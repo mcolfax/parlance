@@ -698,7 +698,46 @@ async function main(){
     D.body.dispatchEvent(new M.w.Event('pointerdown', { bubbles: true })); await sleep(700);
     ok(E('Song.unlocked') && E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.loop'), 'first tap starts the looping song on Learn');
     ok(Math.abs(E('Song.vol') - E('homeVol()')) < 1e-9 && E('homeVol()') < 0.5, 'plays softly ' + E('homeVol()'));
-    E('songDuck(true)'); ok(E('Song.duck') === E('MEDIA.song.duck'), 'a speaking voice lowers the song'); E('songDuck(false)'); ok(E('Song.duck') === 1, 'and it comes back up');
+    { /* a spoken word starts inside the tap, with the song turned down (not off); a voice that won't start gets one retry
+         with the language's standard voice, then a one-time hint */
+      let mode = 'ok'; const said = [];
+      const synth = { speaking: false, pending: false, paused: false, resumed: 0, getVoices: () => [], resume(){ this.resumed++; this.paused = false; }, cancel(){},
+        speak(u){ said.push({ text: u.text, voice: u.voice ? u.voice.name : '', lang: u.lang, playing: !E('Song.el.paused'), duck: E('Song.duck') });
+          const plain = !u.voice && u.lang.length === 2;   // asking for just the language, like "de"
+          if (mode === 'ok' || (mode === 'standard' && !u.voice) || (mode === 'nolang' && plain)) setTimeout(() => { u.onstart && u.onstart(); setTimeout(() => u.onend && u.onend(), 20); }, 10);
+          else if (mode === 'nolang' || mode === 'refused') setTimeout(() => u.onerror && u.onerror({ error: 'language-unavailable' }), 5); } };
+      M.w.speechSynthesis = synth; M.w.SpeechSynthesisUtterance = function(t){ this.text = t; };
+      E('Voice.list = [{ name: "Anna (Premium)", lang: "de-DE", voiceURI: "anna" }]; Voice.wait = 120; Voice.hinted = false');
+      const p1 = E('speak("Hallo", "de")');
+      ok(said.length === 1 && said[0].text === 'Hallo' && said[0].voice === 'Anna (Premium)' && said[0].playing && said[0].duck === E('MEDIA.song.duck'), 'a spoken word starts at once, inside the tap, with the song turned down but still playing ' + JSON.stringify(said));
+      ok(await p1 === true, 'and it reports that it spoke'); await sleep(50);
+      ok(E('Song.duck') === 1 && E('Song.mode') === 'home' && !E('Song.el.paused'), 'then the song comes back up');
+      mode = 'standard'; said.length = 0;
+      ok(await E('speak("Danke", "de")') === true && said.length === 2 && said[0].voice === 'Anna (Premium)' && said[1].voice === '', 'a voice that won’t start gets one more try with the standard voice ' + JSON.stringify(said));
+      ok(!E('Voice.hinted'), 'no hint when the retry works');
+      mode = 'none'; said.length = 0;
+      ok(await E('speak("Bitte", "de")') === false && said.length === 2 && E('Voice.hinted') && D.querySelector('#toast').textContent.includes('silent mode'), 'when nothing plays, a hint says what to check');
+      E('Voice.hinted = false'); said.length = 0;
+      const first = E('speak("Eins", "de")'); mode = 'ok'; const second = E('speak("Zwei", "de")');
+      ok(await first === null && await second === true && !E('Voice.hinted'), 'a word cut off by the next tap isn’t a failure');
+      // a phone without the exact voice: the engine refuses it, and the plain language plays straight away
+      mode = 'nolang'; said.length = 0; E('Voice.list = []; Voice.hinted = false');
+      const t0 = Date.now();
+      ok(await E('speak("Morgen", "de")') === true && said.length === 2 && said[0].lang === 'de-DE' && said[1].lang === 'de' && Date.now() - t0 < 100 && !E('Voice.hinted'),
+        'when the phone refuses the exact voice, the plain language plays right away ' + JSON.stringify(said));
+      mode = 'refused'; said.length = 0;
+      ok(await E('speak("Abend", "de")') === false && E('Voice.lastError') === 'language-unavailable' && D.querySelector('#toast').textContent.includes('no German voice'), 'and if it has no voice at all, the hint says so: ' + D.querySelector('#toast').textContent);
+      ok(await E('speakTest("de")') === 'language-unavailable' && E('audioResultText("language-unavailable", "de")').includes('no German voice'), 'Me → Sound’s voice test gives the same reason');
+      mode = 'ok'; ok(await E('speakTest("de")') === 'ok', 'and says when sound works');
+      E('Voice.list = [{ name: "Anna (Premium)", lang: "de-DE", voiceURI: "anna" }]');
+      synth.speaking = true; said.length = 0; const late = E('speak("Gut", "de")');
+      ok(!said.length, 'while a word is still playing, the next one waits a moment after cancelling it (Chrome can drop it otherwise)'); synth.speaking = false;
+      ok(await late === true && said.length === 1 && said[0].text === 'Gut', 'and then plays');
+      synth.paused = true; await E('speak("Tschüss", "de")');
+      ok(synth.resumed === 1 && !synth.paused, 'a voice engine left paused is woken first');
+      E('Film.open = true; Song.mode = "film"; songDuck(true)'); ok(E('Song.duck') === E('MEDIA.song.duck') && E('Song.mode') === 'film', 'under the intro film a voice turns the song down too');
+      E('songDuck(false); Film.open = false; Song.mode = "home"; Voice.list = []'); ok(E('Song.duck') === 1, 'and it comes back up'); await sleep(300);
+    }
     const tab = name => [...D.querySelectorAll('.tab')].find(b => b.textContent.includes(name)).click();
     E('Song.el.currentTime = 42'); const plays0 = E('window.__plays');
     for (const name of ['Stories', 'Review', 'Talk', 'Me']){
@@ -749,13 +788,21 @@ async function main(){
     E('Song.fetching = null; songPrefetch()'); await sleep(50);
     ok(E('Song.url') === 'blob:parlance-song', 'song fetched into a local copy');
     E('songEl()'); ok(E('Song.local') && E('Song.el.getAttribute("src")') === 'blob:parlance-song', 'element plays the local copy');
+    E('Song.volFixed = true');   // like an iPhone, where an audio element's volume can't be set
     E('Song.el.dispatchEvent(new Event("canplay"))');
-    ok(E('Song.routed') && N.w.__routed === E('Song.el'), 'volume runs through Web Audio');
+    ok(E('Song.routed') && N.w.__routed === E('Song.el'), 'on iPhone the volume runs through Web Audio');
     E('Song.vol = 0.4; songApply(0.1)'); ok(Math.abs(E('Song.gain.gain.value') - 0.4) < 1e-9, 'gain follows the volume');
     const N2 = await makeDom({ node: true, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
     N2.w.fetch = async () => new N2.w.Response(new Uint8Array([0])); N2.w.URL.createObjectURL = () => 'blob:refused';
     N2.E('Song.fetching = null; songPrefetch()'); await sleep(50); N2.E('songEl(); Song.el.dispatchEvent(new Event("error"))');
     ok(!N2.E('Song.failed') && !N2.E('Song.local') && /media\/abc-adventure\.mp4$/.test(N2.E('Song.el.getAttribute("src")')), 'if the local copy is refused, it plays the file directly');
+    // Android and desktop: the element's own volume works, so the song stays out of Web Audio (where it could drown the voice)
+    const N3 = await makeDom({ node: true, seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+    N3.w.fetch = async () => new N3.w.Response(new Uint8Array([0, 1])); N3.w.URL.createObjectURL = () => 'blob:parlance-song';
+    N3.E('Song.fetching = null; songPrefetch()'); await sleep(50); N3.E('songEl(); Song.el.dispatchEvent(new Event("canplay"))');
+    ok(!N3.E('songVolumeFixed()') && !N3.E('Song.routed') && !N3.w.__routed, 'where the element sets its own volume, the song stays out of Web Audio');
+    N3.E('Song.vol = 0.4; Song.duck = 0.25; songApply(0.1)'); ok(Math.abs(N3.E('Song.el.volume') - 0.1) < 1e-9, 'and its volume (turned down under a voice) is set on the element');
+    N3.dom.window.close();
     ok(!N.errors.length && !N2.errors.length, 'no page errors N ' + JSON.stringify(N.errors.concat(N2.errors).slice(0, 3)));
     N.dom.window.close(); N2.dom.window.close();
   }

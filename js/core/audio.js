@@ -1,6 +1,6 @@
 "use strict";
 /* ===================== AUDIO: SPEECH & EFFECTS ===================== */
-const Voice = { list: [], unlocked: false };
+const Voice = { list: [], unlocked: false, seq: 0, wait: 1500, hinted: false, lastError: '' };
 function loadVoices(){ try { Voice.list = window.speechSynthesis ? window.speechSynthesis.getVoices() || [] : []; } catch (e) { Voice.list = []; } }
 if ('speechSynthesis' in window){ loadVoices(); try { window.speechSynthesis.addEventListener('voiceschanged', () => { loadVoices(); if (typeof UI !== 'undefined' && typeof render === 'function' && UI.tab === 'me' && !busy()) render(); }); } catch (e) {} }
 const BAD_VOICE = /eloquence|novelty|bad news|bells|bahh|boing|bubbles|cellos|whisper|zarvox|trinoids|wobble|organ|jester|superstar|good news|deranged|hysterical|pipe|albert|fred|junior|ralph|kathy|grandma|grandpa|rocko|shelley|reed|sandy|flo\b/i;
@@ -15,6 +15,7 @@ function voiceScore(v, lang){
   return s;
 }
 function voiceFor(lang){
+  if (!Voice.list.length) loadVoices();   // some browsers only fill the list after a while
   const pref = S.settings.voices[lang];
   if (pref){ const v = Voice.list.find(v => v.voiceURI === pref || v.name === pref); if (v) return v; }
   return voicesFor(lang)[0] || null;
@@ -31,48 +32,90 @@ function chunks(text){
   if (t.length < 180) return [t];
   return t.match(/[^.!?;]+[.!?;]*\s*/g) || [t];
 }
-/* speak() lowers the theme song while a voice is talking */
+/* speak() turns the theme song down while a voice talks, then back up.
+   The voice starts inside the tap that asked for it (Safari on iPhone only speaks reliably that way). If another word is
+   still playing it is cancelled first and the new one follows 70ms later, because Chrome can drop a word spoken straight
+   after a cancel. A voice engine left paused is woken first.
+   Phones don't all have the same voices: Android may have no Mexican Spanish voice, for example. So if a try hasn't
+   started after Voice.wait ms, or the engine refuses it, the next try asks for the plain language ("es", which the phone
+   maps to whatever voice it has), then any other installed voice for it. If nothing plays, a one-time hint says why in
+   plain words (voiceTrouble). Resolves true when it spoke, false when nothing played, null when a newer word took over. */
 function speak(text, lang, slow, vo){
   songDuck(true);
-  return speakRaw(text, lang, slow, vo).then(r => { songDuck(false); return r; }, () => { songDuck(false); return false; });
+  return speakRaw(text, lang, slow, vo).then(r => { songDuck(false); if (r === false && text) speechHint(lang); return r; }, () => { songDuck(false); return false; });
+}
+function speechHint(lang){
+  if (Voice.hinted || !('speechSynthesis' in window) || typeof toast !== 'function') return;
+  Voice.hinted = true;
+  toast(voiceTrouble(Voice.lastError, lang));
+}
+/* what to tell someone when the voice didn't play, from the engine's reason (SpeechSynthesisErrorEvent.error, or '' for none) */
+function voiceTrouble(code, lang){
+  const L = LANGS[lang] ? LANGS[lang].name : 'this language';
+  if (code === 'language-unavailable' || code === 'voice-unavailable' || code === 'novoice')
+    return 'Your phone has no ' + L + ' voice Parlance can use. Add one in your phone’s text-to-speech settings (on iPhone: Settings → Accessibility → Spoken Content → Voices), then try again.';
+  if (code === 'not-allowed') return 'The browser didn’t let the voice play. Tap the word again.';
+  if (code === 'audio-busy' || code === 'audio-hardware') return 'Another app is using the speaker. Try again in a moment.';
+  if (code === 'network') return 'The voice needs an internet connection. Check your connection and try again.';
+  if (code === 'synthesis-unavailable' || code === 'synthesis-failed') return 'Your phone’s text-to-speech didn’t respond. Check that a text-to-speech engine is installed and on, then try again.';
+  return 'The voice didn’t play. Check that your media volume is up and silent mode is off. Me → Sound has a voice test.';
+}
+/* the tries for one word: the best voice (or the language's usual tag), then the plain language, then any other voice for it */
+function voicePlans(lang){
+  const v = voiceFor(lang), plans = [v ? { voice: v, lang: v.lang } : { voice: null, lang: LANGS[lang].tts }];
+  const add = p => { if (!plans.some(x => x.voice === p.voice && x.lang === p.lang)) plans.push(p); };
+  add({ voice: null, lang });
+  const other = voicesFor(lang).find(x => x !== v); if (other) add({ voice: other, lang: other.lang });
+  return plans;
 }
 function speakRaw(text, lang, slow, vo){
   return new Promise(res => {
     if (!('speechSynthesis' in window) || !text) return res(false);
-    const synth = window.speechSynthesis;
-    const go = () => {
-      try {
-        const parts = chunks(text); let started = false, finished = false;
-        const fin = () => { if (!finished){ finished = true; res(started); } };
-        const v = voiceFor(lang);
-        const rate = (slow ? 0.62 : (S.settings.speed === 'relaxed' ? 0.82 : 0.96)) * ((vo && vo.rate) || 1);
-        parts.forEach((p, i) => {
-          const u = new SpeechSynthesisUtterance(p);
-          if (v) u.voice = v;
-          u.lang = (v && v.lang) || LANGS[lang].tts; u.rate = rate; if (vo && vo.pitch) u.pitch = Math.max(0.5, Math.min(1.6, vo.pitch));
-          u.onstart = () => { started = true; };
-          if (i === parts.length - 1){ u.onend = fin; u.onerror = fin; }
-          synth.speak(u);
-        });
-        setTimeout(fin, 9000 + String(text).length * 130);
-      } catch (e) { res(false); }
+    const synth = window.speechSynthesis, id = ++Voice.seq;   // a newer word cancels this one, and its handlers know it
+    let started = false, finished = false, attempt = 0, watch = 0, cap = 0, plans = [];
+    const fin = ok => { if (finished) return; finished = true; clearTimeout(watch); clearTimeout(cap); res(Voice.seq === id ? ok : (started || null)); };
+    const retry = () => {   // this try made no sound: on to the next one, or give up
+      if (finished) return;
+      if (attempt >= plans.length || Voice.seq !== id) return fin(started);
+      attempt++;
+      try { synth.cancel(); } catch (e) {}
+      run(plans[attempt - 1], attempt);
     };
-    try { if (synth.speaking || synth.pending){ synth.cancel(); setTimeout(go, 70); } else go(); } catch (e) { res(false); }
+    const run = (plan, a) => {
+      const parts = chunks(text);
+      const rate = (slow ? 0.62 : (S.settings.speed === 'relaxed' ? 0.82 : 0.96)) * ((vo && vo.rate) || 1);
+      parts.forEach((p, i) => {
+        const u = new SpeechSynthesisUtterance(p);
+        if (plan.voice) u.voice = plan.voice;
+        u.lang = plan.lang; u.rate = rate; if (vo && vo.pitch) u.pitch = Math.max(0.5, Math.min(1.6, vo.pitch));
+        u.onstart = () => { if (a === attempt){ started = true; Voice.lastError = ''; } };
+        u.onerror = e => {
+          const why = (e && e.error) || '';
+          if (a !== attempt || why === 'interrupted' || why === 'canceled') return;
+          if (!started) Voice.lastError = why;
+          if (i === parts.length - 1 || !started){ if (started) fin(true); else retry(); }
+        };
+        if (i === parts.length - 1) u.onend = () => { if (a === attempt) fin(started); };
+        synth.speak(u);
+      });
+      clearTimeout(watch);
+      watch = setTimeout(() => { if (a === attempt && !started) retry(); }, Voice.wait);
+    };
+    const begin = () => {
+      if (finished || Voice.seq !== id) return fin(null);
+      try { Voice.lastError = ''; plans = voicePlans(lang); attempt = 1; run(plans[0], 1); } catch (e) { fin(false); }
+    };
+    try {
+      if (synth.paused) synth.resume();   // a voice engine can stay paused after an interruption, and then nothing new plays
+      if (synth.speaking || synth.pending){ synth.cancel(); setTimeout(begin, 70); } else begin();
+    } catch (e) { return fin(false); }
+    cap = setTimeout(() => fin(started), 12000 + String(text).length * 130);
   });
 }
 function speakTest(lang){
-  return new Promise(resolve => {
-    if (!('speechSynthesis' in window)) return resolve('none');
-    let done = false; const fin = r => { if (!done){ done = true; resolve(r); } };
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(LANGS[lang].test);
-      const v = voiceFor(lang); if (v) u.voice = v; u.lang = (v && v.lang) || LANGS[lang].tts; u.rate = 0.96;
-      u.onstart = () => fin('ok'); u.onerror = () => fin(voicesFor(lang).length ? 'silent' : 'novoice');
-      setTimeout(() => window.speechSynthesis.speak(u), 60);
-      setTimeout(() => fin(voicesFor(lang).length ? 'silent' : 'novoice'), 2600);
-    } catch (e) { fin('none'); }
-  });
+  if (!('speechSynthesis' in window)) return Promise.resolve('none');
+  Voice.lastError = '';
+  return speakRaw(LANGS[lang].test, lang).then(r => r ? 'ok' : !voicesFor(lang).length && !Voice.lastError ? 'novoice' : (Voice.lastError || 'silent'));
 }
 /* ----- sound design: every effect is synthesized live, so there are no audio files to load ----- */
 const SFX = { ctx: null, master: null, noise: null };
@@ -180,10 +223,10 @@ function musicPlay(score, from, volume){
 function musicVolume(v){ if (Music.bus && SFX.ctx) Music.bus.gain.setTargetAtTime(v, SFX.ctx.currentTime, 0.05); }
 
 /* ----- the theme song (MEDIA.song in config.js) -----
-   One audio file shared by the intro film and the tabs. It is fetched once and played from a local copy,
-   so its volume can run through Web Audio (the only way to set volume on iPhone). If that isn't possible it
-   plays the file directly. Modes: 'off', 'home' (loops softly behind the tabs), 'film' (the intro film drives it). */
-const Song = { el: null, url: '', local: false, routed: false, gain: null, unlocked: false, failed: false, mode: 'off', vol: 0, duck: 1, ducks: 0, fetching: null, syncT: 0, stopT: 0, src: '' };
+   One audio file shared by the intro film and the tabs. It is fetched once and played from a local copy. On iPhone and
+   iPad its volume runs through Web Audio (the only way to set volume there); elsewhere the element's own volume is used
+   (see songRoute). If the local copy isn't possible it plays the file directly. Modes: 'off', 'home' (loops softly behind the tabs), 'film' (the intro film drives it). */
+const Song = { el: null, url: '', local: false, routed: false, volFixed: null, gain: null, unlocked: false, failed: false, mode: 'off', vol: 0, duck: 1, ducks: 0, fetching: null, syncT: 0, stopT: 0, src: '' };
 /* the file to use on this device: the first source the browser says it can play (or the first, if it won't say) */
 function songSrc(){
   if (Song.src) return Song.src;
@@ -222,8 +265,15 @@ function songUseLocal(){
   Song.local = true; a.src = Song.url;
   if (t > 0 || playing){ const go = () => { a.removeEventListener('loadedmetadata', go); try { a.currentTime = t; } catch (e) {} if (playing) songPlayEl(); }; a.addEventListener('loadedmetadata', go); }
 }
+/* iPhone and iPad ignore an audio element's volume, so there the song plays through Web Audio to be turned up and down.
+   Everywhere else the element's own volume does the job and the song stays out of Web Audio: on Android, a song running
+   through Web Audio could keep the speaking voice from being heard. */
+function songVolumeFixed(){
+  if (Song.volFixed == null){ try { const a = document.createElement('audio'); a.volume = 0.5; Song.volFixed = Math.abs(a.volume - 0.5) > 0.01; } catch (e) { Song.volFixed = true; } }
+  return Song.volFixed;
+}
 function songRoute(){
-  if (Song.routed || !Song.el) return;
+  if (Song.routed || !Song.el || !songVolumeFixed()) return;
   const c = sfxCtx(); if (!c || !c.createMediaElementSource) return;
   try {
     const src = c.createMediaElementSource(Song.el); Song.gain = c.createGain(); Song.gain.gain.value = songLevel();
@@ -260,10 +310,11 @@ function songStop(ramp){
   clearTimeout(Song.stopT);
   Song.stopT = setTimeout(() => { if (Song.vol === 0){ try { a.pause(); } catch (e) {} } }, (ramp || 0.05) * 1000 + 40);
 }
+/* a voice starts (on) or stops speaking: the song turns down under it (MEDIA.song.duck), then comes back up */
 function songDuck(on){
   Song.ducks = Math.max(0, Song.ducks + (on ? 1 : -1));
   const d = Song.ducks && MEDIA.song ? MEDIA.song.duck : 1;
-  if (d !== Song.duck){ Song.duck = d; if (Song.mode !== 'off') songApply(0.25); }
+  if (d !== Song.duck){ Song.duck = d; if (Song.mode !== 'off') songApply(on ? 0.15 : 0.6); }
 }
 /* browsers only let audio start after a tap: the first tap plays the element silently so it can start later */
 function songUnlock(){
@@ -284,9 +335,9 @@ function songGesture(){
 }
 document.addEventListener('pointerdown', songGesture, { capture: true });
 document.addEventListener('keydown', songGesture, { capture: true });
-/* home music: loops on every tab (Learn, Stories, Review, Talk, Me) while no lesson, review, story, chat or film is open, the
-   page is visible and the setting is on. Switching tabs leaves it playing where it is; a lesson pauses it, and it
-   picks up from the same spot afterwards. */
+/* home music: loops on every tab (Learn, Stories, Review, Talk, Friends, Me) while no lesson, review, story, chat or film is
+   open, the page is visible and the setting is on. Switching tabs leaves it playing where it is; a lesson pauses it, and it
+   picks up from the same spot afterwards. A speaking voice turns it down. */
 function musicVol(){ return S.settings.musicVol == null ? 0.6 : S.settings.musicVol; }
 function homeMusicOn(){ return !!(MEDIA.song && S.settings.homeMusic && musicVol() > 0); }
 function homeVol(){ return musicVol() * MEDIA.song.home; }
