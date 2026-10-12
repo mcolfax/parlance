@@ -6,7 +6,7 @@ Parlance is Matt's own German and Latin American Spanish course, a replacement f
 
 There is also a **web version** for people without Claude at **https://parlance-iota.vercel.app**. Vercel (project `parlance`) builds it from `main` with `node dev/web.js` (see `vercel.json`). Its accounts and database are the Supabase project **Parlance** (`ibrweunxigetiazzuwiz`). The tutor features (Talk, lessons on demand, tutor grading, Studio synthesis) stay Claude-only. See "Two homes" in `docs/ARCHITECTURE.md`.
 
-The look is **Selva** (built in 4.4.0). The remaining design choices (Pip and the cast style) are in Claude Design: https://claude.ai/artifact/Qzi2d6c6LteToAfVtkPqJd, with notes and concept-art sources in `design/`. The character rig (Pip now, the other parrots next) is in `design/rig/`: Pip is rigged in Blender (`design/rig/blender/pip.blend`, played by `pip3d.js`). Read `design/rig/README.md` and `design/rig/blender/README.md` before touching Pip's art or moves, and run `node design/rig/check.js`.
+The look is **Selva** (built in 4.4.0). The remaining design choices (Pip and the cast style) are in Claude Design: https://claude.ai/artifact/Qzi2d6c6LteToAfVtkPqJd, with notes and concept-art sources in `design/`. The character rig is in `design/rig/`: all five birds (Pip, and Kiwi, Mango, Kakadu and Rojo, which learners can pick instead in Me → Your bird) are traced from their model sheets and rigged in Blender (`design/rig/blender/<bird>.blend`, played by `pip3d.js`). Read `design/rig/README.md` and `design/rig/blender/README.md` before touching a bird's art or moves, and run `node design/rig/check.js`.
 
 Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and explains live content, the feedback loop and the theme song.
 
@@ -19,11 +19,11 @@ Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and exp
   - Merges must keep fields they don't recognize.
 - **Change things once, in their home.**
   - Colors, type, spacing, radii, motion and layers live in `styles/tokens.css`. Don't write literal colors elsewhere.
-  - Version, release notes, XP, quests, badges, Talk scenarios and media live in `js/config.js`.
+  - Version, release notes, XP, quests, badges, Talk scenarios, the birds learners can pick and media live in `js/config.js`.
   - Sounds are entries in `SOUNDS` in `js/core/audio.js`; play them with `sfx('name')`.
   - Music goes through `Song` and `MEDIA.song`.
   - Icons live in `IC` in `js/core/util.js`.
-  - Pip is drawn by the rig: `js/core/rig.js` (runtime), `js/core/bird.js` (the shared bird: skeleton, poses, moods, moves) and `js/core/pip.js` (Pip's part sheet, written by `design/rig/tools/trace/build_pip.py`). `js/core/art.js` wraps it as `pip()` (alive) and `pipSVG()` (a still). Pip's colors are the `--pip-*` tokens.
+  - The birds are drawn by the rig: `js/core/rig.js` (runtime), `js/core/bird.js` (the shared bird: skeleton, poses, moods, moves) and a part sheet per bird: `js/core/pip.js` (written by `design/rig/tools/trace/build_pip.py`) and `kiwi.js`, `mango.js`, `kakadu.js`, `rojo.js` (written by `design/rig/tools/trace/run.sh <bird>`; loaded only when picked). `js/core/art.js` wraps them as `pip()` (the learner's bird, alive) and `pipSVG()` (a still). Their colors are the `--pip-*`, `--kiwi-*` … tokens. The birds learners can pick are `MASCOTS` in `js/config.js`; the choice is `settings.mascot`.
   - The cast and the illustrations are pure SVG functions in `js/core/art.js`.
 - **Content is data** in `content/*.js`.
   - A lesson needs 4+ vocab, 3+ sentences, and blanks with exactly one `___` and 2+ distinct options.

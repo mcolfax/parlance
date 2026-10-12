@@ -12,7 +12,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `styles/components.css` | Screen-level styles grouped by feature | change one screen |
 | `styles/film.css`, `styles/features.css` | Intro film; feedback, Studio, update banner, What's new | change those features |
 | `styleguide.html` | Living style guide rendered from the tokens and art functions | review the design system |
-| `js/config.js` | Version, release notes, XP economy, daily quests, badges, Talk scenarios | tune the game or ship a version |
+| `js/config.js` | Version, release notes, XP economy, daily quests, badges, Talk scenarios, the birds learners can pick (`MASCOTS`) | tune the game or ship a version |
 | `js/core/util.js` | DOM helper `h()`, dates, hashing, icons, particles, haptics | add an icon or helper |
 | `js/core/text.js` | Answer normalization, typo/accent tolerance, word-by-word comparison of an answer that counts with the expected one, glossary index | change how answers are checked |
 | `js/core/content.js` | Content helpers, course assembly, live pack validation, stable review keys | change how content is organized |
@@ -23,15 +23,16 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `js/core/remote.js` | Live content packs, update banner, announcements, What's new, sharing a lesson | change live updates |
 | `js/core/host.js` | The web version's accounts and database: the same `window.claude.use()` surface, backed by Supabase | change how the web version signs in or stores data |
 | `js/core/social.js` | Friends: cards, invite codes, the inbox handshake, duels and cheers (see "Friends" below) | change how friends connect or what they share |
-| `js/core/rig.js`, `js/core/bird.js`, `js/core/pip.js` | Pip's rig: the SVG runtime (blending, moves, blinks, springs, the head turn), the shared bird (skeleton, poses, faces, moods, moves) and Pip's part sheet traced from the model sheet. `design/rig/` holds the Blender file, the tracing tools and the review pages | change how Pip looks or moves (read `design/rig/README.md` first) |
-| `js/core/art.js` | `pip()` (a live Pip that moves and talks when tapped and looks where you touch) and `pipSVG()` (a still), cast portraits, unit signs, scenes, chest, medals (pure SVG) | change illustrations |
+| `js/core/rig.js`, `js/core/bird.js`, `js/core/pip.js` | The birds' rig: the SVG runtime (blending, moves, blinks, springs, the head turn), the shared bird (skeleton, poses, faces, moods, moves) and Pip's part sheet traced from the model sheet. `design/rig/` holds the Blender files, the tracing tools and the review pages | change how a bird looks or moves (read `design/rig/README.md` first) |
+| `js/core/kiwi.js`, `mango.js`, `kakadu.js`, `rojo.js` | The other birds' part sheets, traced the same way. Not in `index.html`: one loads when a learner picks that bird (see "Your bird" below) | change how that bird looks |
+| `js/core/art.js` | `pip()` (the learner's bird, alive: it moves and talks when tapped and looks where you touch) and `pipSVG()` (a still), loading a picked bird (`loadMascot`), cast portraits, unit signs, scenes, chest, medals (pure SVG) | change illustrations |
 | `content/*.js` | Lessons, stories, cast, glossary (data only) | add or fix built-in content |
 | `js/ui/*.js` | One file per screen: learn, review, stories, talk, friends, me, runner (lessons), onboarding, film, feedback, studio | change a screen |
 | `js/main.js` | Boot order | rarely |
 | `dev/test.js` | End-to-end tests (jsdom) | run before every publish |
 | `dev/preview.py`, `dev/files.js` | Local preview server; the list of files to publish | rarely |
 | `dev/web.js`, `vercel.json` | Builds the web version into `dist/` (page, Home Screen manifest and icon tags); Vercel runs it on every push to `main` | change how the web version is served |
-| `dev/icons.js`, `media/icons/` | Draws the web version's Home Screen icons from Pip's art and the tokens | Pip changes |
+| `dev/icons.js`, `media/icons/` | Draws the web version's Home Screen icons from Pip's art and the tokens (the icon is always Pip) | Pip changes |
 | `dev/keep-awake.js`, `.github/workflows/keep-awake.yml` | Reads the web database three times a day so the free Supabase project isn't paused; a failed run means it's down | rarely |
 | `dev/supabase.sql` | The web version's database: the document table and the SQL functions that enforce the access rules | add a database path or rule |
 
@@ -73,6 +74,15 @@ The same files run in two places.
 - **How it plays.** The file is fetched once and played from a local copy. On iPhone and iPad its volume runs through Web Audio, the only way to set volume there; everywhere else the audio element's own volume is used, because on Android a song running through Web Audio could keep the speaking voice from being heard. If the local copy is refused, it plays the file directly.
 - **To swap the song**, encode the new track into both formats with the same names, or change `MEDIA.song.sources`:
   `ffmpeg -i song.wav -c:a aac -b:a 128k -movflags +faststart media/abc-adventure.mp4` and `ffmpeg -i song.wav -c:a libopus -b:a 96k media/abc-adventure.webm`. Bump the version so people get the Refresh banner.
+
+## Your bird
+
+Pip is the bird every learner starts with. In Me → Your bird, anyone can pick Kiwi the budgie, Mango the amazon parrot, Kakadu the cockatoo or Rojo the macaw instead (`MASCOTS` in `config.js`; Parlance 4.9.0).
+
+- **One skeleton, five part sheets.** Every bird has the same moods and moves (`js/core/bird.js`), so screens ask `pip(mood)` for a mood and get the learner's bird. Each bird's colors are tokens (`--kiwi-body` …); their effects follow Pip's.
+- **Loaded when picked.** Only Pip's part sheet is in `index.html`. `loadMascot(id)` adds `js/core/<id>.js` with a script tag; `Bird.make` registers each bird in `Bird.birds`. The picker loads all four as it opens. A learner who picked another bird gets its part sheet before the first screen (`js/main.js` waits up to 2.5 s, then Pip stands in until it arrives). A bird picked on another device loads on the next redraw (`ensureMascot`).
+- **Saved and synced.** The choice is `settings.mascot` (schema 6), so it syncs with the other settings. A bird this version doesn't know is kept in the settings and drawn as Pip.
+- **Where it shows.** Every `pip()` and `pipSVG()` (screens, the intro film, the feedback sheet), `avatar('pip')`, and `cast('pip')`, which gives the bird's name and voice wherever Pip speaks (Talk, the lesson finish). Copy that names Pip uses `mascot().name`. Two places stay Pip: the Home Screen icon, and a friend's picture when they chose Pip (`avatar(id, size, cls, true)`).
 
 ## Live content without a release
 

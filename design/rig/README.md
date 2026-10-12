@@ -1,15 +1,16 @@
 # Character rig
 
-Pip, and later Kiwi, Mango, Kakadu and Rojo, are traced from their model sheets and rigged. The app draws Pip with
-the SVG rig in `js/core/` (runtime, shared bird and Pip's part sheet), and the Blender file is built from the same
-drawings, poses and moves for the three.js player and for editing by eye. See [`blender/README.md`](blender/README.md)
-for how to open, edit and export Pip in Blender.
+Pip, Kiwi, Mango, Kakadu and Rojo are traced from their model sheets and rigged on one shared skeleton. The app draws
+them with the SVG rig in `js/core/` (runtime, shared bird and a part sheet per bird), and each bird's Blender file is
+built from the same drawings, poses and moves for the three.js player and for editing by eye. Learners pick the bird
+they learn with in Me → Your bird (since Parlance 4.9.0; Pip by default). See [`blender/README.md`](blender/README.md)
+for how to open, edit and export a bird in Blender.
 
-- **Review page:** [`index.html`](index.html), published for review at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF (private until shared). Each section has a Comment button that opens the viewer's comment box on it. Open it locally with `npm run preview`, then go to http://127.0.0.1:8765/design/rig/index.html.
-- **Blender rig:** `blender/pip.blend`, exported to `blender/pip.gltf.json` and played by `blender/pip3d.js`.
-- **In the app:** `js/core/pip.js` (the traced drawings), `js/core/bird.js` (the shared skeleton, poses, faces, moods and moves) and `js/core/rig.js` (the SVG runtime). `pip()` and `pipSVG()` in `js/core/art.js` use them, and the Blender build starts from them. The SVG rig's own review page is `svg.html`.
+- **Review page:** [`index.html`](index.html), published for review at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF (private until shared). Pick a bird at the top (or link to one: `index.html#kakadu`). Each section has a Comment button that opens the viewer's comment box on it. Open it locally with `npm run preview`, then go to http://127.0.0.1:8765/design/rig/index.html.
+- **Blender rigs:** `blender/<bird>.blend` (pip, kiwi, mango, kakadu, rojo), each exported to `blender/<bird>.gltf.json` and played by `blender/pip3d.js`.
+- **In the app:** `js/core/pip.js`, `kiwi.js`, `mango.js`, `kakadu.js` and `rojo.js` (each bird's traced drawings), `js/core/bird.js` (the shared skeleton, poses, faces, moods and moves) and `js/core/rig.js` (the SVG runtime). `pip()` and `pipSVG()` in `js/core/art.js` draw the learner's bird with them, and the Blender build starts from them. The SVG rig's own review page is `svg.html` (`svg.html#rojo` for another bird).
 - **Figma:** the first part sheet is on the Pip page of the [design file](https://www.figma.com/design/ZOAqSm0kQAjzkppKF0jLlS), as described in Figma below.
-- **Check the data:** `node design/rig/check.js` must end with `ok`.
+- **Check the data:** `node design/rig/check.js` must end with `ok`. It checks all five birds, and that every color a drawing uses is in its bird's palette.
 
 ## Why this method
 
@@ -24,7 +25,7 @@ for how to open, edit and export Pip in Blender.
 
 1. **Part sheet.** Each bird is drawn once, as on its model sheet (turned a little to the viewer's right), in a shared *setup space*: 240 units wide, centre x 120, ground at y 250. Every body part is a separate closed shape that tucks under its neighbor (wing roots under the head, legs under the body) so joints never gap when they rotate. Paired parts are drawn on the left and mirrored.
 2. **Skeleton.** 29 bones with pivots at the joints: neck, shoulders, crest roots, eyes, beak, jaw and so on. A bone's transform is a rotation, scale and offset around its pivot, and children follow their parents.
-3. **Slots and swaps.** The draw order is a list of slots. Each slot hangs on a bone and shows one drawing at a time, so eyes (open, happy, closed, wide, lidded, heart…), mouths and wing shapes (folded, open, spread) are swaps, not new rigs. Every wing shape shares one rest angle, so a wing can change shape mid-swing. Some swaps follow a bone's angle (`swaps` in `bird.js`): the far wing hangs against the body as a sliver and opens into a whole wing once it swings more than 15° away.
+3. **Slots and swaps.** The draw order is a list of slots. Each slot hangs on a bone and shows one drawing at a time, so eyes (open, happy, closed, wide, lidded, heart…), mouths and wing shapes (folded, open, spread) are swaps, not new rigs. Every wing shape shares one rest angle, so a wing can change shape mid-swing. Some swaps follow a bone's angle (`swaps` in `bird.js`): Pip's far wing hangs against the body as a sliver and opens into a whole wing once it swings more than 15° away. A slot can also show only while another shows certain drawings (`showWith`): Mango's, Kakadu's and Rojo's eye whites go with an open eye, so a happy or closed eye is a line on the face, as on their cheer drawings.
 4. **Poses, faces, moods.** A *pose* sets body bones, a *face* sets expression slots and brow bones, and a *mood* is a pose plus a face plus an optional move. Screens ask for moods (`happy`, `cheer`, `oops`…), and changing mood blends from wherever the bird is.
 5. **Moves (clips).** Keyframed tracks on bone channels, params and slots, layered on top of the pose (additive by default). Hop, cheer, wobble, wave, dance, flap, nod, shake, bow and more.
 6. **Alive between moves.** Procedural layers run on top: breathing, a slow head drift, blinks, quick glances, and springs on the crest feathers and tail. Those springs give follow-through and overlapping action for free.
@@ -41,11 +42,13 @@ for how to open, edit and export Pip in Blender.
 | `js/core/rig.js` | The runtime: matrices, pose blending, clips, idle, blink, talk, look-at, springs, 2.5D turn, mirrors, static SVG export, validation. No dependencies. |
 | `js/core/bird.js` | The shared bird: skeleton, slots, poses, faces, moods, moves, springs and the effects any bird can show (sweat, tear, blush, sparkles, notes, zzz, ?, !, hearts). |
 | `js/core/pip.js` | Pip's part sheet and palette, and nothing else. Written by `tools/trace/build_pip.py`. |
-| `index.html` | The review page: the live Blender rig, moods and moves, the concept-vs-rig wipe, the mood library, and how to edit Pip in Blender. |
-| `blender/` | The Blender rig (`pip.blend`), its web export, the three.js player and the build scripts. See its README. |
-| `svg.html` | The SVG rig's review page: live stage, pose library, part sheet, skeleton, puppet sliders. |
-| `check.js` | Validates every bird and renders every mood once. |
-| `reference/` | Concept art. `pip-happy/cheer/oops.webp` are crops aligned to rig units (1 px = 0.5 unit) for the compare view; `*-sheet.webp` are the full model sheets for each bird. |
+| `js/core/kiwi.js`, `mango.js`, `kakadu.js`, `rojo.js` | The other birds' part sheets and palettes. Written by `tools/trace/build_bird.py` from each bird's trace and template (`tools/trace/birds/`). The app loads one only when a learner picks that bird. |
+| `index.html` | The review page: pick a bird, then the live Blender rig, moods and moves, the concept-vs-rig wipe, the mood library, and how to edit it in Blender. |
+| `blender/` | The Blender rigs (`<bird>.blend`), their web exports, the three.js player and the build scripts. See its README. |
+| `svg.html` | The SVG rig's review page: live stage, pose library, part sheet, skeleton, puppet sliders. `#kiwi` (and so on) shows another bird. |
+| `check.js` | Validates every bird, renders every mood once and checks every drawing's colors are in its palette. |
+| `reference/` | Concept art. `*-sheet.webp` are the full model sheets for each bird; `<bird>-happy.webp` and `<bird>-cheer.webp` (and `pip-oops.webp`) are crops aligned to rig units (1 px = 0.5 unit) for the compare views. |
+| `tools/trace/` | The tracing tools: Pip's scripts, and the kit, per-bird scripts and pipeline (`run.sh`) for the others. See its README. |
 | `tools/bake.js` | Exports the drawings as plain SVG and the moods as instance matrices for Figma or another vector tool. |
 | `tools/figma-state.json` | The Figma node IDs made for the rig, and what's still to do there. |
 
@@ -74,21 +77,41 @@ feature's angle on the head's sphere comes from where it is drawn (x 120 is the 
 
 ## Drawing a new bird (the part-sheet spec)
 
-A bird file calls `Bird.make({ id, name, palette, parts, pivots })`. Use `js/core/pip.js` as the template.
+A bird file calls `Bird.make({ id, name, palette, parts, pivots })`. Kiwi, Mango, Kakadu and Rojo are made the way
+`tools/trace/README.md` describes: a config (`birds/<bird>.json`: the sheet's scale, the crops and the colors), a trace
+script (`birds/<bird>.py`) and a template (`birds/<bird>.tpl.js`), put together by `sh tools/trace/run.sh <bird>`.
 
-1. **Start from the concept sheet** in `reference/`, at 1 px = 0.5 unit with the head centred on x 120 and the ground on y 250. Pip is traced straight from it with the scripts in `tools/trace/` (see its README): the neutral drawing is the setup pose, turned a little to the viewer's right (`turn.setup` 0.22, so turn 0 still faces front), and outlines are strokes (`ol`, `ol2` for the beak) only where the sheet has ink. The belly and eye patches have no outline, the head runs into the chest without a chin line, and the crest sits in front of the crown.
-2. **Draw every slot below.** Missing drawings fail `check.js`, because shared poses ask for them.
-   - `head.on`, `body.on`, `belly.on`, `tail.fan`, `crest1/2/3.on`, `patchL/R.on`, and `headLine.on` (the head's outline, drawn over the eyes; optional)
-   - `pupilL/R`: open, wide, wet, happy, closed, blink, lidded, squeeze, heart
+1. **Start from the concept sheet** in `reference/`. `prep.py` scales it to 1 px = 0.5 unit with the feet on the
+   ground line, so every bird stands the same height as Pip, and the crops put the head's centre on x 120. A bird drawn
+   turned to the viewer's right, like Pip and Rojo, keeps `turn.setup` 0.22 (turn 0 still faces front); a bird drawn
+   facing front, like Kiwi, Mango and Kakadu, sets `turn.setup` 0 and `bodyMin` below 0, so its body turns either way.
+   Outlines are strokes (`ol`, `ol2` for the beak) only where the sheet has ink, at the sheet's own weight
+   (`lines.min`: 2.6 for most, 3.5 for Kiwi). Measure it with `kit.measure_lw`.
+2. **Draw every slot below.** Missing drawings fail `check.js`, because shared poses ask for them. A slot a bird
+   doesn't have (a crest, an eye patch) is simply left out.
+   - `head.on`, `body.on`, `tail.fan`, and `headLine.on` (the head's outline, drawn over the eyes; optional). Pip also
+     has `belly.on`, `crest1/2/3.on` and `patchL/R.on`
+   - `pupilL/R`: open, wide, wet, happy, closed, blink, lidded, squeeze, heart. Only open and happy are traced:
+     `Bird.eyes(side, [x, y, rx, ry], open, happy)` draws the rest in the sheets' brush style
    - `browL/R.arc`
-   - `beak`: closed, open, up (the raised upper beak for wide mouths). `mouth`: closed, smile, frown, grin, open, wide, o. Closed mouths (closed, smile, frown, o) are whole beaks; open ones are the lower beak under the upper one
-   - `wingL/R`: folded, spread, both at the hanging rest angle around the shoulder pivot. Author the spread wing raised and wrap it in `rotate(-132 86 164)`, as Pip does. `wingR.open` is the far wing once it swings away from the body: Pip's is the near wing mirrored and foreshortened with `Bird.draw.xform`, which bakes a matrix into the path points so outlines keep their weight.
-   - `look.room`: how far each pupil can move and stay in its eye white, `[right, left, down, up]` (`tools/trace/fit_pupil_room.py` measures it)
+   - `beak`: closed, open, up (the raised upper beak for wide mouths). `mouth`: closed, smile, frown, grin, open, wide,
+     o. A bird whose upper beak always shows (Mango, Kakadu, Rojo) draws the jaw in `mouth` and folds it up for the
+     closed shapes
+   - `wingL/R`: folded, spread, both at the hanging rest angle around the shoulder pivot. Trace the spread wing from
+     the cheer drawing, carried on in behind the body to the shoulder, and turn it back down by the angle the cheer
+     drawing raises it (`kit.raise_angle`); the bird's cheer pose raises it by the same angle
+   - `look.room`: how far each pupil can move and stay in its eye white, `[right, left, down, up]`
+     (`kit.pupil_room`)
    - `legL/R`: stand, tuck
-3. **Species extras** are extra bones and slots: Kakadu's five-feather crest, Rojo's face patch lines, Kiwi's cere and throat dots. Pass `bones` (after their parents) and `slots` (a function that edits the shared draw order).
-4. **Palette roles.** Fill classes are `k-<role>`, strokes are `s-<role>`, and a rim on a filled shape is `t-<role>`. Add `o` for the ink outline, `ln` for feature lines and `ln2` for fine detail. Every bird needs `ink, body, body2, belly, face, beak, beak2, mouth, tongue, crest, crest2, tail, tail2, feet`. Effect colors default in `bird.js`.
+3. **Species extras** are extra bones and slots: Kakadu's seven crest feathers (`crest1`–`crest7`) and the tuft over
+   their roots, Mango's crest tuft, the eye slots that go with an open eye (`showWith`). Pass `bones` (after their
+   parents; a bone with a shared bone's id changes that bone, its turn say) and `slots` (a function that edits the
+   shared draw order). A bird without Pip's far-wing swap or eye clips passes `swaps: []` or its own `clip`.
+4. **Palette roles.** Fill classes are `k-<role>`, strokes are `s-<role>`, and a rim on a filled shape is `t-<role>`. Add `o` for the ink outline, `ln` for feature lines and `ln2` for fine detail. Every role a drawing uses must be in the palette (`check.js` checks); `kit.color` measures each from the sheet. Effect colors default in `bird.js`. Each bird's colors are also tokens in `styles/tokens.css` (`--kiwi-body` …).
 5. **Pivots** only move when a bird's proportions need it (`pivots: { wingL: [84, 166] }`). Keep angles and names the same so every pose still works.
-6. **Tune with an overlay.** Render the rig over the concept crop at half opacity and fix shapes until it sits on the drawing. The review page's onion-skin view does this.
+6. **Tune with an overlay.** `node tools/trace/compare.js <bird> out.png [mood] [n|c]` renders the rig over the
+   concept crop (concept | rig | onion skin), and `node tools/trace/moods.js <bird> out.png` draws every mood on one
+   sheet. The review pages' wipe views do the same.
 
 ## Runtime API
 
@@ -107,9 +130,16 @@ Rig.validate(PIP)            // list of problems, [] when fine
 
 Live rigs share one animation frame loop, pause off screen and in background tabs, and hold still (no idle, springs or moves) for people who ask for reduced motion.
 
-## In the app (since Parlance 4.5.0)
+## In the app (since Parlance 4.5.0; every bird since 4.9.0)
 
-- `rig.js`, `bird.js` and `pip.js` live in `js/core/` and load before `js/core/art.js`.
+- `rig.js`, `bird.js` and `pip.js` live in `js/core/` and load before `js/core/art.js`. The other birds' part sheets
+  (`kiwi.js`, `mango.js`, `kakadu.js`, `rojo.js`) aren't in `index.html`: `loadMascot(id)` in `art.js` adds one when a
+  learner picks that bird, and `Bird.make` puts every bird it makes in `Bird.birds`.
+- The learner's bird is `S.settings.mascot` (Pip by default; `MASCOTS` in `config.js` lists the birds with their
+  names, what they are, a blurb and their voice). Me → Your bird picks one. `pip()`, `pipSVG()` and `avatar('pip')`
+  draw the learner's bird, `mascot()` gives its name and voice, and `cast('pip')` is the bird wherever Pip speaks (Talk,
+  stories). A picked bird's part sheet loads before the first screen (`js/main.js`); a bird this version doesn't know
+  is kept in the settings and drawn as Pip. A friend's chosen picture of Pip stays Pip (`avatar(id, size, cls, true)`).
 - `pip(mood, size, opts)` is a live rig (`Rig.create`): it breathes, blinks, glances, plays the mood's move, looks
   where you touch the screen, does a different move each time it's tapped (hop, wave, look around, dance, bow, nod; a
   sleeping Pip wakes with a start) and moves its beak while the spoken line plays. `mouth` mouths its speech bubble,
@@ -119,14 +149,15 @@ Live rigs share one animation frame loop, pause off screen and in background tab
   nothing to show, `proud` once the day's goal is met, `love` by the feedback button and `sad` before a reset.
   `pipSVG(mood, size, view)` is a still (`Rig.svg`) for the route marker, avatars (a head-and-shoulders view), the
   intro film and the Home Screen icons (`dev/icons.js`). Both frame Pip in the 120 x 114 box screens were laid out for.
-- The palette is the `--pip-*` tokens in `styles/tokens.css`. To have Pip wear the language's line color, set
-  `--pip-body: var(--line)` there.
+- The palette is the `--pip-*` tokens in `styles/tokens.css` (`--kiwi-*` and so on for the others). To have Pip wear
+  the language's line color, set `--pip-body: var(--line)` there.
 - Live rigs share one animation frame loop, sleep off screen, and let go of their observers once their screen is
   gone, so screens that redraw often don't pile them up.
-- `dev/test.js` validates the rig and renders every mood.
-- **Changing Pip:** poses, faces, moods and moves are data in `js/core/bird.js`; the app follows them directly. Then
-  rebuild the Blender file and its export with `blender/build/build.sh`, so the review page matches. A pose edited only
-  in Blender changes the three.js player, not the app.
+- `dev/test.js` validates every bird's rig, renders every mood, and covers picking a bird and loading it.
+- **Changing a bird:** poses, faces, moods and moves are data in `js/core/bird.js` (and a bird's own changes in its
+  template); the app follows them directly. Then rebuild the Blender file and its export with
+  `blender/build/build.sh <bird>`, so the review page matches. A pose edited only in Blender changes the three.js
+  player, not the app.
 
 ## Figma
 

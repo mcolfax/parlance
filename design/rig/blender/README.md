@@ -1,23 +1,24 @@
-# Pip in Blender
+# The birds in Blender
 
-Pip's rig is a Blender file, played in the browser with three.js. The drawing is traced from the model sheet
-(`../reference/pip-sheet.webp`), and it hangs on real bones, so wings, crest feathers and the tail bend instead of
-swinging as stiff pieces.
+Each bird's rig is a Blender file, played in the browser with three.js: `pip.blend`, `kiwi.blend`, `mango.blend`,
+`kakadu.blend` and `rojo.blend`. The drawings are traced from the model sheets (`../reference/<bird>-sheet.webp`), and
+they hang on real bones, so wings, crest feathers and the tail bend instead of swinging as stiff pieces. Pip is the
+example below; the others are built and edited the same way.
 
-- **Review page:** [`../index.html`](../index.html), published at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF
-- **Source:** `pip.blend` (Blender 5.2 LTS, free from blender.org)
-- **Web export:** `pip.gltf.json`, a glTF file with its data embedded, so it publishes like any JSON file
-- **Player:** `pip3d.js`, a classic script that loads three.js 0.185 from jsdelivr on first use
+- **Review page:** [`../index.html`](../index.html), published at https://claude.ai/artifact/Hcm6kmpuy6GhhNZEsTZtSF (pick a bird at the top)
+- **Source:** `<bird>.blend` (Blender 5.2 LTS, free from blender.org)
+- **Web export:** `<bird>.gltf.json`, a glTF file with its data embedded, so it publishes like any JSON file
+- **Player:** `pip3d.js`, a classic script that plays any of them and loads three.js 0.185 from jsdelivr on first use
 
 ## Files
 
 | File | What it is |
 |---|---|
-| `pip.blend` | The rig: Pip's drawings as flat meshes, 103 bones, and every mood and move as an action. Edit this. |
-| `pip.gltf.json` | What the player loads. Made from `pip.blend` by `build/export.py`; don't edit it by hand. |
+| `<bird>.blend` | A bird's rig: its drawings as flat meshes, its bones (103 for Pip, 115 for Kakadu with its seven crest feathers), and every mood and move as an action. Edit this. |
+| `<bird>.gltf.json` | What the player loads. Made from the `.blend` by `build/export.py`; don't edit it by hand. |
 | `pip3d.js` | The player: mood blends, moves layered on top, drawing swaps, and the live parts (below). |
 | `build/export.py` | Exports `pip.blend` to `pip.gltf.json`. Run it after every edit. |
-| `build/build.sh` | Rebuilds `pip.blend` from scratch from the traced part sheet (`js/core/pip.js`) and the SVG rig's moods (`js/core/bird.js`). It overwrites hand edits, so use it only to start over. |
+| `build/build.sh` | Rebuilds `<bird>.blend` from scratch from the traced part sheet (`js/core/<bird>.js`) and the SVG rig's moods (`js/core/bird.js`). It overwrites hand edits, so use it only to start over. |
 | `build/*.py`, `build/bake_moods.js` | The steps `build.sh` runs: flatten the drawings to polygons, build the meshes and bones, bake the moods into actions. |
 
 ## How the rig is built
@@ -26,12 +27,14 @@ swinging as stiff pieces.
    ink shapes) becomes a flat mesh with a palette material. Pip stands in Blender's front plane (X right, Z up); 1
    part-sheet unit is 1 cm, and x 120 / ground y 250 of the sheet sit at the origin. Draw order is depth: later
    slots sit nearer the camera.
-2. **Bones.** The 29 bones of the shared bird skeleton (`js/core/bird.js`), with pivots from the trace, plus bending
-   chains: three bones down each wing drawing, two along each crest feather, three along the tail. Chain meshes are
+2. **Bones.** The bones of the shared bird skeleton (`js/core/bird.js`) and the bird's own (Kakadu's extra crest
+   feathers), with pivots from the trace, plus bending chains: three bones down each wing drawing, two along each
+   crest feather the bird has, three along the tail. Chain meshes are
    skinned with smooth weights; other drawings ride their bone. Every bone's local Z axis points at the viewer, so a
    bone's turn in the picture is its Z rotation.
-3. **Swappable drawings.** A slot with several drawings (eyes, beaks, mouths, wing shapes, legs, effects) has a
-   `show_<slot>_<drawing>` bone per drawing. Scale 1 shows the drawing; a hair above 0 hides it.
+3. **Swappable drawings.** A slot with several drawings (eyes, beaks, mouths, wing shapes, legs, effects), or one that
+   shows only with an open eye (an eye's white), has a `show_<slot>_<drawing>` bone per drawing. Scale 1 shows the
+   drawing; a hair above 0 hides it.
 4. **Moods are actions.** Each mood (happy, cheer, oops…) is one action: the pose, the face and the move, with the
    same easing as the SVG rig, plus wing bends the cut-out rig couldn't do. Actions named `move_<name>` (hop, nod,
    shake…) are offsets from rest that the player layers on top of any mood. An action's custom properties say
@@ -46,8 +49,8 @@ swinging as stiff pieces.
 
 ## Editing Pip
 
-1. Open `pip.blend` in Blender 5.2 or later. Press `1` on the number pad (View › Viewpoint › Front).
-2. Select the `Pip rig` armature, switch to Pose Mode, and open the Dope Sheet's **Action Editor**. Pick a mood,
+1. Open `pip.blend` (or another bird's) in Blender 5.2 or later. Press `1` on the number pad (View › Viewpoint › Front).
+2. Select the `Pip rig` armature (`Kiwi rig`, and so on), switch to Pose Mode, and open the Dope Sheet's **Action Editor**. Pick a mood,
    scrub the timeline, rotate bones with `R` and key them with `I`. Graph Editor curves set the timing and easing.
 3. To change a face, key the `show_…` bones' scale (1 to show, 0 to hide) at the frame it should switch.
 4. To add a mood, duplicate an action, rename it, and set its frame range and `loop` property.
@@ -77,7 +80,8 @@ happen 30% into a blend (wing shapes at 62%, once the wing is most of the way ro
 - mirrors the bird and the head from the `ctl_` bones. In a blend a control passes between its two values, so the
   bone takes its sign and never gets narrower than 0.72: Pip squashes a little as it turns round. A question
   mark or music notes stay the right way round under a mirror.
-- opens the far wing: it shows the `open` drawing whenever the wing is more than 15° from rest, in any mood or move.
+- opens Pip's far wing: it shows the `open` drawing whenever the wing is more than 15° from rest, in any mood or move.
+- shows an eye's white only while the eye is open (`showWith`: Mango, Kakadu, Rojo), blinks included.
 - keeps each pupil inside its eye white (the room in the settings), and clips it to the white with a stencil, so a
   pupil at the edge tucks under it. Live rigs share one animation
 frame loop, sleep off screen and in background tabs, and hold still for people who ask for reduced motion.
@@ -88,7 +92,7 @@ for it (`../index.html` has one), or the player adds one before the first module
 
 ## Rebuilding from the part sheet
 
-`build/build.sh [python]` regenerates `pip.blend` and `pip.gltf.json` from the traced drawings and the SVG rig's
-moods. It needs Node and a Python with `bpy`, `svgelements`, `shapely` and `mapbox_earcut`
-(`pip install bpy svgelements shapely mapbox_earcut`; `bpy` 5.2 runs on Python 3.13). It starts `pip.blend` over,
+`build/build.sh [bird] [python]` regenerates `<bird>.blend` and `<bird>.gltf.json` (Pip's by default) from the traced
+drawings and the SVG rig's moods. It needs Node and a Python with `bpy`, `svgelements`, `shapely` and `mapbox_earcut`
+(`pip install bpy svgelements shapely mapbox_earcut`; `bpy` 5.2 runs on Python 3.13). It starts the `.blend` over,
 so once the file has been edited in Blender, change it there and use `export.py`.
