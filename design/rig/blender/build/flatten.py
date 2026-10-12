@@ -1,6 +1,6 @@
-"""Flatten Pip's SVG drawings (drawings.json, exported from pip.js) into colored polygons in rig units.
+"""Flatten a bird's SVG drawings (drawings.json, exported from its part sheet) into colored polygons in rig units.
 Fills keep their holes (even-odd); strokes become filled ribbons with round caps and joins, at the widths the
-rig uses for a large Pip (outline 2.6 units, beak 1.3). Writes shapes.json:
+rig uses for a large bird (the sheet's outline, lines.min: 2.6 units for Pip, and its thin beak line). Writes shapes.json:
   { "<slot>/<attachment>": [ {"color": "#rrggbb", "alpha": 1, "polys": [[exterior, hole, ...], ...]}, ... ] }
 in draw order within each drawing."""
 import io, json, re, sys, math

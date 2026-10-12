@@ -1,4 +1,4 @@
-"""Build Pip's Blender rig from shapes.json (flattened drawings) and drawings.json (skeleton, slots, palette).
+"""Build a bird's Blender rig from shapes.json (flattened drawings) and drawings.json (skeleton, slots, palette).
 
 Layout: the bird stands in Blender's front plane (X right, Z up), seen from the front (-Y). 1 rig unit = 1 cm,
 x 120 / ground y 250 of the part sheet sit at the origin. Draw order is depth: later slots sit nearer the camera.
@@ -7,7 +7,7 @@ rotation. Wings, crest feathers and the tail are chains of bones with smooth wei
 several drawings (eyes, mouths, wing shapes…) gets a small show_<slot>_<drawing> bone per drawing; an action shows a drawing by
 keeping its show bone at scale 1 and hides the others at scale 0.
 Usage: python build_blend.py <work dir> <out.blend>"""
-import sys, json, math
+import sys, json, math, re
 import bpy, bmesh
 from mathutils import Vector, Matrix
 import numpy as np
@@ -57,7 +57,7 @@ slot_index = {s['id']: i for i, s in enumerate(slots)}
 atts = {}
 for key in SH:
     s, a = key.split('/'); atts.setdefault(s, []).append(a)
-CHAIN_ATTS = {('wingL', 'folded'), ('wingL', 'spread'), ('wingR', 'folded'), ('wingR', 'open'), ('wingR', 'spread')}
+CHAIN_ATTS = {(s_, a) for s_ in ('wingL', 'wingR') for a in ('folded', 'open', 'spread') if a in atts.get(s_, [])}
 
 def extent_tip(key, pivot):
     """farthest drawn point from the pivot"""
@@ -69,8 +69,9 @@ def extent_tip(key, pivot):
                 if d > bd: bd, best = d, (x, y)
     return best
 
-arm_data = bpy.data.armatures.new('Pip rig')
-arm = bpy.data.objects.new('Pip rig', arm_data)
+NAME = D.get('name', 'Pip')
+arm_data = bpy.data.armatures.new(NAME + ' rig')
+arm = bpy.data.objects.new(NAME + ' rig', arm_data)
 scene.collection.objects.link(arm)
 arm_data.display_type = 'STICK'
 bpy.context.view_layer.objects.active = arm
@@ -107,7 +108,7 @@ def lerp(a, b, t): return (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
 show = {}
 for s in slots:
     sid = s['id']; choices = atts.get(sid, [])
-    if len(choices) > 1 or s.get('att') is None:
+    if len(choices) > 1 or s.get('att') is None or s.get('showWith'):
         bone = bones[s['bone']]
         for a in choices:
             n = 'show_%s_%s' % (sid, a)
@@ -119,7 +120,7 @@ for (sid, a) in CHAIN_ATTS:
     tip = extent_tip(sid + '/' + a, piv)
     pts = [lerp(piv, tip, t) for t in (0, 0.36, 0.68, 1.0)]
     chains[(sid, a)] = chain('%s_%s' % (sid, a), show[(sid, a)], pts)
-for cid in ('crest1', 'crest2', 'crest3'):
+for cid in sorted(c for c in bones if re.fullmatch(r'crest\d', c) and c + '/on' in SH):
     bone = bones[cid]; piv = (bone['x'], bone['y'])
     tip = extent_tip(cid + '/on', piv)
     chains[(cid, 'on')] = chain(cid + '_bend', cid, [piv, lerp(piv, tip, 0.5), tip])
@@ -136,7 +137,7 @@ for target, name in CTLS:
     print('driver', target, 'simple' if drv.is_simple_expression else 'python')
 
 # ---------------- meshes ----------------
-coll = bpy.data.collections.new('Pip parts'); scene.collection.children.link(coll)
+coll = bpy.data.collections.new(NAME + ' parts'); scene.collection.children.link(coll)
 def build_mesh(name, shapes, depth):
     verts, faces, mat_idx, ms = [], [], [], []
     for k, sh in enumerate(shapes):

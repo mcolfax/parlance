@@ -1,4 +1,4 @@
-"""Export Pip's Blender rig for the web: pip.blend -> pip.gltf.json next to it.
+"""Export a bird's Blender rig for the web: <bird>.blend -> <bird>.gltf.json next to it (pip.blend -> pip.gltf.json).
 
 Run it from Blender (Scripting tab: open this file, Run Script), or from a shell:
   blender -b design/rig/blender/pip.blend -P design/rig/blender/build/export.py
@@ -8,7 +8,7 @@ The player's settings are rebuilt from the file every time, so the .blend is the
 - every action is a mood, and an action named move_<name> is a move layered on top (hop, nod…);
 - an action's frame range is its length, and its custom property 'loop' (1 or 0) says whether it repeats;
 - its keys on the show_<slot>_<drawing> bones say which drawing each slot shows, and when (scale 1 shows);
-- 'blink' and 'glance' properties (0 to turn off) say whether Pip blinks and glances in that mood.
+- 'blink' and 'glance' properties (0 to turn off) say whether the bird blinks and glances in that mood.
 The rest (look, idle, springs, mouth shapes, the view) lives on the scene as the custom property pip3d_base."""
 import os, sys, json, struct, base64, tempfile
 import bpy
@@ -135,8 +135,8 @@ def compact(glb):
 
 def run(out_json=None):
     scene = bpy.context.scene
-    arm = bpy.data.objects['Pip rig']
-    out_json = out_json or os.path.join(os.path.dirname(bpy.data.filepath), 'pip.gltf.json')
+    arm = next(o for o in bpy.data.objects if o.type == 'ARMATURE')
+    out_json = out_json or os.path.splitext(bpy.data.filepath)[0] + '.gltf.json'
     scene['pip3d'] = json.dumps(build_cfg(scene, arm))
     ad = arm.animation_data
     keep_action = ad.action if ad else None

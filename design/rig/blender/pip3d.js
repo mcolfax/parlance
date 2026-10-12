@@ -1,7 +1,8 @@
 "use strict";
 /* ===================== PIP 3D =====================
-   Plays Pip's Blender rig with three.js. blender/pip.blend is the source; its glTF export (pip.gltf.json) carries
-   the meshes, the bones, every mood and move as an animation, and the settings this player needs. The player:
+   Plays a bird's Blender rig with three.js: Pip's, or any of the cast's (kiwi, mango, kakadu, rojo). blender/<bird>.blend
+   is the source; its glTF export (<bird>.gltf.json) carries the meshes, the bones, every mood and move as an animation,
+   and the settings this player needs. The player:
    - cross-fades moods and layers moves (hop, nod…) on top,
    - switches drawings (eyes, mouths, wing shapes) at the right moment of a fade,
    - and runs the live parts: breathing, blinks, quick glances, looking at a point, talking, and spring
@@ -311,6 +312,8 @@ const Pip3D = (() => {
         w.on = angleOf(w) >= (w.on ? w.deg - 3 : w.deg);
         S[w.slot] = w.on ? w.to : w.from;
       }
+      // slots that show only with certain drawings of another (an eye's white goes with an open eye, also mid-blink)
+      for (const sid in cfg.slots) { const sw = cfg.slots[sid].showWith; if (sw) S[sid] = sw.drawings.includes(S[sw.slot]) ? cfg.slots[sid].att : null; }
       applySlots(S);
       root.updateMatrixWorld(true);
       for (const b of upright) { const s = Math.abs(b.scale.x); b.scale.x = side(b) < 0 ? -s : s; }

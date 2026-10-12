@@ -1,7 +1,7 @@
-"""Add Pip's moods and moves to pip.blend as actions, then export it for the web with export.py.
+"""Add a bird's moods and moves to its .blend as actions, then export it for the web with export.py.
 Moods are whole poses with their move (absolute values); moves (move_hop …) are offsets from rest, layered on top
 by the player. Show bones (show_<slot>_<drawing>) switch drawings: scale 1 shows, a hair above 0 hides.
-Usage: python animate_blend.py <work dir> <pip.blend> <pip.gltf.json>"""
+Usage: python animate_blend.py <work dir> <bird.blend> <bird.gltf.json>"""
 import os, sys, json, math
 import bpy
 
@@ -12,7 +12,7 @@ D = json.load(open(W + '/drawings.json'))
 S, DZ, FPS = 0.01, 0.01, 30
 HIDE = 1e-4
 scene = bpy.context.scene; scene.render.fps = FPS
-arm = bpy.data.objects['Pip rig']
+arm = next(o for o in bpy.data.objects if o.type == 'ARMATURE')
 pb = arm.pose.bones
 slot_ids = [s['id'] for s in D['slots']]
 slot_index = {s: i for i, s in enumerate(slot_ids)}
@@ -125,7 +125,7 @@ for name, m in M['moves'].items():
     act.frame_range = (0, max(round(m['dur'] * FPS), 1)); act.use_frame_range = True
     act['loop'] = 1 if m['loop'] else 0
     made.append(act)
-# every action on its own (muted) NLA track, so the exporter writes them all; Pip opens in the happy mood
+# every action on its own (muted) NLA track, so the exporter writes them all; the bird opens in the happy mood
 ad = arm.animation_data
 for act in made:
     tr = ad.nla_tracks.new(); tr.name = act.name
@@ -139,8 +139,8 @@ for b in arm.data.bones:
         _, sid, att = b.name.split('_', 2); atts.setdefault(sid, []).append(att)
 # what the player needs besides the actions; export.py adds the moods and moves from the actions themselves
 scene['pip3d_base'] = json.dumps({
-    'version': 1, 'view': D['view'], 'unit': S, 'fps': FPS,
-    'slots': {s['id']: {'bone': s['bone'], 'att': s.get('att'), 'atts': atts.get(s['id'], []), 'blink': s.get('blink')} for s in D['slots']},
+    'version': 1, 'id': D.get('id', 'pip'), 'name': D.get('name', 'Pip'), 'view': D['view'], 'unit': S, 'fps': FPS,
+    'slots': {s['id']: dict({'bone': s['bone'], 'att': s.get('att'), 'atts': atts.get(s['id'], []), 'blink': s.get('blink')}, **({'showWith': s['showWith']} if s.get('showWith') else {})) for s in D['slots']},
     'look': D['look'], 'idle': D['idle'], 'springs': D['springs'], 'mouth': D['mouth'], 'visemes': D['visemes'],
     'swaps': D.get('swaps', []), 'mirror': D.get('mirror', {}), 'clip': D.get('clip', []),
     'bones': {b['id']: [b['x'], b['y']] for b in D['bones']},

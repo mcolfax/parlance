@@ -1,12 +1,12 @@
 /* Bake every mood (and the layered moves) of the SVG rig into sparse keyframes for Blender.
    Values are what the SVG rig shows: pose + face + move, with the 2.5D turn and the look offsets folded in.
-   Usage: node bake_moods.js <dir with rig.js and pip.js, js/core> <out.json>
+   Usage: node bake_moods.js <dir with rig.js and the bird's part sheet, js/core> <out.json> [bird, pip by default]
    Output: { moods: { name: { loop, dur, bones: { bone: { ch: [[t, v, ease], …] } }, slots: { slot: [[t, att]] }, depth: { slot: d } } },
              moves: { name: { loop, dur, bones: … } } }   (moves are offsets from rest, for layering on any mood) */
 const path = require('path');
-const [dir, out] = process.argv.slice(2);
+const [dir, out, bird = 'pip'] = process.argv.slice(2);
 const Rig = require(path.join(dir, 'rig.js'));
-const def = require(path.join(dir, 'pip.js'));
+const def = require(path.join(dir, bird + '.js'));
 const c = Rig.compile(def);
 const EASE = Rig.EASE;
 const DEG = Math.PI / 180;
@@ -72,6 +72,11 @@ function evaluate(pose, clip, t, withPose = true) {
   for (const w of def.swaps || []) {
     const cur = slots[w.slot] !== undefined ? slots[w.slot] : c.slotById[w.slot].att;
     if (cur === w.from || cur === w.to) slots[w.slot] = Math.abs(chans[w.bone].r) >= w.deg ? w.to : w.from;
+  }
+  // slots that show only with certain drawings of another slot (an eye's white with an open eye)
+  for (const sl of c.slots) if (sl.showWith) {
+    const ref = c.slots[sl.showWith.ref], cur = slots[ref.id] !== undefined ? slots[ref.id] : ref.att;
+    slots[sl.id] = sl.showWith.drawings.includes(cur) ? sl.att : null;
   }
   drive(chans, params);
   for (const id in chans) { const ch = chans[id]; if (ch.a !== 1) { ch.sx *= ch.a; ch.sy *= ch.a; } delete ch.a; }
