@@ -60,13 +60,14 @@ p{margin:0}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 
 /* Top bar */
-.top{display:flex;align-items:center;gap:12px;padding-top:4px}
-.brand{display:flex;align-items:center;gap:8px;font:700 24px/1 var(--display)}
+.top{display:flex;align-items:center;gap:12px;padding-top:4px;min-width:0}
+.brand{display:flex;align-items:center;gap:8px;font:700 24px/1 var(--display);min-width:0;overflow:hidden}
+.brand-name{white-space:nowrap}
 .brand .mark{position:relative;width:26px;height:22px;flex:none}
 .brand .mark i{position:absolute;width:17px;height:17px;top:2px}
 .brand .mark i:first-child{left:0;background:var(--de);border-radius:50% 50% 50% 8px}
 .brand .mark i:last-child{left:9px;background:var(--es);border-radius:50% 50% 8px 50%;opacity:.95}
-.seg{display:inline-flex;margin-left:auto;background:var(--surface);border:0;box-shadow:0 0 0 2px var(--hair);border-radius:var(--r-pill);padding:4px}
+.seg{display:inline-flex;flex:none;margin-left:auto;background:var(--surface);border:0;box-shadow:0 0 0 2px var(--hair);border-radius:var(--r-pill);padding:4px}
 .seg button{border:0;background:transparent;border-radius:var(--r-pill);padding:7px 13px;font:var(--type-label);color:var(--muted);transition:background-color .25s,color .25s,box-shadow .25s}
 .seg button[aria-pressed="true"]{background:var(--line);color:var(--line-ink)}
 .small-seg{margin-left:0}
@@ -74,6 +75,18 @@ p{margin:0}
 .top .music-btn.on{background:var(--line-soft);color:var(--line-text);border-color:transparent;box-shadow:0 3px 0 var(--line-soft-edge)}
 .top .music-btn + .seg{margin-left:0}
 .top .music-btn.on svg{animation:notebob 2.4s var(--ease) infinite}
+.top .music-btn{flex:none}
+/* Phones: the logo, the music button and the language switch share one row. Under 420px they tighten up;
+   under 370px the wordmark steps aside (screen readers still hear it) and the two-leaf mark stays. */
+@media (max-width:420px){
+  .top{gap:8px}
+  .brand{font-size:21px;gap:6px}
+  .top .music-btn{width:40px;height:40px}
+  .top .seg button{padding:7px 10px}
+}
+@media (max-width:370px){
+  .brand-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+}
 @keyframes notebob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-1.5px) rotate(-6deg)}}
 
 /* Cards and fields */

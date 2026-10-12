@@ -114,7 +114,7 @@ function leagueCard(){
   const m = FR.metric, rows = leagueRows(), ranked = rows.filter(r => !r.gone);
   const list = h('ol', { class: 'fr-league' }, rows.map((r, i) => {
     const val = metricValue(r, m), rank = ranked.indexOf(r) + 1;
-    return h('li', { class: (r.me ? 'me' : '') + (r.gone ? ' gone' : '') + (rank === 1 && val > 0 ? ' top' : ''), style: '--i:' + i },
+    return h('li', { class: (r.me ? 'me' : '') + (r.gone ? ' gone' : '') + (rank === 1 && val > 0 ? ' first' : ''), style: '--i:' + i },
       h('button', { class: 'fr-row', type: 'button', onclick: () => r.me ? openCardSetup() : openFriend(r.id) },
         h('span', { class: 'fr-rank', 'aria-label': r.gone ? null : 'Rank ' + rank }, r.gone ? '·' : rank),
         avatar(r.bird, 42),
