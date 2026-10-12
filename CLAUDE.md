@@ -1,6 +1,6 @@
 # Parlance: notes for Claude Code
 
-Parlance is Matt's own German and Latin American Spanish course, a replacement for Babbel and Duolingo. He uses it mostly on his iPhone. It is a static web app with no build step: the files in this repo are the files that run. It is published as a multi-file Claude artifact:
+Parlance is Matt's own German and Latin American Spanish course, a replacement for Babbel and Duolingo. He uses it mostly on his Android phone, in Chrome: the web version installed to his Home Screen, and the Claude version. Check audio, speech and layout changes in Chrome on Android first (about 412px wide). Some of his friends use iPhones, so Safari still matters. It is a static web app with no build step: the files in this repo are the files that run. It is published as a multi-file Claude artifact:
 
 **https://claude.ai/artifact/8ZNHqMUCms2THTSfDkTp72**
 
