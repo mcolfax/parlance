@@ -351,6 +351,34 @@ async function main(){
     }
     H.dom.window.close(); bad.dom.window.close();
   }
+  /* ---------- 3c. lesson openings: forms tables and the extra-words list ---------- */
+  {
+    const T3 = await makeDom(); T3.P.S.settings.onboarded = true;
+    let withTables = 0, total = 0;
+    for (const lang of ['de', 'es']) for (const l of T3.P.COURSE[lang].units.flatMap(u => u.lessons)){
+      total++;
+      const tb = l.tip.tables || [];
+      if (tb.length) withTables++;
+      ok(tb.length <= 3, l.id + ' has at most 3 tables');
+      ok(l.tip.body.length > 0 && l.tip.body.length <= 900, l.id + ' tip body length ' + l.tip.body.length);
+      for (const t of tb){
+        const cols = (t.head || t.rows[0]).length;
+        ok(t.rows.length >= 1 && t.rows.length <= 8 && cols >= 1 && cols <= 4, l.id + ' table size ' + t.rows.length + 'x' + cols);
+        ok(t.rows.every(r => r.length === cols && r.every(c => typeof c === 'string' && c.trim())) && (!t.head || t.head.every(c => typeof c === 'string')), l.id + ' table cells');
+        ok(!(lang === 'es' && /vosotros/i.test(JSON.stringify(t))), l.id + ' no vosotros');
+      }
+    }
+    ok(withTables >= total * 0.9, 'most lessons have a forms table: ' + withTables + ' of ' + total);
+    const ov = () => T3.w.document.querySelector('.overlay:not(.out)');
+    T3.E('startLesson("de-1-2")');
+    ok(ov().querySelector('.tip .forms table tbody tr'), 'the lesson opening shows a forms table');
+    ok(/Also in the sentences/.test(ov().textContent) || T3.E('lessonForms(getLesson("de-1-2")).length') === 0, 'the opening lists extra words');
+    ok(T3.E('lessonForms(getLesson("es-1-3"))').every(f => f.w && f.val && f.w !== 'Ana'), 'extra words have meanings and skip names');
+    // a pack lesson keeps its tables, and bad ones are cleaned
+    const pk = T3.E('packTables([["Cap", ["a","b"], [["1","2"],["3","4"]]], "junk", ["x", null, []]])');
+    ok(pk.length === 1 && pk[0][2].length === 2, 'pack tables are cleaned');
+    T3.dom.window.close();
+  }
   /* ---------- 4. drive the UI through every lesson ---------- */
   const w = A.w, E = A.E;
   const Run = () => E('Run');
