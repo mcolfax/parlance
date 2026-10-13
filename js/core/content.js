@@ -86,7 +86,7 @@ function lessonForms(l){
     const seen = new Set(), out = {};
     // a capital mid-sentence is a name (or, in German, a noun we know) – names get no meaning of their own
     const keys = (text) => String(text).split(/\s+/).map(p => ({ p, c: coreWord(p) })).filter(x => /\p{L}/u.test(x.c))
-      .map((x, i) => ({ w: x.c, k: fold(norm(x.c, lang)), name: i > 0 && x.c[0] !== x.c[0].toLowerCase() && !(lang === 'de' && NOUNS.has(x.c)) }));
+      .map((x, i) => ({ w: lang === 'es' && i === 0 ? x.c[0].toLowerCase() + x.c.slice(1) : x.c, k: fold(norm(x.c, lang)), name: i > 0 && x.c[0] !== x.c[0].toLowerCase() && !(lang === 'de' && NOUNS.has(x.c)) }));
     for (const les of coreOrder(lang)){
       for (const v of les.vocab) for (const t of [v.t, ...v.alt]) keys(t).forEach(x => seen.add(x.k));
       const here = [];
