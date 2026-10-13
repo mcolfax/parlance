@@ -163,3 +163,13 @@ data/users/{self}  (platform default: private to each person)
 - XP amounts, quests, badges and scenarios are data in `config.js`, not literals in screens.
 - Everything a learner reads is plain, warm English in sentence case.
 - Every word in a built-in story has a meaning when tapped: from the lessons, `COMMON_GLOSS`, `STORY_GLOSS` (both in `content/glossary.js`) or a cast member's name. `glossLookup()` also finds dictionary forms from common endings (bezahlst → bezahlen, vende → vender). When you add or change a story, `npm test` lists any word that still needs a `STORY_GLOSS` entry. Words outside the built-in content (Talk, live packs) are looked up by the tutor when Claude is there; otherwise the popover shows the whole line's translation.
+
+## Practice beyond lessons
+
+- **Word hints** (`HINTS` in `config.js`, `hintMode()` in `engine.js`): sentence prompts, blanks and answers can be tapped for a word's meaning; the help fades by level (A: full, B: tap only, C: off) and `settings.hints` overrides it. `lessonForms()` lists the forms and extra words a lesson's sentences use that earlier lessons haven't shown.
+- **Forms tables in tips**: `T(title, body, examples, tables)` with `tables = [[caption, head | null, rows]]`. They are also the source for form drills and for naming a wrong form.
+- **Wrong forms** (`formMiss()`, `sameWordForm()` in `engine.js`, `FORM_PASS` in `config.js`): an answer that is right except for the form of a word gets a note saying what was off. At A1–A2 it counts; from B1 it doesn't. Multiple-choice blanks never count, but explain.
+- **Fix my mistakes**: `langs[lang].miss` is `{ itemKey: { ts, ok } }` (wrong at `ts`, right again at `ok`); `noteMiss()` writes it in `showFeedback`, `mistakeEntries()` reads it, `startMistakes()` runs the session. Merging keeps the newest of each.
+- **Form drills** (`formDrills()`, `formEx()`): rows of a tip table with pronoun labels become "which form goes with …" questions (multiple choice up to A2, typed from B1). Two end every lesson; `startForms()` drills them from the Review tab.
+- **Unit checkpoints** (`buildCheckpoint()`, `CHECKPOINT`, `langs[lang].cp`): twelve questions once a unit's lessons are done, pass at 80%, first pass pays `XP.checkpoint`. Wrong answers are not asked again during a checkpoint or placement.
+- **Placement** (`startPlacement()`, `PLACEMENT`): level by level from A1, a few questions each; it stops at the first level with fewer than three right and sets `langs[lang].start` (Me → Practice → Find my level).

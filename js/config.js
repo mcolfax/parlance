@@ -4,7 +4,7 @@
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
 const APP_VERSION = '4.15.0';
-const SCHEMA_VERSION = 7;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
    functions that apply the same access rules as the artifact (dev/supabase.sql).
@@ -14,7 +14,11 @@ const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publisha
 const RELEASES = [
   { v: '4.15.0', date: '2026-10-13', title: 'Forty more lessons in each language', notes: [
     'New units at every level, in German and in Spanish. A1: questions and small talk. A2: body and health. B1: cooking and eating, and travel and trouble. B2: careers, and society. C1: business and negotiation, and academic language. C2: nuance and humor, and culture and language.',
-    'Each one opens with a full explanation and forms tables, like the rest of the course.'] },
+    'Each one opens with a full explanation and forms tables, like the rest of the course.',
+    'Review has a new “Fix my mistakes” session: everything you recently got wrong, until you get it right.',
+    '“Practice verb forms and endings” drills the tables from your lessons, and every lesson now ends with a couple of those questions.',
+    'Each unit has a checkpoint: twelve questions once its lessons are done. Score 80% to pass.',
+    'Not sure where to start? In Me, tap “Find my level”.'] },
   { v: '4.14.0', date: '2026-10-13', title: 'Why a form is off', notes: [
     'When you write the right word in the wrong form, such as the wrong ending for the person, Parlance now tells you what was off and which form the sentence needs.',
     'In A1 and A2 the answer still counts, so you can keep going while you learn the forms. From B1 on it doesn’t count, and the notes say why.',
@@ -135,7 +139,10 @@ const MASCOTS = {
   rojo:   { name: 'Rojo',   kind: 'macaw',         blurb: 'Big, bold and a little dramatic.', pitch: 0.95, rate: 0.98, src: 'js/core/rojo.js' }
 };
 /* XP economy */
-const XP = { perAnswer: 1, lesson: 5, perfectBonus: 5, review: 3, story: 8, storyPerfect: 4, chest: 15, talkPerMsg: 2, talkMax: 20, duelWin: 20 };
+const XP = { perAnswer: 1, lesson: 5, perfectBonus: 5, review: 3, story: 8, storyPerfect: 4, chest: 15, talkPerMsg: 2, talkMax: 20, duelWin: 20, checkpoint: 25 };
+/* Unit checkpoints (a short test once a unit's lessons are done) and the placement test (Me → Starting level). */
+const CHECKPOINT = { questions: 12, pass: 0.8 };
+const PLACEMENT = { perLevel: 5, pass: 3 };
 /* Friends (js/core/social.js, js/ui/friends.js). Friends must use the same home: the Claude artifact and the web version
    keep separate databases. links: where an invite sends people. duel: days a duel runs. answer: days a challenge waits
    for an answer. keep: days a finished duel stays on screen. history: days of activity your card shows friends (it has to

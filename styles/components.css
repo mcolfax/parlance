@@ -168,6 +168,9 @@ li.locked .st-title{color:var(--muted)}
 .forms thead th{font-size:13px;color:var(--muted);border-top:0}
 .forms tbody th{color:var(--muted);font-weight:600}
 .forms td b,.forms th b{color:var(--line-text)}
+.form-cap{font-size:15px}
+.form-prompt{font-size:34px}
+.stations.checkpoint{margin-top:6px}
 .ex-line{display:flex;flex-direction:column;gap:2px;padding:9px 0;border-top:1px solid var(--hair-2)}
 .ex-line .t{display:flex;align-items:center;gap:10px;font:700 18px var(--body)}
 .ex-line .e{font-size:15px;color:var(--muted)}

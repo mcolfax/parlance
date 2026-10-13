@@ -214,6 +214,7 @@ function buildLesson(lesson){
   Bx(2);
   let flip = false;
   for (let i = 0; i < nV; i++) if (!used.has(i)){ V(flip ? 'mc-e2t' : 'mc-t2e', i); flip = !flip; }
+  shuffle(formDrills(lesson)).slice(0, 2).forEach(d => out.push(formEx(lesson, d)));   // the forms in the lesson's tables
   return out;
 }
 function reviewEx(entry){
@@ -225,6 +226,75 @@ function reviewEx(entry){
   const ex = makeEx(types[Math.floor(Math.random() * types.length)], entry.lesson, entry.kind, entry.i);
   ex.srs = entry.key;
   return ex;
+}
+
+/* ===================== MISTAKES, FORM DRILLS, CHECKPOINTS, PLACEMENT ===================== */
+/* a wrong answer (or a form that only counted at an early level) puts the item on the "Fix my mistakes" list until you get it right */
+function noteMiss(lang, key, bad){
+  if (!key) return;
+  const m = S.langs[lang].miss, now = Date.now(), x = m[key];
+  if (bad) m[key] = { ts: now, ok: x ? +x.ok || 0 : 0 };
+  else if (x && x.ts > (+x.ok || 0)) m[key] = { ts: x.ts, ok: now };
+}
+function mistakeEntries(lang){
+  const out = [];
+  for (const [k, x] of Object.entries(S.langs[lang].miss)) if (x && x.ts > (+x.ok || 0)){ const r = resolveKey(k); if (r) out.push({ ...r, card: cardsFor(lang)[k] || { n: 0 }, at: x.ts }); }
+  return out.sort((a, b) => b.at - a.at);
+}
+/* the rows of a lesson's forms tables (pronoun → form) that can be asked as "which form goes with …" */
+function formDrills(lesson){
+  const out = [], clean = s => String(s).replace(/\*\*/g, '').trim();
+  for (const t of (lesson.tip && lesson.tip.tables) || []){
+    if (t.head || t.rows.length < 4) continue;
+    const rows = t.rows.filter(r => r.length >= 2 && clean(r[0]) && clean(r[0]).length <= 16 && clean(r[1]) && clean(r[1]).length <= 24 && !/^[–—-]$/.test(clean(r[1])) && !/[\/,]/.test(clean(r[1])));
+    const forms = [...new Set(rows.map(r => clean(r[1])))];
+    if (rows.length < 4 || forms.length < 4) continue;
+    for (const r of rows) out.push({ cap: clean(t.cap), label: clean(r[0]), form: clean(r[1]), pool: forms });
+  }
+  return out;
+}
+function formEx(lesson, d){
+  const typed = LEVELS.indexOf(lesson.level) >= 2;
+  return { id: ++EXID, type: 'form', lang: lesson.lang, lesson, kind: 'f', mode: typed ? 'type' : 'mc', cap: d.cap, label: d.label, correct: d.form,
+    options: typed ? null : shuffle([d.form, ...shuffle(d.pool.filter(f => f !== d.form)).slice(0, 3)]), accepted: [d.form], ansLang: lesson.lang,
+    item: { t: d.form, alt: [], e: [d.cap + ' · ' + d.label], g: null } };
+}
+/* a short test over one unit: a mix of its words, phrases, blanks and forms, favouring what you got wrong */
+function buildCheckpoint(unit){
+  const typed = LEVELS.indexOf(unit.level) >= 2, lang = unit.lessons[0].lang, miss = S.langs[lang].miss;
+  const hot = (l, kind, i) => { const x = miss[itemKey(l, kind, i)]; return x && x.ts > (+x.ok || 0) ? 1 : 0; };
+  const pool = { v: [], s: [], b: [], f: [] };
+  for (const l of unit.lessons){
+    l.vocab.forEach((_, i) => pool.v.push({ l, i, h: hot(l, 'v', i) }));
+    l.sentences.forEach((_, i) => pool.s.push({ l, i, h: hot(l, 's', i) }));
+    l.blanks.forEach((_, i) => pool.b.push({ l, i, h: 0 }));
+    formDrills(l).forEach(d => pool.f.push({ l, d, h: 0 }));
+  }
+  const take = (arr, n) => shuffle(arr).sort((a, b) => b.h - a.h).slice(0, n);
+  const want = { v: 4, s: 3, b: 3, f: 2 };
+  if (!pool.f.length){ want.s += 1; want.v += 1; }
+  const chosen = {}; let total = 0;
+  for (const k of Object.keys(want)){ chosen[k] = take(pool[k], want[k]); total += chosen[k].length; }
+  for (const k of ['v', 's', 'b']) if (total < CHECKPOINT.questions){ const more = take(pool[k].filter(x => !chosen[k].includes(x)), CHECKPOINT.questions - total); chosen[k] = chosen[k].concat(more); total += more.length; }
+  const out = [];
+  chosen.v.forEach((x, n) => out.push(makeEx(typed && n % 2 ? 'type-e2t' : n % 2 ? 'mc-e2t' : 'mc-t2e', x.l, 'v', x.i)));
+  chosen.s.forEach((x, n) => out.push(makeEx(typed ? 'type-e2t' : n % 2 ? 'listen' : 'bank-e2t', x.l, 's', x.i)));
+  chosen.b.forEach(x => out.push(blankEx(x.l, x.i)));
+  chosen.f.forEach(x => out.push(formEx(x.l, x.d)));
+  return shuffle(out).slice(0, CHECKPOINT.questions);
+}
+function unitDone(lang, u){ return u.lessons.length > 0 && u.lessons.every(l => isDone(lang, l.id)); }
+/* one level's worth of placement questions: a few words, a blank and a phrase from lessons at that level */
+function placementSet(lang, lv){
+  const ls = coreOrder(lang).filter(l => l.level === lv); if (!ls.length) return [];
+  const pick = () => ls[Math.floor(Math.random() * ls.length)], idx = n => Math.floor(Math.random() * n);
+  const out = [];
+  const vs = shuffle(ls.flatMap(l => l.vocab.map((_, i) => ({ l, i })))).slice(0, 3);
+  vs.forEach((x, n) => out.push(makeEx(n === 2 ? 'mc-e2t' : 'mc-t2e', x.l, 'v', x.i)));
+  const lb = pick(); if (lb.blanks.length) out.push(blankEx(lb, idx(lb.blanks.length)));
+  const ls2 = shuffle(ls.filter(l => l.sentences.length))[0]; if (ls2) out.push(makeEx('bank-e2t', ls2, 's', idx(ls2.sentences.length)));
+  out.forEach(ex => { ex.plv = lv; });
+  return out;
 }
 
 /* ===================== WRONG FORMS ===================== */
@@ -274,8 +344,8 @@ function sameWordForm(a, b, lang, lesson){
   return null;
 }
 /* explain a swap of forms: [{ yours, expected, note }] */
-function formNote(y, e, w, lang){
-  if (w.label && w.yourLabel) return '“' + y + '” is the “' + w.yourLabel + '” form. This sentence needs the “' + w.label + '” form: “' + e + '”.';
+function formNote(y, e, w, lang, drill){
+  if (w.label && w.yourLabel) return '“' + y + '” is the “' + w.yourLabel + '” form. ' + (drill ? 'Here you need the “' : 'This sentence needs the “') + w.label + '” form: “' + e + '”.';
   if (w.lemma && fold(norm(w.lemma, lang)) !== fold(norm(y, lang))) return '“' + y + '” and “' + e + '” are forms of ' + (w.lemma.endsWith('r') || lang === 'de' ? '“' + w.lemma + '”' : 'the same word') + '. Here you need “' + e + '”.';
   return 'It’s the right word in the wrong form. Here you need “' + e + '”.';
 }
@@ -309,11 +379,16 @@ function formMiss(ex, value){
 /* a blank answered with another form of the right word: say why it is wrong */
 function blankFormNote(ex, value){
   const w = sameWordForm(value, ex.correct, ex.lang, ex.lesson);
-  return w ? [{ yours: value, expected: ex.correct, note: formNote(value, ex.correct, w, ex.lang) }] : null;
+  return w ? [{ yours: value, expected: ex.correct, note: formNote(value, ex.correct, w, ex.lang, ex.type === 'form') }] : null;
 }
 
 /* ===================== EVALUATION ===================== */
 function evaluate(ex, value){
+  if (ex.type === 'form' && ex.mode === 'mc'){
+    if (value === ex.correct) return { ok: true, level: 'exact' };
+    const d = blankFormNote(ex, value);
+    return d ? { ok: false, level: 'wrong', diffs: d, note: 'That’s another form of the same word.' } : { ok: false, level: 'wrong' };
+  }
   switch (ex.type){
     case 'mc-t2e': case 'listen-mc': {
       const ok = value === ex.correct || englishVariants(ex.item).some(v => norm(v, 'en') === norm(value, 'en'));

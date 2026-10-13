@@ -116,6 +116,7 @@ function viewMe(){
     h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Word hints'),
       h('div', { class: 'chips' }, [['auto', 'Fade as I level up'], ['always', 'Always'], ['off', 'Off']].map(([k, n]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(S.settings.hints === k), onclick: () => { S.settings.hints = k; touchSettings(); render(); } }, n))),
       h('p', { class: 'small muted' }, S.settings.hints === 'always' ? 'Tap any word in a sentence to see what it means, at every level.' : S.settings.hints === 'off' ? 'Questions show no extra meanings. You can still tap words in an answer.' : 'Tap any word in a sentence to see what it means. Hints are fullest in A1 and A2, tap-only in B1 and B2, and gone from C1.')),
+    h('div', { class: 'field' }, h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => sheet('Find my level', h('p', null, 'A short test: a few questions at each level, starting easy. It stops when the questions get too hard and sets your starting level. It takes about two minutes and doesn’t change your progress.'), [{ label: 'Not now' }, { label: 'Start the test', primary: true, run: () => { startPlacement(); } }]) }, ic('spark'), 'Not sure? Find my level')),
     toggleRow('Speaking exercises', 'speaking', 'Say sentences out loud during lessons.'),
     toggleRow('Tutor grading', 'aiGrade', 'If a typed answer doesn’t match, Claude checks whether it’s still right and explains what’s different.')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Tutor access'),

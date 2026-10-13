@@ -407,6 +407,83 @@ async function main(){
     ok(foot.classList.contains('ok') && /Close enough/.test(foot.textContent) && foot.querySelector('.fb-diffs li'), 'the answer screen shows why: ' + foot.textContent.slice(0, 160));
     F.dom.window.close();
   }
+  /* ---------- 3e. mistakes, form drills, checkpoints and the placement test ---------- */
+  {
+    const Q = await makeDom(); Q.P.S.settings.onboarded = true;
+    const qd = Q.w.document, qov = () => qd.querySelector('.overlay:not(.out)');
+    const qfoot = l => [...qd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === l);
+    const L = () => Q.P.S.langs.es;
+    // form drills come from the tables
+    let drills = 0, lessonsWithDrills = 0;
+    for (const lang of ['de', 'es']) for (const l of Q.P.COURSE[lang].units.flatMap(u => u.lessons)){
+      const d = Q.E('formDrills')(l); drills += d.length; if (d.length) lessonsWithDrills++;
+      for (const x of d){ const ex = Q.E('formEx')(l, x); ok(ex.mode === 'type' || (ex.options.length === 4 && ex.options.includes(ex.correct) && new Set(ex.options).size === 4), l.id + ' form drill options'); ok(Q.P.evaluate(ex, ex.correct).ok, l.id + ' form drill right answer counts'); }
+    }
+    ok(lessonsWithDrills >= 40, 'many lessons have form drills: ' + lessonsWithDrills);
+    const sein = Q.E('getLesson')('es-1-3'), dr = Q.E('formDrills')(sein);
+    if (dr.length){ const ex = Q.E('formEx')(sein, dr[0]); const wrong = ex.options.find(o => o !== ex.correct); const r = Q.P.evaluate(ex, wrong); ok(!r.ok, 'wrong form option never counts'); }
+    // a lesson ends with the form drills
+    ok(Q.E('buildLesson')(Q.E('getLesson')('es-1-3')).some(e => e.type === 'form'), 'lessons include form drills');
+    // mistakes are noted, listed and cleared
+    Q.E('S.settings.lang = "es"');
+    Q.E('startLesson("es-1-1")'); qfoot('Start exercises').click();
+    const ex0 = Q.E('Run.queue.find(e => e.key && e.type !== "match")'); const idx = Q.E('Run.queue.findIndex(e => e.id === ' + ex0.id + ')');
+    Q.E('Run.pos = ' + idx + '; nextEx()');
+    Q.E('Run.value = "zzz nope"; Run.canCheck = true; doCheck()');
+    ok(L().miss[ex0.key] && L().miss[ex0.key].ts > (L().miss[ex0.key].ok || 0), 'a wrong answer is noted');
+    ok(Q.E('mistakeEntries("es").some(e => e.key === ' + JSON.stringify(ex0.key) + ')'), 'it is on the mistakes list');
+    Q.E('endRun()');
+    Q.E('UI.tab = "review"; render()');
+    ok([...qd.querySelectorAll('#app button')].some(b => /Fix my mistakes/.test(b.textContent)), 'the Review tab offers Fix my mistakes');
+    Q.E('startMistakes()');
+    let guard = 0;
+    while (Q.E('Run.active && !Run.finished') && guard++ < 60){
+      const ex = Q.E('Run.cur'); let ans;
+      switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = Q.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = Q.P.tileTokens(ex.item.e[0]).join(' '); break;
+        case 'match': Q.E('Run.pos++; nextEx()'); continue; default: ans = ex.correct; }
+      Q.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()'); qfoot('Continue').click();
+    }
+    ok(Q.E('Run.finished'), 'mistakes session finishes');
+    ok(!Q.E('mistakeEntries("es").some(e => e.key === ' + JSON.stringify(ex0.key) + ')') || Object.values(L().miss).some(m => m.ok >= m.ts), 'right answers clear mistakes');
+    qfoot('Continue').click();
+    // merge keeps the newest ok/ts and the best checkpoint
+    const m = Q.E('mergeLang')({ miss: { k: { ts: 5, ok: 0 } }, cp: { U: { at: '2026-01-01', acc: 0.5, pass: false } } }, { miss: { k: { ts: 3, ok: 9 } }, cp: { U: { at: '2026-02-01', acc: 0.9, pass: true } } });
+    ok(m.miss.k.ts === 5 && m.miss.k.ok === 9 && m.cp.U.pass && m.cp.U.acc === 0.9, 'miss and checkpoint merge');
+    // checkpoint: locked until the unit is done, then a 12-question test
+    const unit = Q.P.COURSE.es.units[0];
+    ok(!Q.E('unitDone')('es', unit), 'unit not done yet');
+    for (const l of unit.lessons) L().done[l.id] = { at: '2026-10-01', acc: 1, times: 1 };
+    ok(Q.E('unitDone')('es', unit), 'unit done');
+    const cpq = Q.E('buildCheckpoint')(unit); ok(cpq.length === 12, 'checkpoint has 12 questions: ' + cpq.length);
+    for (let rep = 0; rep < 5; rep++) for (const ex of Q.E('buildCheckpoint')(unit)) ok(Q.P.evaluate(ex, ex.options ? ex.correct : ex.accepted ? ex.accepted[0] : ex.correct).ok || ex.type === 'match' || ex.tiles, 'checkpoint question answerable ' + ex.type);
+    Q.E('UI.tab = "learn"; UI.open = new Set(["A1"]); UI.openLang = "es"; render()');
+    ok(qd.querySelector('.stations.checkpoint li.next'), 'Learn shows an open checkpoint');
+    Q.E('startCheckpoint(COURSE.es.units[0])');
+    guard = 0;
+    while (Q.E('Run.active && !Run.finished') && guard++ < 60){
+      const ex = Q.E('Run.cur'); let ans;
+      switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = Q.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = Q.P.tileTokens(ex.item.e[0]).join(' '); break;
+        case 'match': Q.E('Run.pos++; nextEx()'); continue; default: ans = ex.correct; }
+      Q.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()'); qfoot('Continue').click();
+    }
+    ok(Q.E('Run.finished') && L().cp[unit.title] && L().cp[unit.title].pass, 'a perfect checkpoint passes and is saved');
+    qfoot('Continue').click();
+    // placement: all right goes to the top, all wrong stays at A1
+    const place = async right => {
+      Q.E('S.settings.lang = "es"; startPlacement()');
+      let g = 0;
+      while (Q.E('Run.active && !Run.finished') && g++ < 80){
+        const ex = Q.E('Run.cur'); let ans;
+        if (right) switch (ex.type){ case 'bank-e2t': ans = Q.P.tileTokens(ex.item.t).join(' '); break; default: ans = ex.correct; }
+        else ans = ex.type === 'bank-e2t' ? 'zzz' : '__wrong__';
+        Q.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()'); qfoot('Continue').click();
+      }
+      const lv = L().start; qfoot('Continue').click(); return lv;
+    };
+    ok(await place(true) === 'C2', 'a perfect placement starts at C2');
+    ok(await place(false) === 'A1', 'a failed placement starts at A1');
+    Q.dom.window.close();
+  }
   /* ---------- 4. drive the UI through every lesson ---------- */
   const w = A.w, E = A.E;
   const Run = () => E('Run');
@@ -677,7 +754,7 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 7 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 8 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
     for (const lang of ['de', 'es']) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }

@@ -5,6 +5,7 @@ function viewReview(){
   const t = today(); let tomorrow = 0, week = 0;
   for (const e of all){ const d = daysBetween(t, e.card.due); if (d === 1) tomorrow++; if (d >= 1 && d <= 7) week++; }
   const v = h('div', { class: 'view' }, topBar());
+  const fix = mistakeEntries(lang).length, forms = formLessons(lang).length;
   v.append(h('section', { class: 'hero' },
     h('div', { class: 'hero-art', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')),
     h('div', { class: 'hero-top' },
@@ -14,7 +15,9 @@ function viewReview(){
         h('p', { class: 'muted' }, due ? 'Each item returns just before you’d forget it. Get it right and it waits longer next time.' : (all.length ? 'Coming up: ' + tomorrow + ' tomorrow, ' + week + ' this week.' : 'Finish a lesson and its words and phrases land here.'))),
       pip(due ? 'ready' : all.length ? 'sleep' : 'think', 72, { cls: 'hero-pip', say: due ? null : all.length ? 'Zzz…' : null })),
     due ? h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => startReview(false) }, 'Review ' + Math.min(due, 20) + ' ' + plural(Math.min(due, 20), 'item')) : null,
-    all.length ? h('button', { class: 'btn btn-ghost btn-wide', type: 'button', onclick: () => startReview(true) }, 'Practice my weakest items') : null));
+    fix ? h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => startMistakes() }, ic('flag'), 'Fix my mistakes (' + fix + ')') : null,
+    all.length ? h('button', { class: 'btn btn-ghost btn-wide', type: 'button', onclick: () => startReview(true) }, 'Practice my weakest items') : null,
+    forms ? h('button', { class: 'btn btn-ghost btn-wide', type: 'button', onclick: () => startForms() }, ic('bulb'), 'Practice verb forms and endings') : null));
   const counts = { new: 0, learning: 0, strong: 0 };
   for (const e of all){ const n = e.card.n || 0; if (n === 0) counts.new++; else if (n < 3) counts.learning++; else counts.strong++; }
   const total = Math.max(1, all.length);

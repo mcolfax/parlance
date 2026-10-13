@@ -132,6 +132,17 @@ function stationList(lessons, lang){
         h('span', { class: 'st-state' }, st === 'done' ? 'Again' : st === 'next' ? 'Start' : st === 'locked' ? ic('lock') : 'Open')));
   }));
 }
+/* the unit checkpoint: a short test that opens once every lesson in the unit is done */
+function checkpointRow(u, lang){
+  const ready = unitDone(lang, u), rec = S.langs[lang].cp[u.title];
+  const state = rec && rec.pass ? 'done' : ready ? 'next' : 'locked';
+  const meta = rec ? (rec.pass ? 'Passed' : 'Not passed yet') + ' · best ' + Math.round((rec.acc || 0) * 100) + '%' : CHECKPOINT.questions + ' questions · ' + Math.round(CHECKPOINT.pass * 100) + '% to pass';
+  return h('ol', { class: 'stations checkpoint' }, h('li', { class: state },
+    h('button', { class: 'station', type: 'button', onclick: () => ready ? startCheckpoint(u) : toast('Finish this unit’s lessons to unlock its checkpoint.') },
+      h('span', { class: 'dot' }, rec && rec.pass ? ic('check') : ic('flag')),
+      h('span', { class: 'st-body' }, h('span', { class: 'st-title' }, 'Unit checkpoint'), h('span', { class: 'st-meta' }, ready || rec ? meta : 'Unlocks when the unit is done')),
+      h('span', { class: 'st-state' }, rec && rec.pass ? 'Again' : ready ? 'Start' : ic('lock')))));
+}
 function confirmLocked(l){
   sheet('Jump ahead?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('point', 56, { tap: false }), h('p', { class: 'grow' }, '“' + l.title + '” is further along your route. You can take it now; nothing is skipped for good.')),
     [{ label: 'Not now' }, { label: 'Start lesson', primary: true, run: () => { startLesson(l.id); } }]);
@@ -154,7 +165,7 @@ function levelSection(lang, lv){
     const done = u.lessons.filter(l => isDone(lang, l.id)).length;
     sec.append(h('div', { class: 'unit' },
       h('div', { class: 'unit-head' }, unitSign(u.title, 46), h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Unit ' + (ui + 1) + ' · ' + done + '/' + u.lessons.length), h('h2', null, u.title))),
-      stationList(u.lessons, lang)));
+      stationList(u.lessons, lang), checkpointRow(u, lang)));
   });
   return sec;
 }

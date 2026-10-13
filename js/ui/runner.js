@@ -62,8 +62,49 @@ function startReview(practice){
   Object.assign(Run, { active: true, started: true, finished: false, mode: practice ? 'practice' : 'review', lang, lesson: null, queue: entries.map(reviewEx), pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 });
   openOverlay('run'); runHead(); recWarm(lang, Run.queue.map(ex => ex.item && ex.item.t).filter(Boolean)); nextEx();
 }
+/* the other ways to practise: your mistakes, the forms in the lesson tables, a unit checkpoint and the placement test */
+function beginSession(mode, lang, queue, extra){
+  Object.assign(Run, { active: true, started: true, finished: false, mode, lang, lesson: null, queue, pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 }, extra || {});
+  openOverlay('run'); sfx('open'); runHead(); recWarm(lang, queue.map(ex => ex.item && ex.item.t).filter(Boolean)); nextEx();
+}
+function startMistakes(){
+  const lang = S.settings.lang, entries = mistakeEntries(lang).slice(0, 12); if (!entries.length) return;
+  // easier question types than a full review: the aim is to fix the item, not to test it cold
+  beginSession('mistakes', lang, shuffle(entries).map(e => reviewEx({ ...e, card: { ...e.card, n: Math.min(2, e.card.n || 0) } })));
+}
+function formLessons(lang){ return coreOrder(lang).filter(l => isDone(lang, l.id) && formDrills(l).length); }
+function startForms(){
+  const lang = S.settings.lang, ls = formLessons(lang); if (!ls.length) return;
+  const all = shuffle(ls.flatMap(l => formDrills(l).map(d => ({ l, d })))).slice(0, 10);
+  beginSession('forms', lang, all.map(x => formEx(x.l, x.d)));
+}
+function startCheckpoint(u){
+  const lang = S.settings.lang; if (!unitDone(lang, u)) return;
+  beginSession('checkpoint', lang, buildCheckpoint(u), { unit: u });
+}
+function startPlacement(){
+  const lang = S.settings.lang, first = LEVELS.find(lv => placementSet(lang, lv).length); if (!first) return;
+  beginSession('placement', lang, placementSet(lang, first), { plv: first, placed: null });
+}
+/* when a level's questions are used up, go up a level if enough were right; otherwise that level is where you start */
+function placementNext(){
+  const right = Run.queue.filter(ex => ex.plv === Run.plv && Run.first.has(ex.id) && Run.first.get(ex.id) !== 'wrong').length;
+  if (right < PLACEMENT.pass){ Run.placed = Run.plv; return false; }
+  const next = LEVELS.slice(LEVELS.indexOf(Run.plv) + 1).find(lv => placementSet(Run.lang, lv).length);
+  if (!next){ Run.placed = Run.plv; return false; }
+  Run.plv = next; Run.queue.push(...placementSet(Run.lang, next)); return true;
+}
+function finishPlacement(){
+  const lang = Run.lang, L = S.langs[lang], lv = Run.placed || 'A1';
+  L.start = lv; L.startTs = Date.now(); touch(lang); UI.openLang = null;
+  runHead(LANGS[lang].name);
+  const vals = [...Run.first.values()], acc = vals.length ? vals.filter(x => x !== 'wrong').length / vals.length : 1;
+  showComplete({ lang, top: 'Placement', title: lv + ' ' + LEVEL_NAME[lv], gold: false, xp: 0, acc, accLabel: 'answered right',
+    h1: 'Your route starts at ' + lv + '.', sub: lv === 'A1' ? 'You’ll begin with the basics. You can change this any time in Me.' : 'Everything before ' + lv + ' stays open if you want it. You can change this any time in Me.',
+    third: [lv, 'your starting level'], badges: [], quests: [], onDone: () => endRun() });
+}
 function nextEx(){
-  if (Run.pos >= Run.queue.length) return finishRun();
+  if (Run.pos >= Run.queue.length){ if (Run.mode === 'placement' && placementNext()) return nextEx(); return finishRun(); }
   const ex = Run.queue[Run.pos];
   Run.cur = ex; Run.value = null; Run.checking = false;
   setProgress();
@@ -99,6 +140,7 @@ async function doCheck(){
   showFeedback(ex, res);
 }
 function feedbackAnswer(ex){
+  if (ex.type === 'form') return { t: ex.correct, en: ex.cap + ' · ' + ex.label, target: true };
   if (ex.type === 'blank') return { t: blankSaid(ex.blank), en: ex.blank.e, target: true };
   if (ex.type === 'match') return null;
   return { t: ex.item.t, en: ex.item.e[0], target: ['mc-e2t', 'type-e2t', 'bank-e2t', 'listen', 'speak'].includes(ex.type) };
@@ -123,12 +165,13 @@ function showFeedback(ex, res){
       }
     }
   }
+  if (first && ex.key && Run.mode !== 'placement'){ noteMiss(Run.lang, ex.key, !res.ok || res.level === 'form'); touch(Run.lang); }
   if (res.ok && first && res.level === 'exact'){ Run.combo++; Run.bestCombo = Math.max(Run.bestCombo, Run.combo); }
   if (first && res.ok && Run.mode === 'review') Run.reviewsRight = (Run.reviewsRight || 0) + 1;
   else if (!res.ok) Run.combo = 0;
   if (!res.ok){
     const tries = (Run.tries.get(ex.id) || 0) + 1; Run.tries.set(ex.id, tries);
-    if (tries <= 3){ const again = { ...ex, peeked: false }; if (again.options) again.options = shuffle(again.options); if (again.tiles) again.tiles = shuffle(again.tiles); Run.queue.push(again); }
+    if (tries <= 3 && Run.mode !== 'checkpoint' && Run.mode !== 'placement'){ const again = { ...ex, peeked: false }; if (again.options) again.options = shuffle(again.options); if (again.tiles) again.tiles = shuffle(again.tiles); Run.queue.push(again); }
   }
   setProgress();
   const ans = feedbackAnswer(ex);
@@ -368,6 +411,12 @@ const RENDER = {
     for (let i = 0; i < left.length; i++) grid.append(lb[i], rb[i]);
     return h('div', { class: 'ex' }, qLabel('Match the pairs'), grid);
   },
+  form(ex, api){
+    const typed = ex.mode === 'type';
+    const head = [qLabel(typed ? 'Write the form' : 'Choose the form'), h('p', { class: 'muted form-cap' }, ex.cap), h('div', { class: 'prompt form-prompt', lang: LANGS[ex.lang].tts }, ex.label + ' …')];
+    if (typed){ const box = answerBox(api, ex.lang, 'Type the form'); return h('div', { class: 'ex' }, ...head, box, charBar(box, ex.lang)); }
+    return h('div', { class: 'ex' }, ...head, options(ex.options, o => { api.set(o); api.ready(true); speak(o, ex.lang); }));
+  },
   speak(ex, api){
     const wrap = h('div', { class: 'ex' }, qLabel('Say this out loud'), targetPrompt(ex.item, ex.lang, false, ex), h('p', { class: 'muted' }, ex.item.e[0]));
     const heard = h('p', { class: 'heard', 'aria-live': 'polite' });
@@ -416,12 +465,13 @@ function questStrip(ids){
 /* ----- finish ----- */
 function finishRun(){
   Run.finished = true;
+  if (Run.mode === 'placement') return finishPlacement();
   const lang = Run.lang;
   const uniq = [...Run.first.values()];
   const firstOk = uniq.filter(x => x !== 'wrong').length;
   const acc = uniq.length ? firstOk / uniq.length : 1;
   const flawless = uniq.length > 0 && uniq.every(x => x === 'exact');
-  let newItems = [], xp = Run.xp, title, top, levelUp = null;
+  let newItems = [], xp = Run.xp, title, top, levelUp = null, h1o = null, subo = null, cpPass = false;
   const before = questSnapshot();
   if (Run.mode === 'lesson'){
     const l = Run.lesson; const cards = cardsFor(lang);
@@ -434,8 +484,17 @@ function finishRun(){
     if (l.core && !wasComplete && levelComplete(lang, l.level)) levelUp = l.level;
     title = l.title; top = levelUp ? levelUp + ' complete' : 'Lesson complete';
     bumpQuest('lessons', 1); if (acc >= 0.9) bumpQuest('acc', 1);
+  } else if (Run.mode === 'checkpoint'){
+    const u = Run.unit, L = S.langs[lang], prev = L.cp[u.title], pass = acc >= CHECKPOINT.pass;
+    xp += pass && !(prev && prev.pass) ? XP.checkpoint : XP.review;
+    L.cp[u.title] = { at: today(), acc: Math.max(acc, prev && prev.acc || 0), pass: !!(pass || (prev && prev.pass)) };
+    title = u.title; top = pass ? 'Checkpoint passed' : 'Checkpoint'; cpPass = pass;
+    h1o = pass ? 'Checkpoint passed.' : 'Not quite yet.';
+    subo = pass ? 'You know this unit. The mistakes you made are on your “Fix my mistakes” list.' : 'You need ' + Math.round(CHECKPOINT.pass * 100) + '% to pass. Look back at the unit’s lessons and try again whenever you like.';
+    bumpQuest('reviews', uniq.length);
   } else {
-    xp += XP.review; title = uniq.length + ' ' + plural(uniq.length, 'item') + ' ' + (Run.mode === 'review' ? 'reviewed' : 'practiced'); top = Run.mode === 'review' ? 'Review complete' : 'Practice complete';
+    xp += XP.review; title = uniq.length + ' ' + plural(uniq.length, 'item') + ' ' + (Run.mode === 'review' ? 'reviewed' : Run.mode === 'mistakes' ? 'fixed up' : 'practiced');
+    top = Run.mode === 'review' ? 'Review complete' : Run.mode === 'mistakes' ? 'Mistakes practiced' : Run.mode === 'forms' ? 'Forms practiced' : 'Practice complete';
     bumpQuest('reviews', uniq.length);
   }
   bumpQuest('combo', Run.bestCombo, true);
@@ -449,9 +508,9 @@ function finishRun(){
   const st = streakInfo();
   runHead(LANGS[lang].name);
   showComplete({
-    lang, top, title, gold: !!levelUp, xp, acc,
-    h1: levelUp ? 'Level ' + levelUp + ' complete.' : acc === 1 ? 'Flawless.' : acc >= 0.8 ? 'Great work.' : 'Good practice.',
-    sub: levelUp ? (nextLv ? 'Next on your route: ' + nextLv + ' · ' + LEVEL_NAME[nextLv] + '.' : 'You’ve reached the end of the route. Your tutor can keep writing lessons for you.') : null,
+    lang, top, title, gold: !!levelUp || cpPass, xp, acc,
+    h1: h1o || (levelUp ? 'Level ' + levelUp + ' complete.' : acc === 1 ? 'Flawless.' : acc >= 0.8 ? 'Great work.' : 'Good practice.'),
+    sub: subo || (levelUp ? (nextLv ? 'Next on your route: ' + nextLv + ' · ' + LEVEL_NAME[nextLv] + '.' : 'You’ve reached the end of the route. Your tutor can keep writing lessons for you.') : null),
     third: Run.bestCombo >= 3 ? [Run.bestCombo, 'best run in a row'] : [st.count, plural(st.count, 'day') + ' streak'],
     extra: vocabChips.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'Added to your review deck'), h('div', { class: 'chips' }, vocabChips.map((v, i) => h('span', { class: 'chip static', style: '--i:' + i }, itemText(v, lang))))) : null,
     badges, quests, onDone: () => endRun(),
