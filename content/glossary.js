@@ -200,3 +200,5 @@ const LESSON_GLOSS = {
     "definitiva": "final · definitive", "cautela": "caution"
   }
 };
+Object.assign(LESSON_GLOSS.de, { liegt: 'lies · is located (from liegen)', sofa: 'sofa', zehnte: 'tenth', oktober: 'October', handschuhe: 'gloves', socken: 'socks', probiere: 'try (from probieren)', bar: 'cash (bar zahlen: pay cash) · bar', oma: 'grandma' });
+Object.assign(LESSON_GLOSS.es, { interesante: 'interesting', debajo: 'below · underneath (debajo de: under)', viento: 'wind', 'canadá': 'Canada', pongo: 'put · put on (from poner)', pones: 'put · put on (from poner)', estos: 'these', darme: 'to give me', encontrarnos: 'to meet up (with each other)', vernos: 'to see each other', 'encantaría': 'would love (from encantar)', invitarme: 'to invite me', abuelos: 'grandparents' });

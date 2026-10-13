@@ -176,7 +176,7 @@ async function main(){
       }
     }
   }
-  ok(lessonCount === 152, 'lesson count ' + lessonCount);
+  ok(lessonCount === 184, 'lesson count ' + lessonCount);
   // units sorted by level, ids unique
   for (const lang of ['de', 'es']){ const lv = P.COURSE[lang].units.map(u => ['A1','A2','B1','B2','C1','C2'].indexOf(u.level)); ok(lv.every((x, i) => i === 0 || x >= lv[i - 1]), lang + ' units sorted'); }
   { const ids = new Set(); for (const lang of ['de','es']) for (const u of P.COURSE[lang].units) for (const l of u.lessons){ ok(!ids.has(l.id), 'unique id ' + l.id); ids.add(l.id); ok(l.vocab.length >= 6 && l.sentences.length >= 4 && l.blanks.length === 3, 'shape ' + l.id); for (const b of l.blanks){ ok(b.t.split('___').length === 2, 'blank ' + b.t); ok(new Set(b.o).size === b.o.length, 'blank opts unique ' + b.t); } } }

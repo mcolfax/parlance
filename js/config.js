@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.11.0';
+const APP_VERSION = '4.12.0';
 const SCHEMA_VERSION = 7;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,6 +12,9 @@ const SCHEMA_VERSION = 7;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.12.0', date: '2026-10-13', title: 'More beginner lessons', notes: [
+    'Eight new beginner units in German and in Spanish: home and colors, weather and seasons, shopping and clothes, and plans and invitations. That is 16 more lessons in each language, all in A1 and A2.',
+    'The right answer is now read out loud on the question you just answered. Before, it could play after you had already moved on to the next one.'] },
   { v: '4.11.0', date: '2026-10-13', title: 'Meanings while you practice', notes: [
     'In a lesson, tap any underlined word in a sentence to see what it means, as in Duolingo. It works on sentences you translate, on the sentence you say out loud, and on fill-in-the-blank lines.',
     'While you’re starting out (A1 and A2), a Words button sits at the top of each lesson. It opens the lesson’s words and their meanings without leaving your place.',
