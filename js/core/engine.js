@@ -121,6 +121,13 @@ function levelStats(lang){
 function levelComplete(lang, lv){ const ls = coreOrder(lang).filter(l => l.level === lv); return ls.length > 0 && ls.every(l => isDone(lang, l.id)); }
 function currentLevel(lang){ const nx = nextLesson(lang); if (nx) return nx.level; return 'C2'; }
 
+/* how much meaning a question shows: 'full', 'tap' or 'off' (see HINTS in config.js) */
+function hintMode(level){
+  const s = S.settings.hints;
+  if (s === 'off') return 'off';
+  if (s === 'always') return 'full';
+  return HINTS[level] || 'tap';
+}
 /* ===================== EXERCISE BUILDING ===================== */
 let EXID = 0;
 function vocabPools(lesson){

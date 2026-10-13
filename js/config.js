@@ -3,8 +3,8 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.10.2';
-const SCHEMA_VERSION = 6;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+const APP_VERSION = '4.11.0';
+const SCHEMA_VERSION = 7;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
    functions that apply the same access rules as the artifact (dev/supabase.sql).
@@ -12,6 +12,11 @@ const SCHEMA_VERSION = 6;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.11.0', date: '2026-10-13', title: 'Meanings while you practice', notes: [
+    'In a lesson, tap any underlined word in a sentence to see what it means, as in Duolingo. It works on sentences you translate, on the sentence you say out loud, and on fill-in-the-blank lines.',
+    'While you’re starting out (A1 and A2), a Words button sits at the top of each lesson. It opens the lesson’s words and their meanings without leaving your place.',
+    'After you answer, the words in the right answer can be tapped too.',
+    'The help fades as you climb. It is tap-only in B1 and B2, and from C1 the translation under a blank waits behind a tap. Change this any time in Me, under Practice → Word hints.'] },
   { v: '4.10.2', date: '2026-10-12', title: 'Calmer wings', notes: [
     'Your bird now stands still after it waves hello. Before, a wing kept flapping up and down on the Learn screen, which looked odd, most of all on Kiwi, Mango, Kakadu and Rojo.',
     'On those four, a wing now opens into a whole wing as it lifts, instead of showing as a thin blade on the way up and down.'] },
@@ -137,6 +142,11 @@ const LANGS = {
     dialect: 'Use Latin American Spanish: ustedes, never vosotros, and Latin American vocabulary (boleto, departamento, carro, celular).' }
 };
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+/* Word hints: how much meaning a question shows, by the level of the lesson (Me → Practice → Word hints can override this).
+   full: tap any word of a sentence for its meaning, a nudge says so, and the lesson's words are one tap away
+   tap:  the same tappable words, with no nudge and no word list
+   off:  questions show nothing extra; answers can still be tapped afterwards */
+const HINTS = { A1: 'full', A2: 'full', B1: 'tap', B2: 'tap', C1: 'off', C2: 'off' };
 const LEVEL_NAME = { A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate', B2: 'Upper intermediate', C1: 'Advanced', C2: 'Mastery' };
 const LEVEL_BLURB = { A1: 'Starting from zero', A2: 'I know the basics', B1: 'I can get by in conversation', B2: 'I’m comfortable in most situations', C1: 'I’m advanced and want polish', C2: 'I want native-level nuance' };
 const LEVEL_GUIDE = {

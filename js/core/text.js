@@ -80,6 +80,7 @@ function reindex(){
     }
     for (const [k, v] of Object.entries(COMMON_GLOSS[lang])) addGloss(lang, k, v, true);
     for (const [k, v] of Object.entries(STORY_GLOSS[lang])) addGloss(lang, k, v);
+    for (const [k, v] of Object.entries(LESSON_GLOSS[lang])) addGloss(lang, k, v);
   }
   /* the cast's names, so tapping "Lena" in a story says who she is */
   const names = Object.values(CAST).map(c => c.name.split(' ').pop());

@@ -113,6 +113,9 @@ function viewMe(){
   v.append(h('section', { class: 'card' }, h('h3', null, 'Practice'),
     h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Daily goal'), h('div', { class: 'chips' }, [[10, 'Casual'], [20, 'Regular'], [30, 'Serious']].map(([g, n]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(S.settings.goal === g), onclick: () => { S.settings.goal = g; const d = S.days[today()]; if (d && d.xp >= g) d.met = true; touchSettings(); render(); } }, n + ' · ' + g + ' XP')))),
     h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Starting level for ' + LANGS[lang].name), h('div', { class: 'chips' }, LEVELS.map(lv => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(L.start === lv), onclick: () => { L.start = lv; L.startTs = Date.now(); touch(lang); UI.openLang = null; render(); toast('Route starts at ' + lv + ' now'); } }, lv)))),
+    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Word hints'),
+      h('div', { class: 'chips' }, [['auto', 'Fade as I level up'], ['always', 'Always'], ['off', 'Off']].map(([k, n]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(S.settings.hints === k), onclick: () => { S.settings.hints = k; touchSettings(); render(); } }, n))),
+      h('p', { class: 'small muted' }, S.settings.hints === 'always' ? 'Tap any word in a sentence to see what it means, at every level.' : S.settings.hints === 'off' ? 'Questions show no extra meanings. You can still tap words in an answer.' : 'Tap any word in a sentence to see what it means. Hints are fullest in A1 and A2, tap-only in B1 and B2, and gone from C1.')),
     toggleRow('Speaking exercises', 'speaking', 'Say sentences out loud during lessons.'),
     toggleRow('Tutor grading', 'aiGrade', 'If a typed answer doesn’t match, Claude checks whether it’s still right and explains what’s different.')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Tutor access'),

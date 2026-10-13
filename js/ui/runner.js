@@ -1,11 +1,19 @@
 "use strict";
 /* ===================== LESSON RUNNER ===================== */
 function runHead(title){
+  const peek = !title && Run.started && Run.mode === 'lesson' && Run.lesson && hintMode(Run.lesson.level) === 'full'
+    ? h('button', { class: 'linkish small words-btn', type: 'button', onclick: () => showWords() }, ic('bulb'), 'Words') : null;
   const close = h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'Close', html: IC.close, onclick: () => askLeave() });
   OV.prog = h('i');
   OV.combo = h('span', { class: 'combo', 'aria-live': 'polite' });
-  OV.head.replaceChildren(close, title ? h('div', { class: 'ov-title' }, title) : h('div', { class: 'progress', role: 'progressbar', 'aria-label': 'Progress' }, OV.prog), OV.combo);
+  OV.head.replaceChildren(close, title ? h('div', { class: 'ov-title' }, title) : h('div', { class: 'progress', role: 'progressbar', 'aria-label': 'Progress' }, OV.prog), peek, OV.combo);
 }
+/* the lesson's words and their meanings, one tap away while the exercises run */
+function wordRows(l, lang){ return h('div', { class: 'wordlist' }, l.vocab.map(v => h('div', { class: 'wl-row' }, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang)))); }
+function showWords(){ if (Run.lesson) sheet('Words in this lesson', wordRows(Run.lesson, Run.lang), [{ label: 'Back to the lesson', primary: true }]); }
+/* a nudge under a sentence that can be tapped; the questions stop saying it once the hints fade */
+function hintLine(ex){ return ex.lesson && hintMode(ex.lesson.level) === 'full' ? h('p', { class: 'hint tap-hint' }, 'Tap an underlined word to see what it means.') : null; }
+function glossOn(ex){ return !!ex.lesson && hintMode(ex.lesson.level) !== 'off'; }
 function setProgress(){ if (OV.prog && Run.queue){ const p = Run.queue.length ? Run.pos / Run.queue.length : 0; OV.prog.style.width = (p * 100).toFixed(1) + '%'; } }
 function askLeave(){
   if (!Run.active || !Run.started || Run.finished){ endRun(); return; }
@@ -23,7 +31,7 @@ function showIntro(){
   runHead(l.title);
   const tip = h('div', { class: 'tip' }, h('span', { class: 'eyebrow' }, ic('bulb'), 'Before you start'), h('h3', null, l.tip.title), h('p', { html: rich(l.tip.body) }),
     l.tip.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e))));
-  const words = h('div', { class: 'wordlist' }, l.vocab.map(v => h('div', { class: 'wl-row' }, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang))));
+  const words = wordRows(l, lang);
   swapBody([
     h('div', { class: 'intro-head' }, l.core ? unitSign(COURSE[lang].units[l.unit].title, 52) : null, h('span', { class: 'eyebrow' }, (l.core ? 'Unit ' + (l.unit + 1) + ' · ' : '') + l.level + ' ' + LEVEL_NAME[l.level] + ' · ' + LANGS[lang].name), h('h1', null, l.title), h('p', { class: 'muted' }, l.vocab.length + ' words · ' + l.sentences.length + ' phrases · about ' + minutesFor(l) + ' min')),
     tip, h('div', null, h('div', { class: 'row', style: 'margin-bottom:6px' }, h('h3', null, 'Words in this lesson'), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, 'tap to hear')), lang === 'de' ? h('div', { class: 'legend g small' }, h('span', { class: 'g-m' }, 'der'), h('span', { class: 'g-f' }, 'die'), h('span', { class: 'g-n' }, 'das'), h('span', { class: 'g-pl' }, 'plural')) : null, words)]);
@@ -111,6 +119,7 @@ function showFeedback(ex, res){
   setProgress();
   const ans = feedbackAnswer(ex);
   const lang = ex.lang;
+  const glossOpts = a => S.settings.hints === 'off' ? {} : { gloss: true, en: a.en };
   const titles = res.ok ? (res.level === 'exact' ? ['Correct!', 'Nice!', 'Exactly.', 'Well done.', 'Spot on.'][Math.floor(Math.random() * 5)] : res.level === 'ai' ? 'Accepted' : 'Correct') : res.level === 'article' ? 'Almost' : 'Not quite';
   const cmp = acceptedCompare(ex, res);
   const fb = h('div', { class: 'fb', role: 'status', 'aria-live': 'polite' },
@@ -123,7 +132,7 @@ function showFeedback(ex, res){
   const userWords = !res.ok && typeof Run.value === 'string' ? new Set(fold(norm(Run.value, ans && ans.target ? lang : 'en')).split(' ')) : null;
   if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank'].includes(ex.type))){
     if (!res.ok) fb.append(h('div', { class: 'fb-label' }, 'Correct answer'));
-    if (ans.target) fb.append(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, ex.type === 'blank' ? sayText(ans.t, lang) : (ex.item.g && ex.kind === 'v' ? itemText(ex.item, lang) : sayText(ans.t, lang, userWords ? { miss: userWords } : {}))), speakBtn(ans.t, lang)), h('div', { class: 'fb-sub' }, ans.en));
+    if (ans.target) fb.append(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, ex.type === 'blank' ? sayText(ans.t, lang, glossOpts(ans)) : (ex.item.g && ex.kind === 'v' ? itemText(ex.item, lang) : sayText(ans.t, lang, { ...(userWords ? { miss: userWords } : {}), ...glossOpts(ans) }))), speakBtn(ans.t, lang)), h('div', { class: 'fb-sub' }, ans.en));
     else fb.append(h('div', { class: 'fb-ans' }, userWords ? markMissing(ans.en, userWords) : ans.en), h('div', { class: 'fb-sub row' }, h('span', { class: 'grow' }, itemText(ex.item, lang)), speakBtn(ans.t, lang)));
   }
   OV.foot.className = 'ov-foot ' + (res.ok ? 'ok' : 'bad');
@@ -186,9 +195,13 @@ function markMissing(text, userWords){
 
 /* ----- shared bits ----- */
 function qLabel(t){ return h('div', { class: 'q-label' }, t); }
-function targetPrompt(item, lang, autoplay){
+function targetPrompt(item, lang, autoplay, ex){
   if (autoplay && S.settings.autoplay) speak(item.t, lang);
-  return h('div', { class: 'prompt-row' }, speakBtn(item.t, lang), h('div', { class: 'prompt' }, itemText(item, lang)));
+  // a sentence can be tapped word by word for its meaning (a single word being tested can't: that would give the answer away)
+  const tap = ex && ex.kind === 's' && glossOn(ex);
+  const row = h('div', { class: 'prompt-row' }, speakBtn(item.t, lang), h('div', { class: 'prompt' }, tap ? sayText(item.t, lang, { gloss: true, en: item.e[0] }) : itemText(item, lang)));
+  const nudge = tap ? hintLine(ex) : null;
+  return nudge ? h('div', { class: 'prompt-wrap' }, row, nudge) : row;
 }
 function charBar(input, lang){
   return h('div', { class: 'chars', 'aria-label': 'Special characters' }, LANGS[lang].chars.map(c => {
@@ -254,7 +267,7 @@ function tileBoard(tokens, lang, onChange){
 /* ----- renderers ----- */
 const RENDER = {
   'mc-t2e'(ex, api){
-    return h('div', { class: 'ex' }, qLabel('What does this mean?'), targetPrompt(ex.item, ex.lang, true),
+    return h('div', { class: 'ex' }, qLabel('What does this mean?'), targetPrompt(ex.item, ex.lang, true, ex),
       options(ex.options, o => { api.set(o); api.ready(true); }));
   },
   'listen-mc'(ex, api){
@@ -271,7 +284,7 @@ const RENDER = {
   },
   'type-t2e'(ex, api){
     const box = answerBox(api, 'en', 'Type it in English');
-    return h('div', { class: 'ex' }, qLabel('Translate into English'), targetPrompt(ex.item, ex.lang, true), box, hintLink(ex, ex.item.e[0]));
+    return h('div', { class: 'ex' }, qLabel('Translate into English'), targetPrompt(ex.item, ex.lang, true, ex), box, hintLink(ex, ex.item.e[0]));
   },
   'type-e2t'(ex, api){
     const box = answerBox(api, ex.lang, 'Type it in ' + LANGS[ex.lang].name);
@@ -283,7 +296,7 @@ const RENDER = {
       tileBoard(ex.tiles, ex.lang, toks => { api.set(toks.join(' ')); api.ready(toks.length > 0); }));
   },
   'bank-t2e'(ex, api){
-    return h('div', { class: 'ex' }, qLabel('Build the English'), targetPrompt(ex.item, ex.lang, true),
+    return h('div', { class: 'ex' }, qLabel('Build the English'), targetPrompt(ex.item, ex.lang, true, ex),
       tileBoard(ex.tiles, 'en', toks => { api.set(toks.join(' ')); api.ready(toks.length > 0); }));
   },
   listen(ex, api){
@@ -305,7 +318,12 @@ const RENDER = {
   blank(ex, api){
     const gap = h('span', { class: 'gap' }, ' ');
     const [pre, post] = ex.blank.t.split('___');
-    return h('div', { class: 'ex' }, qLabel('Fill in the blank'), h('div', { class: 'gap-sent' }, pre, gap, post), ex.blank.e ? h('p', { class: 'muted' }, ex.blank.e) : null,
+    const tap = glossOn(ex), en = ex.blank.e;
+    const part = s => tap && s.trim() ? sayText(s, ex.lang, { gloss: true, en }) : s;
+    // once the hints have faded the translation waits behind a tap instead of sitting under the sentence
+    const fade = en && hintMode(ex.lesson.level) === 'off';
+    const trans = !en ? null : fade ? h('div', { class: 'hint-row' }, h('button', { class: 'linkish small', type: 'button', onclick: e => { const b = e.currentTarget; b.replaceWith(h('p', { class: 'muted' }, en)); } }, ic('bulb'), 'Show the translation')) : h('p', { class: 'muted' }, en);
+    return h('div', { class: 'ex' }, qLabel('Fill in the blank'), h('div', { class: 'gap-sent' }, part(pre), gap, part(post)), trans, tap ? hintLine(ex) : null,
       h('div', { class: 'chips gap-opts' }, ex.options.map((o, i) => {
         const b = h('button', { class: 'tile', type: 'button', style: '--i:' + i }, o);
         b.addEventListener('click', () => { gap.textContent = o; gap.classList.remove('filled'); void gap.offsetWidth; gap.classList.add('filled'); b.parentNode.querySelectorAll('.tile').forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); sfx('select'); api.set(o); api.ready(true); });
@@ -335,7 +353,7 @@ const RENDER = {
     return h('div', { class: 'ex' }, qLabel('Match the pairs'), grid);
   },
   speak(ex, api){
-    const wrap = h('div', { class: 'ex' }, qLabel('Say this out loud'), targetPrompt(ex.item, ex.lang, false), h('p', { class: 'muted' }, ex.item.e[0]));
+    const wrap = h('div', { class: 'ex' }, qLabel('Say this out loud'), targetPrompt(ex.item, ex.lang, false, ex), h('p', { class: 'muted' }, ex.item.e[0]));
     const heard = h('p', { class: 'heard', 'aria-live': 'polite' });
     if (SR && micUsable()){
       const mic = h('button', { class: 'mic-btn', type: 'button', 'aria-label': 'Tap and speak', html: IC.mic });

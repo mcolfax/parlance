@@ -293,6 +293,64 @@ async function main(){
     N.dom.window.close();
   }
 
+  /* ---------- 3b. word hints: meanings inside the questions, fading with the level ---------- */
+  {
+    const H = await makeDom(); H.P.S.settings.onboarded = true;
+    const hd = H.w.document, ov = () => hd.querySelector('.overlay:not(.out)');
+    const open = id => { H.E('endRun(); startLesson(' + JSON.stringify(id) + ')'); [...ov().querySelectorAll('.ov-foot button')].find(b => b.textContent === 'Start exercises').click(); };
+    const show = type => { const i = H.E('Run.queue.findIndex(e => e.type === ' + JSON.stringify(type) + ')'); ok(i >= 0, 'hint test finds a ' + type); H.E('Run.pos = ' + i + '; nextEx()'); };
+    const firstLesson = lv => H.P.COURSE.es.units.flatMap(u => u.lessons).find(l => l.level === lv).id;
+    H.E('S.settings.lang = "es"');
+    // A1: full hints
+    open('es-1-1');
+    ok(ov().querySelector('.words-btn'), 'A1 lesson has a Words button');
+    ov().querySelector('.words-btn').click();
+    ok(hd.querySelectorAll('.sheet .wl-row').length === H.E('Run.lesson.vocab.length'), 'Words sheet lists the lesson words');
+    hd.querySelectorAll('.sheet-back').forEach(x => x.remove());
+    show('blank');
+    ok(ov().querySelector('.gap-sent .say.gl .w') && ov().querySelector('.tap-hint'), 'A1 blank has tappable words and the nudge');
+    ov().querySelector('.gap-sent .say.gl .w').click();
+    const gl = hd.querySelector('.gloss .gl-e');
+    ok(gl && gl.textContent && !/Not in the word list/.test(gl.textContent), 'tapping a blank word gives a meaning: ' + (gl && gl.textContent));
+    H.E('closeGloss()');
+    ok(ov().querySelector('.gap-sent').nextElementSibling && /\S/.test(ov().querySelector('.ex').textContent), 'A1 blank still shows its translation');
+    show('bank-t2e');
+    ok(ov().querySelector('.prompt .say.gl'), 'sentence prompt is tappable at A1');
+    show('mc-t2e');
+    ok(!ov().querySelector('.prompt .say.gl') && !ov().querySelector('.tap-hint'), 'a single word being tested is not tappable (it would give the answer away)');
+    // B1: tap only, no nudge or Words button
+    open(firstLesson('B1'));
+    ok(!ov().querySelector('.words-btn'), 'B1 has no Words button');
+    show('blank');
+    ok(ov().querySelector('.gap-sent .say.gl') && !ov().querySelector('.tap-hint'), 'B1 blank is tappable without the nudge');
+    // C1: nothing in the question, translation behind a tap
+    open(firstLesson('C1'));
+    show('blank');
+    ok(!ov().querySelector('.gap-sent .say.gl') && !ov().querySelector('.tap-hint') && !ov().querySelector('.words-btn'), 'C1 question shows no hints');
+    const showTr = [...ov().querySelectorAll('.hint-row button')].find(b => /translation/i.test(b.textContent));
+    ok(showTr, 'C1 translation waits behind a tap');
+    if (showTr){ showTr.click(); ok(!ov().querySelector('.hint-row button') && H.E('Run.cur.blank.e') && ov().textContent.includes(H.E('Run.cur.blank.e')), 'tapping reveals the translation'); }
+    // the setting overrides the level
+    H.E('S.settings.hints = "always"'); open(firstLesson('C1')); show('blank');
+    ok(ov().querySelector('.gap-sent .say.gl'), 'Always keeps hints at C1');
+    H.E('S.settings.hints = "off"'); open('es-1-1'); show('blank');
+    ok(!ov().querySelector('.gap-sent .say.gl') && !ov().querySelector('.words-btn'), 'Off removes hints at A1');
+    ok(H.E('hintMode("A1")') === 'off', 'hintMode respects Off');
+    H.E('S.settings.hints = "auto"; endRun()');
+    ok(['A1', 'A2'].every(l => H.E('hintMode("' + l + '")') === 'full') && ['B1', 'B2'].every(l => H.E('hintMode("' + l + '")') === 'tap') && ['C1', 'C2'].every(l => H.E('hintMode("' + l + '")') === 'off'), 'auto fades A: full, B: tap, C: off');
+    // a bad saved value falls back to auto
+    const bad = await makeDom({ seed: { 'parlance.v2': { v: 6, settings: { onboarded: true, hints: 'bogus' }, days: {}, langs: {} } } });
+    ok(bad.P.S.settings.hints === 'auto', 'unknown hints setting becomes auto');
+    // nearly every word in a lesson sentence or blank has a meaning of its own
+    for (const lang of ['de', 'es']){
+      let total = 0, unknown = 0;
+      for (const l of H.P.COURSE[lang].units.flatMap(u => u.lessons)) for (const t of [...l.sentences.map(x => x.t), ...l.blanks.map(b => b.t.replace('___', b.a))]) for (const part of t.split(/\s+/)){
+        const c = H.E('coreWord')(part); if (!/\p{L}/u.test(c)) continue; total++; if (!H.E('glossLookup')(c, lang)) unknown++;
+      }
+      ok(unknown / total < 0.02, lang + ' lesson words without a meaning: ' + unknown + ' of ' + total);
+    }
+    H.dom.window.close(); bad.dom.window.close();
+  }
   /* ---------- 4. drive the UI through every lesson ---------- */
   const w = A.w, E = A.E;
   const Run = () => E('Run');
@@ -563,7 +621,7 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 6 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 7 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
     for (const lang of ['de', 'es']) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }

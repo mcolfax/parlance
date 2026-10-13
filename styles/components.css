@@ -138,6 +138,9 @@ li.locked .st-title{color:var(--muted)}
 .gap-opts{gap:10px}
 .hint{font-size:14px;color:var(--muted)}
 .hint-row{display:flex;flex-direction:column;gap:4px}
+.prompt-wrap{display:flex;flex-direction:column;gap:6px}
+.words-btn{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;flex:none}
+.words-btn svg{width:16px;height:16px}
 .hint-reveal{font:700 18px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;color:var(--line-text)}
 .listen-wrap{display:flex;align-items:center;justify-content:center;gap:16px;padding:12px 0}
 .heard{font-size:15px;color:var(--muted);text-align:center}
