@@ -90,7 +90,7 @@ function showWhatsNew(since){
 /* ----- owner: share a tutor-written lesson with every learner (becomes part of content/bonus-<lang>) ----- */
 function lessonToPack(l){
   return { id: l.id, title: l.title,
-    tip: { title: l.tip.title, body: l.tip.body, examples: (l.tip.examples || []).map(x => [x.t, x.e]) },
+    tip: { title: l.tip.title, body: l.tip.body, examples: (l.tip.examples || []).map(x => [x.t, x.e]), tables: (l.tip.tables || []).map(t => [t.cap, t.head, t.rows]) },
     vocab: l.vocab.map(v => [[v.t, ...(v.alt || [])].join('|'), v.e.join('|'), v.g || '']),
     sentences: l.sentences.map(s => [[s.t, ...(s.alt || [])].join('|'), s.e.join('|')]),
     blanks: l.blanks.map(b => [b.t, b.o.join('|'), b.e || '']) };

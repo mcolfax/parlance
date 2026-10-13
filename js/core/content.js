@@ -15,7 +15,8 @@
 
 /* ----- compact authoring helpers (used by /content files and by packs) ----- */
 function U(title, level, lessons, art){ return { title, level, lessons, art: art || null }; }
-function T(title, body, ex){ return { title, body, examples: (ex || []).map(([t, e]) => ({ t, e })) }; }
+/* a tip can carry forms tables: tables = [[caption, ['column', …] or null, [['cell', …], …]], …] (conjugations, articles, endings) */
+function T(title, body, ex, tables){ return { title, body, examples: (ex || []).map(([t, e]) => ({ t, e })), tables: (tables || []).map(([cap, head, rows]) => ({ cap, head: head || null, rows })) }; }
 function L(id, title, tip, vocab, sents, blanks){
   return {
     id, title, tip,
@@ -74,6 +75,31 @@ function unitArt(u){ return u.art && UNIT_ART[u.art] ? u.art : u.title; }
 
 function coreOrder(lang){ return COURSE[lang].units.flatMap(u => u.lessons); }
 function genLessons(lang){ return (S.gen[lang] || []).map(l => { l.lang = lang; l.core = false; return l; }); }
+/* the words a lesson's sentences and blanks use that nothing earlier in the route has shown yet (forms of verbs, endings, extra words),
+   each with its meaning, so the lesson opening can say what to expect */
+const FORMS = { ver: -1, by: {} };
+function lessonForms(l){
+  if (!l.core) return [];
+  if (FORMS.ver !== Packs.version){ FORMS.ver = Packs.version; FORMS.by = {}; }
+  const lang = l.lang;
+  if (!FORMS.by[lang]){
+    const seen = new Set(), out = {};
+    const keys = (text) => String(text).split(/\s+/).map(p => ({ p, c: coreWord(p) })).filter(x => /\p{L}/u.test(x.c)).map(x => ({ w: x.c, k: fold(norm(x.c, lang)) }));
+    for (const les of coreOrder(lang)){
+      for (const v of les.vocab) for (const t of [v.t, ...v.alt]) keys(t).forEach(x => seen.add(x.k));
+      const here = [];
+      for (const t of [...les.sentences.map(s => s.t), ...les.blanks.map(b => blankSaid(b))]) for (const x of keys(t)){
+        if (seen.has(x.k)) continue;
+        seen.add(x.k);
+        const g = glossLookup(x.w, lang);
+        if (g && fold(norm(g.val, lang)) !== x.k) here.push({ w: x.w, val: g.val, base: g.base || '' });
+      }
+      out[les.id] = here;
+    }
+    FORMS.by[lang] = out;
+  }
+  return FORMS.by[lang][l.id] || [];
+}
 function allLessons(lang){ return coreOrder(lang).concat(genLessons(lang)); }
 const CUSTOM_CACHE = new Map();
 function customLesson(id){
@@ -136,12 +162,16 @@ function migrateCardKeys(cards){
 
 /* ----- remote pack validation (packs come from the database, so nothing is trusted) ----- */
 function packStr(x, max){ return typeof x === 'string' ? x.trim().slice(0, max || 400) : ''; }
+function packTables(a){
+  const cells = (r, n) => r.slice(0, 6).map(x => packStr(x, n));
+  return (Array.isArray(a) ? a : []).slice(0, 4).map(t => Array.isArray(t) && Array.isArray(t[2]) ? [packStr(t[0], 80), Array.isArray(t[1]) ? cells(t[1], 40) : null, t[2].slice(0, 14).filter(Array.isArray).map(r => cells(r, 60))] : null).filter(t => t && t[2].length);
+}
 function validPackLesson(o, lang, errs){
   const where = 'lesson ' + (o && o.id);
   try {
     if (!o || typeof o.id !== 'string' || !new RegExp('^' + lang + '-[A-Za-z0-9_-]{1,40}$').test(o.id)) throw where + ': id must look like ' + lang + '-something';
     const tip = o.tip || {};
-    const l = L(o.id, packStr(o.title, 60), T(packStr(tip.title, 80), packStr(tip.body, 900), (tip.examples || []).filter(e => Array.isArray(e) && e[0]).slice(0, 4)),
+    const l = L(o.id, packStr(o.title, 60), T(packStr(tip.title, 80), packStr(tip.body, 900), (tip.examples || []).filter(e => Array.isArray(e) && e[0]).slice(0, 4), packTables(tip.tables)),
       (o.vocab || []).filter(v => Array.isArray(v) && v[0] && v[1]), (o.sentences || []).filter(v => Array.isArray(v) && v[0] && v[1]), (o.blanks || []).filter(v => Array.isArray(v) && v[0] && v[1]));
     if (!l.title) throw where + ': missing title';
     if (l.vocab.length < 4) throw where + ': needs at least 4 vocab items';

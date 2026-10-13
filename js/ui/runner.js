@@ -10,6 +10,19 @@ function runHead(title){
 }
 /* the lesson's words and their meanings, one tap away while the exercises run */
 function wordRows(l, lang){ return h('div', { class: 'wordlist' }, l.vocab.map(v => h('div', { class: 'wl-row' }, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang)))); }
+/* conjugation, article and ending tables from a lesson's tip */
+function formsTable(t){
+  const cell = (tag, x) => h(tag, { html: rich(x) });
+  return h('div', { class: 'forms' }, t.cap ? h('div', { class: 'forms-cap' }, t.cap) : null,
+    h('div', { class: 'forms-scroll' }, h('table', null, t.head ? h('thead', null, h('tr', null, t.head.map(x => cell('th', x)))) : null,
+      h('tbody', null, t.rows.map(r => h('tr', null, r.map((x, i) => cell(i === 0 && !t.head ? 'th' : 'td', x))))))));
+}
+/* the forms and extra words this lesson's sentences use that earlier lessons haven't shown */
+function formRows(l, lang){
+  const list = lessonForms(l); if (!list.length) return null;
+  return h('div', null, h('div', { class: 'row', style: 'margin-bottom:6px' }, h('h3', null, 'Also in the sentences'), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, 'new forms and words')),
+    h('div', { class: 'wordlist forms-list' }, list.map(f => h('div', { class: 'wl-row' }, h('div', { class: 't' }, sayText(f.w, lang)), h('div', { class: 'e' }, (f.base ? 'form of ' + f.base + ' · ' : '') + f.val), speakBtn(f.w, lang)))));
+}
 function showWords(){ if (Run.lesson) sheet('Words in this lesson', wordRows(Run.lesson, Run.lang), [{ label: 'Back to the lesson', primary: true }]); }
 /* a nudge under a sentence that can be tapped; the questions stop saying it once the hints fade */
 function hintLine(ex){ return ex.lesson && hintMode(ex.lesson.level) === 'full' ? h('p', { class: 'hint tap-hint' }, 'Tap an underlined word to see what it means.') : null; }
@@ -30,11 +43,12 @@ function showIntro(){
   const l = Run.lesson, lang = Run.lang;
   runHead(l.title);
   const tip = h('div', { class: 'tip' }, h('span', { class: 'eyebrow' }, ic('bulb'), 'Before you start'), h('h3', null, l.tip.title), h('p', { html: rich(l.tip.body) }),
+    (l.tip.tables || []).map(t => formsTable(t)),
     l.tip.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e))));
-  const words = wordRows(l, lang);
+  const words = wordRows(l, lang), forms = formRows(l, lang);
   swapBody([
     h('div', { class: 'intro-head' }, l.core ? unitSign(COURSE[lang].units[l.unit].title, 52) : null, h('span', { class: 'eyebrow' }, (l.core ? 'Unit ' + (l.unit + 1) + ' · ' : '') + l.level + ' ' + LEVEL_NAME[l.level] + ' · ' + LANGS[lang].name), h('h1', null, l.title), h('p', { class: 'muted' }, l.vocab.length + ' words · ' + l.sentences.length + ' phrases · about ' + minutesFor(l) + ' min')),
-    tip, h('div', null, h('div', { class: 'row', style: 'margin-bottom:6px' }, h('h3', null, 'Words in this lesson'), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, 'tap to hear')), lang === 'de' ? h('div', { class: 'legend g small' }, h('span', { class: 'g-m' }, 'der'), h('span', { class: 'g-f' }, 'die'), h('span', { class: 'g-n' }, 'das'), h('span', { class: 'g-pl' }, 'plural')) : null, words)]);
+    tip, h('div', null, h('div', { class: 'row', style: 'margin-bottom:6px' }, h('h3', null, 'Words in this lesson'), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, 'tap to hear')), lang === 'de' ? h('div', { class: 'legend g small' }, h('span', { class: 'g-m' }, 'der'), h('span', { class: 'g-f' }, 'die'), h('span', { class: 'g-n' }, 'das'), h('span', { class: 'g-pl' }, 'plural')) : null, words), forms]);
   OV.foot.className = 'ov-foot';
   const share = !l.core && !l.custom && studioAvailable() ? h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: async e => { const b = e.currentTarget; b.disabled = true; b.textContent = 'Sharing…'; const ok = await shareLessonToAll(l); if (ok){ sfx('badge'); toast('Shared. Every learner now has “' + l.title + '”.'); endRun(); } else { b.disabled = false; b.textContent = 'Share with all learners'; } } }, ic('wand'), 'Share with all learners') : null;
   OV.footIn.replaceChildren(...[share].filter(Boolean));

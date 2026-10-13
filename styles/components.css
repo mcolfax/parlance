@@ -160,6 +160,14 @@ li.locked .st-title{color:var(--muted)}
 .tip::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:5px;border-radius:0 5px 5px 0;background:var(--line)}
 .tip h3{font-size:21px}
 .tip b{color:var(--line-text)}
+.forms{display:flex;flex-direction:column;gap:6px;padding-top:4px}
+.forms-cap{font:800 13px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.forms-scroll{overflow-x:auto}
+.forms table{border-collapse:collapse;width:100%;font:600 16px/1.35 var(--body)}
+.forms th,.forms td{text-align:left;padding:6px 12px 6px 0;border-top:1px solid var(--hair-2);vertical-align:top}
+.forms thead th{font-size:13px;color:var(--muted);border-top:0}
+.forms tbody th{color:var(--muted);font-weight:600}
+.forms td b,.forms th b{color:var(--line-text)}
 .ex-line{display:flex;flex-direction:column;gap:2px;padding:9px 0;border-top:1px solid var(--hair-2)}
 .ex-line .t{display:flex;align-items:center;gap:10px;font:700 18px var(--body)}
 .ex-line .e{font-size:15px;color:var(--muted)}
