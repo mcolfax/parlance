@@ -35,7 +35,7 @@ U('Questions & small talk', 'A1', [
       [['kein: no / not a', ['', 'm (der)', 'f (die)', 'n (das)'], [['subject', 'kein', 'keine', 'kein'], ['object', '**keinen**', 'keine', 'kein']]],
        ['Where does nicht go?', ['Case', 'Example'], [['end of the sentence', 'Ich arbeite heute **nicht**.'], ['before an adjective', 'Das ist **nicht** teuer.'], ['before mein / dein', 'Das ist **nicht** mein Handy.']]],
        ['Yes, no or doch?', ['Question', 'Yes', 'No'], [['Bist du müde?', '**Ja**, …', '**Nein**, …'], ['Bist du nicht müde?', '**Doch**, …', '**Nein**, …']]]]),
-    [['nicht', 'not'], ['kein', 'no|not a|not any'], ['nie', 'never'], ['nichts', 'nothing|not anything'], ['niemand', 'nobody|no one'], ['doch', 'yes (to a negative question)|oh yes I do|on the contrary'], ['noch nicht', 'not yet'], ['gar nicht', 'not at all']],
+    [['nicht', 'not'], ['kein', 'no|not a|not any'], ['nie', 'never'], ['nichts', 'nothing|not anything'], ['niemand', 'nobody|no one'], ['doch', 'yes (to a negative question)|on the contrary'], ['noch nicht', 'not yet'], ['gar nicht', 'not at all']],
     [['Ich habe keine Zeit.', 'I have no time.|I don’t have time.|I do not have time.|I don’t have any time.|I do not have any time.|I haven’t got time.|I have not got time.|I haven’t got any time.'],
      ['Das ist nicht mein Handy.', 'That is not my phone.|That’s not my phone.|That isn’t my phone.|This is not my phone.|This isn’t my phone.|This’s not my phone.|That is not my cell phone.|That’s not my cell phone.|That isn’t my cell phone.|That is not my mobile.|That’s not my mobile.|That isn’t my mobile.|This is not my cell phone.|This is not my mobile.'],
      ['Ich arbeite heute nicht.|Heute arbeite ich nicht.', 'I don’t work today.|I do not work today.|I’m not working today.|I am not working today.|Today I don’t work.|Today I do not work.|Today I’m not working.|Today I am not working.'],
@@ -55,6 +55,6 @@ U('Questions & small talk', 'A1', [
      ['Wie sagt man das auf Deutsch?', 'How do you say that in German?|How do you say this in German?|How does one say that in German?|How would you say that in German?|How is that said in German?|How do I say that in German?|How do we say that in German?'],
      ['Ich spreche nur ein bisschen Deutsch.', 'I only speak a little German.|I speak only a little German.|I only speak a bit of German.|I speak only a bit of German.|I speak just a little German.|I only speak a little bit of German.|I speak only a little bit of German.|I just speak a little German.'],
      ['Sprechen Sie Englisch?', 'Do you speak English?|Can you speak English?|Are you speaking English?']],
-    [['Ich ___ es noch einmal. (repeat)', 'wiederhole|wiederholst|wiederholt', 'I will repeat it once more.'], ['Können Sie langsam ___? (speak)', 'sprechen|spricht|sprecht', 'Can you speak slowly?'], ['Er ___ nicht. (understands)', 'versteht|verstehe|verstehst', 'He doesn’t understand.']])
+    [['Ich ___ es noch einmal. (repeat)', 'wiederhole|wiederholst|wiederholt', 'I repeat it once more.'], ['Können Sie langsam ___? (speak)', 'sprechen|spricht|sprecht', 'Can you speak slowly?'], ['Er ___ nicht. (understands)', 'versteht|verstehe|verstehst', 'He doesn’t understand.']])
 ])
 );
