@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.13.0';
+const APP_VERSION = '4.14.0';
 const SCHEMA_VERSION = 7;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,6 +12,10 @@ const SCHEMA_VERSION = 7;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.14.0', date: '2026-10-13', title: 'Why a form is off', notes: [
+    'When you write the right word in the wrong form, such as the wrong ending for the person, Parlance now tells you what was off and which form the sentence needs.',
+    'In A1 and A2 the answer still counts, so you can keep going while you learn the forms. From B1 on it doesn’t count, and the notes say why.',
+    'In fill-in-the-blank, picking another form of the right word now says so, too.'] },
   { v: '4.13.0', date: '2026-10-13', title: 'Clearer lesson openings', notes: [
     'Every lesson now opens with a fuller explanation. It covers each verb ending, article, plural, tense and construction the lesson uses, with a table of the forms, so you know what to expect before you start.',
     'The examples in each opening are now sentences from the lesson itself.',
@@ -154,6 +158,9 @@ const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
    tap:  the same tappable words, with no nudge and no word list
    off:  questions show nothing extra; answers can still be tapped afterwards */
 const HINTS = { A1: 'full', A2: 'full', B1: 'tap', B2: 'tap', C1: 'off', C2: 'off' };
+/* Wrong form of the right word (a wrong ending, person or tense): in the early levels the answer still counts and says what was off;
+   from B1 on it does not count, and says why. */
+const FORM_PASS = { A1: true, A2: true, B1: false, B2: false, C1: false, C2: false };
 const LEVEL_NAME = { A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate', B2: 'Upper intermediate', C1: 'Advanced', C2: 'Mastery' };
 const LEVEL_BLURB = { A1: 'Starting from zero', A2: 'I know the basics', B1: 'I can get by in conversation', B2: 'I’m comfortable in most situations', C1: 'I’m advanced and want polish', C2: 'I want native-level nuance' };
 const LEVEL_GUIDE = {

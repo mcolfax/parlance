@@ -134,14 +134,14 @@ function showFeedback(ex, res){
   const ans = feedbackAnswer(ex);
   const lang = ex.lang;
   const glossOpts = a => S.settings.hints === 'off' ? {} : { gloss: true, en: a.en };
-  const titles = res.ok ? (res.level === 'exact' ? ['Correct!', 'Nice!', 'Exactly.', 'Well done.', 'Spot on.'][Math.floor(Math.random() * 5)] : res.level === 'ai' ? 'Accepted' : 'Correct') : res.level === 'article' ? 'Almost' : 'Not quite';
+  const titles = res.ok ? (res.level === 'exact' ? ['Correct!', 'Nice!', 'Exactly.', 'Well done.', 'Spot on.'][Math.floor(Math.random() * 5)] : res.level === 'ai' ? 'Accepted' : res.level === 'form' ? 'Close enough' : 'Correct') : res.level === 'article' || res.level === 'form' ? 'Almost' : 'Not quite';
   const cmp = acceptedCompare(ex, res);
   const fb = h('div', { class: 'fb', role: 'status', 'aria-live': 'polite' },
     h('div', { class: 'fb-title' }, res.ok ? h('span', { class: 'fb-ic', html: IC.check }) : null, titles),
     res.note ? h('div', { class: 'fb-note' }, res.note) : null,
     res.heard && !cmp ? h('div', { class: 'heard' }, 'Heard: “' + res.heard + '”') : null,
     cmp ? compareView(ex, cmp) : null,
-    cmp && res.diffs && res.diffs.length ? diffList(res.diffs) : null);
+    res.diffs && res.diffs.length && (cmp || !res.ok || res.level === 'form') ? diffList(res.diffs) : null);
   if (!res.ok || res.level === 'ai') fb.append(reportLink(ex));
   const userWords = !res.ok && typeof Run.value === 'string' ? new Set(fold(norm(Run.value, ans && ans.target ? lang : 'en')).split(' ')) : null;
   if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank'].includes(ex.type))){

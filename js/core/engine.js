@@ -227,6 +227,91 @@ function reviewEx(entry){
   return ex;
 }
 
+/* ===================== WRONG FORMS ===================== */
+/* Is `a` another form of the same word as `b` (another person, tense, number or gender)? Returns a plain-English why, or null.
+   The lesson's own forms tables decide first; then shared dictionary forms; then words that share a stem and differ only at the end. */
+const FORMWORDS = { lang: '', ver: -1, vocab: new Map() };
+function formVocab(lang){
+  if (FORMWORDS.lang !== lang || FORMWORDS.ver !== Packs.version){
+    FORMWORDS.lang = lang; FORMWORDS.ver = Packs.version; FORMWORDS.vocab = new Map();
+    for (const l of allLessons(lang)) for (const v of l.vocab) for (const t of [v.t, ...v.alt]) for (const w of t.split(/\s+/)){
+      const k = fold(norm(coreWord(w), lang)); if (!k || LANGS[lang].articles.includes(k)) continue;
+      if (!FORMWORDS.vocab.has(k)) FORMWORDS.vocab.set(k, new Set()); FORMWORDS.vocab.get(k).add(v);
+    }
+  }
+  return FORMWORDS.vocab;
+}
+/* the cells of a lesson's forms tables, by word: { word → [{ label, cap }] } */
+function tableForms(lesson, lang){
+  const out = new Map(); if (!lesson || !lesson.tip) return out;
+  for (const t of lesson.tip.tables || []) t.rows.forEach(r => r.forEach((cell, c) => {
+    if (!t.head && c === 0) return;
+    const label = t.head ? t.head[c] : r[0];
+    for (const part of String(cell).replace(/\*\*/g, '').split(/[\/,]/)) for (const w of part.split(/\s+/)){
+      const k = fold(norm(coreWord(w), lang)); if (!k) continue;
+      if (!out.has(k)) out.set(k, []); out.get(k).push({ label: String(label).replace(/\*\*/g, ''), cap: String(t.cap).replace(/\*\*/g, ''), table: t });
+    }
+  }));
+  return out;
+}
+function sameWordForm(a, b, lang, lesson){
+  const ka = fold(norm(a, lang)), kb = fold(norm(b, lang));
+  if (!ka || !kb || ka === kb || ka.includes(' ') || kb.includes(' ')) return null;
+  const tf = tableForms(lesson, lang), ta = tf.get(ka), tb = tf.get(kb);
+  if (ta && tb){
+    const pair = ta.map(x => [x, tb.find(y => y.table === x.table && y.label !== x.label)]).find(p => p[1]);
+    if (pair) return { yourLabel: pair[0].label, label: pair[1].label, cap: pair[0].cap };
+  }
+  // two different dictionary words (tía and tío) are not forms of one word
+  const vocab = formVocab(lang), va = vocab.get(ka), vb = vocab.get(kb);
+  if (va && vb && ![...va].some(x => vb.has(x))) return null;
+  const cand = k => new Set([k, ...baseForms(k, lang).filter(x => x.length >= 3)]);
+  const ca = cand(ka), cb = cand(kb);
+  for (const x of ca) if (cb.has(x)) return { lemma: x };
+  // same stem, different ending
+  let p = 0; while (p < ka.length && p < kb.length && ka[p] === kb[p]) p++;
+  if (p >= 4 && ka.length >= 5 && kb.length >= 5 && ka.length - p <= 3 && kb.length - p <= 3) return { lemma: '' };
+  return null;
+}
+/* explain a swap of forms: [{ yours, expected, note }] */
+function formNote(y, e, w, lang){
+  if (w.label && w.yourLabel) return '“' + y + '” is the “' + w.yourLabel + '” form. This sentence needs the “' + w.label + '” form: “' + e + '”.';
+  if (w.lemma && fold(norm(w.lemma, lang)) !== fold(norm(y, lang))) return '“' + y + '” and “' + e + '” are forms of ' + (w.lemma.endsWith('r') || lang === 'de' ? '“' + w.lemma + '”' : 'the same word') + '. Here you need “' + e + '”.';
+  return 'It’s the right word in the wrong form. Here you need “' + e + '”.';
+}
+/* an answer in the language being learned that is right except for the form of one or more words.
+   Early levels let it count (FORM_PASS) and say what to fix; later levels don't. */
+function formMiss(ex, value){
+  if (!ex.accepted || !ex.ansLang || ex.ansLang === 'en' || typeof value !== 'string') return null;
+  const lang = ex.lang; let best = null;
+  for (const a of ex.accepted){
+    const d = answerDiff(value, a, lang);
+    const words = d.changes.filter(c => c.kind === 'word' || c.kind === 'spelling');
+    if (!words.length || words.length > 3) continue;
+    const diffs = []; let all = true;
+    for (const c of words){
+      const ys = c.yours.split(/\s+/).filter(Boolean), es = c.answer.split(/\s+/).filter(Boolean);
+      if (!ys.length || ys.length !== es.length){ all = false; break; }
+      for (let i = 0; i < ys.length; i++){
+        const w = sameWordForm(ys[i], es[i], lang, ex.lesson);
+        if (w) diffs.push({ yours: ys[i], expected: es[i], note: formNote(ys[i], es[i], w, lang) });
+        else if (c.kind !== 'spelling'){ all = false; break; }   // a slip of one letter in another word is forgiven
+      }
+      if (!all) break;
+    }
+    if (all && diffs.length && (!best || diffs.length < best.diffs.length)) best = { diffs, match: a };
+  }
+  if (!best) return null;
+  const pass = !!FORM_PASS[ex.lesson && ex.lesson.level];
+  return { ok: pass, level: 'form', match: best.match, diffs: best.diffs,
+    note: pass ? 'The word is right but the form is off. It counts at this level, so use the notes below to fix it.' : 'You have the right word, but the form is wrong. From this level on, the exact form counts.' };
+}
+/* a blank answered with another form of the right word: say why it is wrong */
+function blankFormNote(ex, value){
+  const w = sameWordForm(value, ex.correct, ex.lang, ex.lesson);
+  return w ? [{ yours: value, expected: ex.correct, note: formNote(value, ex.correct, w, ex.lang) }] : null;
+}
+
 /* ===================== EVALUATION ===================== */
 function evaluate(ex, value){
   switch (ex.type){
@@ -238,7 +323,11 @@ function evaluate(ex, value){
       const ok = value === ex.correct || [ex.item.t, ...ex.item.alt].some(v => norm(v, ex.lang) === norm(value, ex.lang));
       return { ok, level: ok ? 'exact' : 'wrong' };
     }
-    case 'blank': return { ok: value === ex.correct, level: value === ex.correct ? 'exact' : 'wrong' };
+    case 'blank': {
+      if (value === ex.correct) return { ok: true, level: 'exact' };
+      const diffs = blankFormNote(ex, value);
+      return diffs ? { ok: false, level: 'wrong', diffs, note: 'That’s the right word in the wrong form.' } : { ok: false, level: 'wrong' };
+    }
     case 'speak': {
       const { score: sc, match } = closestAnswer(value, ex.accepted, ex.lang);
       const close = sc >= 0.75 && sc < 0.999;
@@ -249,6 +338,7 @@ function evaluate(ex, value){
       const tiles = ex.type.startsWith('bank') || (ex.type === 'listen' && ex.mode === 'tiles');
       let r = check(value, ex.accepted, ex.ansLang, { typo: !tiles });
       if (!r.ok && ex.type === 'type-e2t' && ex.item.g){ const a = articleCheck(ex, value); if (a) r = a; }
+      if (!r.ok && r.level === 'wrong'){ const f = formMiss(ex, value); if (f) r = f; }
       if (r.ok && r.level === 'exact' && !mainForms(ex).includes(r.match)) r = { ...r, alt: true, note: 'That’s another right way to say it.' };
       return r;
     }

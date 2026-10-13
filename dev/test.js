@@ -379,6 +379,34 @@ async function main(){
     ok(pk.length === 1 && pk[0][2].length === 2, 'pack tables are cleaned');
     T3.dom.window.close();
   }
+  /* ---------- 3d. wrong forms: early levels count them and explain, later levels explain and don't count ---------- */
+  {
+    const F = await makeDom(); F.P.S.settings.onboarded = true;
+    const typed = (id, i, value, type) => { const l = F.E('getLesson')(id); return F.P.evaluate(F.E('makeEx')(type || 'type-e2t', l, 's', i), value); };
+    let r = typed('es-1-3', 2, '¿Dónde vivo?');
+    ok(r.ok && r.level === 'form' && r.diffs && r.diffs[0].expected === 'vives' && /“yo”/.test(r.diffs[0].note) && /“tú”/.test(r.diffs[0].note), 'A1: wrong person counts and is explained ' + JSON.stringify(r));
+    r = typed('de-1-2', 1, 'Ich heißt Matt.');
+    ok(r.ok && r.level === 'form' && r.diffs[0].yours === 'heißt', 'A1 German: wrong ending counts and is explained');
+    r = typed('de-7-1', 1, 'Ich habe gestern einen Film sehe.');
+    ok(!r.ok && r.level === 'form' && r.diffs[0].expected === 'gesehen', 'B1: wrong form does not count but is explained ' + JSON.stringify(r));
+    r = typed('de-1-1', 0, 'Hallo Welt'); ok(!r.ok && r.level === 'wrong' && !r.diffs, 'a different word is just wrong');
+    r = typed('es-1-3', 2, '¿Dónde vives?'); ok(r.ok && r.level === 'exact', 'the right form is still exact');
+    // multiple choice: never counts, but says when it was the right word in the wrong form
+    let explained = 0;
+    for (const l of F.P.COURSE.de.units.flatMap(u => u.lessons)) for (let i = 0; i < l.blanks.length; i++){
+      const ex = F.E('blankEx')(l, i);
+      for (const o of ex.options) if (o !== ex.correct){ const rr = F.P.evaluate(ex, o); ok(!rr.ok, l.id + ' wrong option never counts'); if (rr.diffs) explained++; }
+    }
+    ok(explained > 10, 'wrong blank options that are other forms are explained: ' + explained);
+    // in the lesson screen
+    F.E('S.settings.lang = "es"; endRun(); startLesson("es-1-3")');
+    [...F.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start exercises').click();
+    F.E('Run.queue = [makeEx("type-e2t", Run.lesson, "s", 2)]; Run.pos = 0; nextEx()');
+    F.E('Run.value = "¿Dónde vivo?"; Run.canCheck = true; doCheck()');
+    const foot = F.w.document.querySelector('.overlay:not(.out) .ov-foot');
+    ok(foot.classList.contains('ok') && /Close enough/.test(foot.textContent) && foot.querySelector('.fb-diffs li'), 'the answer screen shows why: ' + foot.textContent.slice(0, 160));
+    F.dom.window.close();
+  }
   /* ---------- 4. drive the UI through every lesson ---------- */
   const w = A.w, E = A.E;
   const Run = () => E('Run');
