@@ -84,13 +84,16 @@ function lessonForms(l){
   const lang = l.lang;
   if (!FORMS.by[lang]){
     const seen = new Set(), out = {};
-    const keys = (text) => String(text).split(/\s+/).map(p => ({ p, c: coreWord(p) })).filter(x => /\p{L}/u.test(x.c)).map(x => ({ w: x.c, k: fold(norm(x.c, lang)) }));
+    // a capital mid-sentence is a name (or, in German, a noun we know) – names get no meaning of their own
+    const keys = (text) => String(text).split(/\s+/).map(p => ({ p, c: coreWord(p) })).filter(x => /\p{L}/u.test(x.c))
+      .map((x, i) => ({ w: x.c, k: fold(norm(x.c, lang)), name: i > 0 && x.c[0] !== x.c[0].toLowerCase() && !(lang === 'de' && NOUNS.has(x.c)) }));
     for (const les of coreOrder(lang)){
       for (const v of les.vocab) for (const t of [v.t, ...v.alt]) keys(t).forEach(x => seen.add(x.k));
       const here = [];
       for (const t of [...les.sentences.map(s => s.t), ...les.blanks.map(b => blankSaid(b))]) for (const x of keys(t)){
         if (seen.has(x.k)) continue;
         seen.add(x.k);
+        if (x.name) continue;
         const g = glossLookup(x.w, lang);
         if (g && fold(norm(g.val, lang)) !== x.k) here.push({ w: x.w, val: g.val, base: g.base || '' });
       }
