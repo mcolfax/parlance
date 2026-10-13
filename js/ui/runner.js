@@ -20,7 +20,7 @@ function askLeave(){
   sheet('Leave this ' + (Run.mode === 'lesson' ? 'lesson' : 'session') + '?', h('p', null, Run.mode === 'lesson' ? 'Your answers in this lesson won’t be saved.' : 'Items you’ve already reviewed keep their new schedule.'),
     [{ label: 'Keep going', primary: true }, { label: 'Leave', run: () => { endRun(); } }]);
 }
-function endRun(){ if (Run.finished && Run.mode === 'lesson' && Run.lesson) UI.justDone = Run.lesson.id; Run.active = false; closeOverlay(); UI.animate = true; render(); }
+function endRun(){ clearTimeout(Run.sayTimer); speakStop(); if (Run.finished && Run.mode === 'lesson' && Run.lesson) UI.justDone = Run.lesson.id; Run.active = false; closeOverlay(); UI.animate = true; render(); }
 function startLesson(id){
   const lesson = getLesson(id); if (!lesson) return;
   Object.assign(Run, { active: true, started: false, finished: false, mode: 'lesson', lang: lesson.lang, lesson, queue: [], pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 });
@@ -136,7 +136,7 @@ function showFeedback(ex, res){
     else fb.append(h('div', { class: 'fb-ans' }, userWords ? markMissing(ans.en, userWords) : ans.en), h('div', { class: 'fb-sub row' }, h('span', { class: 'grow' }, itemText(ex.item, lang)), speakBtn(ans.t, lang)));
   }
   OV.foot.className = 'ov-foot ' + (res.ok ? 'ok' : 'bad');
-  const cont = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => { Run.pos++; nextEx(); } }, 'Continue');
+  const cont = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => { clearTimeout(Run.sayTimer); speakStop(); Run.pos++; nextEx(); } }, 'Continue');
   // Pip cheers a right answer, dances on a run of them, nods at one that counts but isn't word for word, and worries at a miss
   const run = res.ok && first && res.level === 'exact' && Run.combo >= 3;
   const fbPip = pip(!res.ok ? 'oops' : run ? 'dance' : res.level === 'exact' ? 'cheer' : 'happy', 58, { cls: 'fb-pip', tap: false, moveFor: run ? 2000 : 0 });
@@ -149,7 +149,9 @@ function showFeedback(ex, res){
   setTimeout(() => cont.focus(), 30);
   sfx(res.ok ? 'ok' : 'bad');
   if (res.ok && first && res.level === 'exact' && [3, 5, 8, 12, 16].includes(Run.combo)) setTimeout(() => showCombo(Run.combo), 280);
-  if (S.settings.autoplay && ans && ex.type !== 'speak' && ex.type !== 'match') setTimeout(() => speak(cmp && ex.ansLang !== 'en' ? cmp.shown : ans.t, lang), S.settings.sfx ? 380 : 0);
+  clearTimeout(Run.sayTimer);
+  // the answer is read on its own question: never after Continue, and never over the next question
+  if (S.settings.autoplay && ans && ex.type !== 'speak' && ex.type !== 'match') Run.sayTimer = setTimeout(() => { if (Run.cur === ex && Run.active) speak(cmp && ex.ansLang !== 'en' ? cmp.shown : ans.t, lang); }, S.settings.sfx ? 380 : 0);
 }
 /* an answer that counts without matching word for word: set it beside the answer it was matched to */
 function acceptedCompare(ex, res){
