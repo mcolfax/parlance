@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.16.0';
+const APP_VERSION = '4.16.1';
 const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,6 +12,8 @@ const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.16.1', date: '2026-10-14', title: 'Wings in', notes: [
+    'The shrugging bird, on the Talk tab when the tutor isn\'t available, no longer holds its wings straight out.'] },
   { v: '4.16.0', date: '2026-10-14', title: 'Heads up', notes: [
     'Tilt your phone and the birds keep their heads level, the way a chicken does.',
     'It eases off when the phone is lying flat, and on iPhone it asks to use the motion sensor the first time you touch the screen.'] },

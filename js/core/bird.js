@@ -183,7 +183,7 @@ const Bird = (() => {
       sleep: { bones: Object.assign(sym({ wing: { r: -8 } }), { head: { r: 9, y: 4 }, body: { sy: 0.97 }, crest1: { r: -12 }, crest3: { r: 10 }, crest2: { r: 8 } }), params: { turn: 0.12 } },
       sad: { bones: Object.assign(sym({ wing: { r: 5 } }), { crest1: { r: -24, sy: 0.9 }, crest3: { r: 22, sy: 0.9 }, crest2: { r: -12, sy: 0.88 }, head: { y: 5, r: -3 }, body: { sy: 0.965 } }), params: { turn: 0.1 } },
       laugh: { bones: { wingL: { r: -34 }, wingR: { r: -10 }, head: { r: -8, y: -2 }, body: { r: -2 } }, params: { turn: 0.2 } },
-      shrug: { bones: Object.assign(sym({ wing: { r: 46 } }), { head: { r: 8, y: 1 }, body: { y: -1 } }), params: { turn: 0.18 } },
+      shrug: { bones: Object.assign(sym({ wing: { r: 12 } }), { head: { r: 8, y: 1 }, body: { y: -1 } }), params: { turn: 0.18 } },
       proud: { bones: Object.assign(sym({ wing: { r: 14 } }), { crest1: { r: -8 }, crest3: { r: 8 }, body: { sx: 1.04, sy: 1.02 }, head: { r: -6, y: -3 } }), params: { turn: 0.05 } },
       love: { bones: Object.assign(sym({ wing: { r: -22 } }), { head: { r: 9, y: 1 } }), params: { turn: 0.22 } },
       listen: { bones: { head: { r: 12, y: 1 }, wingL: { r: -4 }, wingR: { r: 6 } }, params: { turn: 0.5, lookX: -0.5 } },
