@@ -177,11 +177,14 @@ function avatarSVG(id){
   return s + '</svg>';
 }
 /* avatar(id, size, cls, asIs): a cast member's portrait. 'pip' is the learner's bird, or Pip itself with asIs (a
-   friend's chosen picture) */
+   friend's chosen picture). With asIs, any bird in MASCOTS is itself too; one that hasn't loaded yet shows as Pip and
+   is swapped in once its part sheet arrives. */
 function avatar(id, size, cls, asIs){
-  const def = id === 'pip' ? (asIs ? PIP : mascotDef()) : null;
-  const el = h('span', { class: 'cast-av' + (def ? ' is-pip' : '') + (cls ? ' ' + cls : ''), style: '--av:' + (size || 40) + 'px', title: def ? def.name : CAST[id] ? CAST[id].name : '' });
+  let def = id === 'pip' ? (asIs ? PIP : mascotDef()) : asIs && MASCOTS[id] ? (Bird.birds[id] || PIP) : null;
+  const late = asIs && MASCOTS[id] && !Bird.birds[id] ? id : '';
+  const el = h('span', { class: 'cast-av' + (def ? ' is-pip' : '') + (cls ? ' ' + cls : ''), style: '--av:' + (size || 40) + 'px', title: def ? MASCOTS[id] ? MASCOTS[id].name : def.name : CAST[id] ? CAST[id].name : '' });
   el.innerHTML = def ? pipSVG('happy', size || 40, PIP_HEAD, def) : avatarSVG(id);
+  if (late) loadMascot(late).then(b => { el.innerHTML = pipSVG('happy', size || 40, PIP_HEAD, b); }, () => {});
   return el;
 }
 

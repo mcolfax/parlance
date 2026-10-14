@@ -97,7 +97,7 @@ function cleanCard(d){
   const duels = (Array.isArray(d.duels) ? d.duels : []).slice(0, 100).filter(x => x && typeof x === 'object' && typeof x.id === 'string' && FRIENDS.metrics[x.metric])
     .map(x => ({ id: str(x.id, 40), a: str(x.a, 200), b: str(x.b, 200), metric: x.metric, at: num(x.at, 1e14), state: ['pending', 'on', 'declined', 'cancelled', 'done', 'closed'].includes(x.state) ? x.state : 'pending', start: day(x.start), end: day(x.end) }));
   const cheers = {}; for (const [k, v] of Object.entries(obj(d.cheers)).slice(0, 200)) if (day(v)) cheers[k] = v;
-  return { name: str(d.name, 24).trim(), bird: CAST[d.bird] ? d.bird : 'pip', lang: LANGS[d.lang] ? d.lang : 'de', goal: num(d.goal, 100) || 20, streak: num(d.streak, 1e5),
+  return { name: str(d.name, 24).trim(), bird: CAST[d.bird] || MASCOTS[d.bird] ? d.bird : 'pip', lang: LANGS[d.lang] ? d.lang : 'de', goal: num(d.goal, 100) || 20, streak: num(d.streak, 1e5),
     today: day(d.today), langs, days, badges: num(d.badges, 999), duels, cheers, updatedAt: num(d.updatedAt, 1e14) };
 }
 async function socialPublish(force){
@@ -268,7 +268,7 @@ async function socialLeave(){
 }
 async function socialSaveCard(name, bird){
   const so = S.social; const first = !so.on;
-  so.name = String(name || '').trim().slice(0, 24); so.bird = CAST[bird] ? bird : 'pip'; so.on = true; so.ts = Date.now();
+  so.name = String(name || '').trim().slice(0, 24); so.bird = CAST[bird] || MASCOTS[bird] ? bird : 'pip'; so.on = true; so.ts = Date.now();
   mySecret(); touch('social');
   const ok = await socialPublish(true);
   if (first) socialEnsureInbox();

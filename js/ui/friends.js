@@ -3,7 +3,7 @@
    The weekly league, duels and cheers, and inviting friends. The data side (cards, invites, duels) is js/core/social.js.
    ======================================================= */
 const FR = { metric: 'xp', offered: false };
-const BIRDS = ['pip', 'lena', 'jonas', 'weber', 'emre', 'leyla', 'brandt', 'sofia', 'diego', 'carmen', 'mateo', 'valentina', 'andres'].filter(id => CAST[id]);
+const BIRDS = [...Object.keys(MASCOTS), 'lena', 'jonas', 'weber', 'emre', 'leyla', 'brandt', 'sofia', 'diego', 'carmen', 'mateo', 'valentina', 'andres'].filter(id => CAST[id]);
 
 /* ----- numbers for the league and duels ----- */
 function weekFrom(){ return weekOf(today()); }
@@ -180,10 +180,10 @@ function needCard(next){ if (S.social.on) return next(); openCardSetup(next); }
 function openCardSetup(next){
   if (socialState() !== 'ok') return;
   const editing = S.social.on;
-  let bird = CAST[S.social.bird] ? S.social.bird : 'pip';
+  let bird = BIRDS.includes(S.social.bird) ? S.social.bird : 'pip';
   const name = h('input', { class: 'input', id: 'fr-name', type: 'text', maxlength: '24', autocomplete: 'given-name', value: S.social.name || firstName() });
   const grid = h('div', { class: 'fr-birds', role: 'radiogroup', 'aria-label': 'Your picture' });
-  const draw = () => grid.replaceChildren(...BIRDS.map(id => h('button', { class: 'fr-bird', type: 'button', role: 'radio', 'aria-checked': String(id === bird), 'aria-label': CAST[id].name, onclick: () => { bird = id; sfx('select'); draw(); } }, avatar(id, 48, null, true))));
+  const draw = () => grid.replaceChildren(...BIRDS.map(id => h('button', { class: 'fr-bird', type: 'button', role: 'radio', 'aria-checked': String(id === bird), 'aria-label': MASCOTS[id] ? MASCOTS[id].name : CAST[id].name, onclick: () => { bird = id; sfx('select'); draw(); } }, avatar(id, 48, null, true))));
   draw();
   const body = h('div', { class: 'field' },
     h('p', { class: 'small muted' }, 'This is what your friends see. Only people you invite can see it.'),
