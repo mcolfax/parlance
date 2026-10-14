@@ -30,13 +30,13 @@ function ST(id, level, title, en, scene, items){
   const its = items.map(x => x[0] === '?' ? { q: x[1], o: String(x[2]).split('|') } : { who: x[0], t: x[1], e: x[2] });
   return { id, lang, level, title, en, scene, items: its, cast: [...new Set(its.filter(x => x.who).map(x => x.who))] };
 }
-const COURSE_SRC = { de: [], es: [] };
+const COURSE_SRC = Object.fromEntries(LANG_IDS.map(l => [l, []]));
 const STORIES = [];
 
 /* ----- assembled course (built-in + remote packs) ----- */
-const COURSE = { de: { units: [] }, es: { units: [] } };
+const COURSE = Object.fromEntries(LANG_IDS.map(l => [l, { units: [] }]));
 const CORE = new Map();
-const CORE_IDX = { de: new Map(), es: new Map() };
+const CORE_IDX = Object.fromEntries(LANG_IDS.map(l => [l, new Map()]));
 let STORY_MAP = new Map();
 let PACK_STORIES = [];
 const Packs = { list: [], errors: [], aliases: new Map(), version: 0 };
@@ -44,7 +44,7 @@ const Packs = { list: [], errors: [], aliases: new Map(), version: 0 };
 function assembleCourse(){
   CORE.clear();
   const usedIds = new Set();
-  for (const lang of ['de', 'es']){
+  for (const lang of LANG_IDS){
     CORE_IDX[lang].clear();
     let units = COURSE_SRC[lang].map(u => ({ title: u.title, level: u.level, art: u.art, lessons: u.lessons.slice(), pack: null }));
     const builtinIds = new Set(units.flatMap(u => u.lessons.map(l => l.id)));
@@ -86,7 +86,7 @@ function lessonForms(l){
     const seen = new Set(), out = {};
     // a capital mid-sentence is a name (or, in German, a noun we know) – names get no meaning of their own
     const keys = (text) => String(text).split(/\s+/).map(p => ({ p, c: coreWord(p) })).filter(x => /\p{L}/u.test(x.c))
-      .map((x, i) => ({ w: lang === 'es' && i === 0 ? x.c[0].toLowerCase() + x.c.slice(1) : x.c, k: fold(norm(x.c, lang)), name: i > 0 && x.c[0] !== x.c[0].toLowerCase() && !(lang === 'de' && NOUNS.has(x.c)) }));
+      .map((x, i) => ({ w: lang !== 'de' && i === 0 ? x.c[0].toLowerCase() + x.c.slice(1) : x.c, k: fold(norm(x.c, lang)), name: i > 0 && x.c[0] !== x.c[0].toLowerCase() && !(lang === 'de' && NOUNS.has(x.c)) }));
     for (const les of coreOrder(lang)){
       for (const v of les.vocab) for (const t of [v.t, ...v.alt]) keys(t).forEach(x => seen.add(x.k));
       const here = [];
@@ -130,7 +130,7 @@ function tipBites(tip){
 function allLessons(lang){ return coreOrder(lang).concat(genLessons(lang)); }
 const CUSTOM_CACHE = new Map();
 function customLesson(id){
-  const m = /^c-(de|es)-/.exec(id); if (!m) return null;
+  const m = new RegExp('^c-(' + LANG_IDS.join('|') + ')-').exec(id); if (!m) return null;
   const lang = m[1]; const c = (S.langs[lang].custom || {})[id]; if (!c) return null;
   const sig = JSON.stringify(c);
   const hit = CUSTOM_CACHE.get(id); if (hit && hit.sig === sig) return hit.lesson;
@@ -141,7 +141,7 @@ function customLesson(id){
 function getLesson(id){
   if (CORE.has(id)) return CORE.get(id);
   if (id.startsWith('c-')) return customLesson(id);
-  for (const lang of ['de', 'es']){ const g = (S.gen[lang] || []).find(x => x.id === id); if (g){ g.lang = lang; g.core = false; return g; } }
+  for (const lang of LANG_IDS){ const g = (S.gen[lang] || []).find(x => x.id === id); if (g){ g.lang = lang; g.core = false; return g; } }
   return null;
 }
 
@@ -224,7 +224,7 @@ function validPackStory(o, lang, errs){
 }
 function validatePack(id, d){
   const errs = [];
-  if (!d || d.kind !== 'pack' || !['de', 'es'].includes(d.lang)) return { pack: null, errs: ['not a pack'] };
+  if (!d || d.kind !== 'pack' || !LANG_IDS.includes(d.lang)) return { pack: null, errs: ['not a pack'] };
   if (d.minApp && cmpVersion(d.minApp, APP_VERSION) > 0) return { pack: null, errs: ['needs app ' + d.minApp] };
   const lang = d.lang;
   const units = (Array.isArray(d.units) ? d.units : []).map(u => ({

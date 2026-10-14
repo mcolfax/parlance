@@ -6,7 +6,7 @@
    - shape changes get a step in MIGRATIONS below; steps must be idempotent
    ================================================== */
 const LS_KEY = 'parlance.v2';            // keep this key: changing it would orphan everyone's local progress
-const SLICES = ['core', 'de', 'es', 'gen-de', 'gen-es', 'social'];
+const SLICES = ['core', ...LANG_IDS, ...LANG_IDS.map(l => 'gen-' + l), 'social'];
 /* miss: { itemKey: { ts: when you last got it wrong, ok: when you last got it right } } feeds "Fix my mistakes";
    cp: { unit title: { at, acc (best), pass } } for unit checkpoints */
 function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}, miss: {}, cp: {}, start: 'A1', startTs: 0 }; }
@@ -16,7 +16,7 @@ function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}
    seen: { uid: day of their latest cheer you've seen } */
 function newSocial(){ return { on: false, secret: '', since: 0, home: '', name: '', bird: 'pip', friends: {}, duels: {}, past: {}, cheers: {}, seen: {}, ts: 0 }; }
 function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, natural: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, mascot: 'pip', hints: 'auto', onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
-function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defaultSettings(), days: {}, badges: {}, stats: {}, langs: { de: newLang(), es: newLang() }, gen: { de: [], es: [] }, social: newSocial() }; }
+function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defaultSettings(), days: {}, badges: {}, stats: {}, langs: Object.fromEntries(LANG_IDS.map(l => [l, newLang()])), gen: Object.fromEntries(LANG_IDS.map(l => [l, []])), social: newSocial() }; }
 function validLesson(l){ return l && typeof l.id === 'string' && typeof l.title === 'string' && Array.isArray(l.vocab) && Array.isArray(l.sentences) && Array.isArray(l.blanks); }
 function cleanLang(x){
   const o = { ...newLang(), ...(x && typeof x === 'object' ? x : {}) };
@@ -28,7 +28,7 @@ function cleanLang(x){
 }
 function cleanSettings(x){
   const s = { ...defaultSettings(), ...(x && typeof x === 'object' ? x : {}), voices: { ...((x && x.voices) || {}) } };
-  if (!['de', 'es'].includes(s.lang)) s.lang = 'de';
+  if (!LANG_IDS.includes(s.lang)) s.lang = 'de';
   if (![10, 20, 30].includes(s.goal)) s.goal = 20;
   if (!['normal', 'relaxed'].includes(s.speed)) s.speed = 'normal';
   s.sfxVol = Math.max(0, Math.min(1, isFinite(+s.sfxVol) ? +s.sfxVol : 0.8));
@@ -51,11 +51,12 @@ function cleanSocial(x){
 /* Ordered, idempotent upgrade steps for saved state. Each runs once when an older save is loaded. */
 const MIGRATIONS = [
   { to: 3, run: st => { st.badges = obj(st.badges); st.stats = obj(st.stats); } },
-  { to: 4, run: st => { for (const l of ['de', 'es']) if (st.langs[l]) st.langs[l].cards = migrateCardKeys(st.langs[l].cards || {}); } },
+  { to: 4, run: st => { for (const l of LANG_IDS) if (st.langs[l]) st.langs[l].cards = migrateCardKeys(st.langs[l].cards || {}); } },
   { to: 5, run: st => { st.social = cleanSocial(st.social); } },
   { to: 6, run: st => { st.settings = cleanSettings(st.settings); } },   // the bird you learn with (settings.mascot)
   { to: 7, run: st => { st.settings = cleanSettings(st.settings); } },   // word hints (settings.hints)
-  { to: 8, run: st => { for (const l of ['de', 'es']) if (st.langs[l]) st.langs[l] = cleanLang(st.langs[l]); } }   // mistakes (miss) and checkpoints (cp)
+  { to: 8, run: st => { for (const l of LANG_IDS) if (st.langs[l]) st.langs[l] = cleanLang(st.langs[l]); } },   // mistakes (miss) and checkpoints (cp)
+  { to: 9, run: st => { st.langs = obj(st.langs); st.gen = obj(st.gen); for (const l of LANG_IDS){ st.langs[l] = cleanLang(st.langs[l]); if (!Array.isArray(st.gen[l])) st.gen[l] = []; } } }   // Italian: a language of its own beside German and Spanish
 ];
 function migrate(st){
   const from = +st.v || 1;
@@ -63,7 +64,7 @@ function migrate(st){
   st.v = Math.max(from, SCHEMA_VERSION);
   return st;
 }
-function hasProgress(st){ return ['de', 'es'].some(l => st.langs[l] && (Object.keys(st.langs[l].done || {}).length || Object.keys(st.langs[l].cards || {}).length || Object.keys(st.langs[l].stories || {}).length)); }
+function hasProgress(st){ return LANG_IDS.some(l => st.langs[l] && (Object.keys(st.langs[l].done || {}).length || Object.keys(st.langs[l].cards || {}).length || Object.keys(st.langs[l].stories || {}).length)); }
 function obj(x){ return x && typeof x === 'object' && !Array.isArray(x) ? x : {}; }
 function mergeState(base, s){
   if (!s || typeof s !== 'object') return base;
@@ -71,7 +72,7 @@ function mergeState(base, s){
   base.settings = cleanSettings(s.settings);
   if (s.days && typeof s.days === 'object') base.days = s.days;
   base.badges = { ...obj(s.badges) }; base.stats = { ...obj(s.stats) };
-  for (const l of ['de', 'es']){
+  for (const l of LANG_IDS){
     if (s.langs && s.langs[l]) base.langs[l] = cleanLang(s.langs[l]);
     if (s.gen && Array.isArray(s.gen[l])) base.gen[l] = s.gen[l].filter(validLesson);
   }
@@ -152,20 +153,20 @@ function mergeCore(a, b){
 }
 function sliceData(slice){
   if (slice === 'core') return { settings: S.settings, days: S.days, badges: S.badges, stats: S.stats };
-  if (slice === 'de' || slice === 'es') return S.langs[slice];
+  if (LANG_IDS.includes(slice)) return S.langs[slice];
   if (slice === 'social') return S.social;
   return S.gen[slice.slice(4)];
 }
 function mergeSlice(slice, local, remote){
   if (remote == null) return local;
   if (slice === 'core') return mergeCore(local, remote);
-  if (slice === 'de' || slice === 'es') return mergeLang(local, remote);
+  if (LANG_IDS.includes(slice)) return mergeLang(local, remote);
   if (slice === 'social') return mergeSocial(local, remote);
   return mergeGen(local, remote);
 }
 function applySlice(slice, data){
   if (slice === 'core'){ S.settings = cleanSettings(data.settings); S.days = data.days || {}; S.badges = obj(data.badges); S.stats = obj(data.stats); }
-  else if (slice === 'de' || slice === 'es') S.langs[slice] = cleanLang(data);
+  else if (LANG_IDS.includes(slice)) S.langs[slice] = cleanLang(data);
   else if (slice === 'social') S.social = cleanSocial(data);
   else S.gen[slice.slice(4)] = (data || []).filter(validLesson);
 }
@@ -173,7 +174,7 @@ function mergeWhole(a, b){
   const out = defaultState();
   const c = mergeCore({ settings: a.settings, days: a.days, badges: a.badges, stats: a.stats }, { settings: b.settings, days: b.days, badges: b.badges, stats: b.stats });
   out.settings = c.settings; out.days = c.days; out.badges = c.badges; out.stats = c.stats;
-  for (const l of ['de', 'es']){ out.langs[l] = mergeLang(a.langs[l], b.langs[l]); out.gen[l] = mergeGen(a.gen[l], b.gen[l]); }
+  for (const l of LANG_IDS){ out.langs[l] = mergeLang((a.langs || {})[l], (b.langs || {})[l]); out.gen[l] = mergeGen((a.gen || {})[l], (b.gen || {})[l]); }
   // friends live in one home's database: a backup from the other home doesn't bring them along
   const sa = cleanSocial(a.social), sb = cleanSocial(b.social);
   out.social = sa.home && sb.home && sa.home !== sb.home ? sa : mergeSocial(sa, sb);
@@ -250,7 +251,7 @@ async function syncNow(full){
 }
 function hasData(slice, d){
   if (slice === 'core') return true;
-  if (slice === 'de' || slice === 'es') return !!(Object.keys(d.done || {}).length || Object.keys(d.cards || {}).length || Object.keys(d.stories || {}).length || d.xp);
+  if (LANG_IDS.includes(slice)) return !!(Object.keys(d.done || {}).length || Object.keys(d.cards || {}).length || Object.keys(d.stories || {}).length || d.xp);
   if (slice === 'social') return !!(d && (d.secret || d.on || Object.keys(d.friends || {}).length));
   return Array.isArray(d) && d.length > 0;
 }

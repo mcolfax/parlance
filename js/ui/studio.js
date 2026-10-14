@@ -78,7 +78,7 @@ async function synthesize(all){
   Studio.busy = true; Studio.status = ''; drawStudio();
   const ratings = Studio.fb.filter(f => f.type === 'rating').slice(0, 300).map(r => ({ lesson: r.ctx && (r.ctx.lessonId || r.ctx.storyId), rating: r.rating }));
   const existing = Studio.props.filter(p => p.status !== 'rejected').map(p => ({ id: p.id, title: p.title, status: p.status }));
-  const prompt = 'You are the product lead for Parlance, a German and Spanish learning web app (lessons A1–C2, stories with a recurring cast, spaced review, a Claude conversation tutor, a parrot mascot named Pip that learners can swap for one of four other birds, daily quests and badges). ' +
+  const prompt = 'You are the product lead for Parlance, a German, Spanish and Italian learning web app (lessons A1–C2, stories with a recurring cast, spaced review, a Claude conversation tutor, a parrot mascot named Pip that learners can swap for one of four other birds, daily quests and badges). ' +
     'Content can be changed two ways: "content" changes (lessons, translations, stories) can ship as data packs; "code" or "design" changes need an app release.\n' +
     'Turn this learner feedback into a short list of concrete, buildable improvement proposals for the owner to approve. Group related notes. Ignore pure praise unless it says what to protect. Never invent problems the feedback does not support. ' +
     'If a note reports a wrong answer or typo, propose the exact content fix (lesson id, the current text, the corrected text or extra accepted answer).\n' +

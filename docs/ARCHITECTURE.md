@@ -12,7 +12,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `styles/components.css` | Screen-level styles grouped by feature | change one screen |
 | `styles/film.css`, `styles/features.css` | Intro film; feedback, Studio, update banner, What's new | change those features |
 | `styleguide.html` | Living style guide rendered from the tokens and art functions | review the design system |
-| `js/config.js` | Version, release notes, XP economy, daily quests, badges, Talk scenarios, the birds learners can pick (`MASCOTS`) | tune the game or ship a version |
+| `js/config.js` | Version, release notes, the list of languages (`LANG_IDS`, `LANGS`), XP economy, daily quests, badges, Talk scenarios, the birds learners can pick (`MASCOTS`) | tune the game or ship a version |
 | `js/core/util.js` | DOM helper `h()`, dates, hashing, icons, particles, haptics | add an icon or helper |
 | `js/core/text.js` | Answer normalization, typo/accent tolerance, word-by-word comparison of an answer that counts with the expected one, glossary index | change how answers are checked |
 | `js/core/content.js` | Content helpers, course assembly, live pack validation, stable review keys | change how content is organized |
@@ -27,7 +27,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `js/core/rig.js`, `js/core/bird.js`, `js/core/pip.js` | The birds' rig: the SVG runtime (blending, moves, blinks, springs, the head turn), the shared bird (skeleton, poses, faces, moods, moves) and Pip's part sheet traced from the model sheet. `design/rig/` holds the Blender files, the tracing tools and the review pages | change how a bird looks or moves (read `design/rig/README.md` first) |
 | `js/core/kiwi.js`, `mango.js`, `kakadu.js`, `rojo.js` | The other birds' part sheets, traced the same way. Not in `index.html`: one loads when a learner picks that bird (see "Your bird" below) | change how that bird looks |
 | `js/core/art.js` | `pip()` (the learner's bird, alive: it moves and talks when tapped and looks where you touch) and `pipSVG()` (a still), loading a picked bird (`loadMascot`), cast portraits, unit signs, scenes, chest, medals (pure SVG) | change illustrations |
-| `content/*.js` | Lessons, stories, cast, glossary (data only) | add or fix built-in content |
+| `content/*.js` | Lessons (`de-*`, `es-*`, `it-*`), stories (`stories-de|es|it.js`), cast, glossary (data only) | add or fix built-in content |
 | `js/ui/*.js` | One file per screen: learn, review, stories, talk, friends, me, runner (lessons), onboarding, film, feedback, studio | change a screen |
 | `js/main.js` | Boot order | rarely |
 | `dev/test.js` | End-to-end tests (jsdom) | run before every publish |
@@ -52,7 +52,7 @@ The same files run in two places.
 
 ## Progress is never lost
 
-- Each person's progress lives in their own private database documents (`data/users/<id>/core|de|es|gen-de|gen-es|social`), mirrored in their browser. Republishing the app never touches them. `social` holds their friend list, duels and the secret part of their invite code.
+- Each person's progress lives in their own private database documents (`data/users/<id>/core|de|es|it|gen-de|gen-es|gen-it|social`), mirrored in their browser. Republishing the app never touches them. `social` holds their friend list, duels and the secret part of their invite code.
 - Lessons and stories are keyed by **id**. Never rename or reuse an id. Moving a lesson to another unit or changing its text is safe.
 - Review cards use **stable item keys**: `lessonId|v|~<normalized target text>`. Reordering or adding items is safe. If you change an item's target text, its card is orphaned (kept, but unused); to carry it over, add an alias in a pack (`aliases: { "old key": "new key" }`).
 - Saved state is versioned (`SCHEMA_VERSION` in `config.js`). When the saved shape changes, add an idempotent step to `MIGRATIONS` in `state.js`.
@@ -99,6 +99,21 @@ The course is read by recorded neural voices instead of the phone's built-in one
 - **Recording.** `node dev/voices.js` loads the app, keeps every clip already recorded with the same voice and speed, records only new lines, rewrites the packs and indexes, and deletes packs that no longer have lines. `--dry` counts what it would record; `--list` lists Google's voices; `--only de-common,de-1-1` records new lines only in those packs. The key is a Google Cloud API key restricted to the Text-to-Speech API. It lives in the Claude Code environment as a network secret for `texttospeech.googleapis.com` that adds the header `X-Goog-Api-Key` (no prefix), so sessions never see it; a `GOOGLE_TTS_KEY` environment variable works too. It never goes in the repo.
 - **Cost: never.** Learners never call Google; the app only plays the files. Recording is billed per character after the first million a month (Pacific time), at US$30 per million, and the whole course is about 74,000. `dev/voices.js` keeps a running total per month in `dev/voice-usage.json` and refuses any run that would take the month past 900,000, with no flag to override it. It counts UTF-8 bytes (more than Google counts), counts each line before asking for it, and saves the total as it goes. Commit `dev/voice-usage.json` with the recordings so the next session sees it. `--max-chars` (300,000 by default) also limits a single run.
 - **Changing a voice.** Edit `MEDIA.voice` and run `dev/voices.js`; only that speaker's lines are recorded again. To choose by ear first, `node dev/voices.js --audition de "Super! Toll gemacht!" Leda,Autonoe --out <folder>` records one line in each named Chirp 3 HD voice (it counts toward the monthly cap). The birds' voices are meant to be light, friendly and different from each other, from the narrator and from the cast.
+
+## Adding a language
+
+German, Spanish and Italian run through one list: `LANG_IDS` in `js/config.js`. Loops over languages, the saved slices (`core`, each language, `gen-<language>`, `social`), content assembly, the glossary, Friends cards and the language switch are all built from it. To add a fourth language:
+
+1. **Config** (`js/config.js`): add the id to `LANG_IDS`; an entry in `LANGS` (names, `tts` locale, special characters, articles, keyboard, `dialect` for the tutor); a voice per speaker in `MEDIA.voice`; a `cast` entry for it in every `SCENARIOS` row; bump `SCHEMA_VERSION`.
+2. **Saved state** (`js/core/state.js`): a step in `MIGRATIONS` that gives older saves the new language (see step 9, Italian). Nothing in `dev/supabase.sql` changes: a slice is just another document under `data/users/<id>/`.
+3. **Colors** (`styles/tokens.css`): `--xx`, `--xx-ink`, `--xx-text`, `--xx-soft`, `--xx-glow`, `--xx-edge`, `--xx-soft-edge` in light and both dark blocks, and a `:root[data-lang="xx"]` line. The picker, onboarding and the top bar pick them up.
+4. **Cast** (`content/cast.js`): six people in the language, with `look` and a pitch and rate. Every one needs a story or a Talk scene.
+5. **Content** (`content/xx-*.js`, `content/stories-xx.js`, listed in `index.html`): the same shape as the other languages, unit for unit, with ids `xx-<unit>-<lesson>` and `xx-s<n>`. The unit numbers match (1–6, 20–23, 7–15, 16–19, 30–39) so the courses stay the same length.
+6. **Glossary** (`content/glossary.js`): `COMMON_GLOSS.xx` (function words), `LESSON_GLOSS.xx` (forms the lessons use that no vocabulary item covers) and `STORY_GLOSS.xx`. `dev/test.js` checks that nearly every word in a lesson and every word in a story has a meaning when tapped. Brackets in a blank, like `(good morning)`, are English hints and are not counted.
+7. **Text checking** (`js/core/text.js`): the stop words in `COMMON`, the endings `baseForms()` strips to find a dictionary form, and any special case in `accentNote()`. Italian also splits elisions (`l’amico`, `dell’acqua`) in `glossLookup()` and `lexToks()`.
+8. **Small strings**: Pip's lines (`PIP_SAYS`, `birdHello` in `js/core/art.js`), the greeting (`greetingWord` in `js/ui/learn.js`), the stories blurb, the lesson-on-demand rules (`nounRule` in `js/ui/learn.js`) and the grading rules in `aiGrade()` (`js/core/engine.js`).
+9. **Voices**: `node dev/voices.js --dry`, then `node dev/voices.js` (see "Recorded voices"). The film (`js/ui/film.js`) still shows only Berlin and Mexico City.
+10. **Tests** (`dev/test.js`): `LANG_IDS`, the lesson and story counts. Run `npm test`.
 
 ## Live content without a release
 

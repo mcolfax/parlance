@@ -21,21 +21,21 @@ function drawOnb(){
   const next = () => { Onb.step++; drawOnb(); };
   if (Onb.step === 0){
     swapBody(h('div', { class: 'onb-step welcome' },
-      h('div', { class: 'hero-lines', html: '<svg viewBox="0 0 340 170" width="100%" height="170"><path class="ln de" d="M30 140 C 110 140 120 60 200 60 L 310 60"/><path class="ln es" d="M30 140 C 110 140 130 120 200 120 L 310 120"/><circle class="st" cx="30" cy="140" r="9"/><circle class="st de" cx="310" cy="60" r="9"/><circle class="st es" cx="310" cy="120" r="9"/><text x="296" y="40" class="lb de" text-anchor="end">Hallo!</text><text x="296" y="148" class="lb es" text-anchor="end">¡Hola!</text></svg>' }, pip('happy', 70, { cls: 'fly-in', say: 'Hi! I’m Pip.', sayPos: 'up-right', mouth: true, wave: true })),
+      h('div', { class: 'hero-lines', html: '<svg viewBox="0 0 340 170" width="100%" height="170"><path class="ln de" d="M30 140 C 100 140 110 38 190 38 L 310 38"/><path class="ln es" d="M30 140 C 100 140 120 88 190 88 L 310 88"/><path class="ln it" d="M30 140 C 100 140 130 138 190 138 L 310 138"/><circle class="st" cx="30" cy="140" r="9"/><circle class="st de" cx="310" cy="38" r="9"/><circle class="st es" cx="310" cy="88" r="9"/><circle class="st it" cx="310" cy="138" r="9"/><text x="296" y="22" class="lb de" text-anchor="end">Hallo!</text><text x="296" y="72" class="lb es" text-anchor="end">¡Hola!</text><text x="296" y="122" class="lb it" text-anchor="end">Ciao!</text></svg>' }, pip('happy', 70, { cls: 'fly-in', say: 'Hi! I’m Pip.', sayPos: 'up-right', mouth: true, wave: true })),
       h('h1', null, 'Your own language course.'),
-      h('p', { class: 'lead' }, 'German and Spanish, from first words to fluent: short lessons, smart review, stories, and a tutor who talks back.'),
+      h('p', { class: 'lead' }, 'German, Spanish and Italian, from first words to fluent: short lessons, smart review, stories, and a tutor who talks back.'),
       h('button', { class: 'film-card', type: 'button', onclick: () => { Onb.open = false; openFilm({ doneLabel: 'Continue', onDone: () => openOnboarding(Onb.replay, 1) }); } },
         h('span', { class: 'fc-thumb', 'aria-hidden': 'true' }, pip('cheer', 54, { tap: false }), h('span', { class: 'fc-play', html: IC.play })),
         h('span', { class: 'fc-text' }, h('b', null, 'Watch the intro film'), h('span', { class: 'small muted' }, '50 seconds, with sound. Meet ' + mascot().name + ' and see what’s inside.'))),
       h('ul', { class: 'perks' },
-        h('li', null, h('b', null, (coreOrder('de').length + coreOrder('es').length) + ' lessons'), ' from A1 to C2, written for native-level accuracy'),
-        h('li', null, h('b', null, STORIES.length + ' illustrated stories'), ' with a recurring cast in Berlin and Mexico City'),
+        h('li', null, h('b', null, LANG_IDS.reduce((n, l) => n + coreOrder(l).length, 0) + ' lessons'), ' from A1 to C2, written for native-level accuracy'),
+        h('li', null, h('b', null, STORIES.length + ' illustrated stories'), ' with a recurring cast in Berlin, Mexico City and Rome'),
         h('li', null, h('b', null, 'Spaced review'), ' that brings words back right before you’d forget them'),
         h('li', null, h('b', null, 'Conversations'), ' with a Claude tutor who corrects every message'))));
     onbFoot('Get started', next);
   } else if (Onb.step === 1){
-    swapBody(h('div', { class: 'onb-step' }, h('h1', null, 'What do you want to learn?'), h('p', { class: 'lead' }, 'You can learn both and switch any time.'),
-      h('div', { class: 'big-choices' }, ['de', 'es'].map(l => h('button', { class: 'big-choice lang-' + l, type: 'button', 'aria-pressed': String(Onb.lang === l), onclick: () => { Onb.lang = l; Onb.level = S.langs[l].start || 'A1'; speak(LANGS[l].hello, l); sfx('tap'); drawOnb(); } },
+    swapBody(h('div', { class: 'onb-step' }, h('h1', null, 'What do you want to learn?'), h('p', { class: 'lead' }, 'You can learn more than one and switch any time.'),
+      h('div', { class: 'big-choices' }, LANG_IDS.map(l => h('button', { class: 'big-choice lang-' + l, type: 'button', 'aria-pressed': String(Onb.lang === l), onclick: () => { Onb.lang = l; Onb.level = S.langs[l].start || 'A1'; speak(LANGS[l].hello, l); sfx('tap'); drawOnb(); } },
         h('span', { class: 'bc-line', 'aria-hidden': 'true' }), h('span', { class: 'bc-title' }, LANGS[l].native), h('span', { class: 'bc-sub' }, LANGS[l].name + ' · ' + LANGS[l].variety), h('span', { class: 'bc-cast' }, castOf(l).map(id => avatar(id, 30))), h('span', { class: 'bc-hello' }, LANGS[l].hello))))));
     onbFoot('Continue', next);
   } else if (Onb.step === 2){

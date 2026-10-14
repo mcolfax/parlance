@@ -11,6 +11,7 @@ const page = fs.readFileSync(INDEX, 'utf8');
 let fails = 0, passes = 0;
 function ok(cond, msg){ if (cond) passes++; else { fails++; if (fails < 80) console.log('FAIL:', msg); } }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const LANG_IDS = ['de', 'es', 'it'];   // the languages the course teaches
 const BASE = 'https://parlance.test/', ROOT = path.dirname(INDEX);
 /* serve the app's own files from disk under a real https origin (so localStorage works); block everything else */
 class LocalOnly extends ResourceLoader { fetch(url){ if (!url.startsWith(BASE)) return null; const pr = fs.promises.readFile(path.join(ROOT, decodeURIComponent(url.slice(BASE.length).split('?')[0]))); pr.abort = () => {}; return pr; } }
@@ -146,7 +147,7 @@ async function main(){
   A.P.S.settings.onboarded = true;
   const P = A.P;
   let lessonCount = 0;
-  for (const lang of ['de', 'es']){
+  for (const lang of LANG_IDS){
     for (const u of P.COURSE[lang].units) for (const l of u.lessons){
       lessonCount++;
       for (let rep = 0; rep < 3; rep++){
@@ -161,7 +162,7 @@ async function main(){
           ok(early, l.id + ' never asks a word before teaching it');
           // ...and never asks a phrase before showing it, nor one that uses a lesson word that hasn't been taught yet
           const met = new Set(), taught = new Set(); let phraseOk = true, readyOk = true;
-          const vk = l.vocab.map(v => { const k = P.lexToks(v.t, l.lang), c = k.filter(x => !P.ARTICLES.has(x)); return c.length ? c : k; });
+          const vk = l.vocab.map(v => { const k = P.lexToks(v.t, l.lang), c = k.filter(x => !P.articlesFor(l.lang).has(x)); return c.length ? c : k; });
           for (const e of exs){
             if (e.type === 'teach' && e.mode === 'words') e.idxs.forEach(i => taught.add(i));
             else if (e.type === 'teach' && e.mode === 'phrases') e.lines.forEach(x => met.add(x.t));
@@ -197,17 +198,17 @@ async function main(){
       }
     }
   }
-  ok(lessonCount === 264, 'lesson count ' + lessonCount);
+  ok(lessonCount === 396, 'lesson count ' + lessonCount);
   // units sorted by level, ids unique
-  for (const lang of ['de', 'es']){ const lv = P.COURSE[lang].units.map(u => ['A1','A2','B1','B2','C1','C2'].indexOf(u.level)); ok(lv.every((x, i) => i === 0 || x >= lv[i - 1]), lang + ' units sorted'); }
-  { const ids = new Set(); for (const lang of ['de','es']) for (const u of P.COURSE[lang].units) for (const l of u.lessons){ ok(!ids.has(l.id), 'unique id ' + l.id); ids.add(l.id); ok(l.vocab.length >= 6 && l.sentences.length >= 4 && l.blanks.length === 3, 'shape ' + l.id); for (const b of l.blanks){ ok(b.t.split('___').length === 2, 'blank ' + b.t); ok(new Set(b.o).size === b.o.length, 'blank opts unique ' + b.t); } } }
+  for (const lang of LANG_IDS){ const lv = P.COURSE[lang].units.map(u => ['A1','A2','B1','B2','C1','C2'].indexOf(u.level)); ok(lv.every((x, i) => i === 0 || x >= lv[i - 1]), lang + ' units sorted'); }
+  { const ids = new Set(); for (const lang of LANG_IDS) for (const u of P.COURSE[lang].units) for (const l of u.lessons){ ok(!ids.has(l.id), 'unique id ' + l.id); ids.add(l.id); ok(l.vocab.length >= 6 && l.sentences.length >= 4 && l.blanks.length === 3, 'shape ' + l.id); for (const b of l.blanks){ ok(b.t.split('___').length === 2, 'blank ' + b.t); ok(new Set(b.o).size === b.o.length, 'blank opts unique ' + b.t); } } }
   /* stories content */
   for (const st of P.STORIES){
-    ok(['de','es'].includes(st.lang) && st.items.length >= 8, 'story shape ' + st.id);
+    ok(LANG_IDS.includes(st.lang) && st.items.length >= 8, 'story shape ' + st.id);
     ok(st.items.filter(x => x.q).length >= 2, 'story questions ' + st.id);
     for (const it of st.items){ if (it.q){ ok(it.o.length === 3 && new Set(it.o).size === 3, 'story q opts ' + st.id + ' ' + it.q); } else { ok(P.CAST[it.who] && P.CAST[it.who].lang === st.lang, 'speaker ' + st.id + ' ' + it.who); ok(it.t && it.e, 'line text ' + st.id); } }
   }
-  ok(P.STORIES.length === 18, 'stories ' + P.STORIES.length);
+  ok(P.STORIES.length === 27, 'stories ' + P.STORIES.length);
   /* every word in every story has a meaning when tapped, learned yet or not */
   for (const st of P.STORIES) for (const it of st.items) if (it.t) for (const part of it.t.split(/\s+/)){
     if (!/[\p{L}]/u.test(part)) continue;
@@ -221,12 +222,12 @@ async function main(){
   for (const [id, c] of Object.entries(P.CAST)){
     if (id === 'pip') continue;
     const svg = A.E('avatarSVG(' + JSON.stringify(id) + ')');
-    ok(['de', 'es'].includes(c.lang) && c.look && A.E('!!HAIR[' + JSON.stringify(c.look.style) + ']') && svg.startsWith('<svg') && !/NaN|undefined/.test(svg), 'portrait ' + id);
+    ok(LANG_IDS.includes(c.lang) && c.look && A.E('!!HAIR[' + JSON.stringify(c.look.style) + ']') && svg.startsWith('<svg') && !/NaN|undefined/.test(svg), 'portrait ' + id);
     ok(P.STORIES.some(s => s.cast.includes(id)) || A.E('SCENARIOS').some(sc => sc.cast[c.lang] === id), 'has a story or a Talk scene ' + id);
   }
-  for (const sc of A.E('SCENARIOS')) for (const lang of ['de', 'es']){ const who = sc.cast[lang]; ok(who === 'pip' || (P.CAST[who] && P.CAST[who].lang === lang), 'Talk ' + sc.id + ' ' + lang + ' is played by ' + who); }
+  for (const sc of A.E('SCENARIOS')) for (const lang of LANG_IDS){ const who = sc.cast[lang]; ok(who === 'pip' || (P.CAST[who] && P.CAST[who].lang === lang), 'Talk ' + sc.id + ' ' + lang + ' is played by ' + who); }
   ok(A.E('avatarSVG("leyla")').includes('evenodd') && A.E('avatarSVG("brandt")').includes(P.CAST.brandt.look.tie) && A.E('avatarSVG("valentina")').includes(P.CAST.valentina.look.ribbon), 'new looks: headscarf, tie, braid ribbons');
-  ok(A.E('FILM_CAST').map(r => r.length).join() === '6,6' && A.E('FILM_CAST.flat().length') === Object.keys(P.CAST).length - 1, 'the film meets everyone ' + JSON.stringify(A.E('FILM_CAST')));
+  ok(A.E('FILM_CAST').map(r => r.length).join() === '6,6' && A.E('FILM_CAST.flat().length') === Object.entries(P.CAST).filter(([id, c]) => id !== 'pip' && ['de', 'es'].includes(c.lang)).length, 'the film meets the Berlin and Mexico City cast ' + JSON.stringify(A.E('FILM_CAST')));
   ok(A.E('FILM_CAST.every((row, r) => row.every((id, i) => FILM_CUES.some(c => c[1] === "pop" && Math.abs(c[0] - filmCastAt(r, i).t) < 0.01)))'), 'a pop for every face in the film');
   ok(A.E('FILM_CUES.every(c => SOUNDS[c[1]] && c[0] >= 0 && c[0] < FILM_DUR)') && A.E('FILM_CAPTIONS.every(c => c[0] < c[1] && c[1] <= FILM_DUR + 1)') && Math.abs(A.E('bar(1) - bar(0)') - 240 / 99) < 1e-9, 'film cues use real sounds and captions are in order');
   { const ch = A.E('chestSVG()'); ok(['ch-lid', 'ch-lidup', 'ch-loot', 'ch-fly', 'ch-rays', 'ch-spark'].every(k => ch.includes('class="' + k)) && !/NaN|undefined/.test(ch) && A.E('chestSVG()') === ch, 'chest drawing'); }
@@ -255,6 +256,15 @@ async function main(){
   T('Wenn ich du waere, wuerde ich gehen', ['Wenn ich du wäre, würde ich gehen.'], 'de', true, 'accent');
   T('Si tuviera dinero, compraria una casa', ['Si tuviera dinero, compraría una casa.'], 'es', true, 'accent');
   T('Si tenía dinero, compraría una casa', ['Si tuviera dinero, compraría una casa.'], 'es', false);
+  /* Italian: accents, elisions, and the wrong form of the right word */
+  T('Perche sei stanco', ['Perché sei stanco?'], 'it', true, 'accent'); T('E un caffe', ['È un caffè.'], 'it', true, 'accent');
+  T('Mangio la pastta', ['Mangio la pasta.'], 'it', true, 'typo'); T('Vorrei l acqua', ['Vorrei l’acqua.'], 'it', true);
+  T('Io sono stanca', ['Io sono stanco.'], 'it', false); T('Ho due fratello', ['Ho due fratelli.'], 'it', false);
+  T('Se avessi tempo viaggerei', ['Se avessi tempo, viaggerei.'], 'it', true, 'exact'); T('Se avrei tempo, viaggerei', ['Se avessi tempo, viaggerei.'], 'it', false);
+  { const g = (wd, l) => P.glossLookup(wd, l) || {};
+    ok(/water/.test(g('dell’acqua', 'it').val) && g('l’amico', 'it').val === 'friend' && g('comprato', 'it').base === 'comprare' && g('venduto', 'it').base === 'vendere' && g('Perché', 'it').val, 'Italian words find their meaning: elisions and verb forms ' + JSON.stringify([g('dell’acqua', 'it'), g('l’amico', 'it'), g('comprato', 'it')]));
+    ok(/Giulia/.test(g('Giulia', 'it').val) && /landlord|pension/i.test(g('Bianchi', 'it').val || '') , 'the Italian cast’s names have meanings ' + JSON.stringify(g('Bianchi', 'it')));
+    ok(A.E('lexToks("l’acqua e un’amica", "it")').join() === 'l,acqua,e,un,amica' && A.E('articlesFor("it").has("gli")') && !A.E('articlesFor("es").has("gli")'), 'Italian elisions split into article and word'); }
   /* answers that count without matching exactly say why, and what differs */
   {
     ok(/^Only the ß differs \(heiße\), so it counts\.$/.test(P.check('Ich heisse Matt', ['Ich heiße Matt.'], 'de').note), 'accent note says why it counts');
@@ -364,20 +374,26 @@ async function main(){
     const bad = await makeDom({ seed: { 'parlance.v2': { v: 6, settings: { onboarded: true, hints: 'bogus' }, days: {}, langs: {} } } });
     ok(bad.P.S.settings.hints === 'auto', 'unknown hints setting becomes auto');
     // nearly every word in a lesson sentence or blank has a meaning of its own
-    for (const lang of ['de', 'es']){
+    for (const lang of LANG_IDS){
       let total = 0, unknown = 0;
-      for (const l of H.P.COURSE[lang].units.flatMap(u => u.lessons)) for (const t of [...l.sentences.map(x => x.t), ...l.blanks.map(b => b.t.replace('___', b.a))]) for (const part of t.split(/\s+/)){
+      for (const l of H.P.COURSE[lang].units.flatMap(u => u.lessons)) for (const t of [...l.sentences.map(x => x.t), ...l.blanks.map(b => b.t.replace('___', b.a).replace(/\s*\([^)]*\)/g, ''))]) for (const part of t.split(/\s+/)){   // the English hint in brackets isn't target-language text
         const c = H.E('coreWord')(part); if (!/\p{L}/u.test(c)) continue; total++; if (!H.E('glossLookup')(c, lang)) unknown++;
       }
       ok(unknown / total < 0.02, lang + ' lesson words without a meaning: ' + unknown + ' of ' + total);
     }
+    // a save from before Italian (schema 8) has no Italian progress yet and still loads, keeping what it had
+    const pre = await makeDom({ seed: { 'parlance.v2': { v: 8, settings: { onboarded: true, lang: 'es' }, days: {}, langs: { es: { done: { 'es-1-1': { at: '2026-10-01', acc: 1, times: 1 } }, cards: {}, xp: 40 } }, extra: { keep: 'me' } } } });
+    ok(pre.P.S.langs.it && Object.keys(pre.P.S.langs.it.done).length === 0 && pre.P.S.gen.it && pre.P.S.langs.es.done['es-1-1'] && pre.P.S.v === 9 && pre.P.S.extra && pre.P.S.extra.keep === 'me', 'an older save gets Italian and keeps everything else');
+    pre.E('S.settings.lang = "it"; touchSettings(); S.langs.it.done["it-1-1"] = { at: "2026-10-02", acc: 1, times: 1 }; touch("it")');
+    ok(JSON.parse(pre.w.localStorage.getItem('parlance.v2')).langs.it.done['it-1-1'] && ['de', 'es', 'it'].every(l => pre.E('SLICES').includes(l) && pre.E('SLICES').includes('gen-' + l)), 'Italian progress is saved, with its own synced slices');
+    pre.dom.window.close();
     H.dom.window.close(); bad.dom.window.close();
   }
   /* ---------- 3c. lesson openings: forms tables and the extra-words list ---------- */
   {
     const T3 = await makeDom(); T3.P.S.settings.onboarded = true;
     let withTables = 0, total = 0;
-    for (const lang of ['de', 'es']) for (const l of T3.P.COURSE[lang].units.flatMap(u => u.lessons)){
+    for (const lang of LANG_IDS) for (const l of T3.P.COURSE[lang].units.flatMap(u => u.lessons)){
       total++;
       const tb = l.tip.tables || [];
       if (tb.length) withTables++;
@@ -442,7 +458,7 @@ async function main(){
     const L = () => Q.P.S.langs.es;
     // form drills come from the tables
     let drills = 0, lessonsWithDrills = 0;
-    for (const lang of ['de', 'es']) for (const l of Q.P.COURSE[lang].units.flatMap(u => u.lessons)){
+    for (const lang of LANG_IDS) for (const l of Q.P.COURSE[lang].units.flatMap(u => u.lessons)){
       const d = Q.E('formDrills')(l); drills += d.length; if (d.length) lessonsWithDrills++;
       for (const x of d){ const ex = Q.E('formEx')(l, x); ok(ex.mode === 'type' || (ex.options.length === 4 && ex.options.includes(ex.correct) && new Set(ex.options).size === 4), l.id + ' form drill options'); ok(Q.P.evaluate(ex, ex.correct).ok, l.id + ' form drill right answer counts'); }
     }
@@ -547,7 +563,7 @@ async function main(){
       if (answerCurrent() === 'wait'){ await sleep(320); const c = footBtn('Continue'); ok(!!c, 'match feedback'); if (c) c.click(); }
     }
   }
-  for (const lang of ['de', 'es']){
+  for (const lang of LANG_IDS){
     E('S.settings.lang=' + JSON.stringify(lang) + ';render()');
     for (const u of P.COURSE[lang].units) for (const l of u.lessons){
       E('startLesson(' + JSON.stringify(l.id) + ')');
@@ -786,10 +802,10 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 8 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 9 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
-    for (const lang of ['de', 'es']) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }
+    for (const lang of LANG_IDS) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }
     // what's new shows once for people updating from an older version
     await sleep(700);
     ok(M.w.document.querySelector('.sheet .whatsnew'), 'what’s new sheet for updaters');
@@ -1100,7 +1116,7 @@ async function main(){
     const lines = P.voiceLines(), keyOf = (lang, who, t) => lang + '|' + who + '|' + P.recKey(t), have = new Set(lines.map(l => keyOf(l[0], l[1], l[2])));
     ok(have.size === lines.length && lines.every(l => l[2] && !l[2].includes('___')), 'each recorded line is there once, with no blanks in it');
     const miss = [], need = (lang, who, t) => { if (!have.has(keyOf(lang, who, t))) miss.push(lang + ' ' + who + ': ' + t); };
-    for (const lang of ['de', 'es']){
+    for (const lang of LANG_IDS){
       for (const u of P.COURSE[lang].units) for (const l of u.lessons){
         for (const x of [...l.vocab, ...l.sentences]) for (const t of [x.t, ...x.alt]){ need(lang, 'narrator', t); W.tileTokens(t).forEach(w => need(lang, 'narrator', w)); }
         l.blanks.forEach(b => need(lang, 'narrator', W.blankSaid(b))); l.tip.examples.forEach(x => need(lang, 'narrator', x.t));
@@ -1175,7 +1191,7 @@ async function main(){
     ok(!R.errors.length, 'no page errors R ' + JSON.stringify(R.errors.slice(0, 3)));
     R.dom.window.close();
     // the recordings in the repo, if any: every pack is there and every clip is inside its pack and starts on an mp3 frame
-    for (const lang of ['de', 'es']){
+    for (const lang of LANG_IDS){
       const f = path.join(ROOT, 'media', 'voice', lang + '.json'); if (!fs.existsSync(f)) continue;
       const ix = JSON.parse(fs.readFileSync(f, 'utf8')), packs = ix.packs.map(p => fs.existsSync(path.join(ROOT, 'media', 'voice', p)) ? fs.readFileSync(path.join(ROOT, 'media', 'voice', p)) : null);
       ok(packs.every(Boolean), lang + ' every pack in the index is in media/voice');

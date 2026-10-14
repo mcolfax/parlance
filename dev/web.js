@@ -16,7 +16,7 @@ for (const rel of Object.keys(files)){
 const tokens = fs.readFileSync(path.join(ROOT, 'styles', 'tokens.css'), 'utf8');
 const [bgLight, bgDark] = [...tokens.matchAll(/--bg:(#[0-9A-Fa-f]{6})/g)].map(m => m[1]);
 fs.writeFileSync(path.join(OUT, 'manifest.webmanifest'), JSON.stringify({
-  name: 'Parlance', short_name: 'Parlance', description: 'German and Latin American Spanish, from first words to fluent.',
+  name: 'Parlance', short_name: 'Parlance', description: 'German, Latin American Spanish and Italian, from first words to fluent.',
   start_url: '/', scope: '/', display: 'standalone', background_color: bgLight, theme_color: bgLight,
   icons: [
     { src: 'media/icons/icon-192.png', sizes: '192x192', type: 'image/png' },

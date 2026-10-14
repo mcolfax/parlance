@@ -59,10 +59,11 @@ function pipSVG(mood, size, view, def){
 }
 const PIP_SAYS = {
   de: { cheer: ['Super!', 'Toll gemacht!', 'Wunderbar!', 'Klasse!', 'Sehr gut!', 'Weiter so!'], oops: ['Fast!', 'Kein Problem!', 'Gleich klappt’s!', 'Nochmal!'], hello: ['Hallo!', 'Los geht’s!', 'Alles einsteigen!', 'Bereit?', 'Gute Fahrt!'], sleep: ['Gute Nacht!'] },
-  es: { cheer: ['¡Genial!', '¡Muy bien!', '¡Excelente!', '¡Increíble!', '¡Así se hace!', '¡Bravo!'], oops: ['¡Casi!', '¡No pasa nada!', '¡Ya casi!', '¡Otra vez!'], hello: ['¡Hola!', '¡Vámonos!', '¡Todos a bordo!', '¿Listos?', '¡Buen viaje!'], sleep: ['¡Buenas noches!'] }
+  es: { cheer: ['¡Genial!', '¡Muy bien!', '¡Excelente!', '¡Increíble!', '¡Así se hace!', '¡Bravo!'], oops: ['¡Casi!', '¡No pasa nada!', '¡Ya casi!', '¡Otra vez!'], hello: ['¡Hola!', '¡Vámonos!', '¡Todos a bordo!', '¿Listos?', '¡Buen viaje!'], sleep: ['¡Buenas noches!'] },
+  it: { cheer: ['Bravo!', 'Benissimo!', 'Fantastico!', 'Che bravo!', 'Perfetto!', 'Grande!'], oops: ['Quasi!', 'Non fa niente!', 'Ci sei quasi!', 'Ancora!'], hello: ['Ciao!', 'Andiamo!', 'Tutti a bordo!', 'Pronti?', 'Buon viaggio!'], sleep: ['Buonanotte!'] }
 };
 /* what a bird says when you meet it in the picker: recorded in each bird's voice like the lines above */
-function birdHello(id, lang){ const n = (MASCOTS[id] || MASCOTS.pip).name; return lang === 'es' ? '¡Hola! Soy ' + n + '.' : 'Hallo! Ich bin ' + n + '.'; }
+function birdHello(id, lang){ const n = (MASCOTS[id] || MASCOTS.pip).name; return lang === 'es' ? '¡Hola! Soy ' + n + '.' : lang === 'it' ? 'Ciao! Sono ' + n + '.' : 'Hallo! Ich bin ' + n + '.'; }
 function pickSay(lang, kind){ const l = PIP_SAYS[lang] || PIP_SAYS.de; const a = l[kind] || l.hello; return a[Math.floor(Math.random() * a.length)]; }
 /* a mood for a little while, then back to the bird's own mood (rig.home) */
 function pipBriefly(rig, mood, ms){

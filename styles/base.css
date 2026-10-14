@@ -77,14 +77,15 @@ p{margin:0}
 .top .music-btn.on svg{animation:notebob 2.4s var(--ease) infinite}
 .top .music-btn{flex:none}
 /* Phones: the logo, the music button and the language switch share one row. Under 420px they tighten up;
-   under 370px the wordmark steps aside (screen readers still hear it) and the two-leaf mark stays. */
+   under 400px (three languages need the room) the wordmark steps aside (screen readers still hear it) and the two-leaf mark stays. */
 @media (max-width:420px){
   .top{gap:8px}
-  .brand{font-size:21px;gap:6px}
+  .brand{font-size:17px;gap:6px}
   .top .music-btn{width:40px;height:40px}
-  .top .seg button{padding:7px 10px}
+  .top .seg button{padding:7px 8px;font-size:15px}
+  .top .seg{padding:3px}
 }
-@media (max-width:370px){
+@media (max-width:400px){
   .brand-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 }
 @keyframes notebob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-1.5px) rotate(-6deg)}}

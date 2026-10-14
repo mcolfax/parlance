@@ -3,8 +3,11 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.19.0';
-const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+const APP_VERSION = '4.20.0';
+/* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
+   path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
+const LANG_IDS = ['de', 'es', 'it'];
+const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
    functions that apply the same access rules as the artifact (dev/supabase.sql).
@@ -12,6 +15,11 @@ const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.20.0', date: '2026-10-14', title: 'Italian', notes: [
+    'Parlance now teaches Italian. It has the same 132 lessons as German and Spanish, from A1 to C2, with a checkpoint for every unit.',
+    'Nine illustrated stories take place in Rome, with a new cast: Giulia, Luca, Nonna Rosa, Marco, Dottoressa Conti and Signor Bianchi. They also play your scenes in Talk.',
+    'A natural recorded voice reads every Italian word, sentence and story. Pick Italian on Learn, or in Me.',
+    'Your progress in German and Spanish is untouched, and Italian progress follows you to your other devices like the rest.'] },
   { v: '4.19.0', date: '2026-10-14', title: 'A new intro film', notes: [
     'The intro film is rebuilt, and it’s timed to the beat of the theme song.',
     'It now shows what Parlance has become: your bird and the four others you can pick, lessons that teach as you go with natural voices, the Talk tutor, stories you can tap through, Review, the Friends league and the A1 to C2 route.',
@@ -152,7 +160,9 @@ const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home
     de: { narrator: 'de-DE-Chirp3-HD-Erinome', pip: 'de-DE-Chirp3-HD-Leda', lena: 'de-DE-Chirp3-HD-Aoede', jonas: 'de-DE-Chirp3-HD-Puck', weber: 'de-DE-Chirp3-HD-Gacrux', emre: 'de-DE-Chirp3-HD-Algenib', leyla: 'de-DE-Chirp3-HD-Despina', brandt: 'de-DE-Chirp3-HD-Alnilam',
       kiwi: 'de-DE-Chirp3-HD-Laomedeia', mango: 'de-DE-Chirp3-HD-Callirrhoe', kakadu: 'de-DE-Chirp3-HD-Autonoe', rojo: 'de-DE-Chirp3-HD-Sadachbia' },
     es: { narrator: 'es-US-Chirp3-HD-Erinome', pip: 'es-US-Chirp3-HD-Leda', sofia: 'es-US-Chirp3-HD-Sulafat', diego: 'es-US-Chirp3-HD-Achird', carmen: 'es-US-Chirp3-HD-Vindemiatrix', mateo: 'es-US-Chirp3-HD-Zubenelgenubi', valentina: 'es-US-Chirp3-HD-Zephyr', andres: 'es-US-Chirp3-HD-Umbriel',
-      kiwi: 'es-US-Chirp3-HD-Laomedeia', mango: 'es-US-Chirp3-HD-Callirrhoe', kakadu: 'es-US-Chirp3-HD-Autonoe', rojo: 'es-US-Chirp3-HD-Sadachbia' } } };
+      kiwi: 'es-US-Chirp3-HD-Laomedeia', mango: 'es-US-Chirp3-HD-Callirrhoe', kakadu: 'es-US-Chirp3-HD-Autonoe', rojo: 'es-US-Chirp3-HD-Sadachbia' },
+    it: { narrator: 'it-IT-Chirp3-HD-Erinome', pip: 'it-IT-Chirp3-HD-Leda', giulia: 'it-IT-Chirp3-HD-Aoede', luca: 'it-IT-Chirp3-HD-Puck', nonna: 'it-IT-Chirp3-HD-Gacrux', marco: 'it-IT-Chirp3-HD-Algenib', conti: 'it-IT-Chirp3-HD-Despina', bianchi: 'it-IT-Chirp3-HD-Alnilam',
+      kiwi: 'it-IT-Chirp3-HD-Laomedeia', mango: 'it-IT-Chirp3-HD-Callirrhoe', kakadu: 'it-IT-Chirp3-HD-Autonoe', rojo: 'it-IT-Chirp3-HD-Sadachbia' } } };
 /* The birds you can learn with (Me → Your bird). Pip's part sheet (js/core/pip.js) always loads; the others load when
    someone picks one (src). kind is what the bird is, as copy says it ("a budgie"). Its recorded voice is in MEDIA.voice;
    pitch and rate are its voice on the device (rate is recorded too). The drawings, moods and moves are in js/core and
@@ -193,7 +203,11 @@ const LANGS = {
   es: { code: 'es', name: 'Spanish', native: 'Español', tts: 'es-MX', prefs: ['es-MX', 'es-US', 'es-419', 'es-CO', 'es-AR', 'es-CL', 'es-ES', 'es'],
     chars: ['á', 'é', 'í', 'ó', 'ú', 'ñ', 'ü', '¿', '¡'], articles: ['el', 'la', 'los', 'las'], keyboard: 'Español (México)', variety: 'Latin American Spanish',
     hello: '¡Hola!', test: '¡Hola! Mucho gusto.',
-    dialect: 'Use Latin American Spanish: ustedes, never vosotros, and Latin American vocabulary (boleto, departamento, carro, celular).' }
+    dialect: 'Use Latin American Spanish: ustedes, never vosotros, and Latin American vocabulary (boleto, departamento, carro, celular).' },
+  it: { code: 'it', name: 'Italian', native: 'Italiano', tts: 'it-IT', prefs: ['it-IT', 'it-CH', 'it'],
+    chars: ['à', 'è', 'é', 'ì', 'ò', 'ó', 'ù'], articles: ['il', 'lo', 'la', 'i', 'gli', 'le', 'un', 'uno', 'una'], keyboard: 'Italiano', variety: 'Standard Italian',
+    hello: 'Ciao!', test: 'Ciao! Piacere di conoscerti.',
+    dialect: 'Use standard Italian. Use tu unless the setting is formal (hotel, doctor, office, interview, official business), then use Lei. Write elisions with a typographic apostrophe (l’acqua, un’amica).' }
 };
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 /* Word hints: how much meaning a question shows, by the level of the lesson (Me → Practice → Word hints can override this).
@@ -254,24 +268,24 @@ const BADGES = [
   { id: 'checkpoint100', icon: 'target', name: 'Top marks', desc: 'Score 100% on a unit checkpoint.' },
   { id: 'fixer', icon: 'stack', name: 'Fixer-upper', desc: 'Fix 25 mistakes in Fix my mistakes.' },
   { id: 'forms50', icon: 'abc', name: 'Form master', desc: 'Get 50 form questions right.' },
-  { id: 'both', icon: 'globe', name: 'Bilingual', desc: 'Finish a lesson in both German and Spanish.' },
+  { id: 'both', icon: 'globe', name: 'Bilingual', desc: 'Finish a lesson in two different languages.' },
   { id: 'early', icon: 'sun', name: 'Early bird', desc: 'Practice before 8 a.m.' },
   { id: 'night', icon: 'moon', name: 'Night owl', desc: 'Practice after 10 p.m.' }
 ];
 
 /* ===================== TALK SCENARIOS (cast plays each role) ===================== */
 const SCENARIOS = [
-  { id: 'cafe', cast: { de: 'lena', es: 'mateo' }, title: 'At a café', desc: 'Order, ask a question, pay.', prompt: 'You are a barista at a busy neighborhood café. The learner is a customer. Greet them, take their order, suggest something, and handle paying.' },
-  { id: 'directions', cast: { de: 'leyla', es: 'valentina' }, title: 'Asking directions', desc: 'Find the station or a pharmacy.', prompt: 'You are a helpful local on a street corner in a city center. The learner is a visitor asking for directions. Give clear, simple directions using left, right, straight ahead and landmarks.' },
-  { id: 'market', cast: { de: 'emre', es: 'carmen' }, title: 'Market shopping', desc: 'Prices, quantities, paying.', prompt: 'You run a fruit and vegetable stand at an outdoor market. The learner is a customer. Offer produce, give prices per kilo, and handle quantities and paying.' },
-  { id: 'smalltalk', cast: { de: 'jonas', es: 'mateo' }, title: 'Small talk', desc: 'Names, work, hobbies, weekend plans.', prompt: 'You are a friendly person the learner just met at a party. Make small talk about names, where you are from, work, hobbies and weekend plans, and share a little about yourself.' },
-  { id: 'hotel', cast: { de: 'jonas', es: 'andres' }, title: 'Hotel check-in', desc: 'Your booking, breakfast, wifi.', prompt: 'You are the front-desk clerk at a mid-size city hotel. The learner is a guest checking in with a reservation. Ask for their name, confirm the dates, explain breakfast and wifi, and answer questions.' },
-  { id: 'doctor', cast: { de: 'weber', es: 'sofia' }, title: 'At the doctor', desc: 'Describe how you feel.', prompt: 'You are a calm, kind doctor at a walk-in clinic. The learner is a patient who feels unwell. Ask about symptoms and how long they have had them, then give simple advice. Nothing serious is wrong.', min: 'A2' },
-  { id: 'story', cast: { de: 'lena', es: 'diego' }, title: 'Tell a story', desc: 'Your last trip or weekend, in the past tense.', prompt: 'You are a curious friend. Ask the learner to tell you about a recent trip, weekend or memorable day, and keep asking follow-up questions that need past-tense answers.', min: 'B1' },
-  { id: 'interview', cast: { de: 'emre', es: 'sofia' }, title: 'Job interview', desc: 'Experience, strengths, motivation.', prompt: 'You are a hiring manager interviewing the learner for a job in their field. Start by asking what role they are applying for, then ask about experience, strengths, a challenge they solved, and why they want the job.', min: 'B1' },
-  { id: 'debate', cast: { de: 'jonas', es: 'mateo' }, title: 'Friendly debate', desc: 'Defend an opinion; the tutor disagrees.', prompt: 'You are a sharp but friendly debate partner. Offer the learner a choice of everyday debate topics (for example remote work, city versus country life, social media), then politely take the opposite side and push them to justify their view.', min: 'B2' },
-  { id: 'news', cast: { de: 'weber', es: 'sofia' }, title: 'Talk about the news', desc: 'Society, tech and culture topics.', prompt: 'You are a well-read conversation partner. Discuss a general current-affairs theme the learner picks (technology, climate, travel, work culture), without claiming specific recent facts, and ask for their opinions and reasons.', min: 'B2' },
-  { id: 'negotiate', cast: { de: 'brandt', es: 'andres' }, title: 'Negotiation', desc: 'Rent, salary or a contract.', prompt: 'You are a landlord, employer or supplier (let the learner choose). Negotiate realistically, push back politely, and make the learner use formal, persuasive language to reach an agreement.', min: 'C1' },
-  { id: 'ideas', cast: { de: 'weber', es: 'sofia' }, title: 'Ideas & culture', desc: 'Books, film, philosophy, nuance.', prompt: 'You are an erudite, witty conversation partner. Discuss books, films, art or big ideas the learner raises, using idiomatic, nuanced language, and challenge them to express subtle opinions.', min: 'C1' },
-  { id: 'free', cast: { de: 'pip', es: 'pip' }, title: 'Free conversation', desc: 'Anything you like. The tutor follows.', prompt: 'You are a curious, friendly conversation partner. Let the learner choose the topics and keep the conversation going with follow-up questions.' }
+  { id: 'cafe', cast: { de: 'lena', es: 'mateo', it: 'giulia' }, title: 'At a café', desc: 'Order, ask a question, pay.', prompt: 'You are a barista at a busy neighborhood café. The learner is a customer. Greet them, take their order, suggest something, and handle paying.' },
+  { id: 'directions', cast: { de: 'leyla', es: 'valentina', it: 'luca' }, title: 'Asking directions', desc: 'Find the station or a pharmacy.', prompt: 'You are a helpful local on a street corner in a city center. The learner is a visitor asking for directions. Give clear, simple directions using left, right, straight ahead and landmarks.' },
+  { id: 'market', cast: { de: 'emre', es: 'carmen', it: 'marco' }, title: 'Market shopping', desc: 'Prices, quantities, paying.', prompt: 'You run a fruit and vegetable stand at an outdoor market. The learner is a customer. Offer produce, give prices per kilo, and handle quantities and paying.' },
+  { id: 'smalltalk', cast: { de: 'jonas', es: 'mateo', it: 'luca' }, title: 'Small talk', desc: 'Names, work, hobbies, weekend plans.', prompt: 'You are a friendly person the learner just met at a party. Make small talk about names, where you are from, work, hobbies and weekend plans, and share a little about yourself.' },
+  { id: 'hotel', cast: { de: 'jonas', es: 'andres', it: 'bianchi' }, title: 'Hotel check-in', desc: 'Your booking, breakfast, wifi.', prompt: 'You are the front-desk clerk at a mid-size city hotel. The learner is a guest checking in with a reservation. Ask for their name, confirm the dates, explain breakfast and wifi, and answer questions.' },
+  { id: 'doctor', cast: { de: 'weber', es: 'sofia', it: 'conti' }, title: 'At the doctor', desc: 'Describe how you feel.', prompt: 'You are a calm, kind doctor at a walk-in clinic. The learner is a patient who feels unwell. Ask about symptoms and how long they have had them, then give simple advice. Nothing serious is wrong.', min: 'A2' },
+  { id: 'story', cast: { de: 'lena', es: 'diego', it: 'marco' }, title: 'Tell a story', desc: 'Your last trip or weekend, in the past tense.', prompt: 'You are a curious friend. Ask the learner to tell you about a recent trip, weekend or memorable day, and keep asking follow-up questions that need past-tense answers.', min: 'B1' },
+  { id: 'interview', cast: { de: 'emre', es: 'sofia', it: 'giulia' }, title: 'Job interview', desc: 'Experience, strengths, motivation.', prompt: 'You are a hiring manager interviewing the learner for a job in their field. Start by asking what role they are applying for, then ask about experience, strengths, a challenge they solved, and why they want the job.', min: 'B1' },
+  { id: 'debate', cast: { de: 'jonas', es: 'mateo', it: 'luca' }, title: 'Friendly debate', desc: 'Defend an opinion; the tutor disagrees.', prompt: 'You are a sharp but friendly debate partner. Offer the learner a choice of everyday debate topics (for example remote work, city versus country life, social media), then politely take the opposite side and push them to justify their view.', min: 'B2' },
+  { id: 'news', cast: { de: 'weber', es: 'sofia', it: 'nonna' }, title: 'Talk about the news', desc: 'Society, tech and culture topics.', prompt: 'You are a well-read conversation partner. Discuss a general current-affairs theme the learner picks (technology, climate, travel, work culture), without claiming specific recent facts, and ask for their opinions and reasons.', min: 'B2' },
+  { id: 'negotiate', cast: { de: 'brandt', es: 'andres', it: 'bianchi' }, title: 'Negotiation', desc: 'Rent, salary or a contract.', prompt: 'You are a landlord, employer or supplier (let the learner choose). Negotiate realistically, push back politely, and make the learner use formal, persuasive language to reach an agreement.', min: 'C1' },
+  { id: 'ideas', cast: { de: 'weber', es: 'sofia', it: 'nonna' }, title: 'Ideas & culture', desc: 'Books, film, philosophy, nuance.', prompt: 'You are an erudite, witty conversation partner. Discuss books, films, art or big ideas the learner raises, using idiomatic, nuanced language, and challenge them to express subtle opinions.', min: 'C1' },
+  { id: 'free', cast: { de: 'pip', es: 'pip', it: 'pip' }, title: 'Free conversation', desc: 'Anything you like. The tutor follows.', prompt: 'You are a curious, friendly conversation partner. Let the learner choose the topics and keep the conversation going with follow-up questions.' }
 ];
