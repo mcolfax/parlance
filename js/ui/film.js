@@ -56,14 +56,18 @@ const filmLineup = () => { const o = filmOthers(), star = filmStar(); return [[o
 const filmFinale = () => { const o = filmOthers(); return [[o[0], 44, 438, 0.75], [o[1], 112, 498, 0.75], [o[2], 248, 498, 0.75], [o[3], 316, 438, 0.75]]; };
 
 /* ----- the cast of the film: a row of friends for each city; each face pops in on its own beat ----- */
-const FILM_CAST = ['de', 'es'].map(l => Object.keys(CAST).filter(id => CAST[id].lang === l));
-const filmCastAt = (r, i) => { const row = FILM_CAST[r], gap = Math.min(72, 300 / row.length); return { x: 180 + (i - (row.length - 1) / 2) * gap, y: r ? 540 : 286, t: (r ? bar(5) : bar(4) + 0.61) + i * 0.3 }; };
+const FILM_CAST = LANG_IDS.map(l => Object.keys(CAST).filter(id => CAST[id].lang === l));
+/* scene 3 stacks one band per language: a city, a skyline and its friends. The bird perches in each in turn. */
+const FILM_BAND = i => 36 + i * 180, FILM_BASE = i => FILM_BAND(i) + 104;
+const FILM_ROW_T = [bar(4) + 0.45, bar(4) + 1.3, bar(5) + 0.15];
+const FILM_PERCH = [[150, FILM_BASE(0) - 78], [276, FILM_BASE(1) - 46], [230, FILM_BASE(2) - 70]];   // where the bird sits in each city
+const filmCastAt = (r, i) => { const row = FILM_CAST[r], gap = Math.min(60, 300 / row.length); return { x: 180 + (i - (row.length - 1) / 2) * gap, y: FILM_BAND(r) + 144, t: FILM_ROW_T[r] + i * 0.14 }; };
 const ROUTE_PTS = [[64, 520], [116, 446], [158, 372], [204, 300], [250, 232], [296, 160]];
 const ROUTE_T0 = 39.8, ROUTE_DT = 0.45;   // when the bird reaches the first level, and the gap between levels
 const FILM_CAPTIONS = [
   [bar(2) + 0.3, bar(3) - 0.05, 'Meet {bird}, {a kind} who loves to repeat after you.'],
   [bar(3) + 0.1, bar(4) - 0.1, 'Or pick {others}.'],
-  [bar(4) + 0.3, bar(6) - 0.1, 'German with friends in Berlin. Spanish with friends in Mexico City.'],
+  [bar(4) + 0.3, bar(6) - 0.1, 'German in Berlin, Spanish in Mexico City, Italian in Rome.'],
   [bar(6) + 0.3, bar(8) - 0.1, 'Short lessons that teach as you go, read aloud in natural voices.'],
   [bar(8) + 0.3, bar(10) - 0.1, 'A tutor who talks back, and gently corrects you.'],
   [bar(10) + 0.2, bar(11) - 0.05, 'Stories where every word is a tap away.'],
@@ -75,14 +79,14 @@ const FILM_CAPTIONS = [
 const FILM_CUES = [[0.3, 'ding'], [1.4, 'whoosh'], [bar(1), 'pop'], [bar(1) + 0.5, 'pop', 0.5],
   [bar(2) + 0.1, 'whoosh'], [bar(2) + 1.4, 'drop'], [bar(2) + 1.75, 'pop'], [bar(2) + 1.85, 'chirp'],
   [bar(3), 'chirp', 0.7], ...[0, 1, 2, 3].map(i => [bar(3) + 0.3 + i * 0.3, 'pop', 0.6]),
-  [bar(4), 'whoosh'], ...FILM_CAST.flatMap((row, r) => row.map((id, i) => [filmCastAt(r, i).t, 'pop', 0.6])), [bar(4) + 1.65, 'select', 0.7], [bar(5) + 1.3, 'select', 0.7],
+  [bar(4), 'whoosh'], ...FILM_CAST.flatMap((row, r) => row.map((id, i) => [filmCastAt(r, i).t, 'pop', 0.6])), [bar(4) + 0.6, 'select', 0.6], [bar(4) + 1.75, 'select', 0.6], [bar(5) + 0.7, 'select', 0.6],
   [bar(6), 'whoosh'], [bar(6) + 0.55, 'pop'], [bar(6) + 1.3, 'tap', 0.7], [bar(7), 'page'], [bar(7) + 0.3, 'select', 0.5], [bar(7) + 0.45, 'select', 0.5], [bar(7) + 0.6, 'select', 0.5], [bar(7) + 1.4, 'tap'], [bar(7) + 1.5, 'ok'], [bar(7) + 1.85, 'coin'],
   [bar(8), 'page'], [bar(8) + 0.4, 'pop', 0.6], [bar(8) + 1.45, 'pop'], [bar(9) + 0.15, 'ok'], [bar(9) + 1.1, 'pop', 0.7],
   [bar(10), 'page'], [bar(10) + 1.2, 'tap'], [bar(10) + 1.3, 'pop'], [bar(11), 'flip'], [bar(11) + 0.5, 'ok', 0.8], [bar(11) + 0.95, 'ok', 0.8], [bar(11) + 1.4, 'ok', 0.8], [bar(11) + 1.85, 'done'],
   [bar(12), 'page'], [bar(12) + 0.85, 'select', 0.7], [bar(13) + 0.05, 'select', 0.7], [bar(13) + 0.45, 'combo'], [bar(13) + 0.9, 'pop'], [bar(13) + 1.4, 'chirp'],
   [bar(14), 'whoosh'], [bar(14) + 0.9, 'chest'], ...[0, 1, 2, 3, 4, 5, 6, 7].map(i => [bar(14) + 1.05 + i * 0.16, 'coin', 0.7]), [bar(15) + 0.05, 'badge'], [bar(15) + 0.35, 'badge'], [bar(15) + 0.65, 'badge'], [bar(15) + 0.6, 'streak'],
   [bar(16), 'whoosh'], ...ROUTE_PTS.map((p, i) => [ROUTE_T0 + i * ROUTE_DT, 'tap', 0.8]), [ROUTE_T0 + 5 * ROUTE_DT + 0.1, 'level'],
-  [bar(18), 'whoosh'], [bar(18) + 0.35, 'pop'], [bar(18) + 0.95, 'pop'], [bar(19) + 0.05, 'pop'], [bar(19) + 0.6, 'chirp'], [bar(19) + 1.5, 'ding']];
+  [bar(18), 'whoosh'], [bar(18) + 0.35, 'pop'], [bar(18) + 0.95, 'pop'], [bar(19) + 0.05, 'pop'], [bar(19) + 0.65, 'pop'], [bar(19) + 1.0, 'chirp'], [bar(19) + 1.7, 'ding']];
 
 function filmScore(){
   const beat = 60 / 108, bar2 = beat * 4, ev = [];
@@ -132,6 +136,7 @@ function sceneBackdrop(){
     '<radialGradient id="f-glow-de"><stop offset="0" style="stop-color:var(--film-de);stop-opacity:.42"/><stop offset="1" style="stop-color:var(--film-de);stop-opacity:0"/></radialGradient>' +
     '<radialGradient id="f-glow-es"><stop offset="0" style="stop-color:var(--film-es);stop-opacity:.4"/><stop offset="1" style="stop-color:var(--film-es);stop-opacity:0"/></radialGradient>' +
     '<linearGradient id="f-sky-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-mid);stop-opacity:0"/><stop offset="1" style="stop-color:var(--film-mid);stop-opacity:.9"/></linearGradient>' +
+    '<linearGradient id="f-sky-i" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-it);stop-opacity:0"/><stop offset="1" style="stop-color:var(--film-it);stop-opacity:.34"/></linearGradient>' +
     '<linearGradient id="f-sky-e" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-es);stop-opacity:0"/><stop offset="1" style="stop-color:var(--film-es);stop-opacity:.4"/></linearGradient></defs>' +
     '<rect width="360" height="640" fill="url(#f-bgg)"/>' +
     '<g id="f-rays" class="f-rays">' + Array.from({ length: 8 }, (_, i) => '<path d="M0 0L-70 -760L70 -760Z" transform="rotate(' + i * 45 + ')"/>').join('') + '</g>' +
@@ -145,8 +150,8 @@ function sceneTitle(){
   return fG('f-title',
     '<g transform="translate(180 168)">' + fG('f-mk0', '<path d="' + LOGO_DE + '" transform="translate(-17 -17)" class="f-mk de"/>') + fG('f-mk1', '<path d="' + LOGO_ES + '" transform="translate(-17 -17)" class="f-mk es"/>') + '<circle id="f-markring" r="40" class="f-markring"/></g>' +
     '<text x="180" y="268" class="f-h1" id="f-word">' + word + '</text>' +
-    fT(180, 300, 'German &amp; Spanish, your way', 'f-sub', 'id="f-subt"') +
-    fG('f-chip0', fR(-46, -15, 92, 30, 15, 'f-chip de') + fT(0, 6, 'Deutsch', 'f-chip-t')) + fG('f-chip1', fR(-46, -15, 92, 30, 15, 'f-chip es') + fT(0, 6, 'Español', 'f-chip-t'))) +
+    fT(180, 300, 'German, Spanish &amp; Italian, your way', 'f-sub', 'id="f-subt"') +
+    ['de|Deutsch', 'es|Español', 'it|Italiano'].map((c, n) => fG('f-chip' + n, fR(-46, -15, 92, 30, 15, 'f-chip ' + c.split('|')[0]) + fT(0, 6, c.split('|')[1], 'f-chip-t'))).join('')) +
     '<path id="f-line1" d="M-20 470 L380 470" class="f-line"/>' +
     '<g id="f-stations">' + [60, 180, 300].map(x => '<circle cx="' + x + '" cy="470" r="9" class="f-st"/>').join('') + '</g>';
 }
@@ -158,25 +163,24 @@ function sceneBirds(){
     fG('f-bubble', '<rect x="-74" y="-20" width="148" height="38" rx="19" class="f-bub"/><path d="M-6 17L4 28L10 17Z" class="f-bub"/><text x="0" y="5" class="f-bub-t" id="f-bubble-t">Hi! I’m ' + esc(mascot().name) + '.</text>');
 }
 
-/* scene 3: two cities, and the friends who live in them */
+/* scene 3: three cities, and the friends who live in them */
 function sceneCities(){
   const avatarAt = id => '<g class="f-av" id="f-av-' + id + '"><g transform="scale(0.62) translate(-32 -32)"><clipPath id="fc-' + id + '"><circle cx="32" cy="32" r="32"/></clipPath><g clip-path="url(#fc-' + id + ')">' + inner(avatarSVG(id)) + '</g><circle cx="32" cy="32" r="31" fill="none" stroke="#fff" stroke-width="3"/></g></g>';
-  const win = (x, y, w, h2, n) => Array.from({ length: n }, (_, i) => '<rect x="' + (x + 6 + (i % 2) * (w / 2 - 2)) + '" y="' + (y + 10 + Math.floor(i / 2) * 16) + '" width="6" height="8" rx="1.5" class="f-win" style="animation-delay:' + (i * 0.7).toFixed(1) + 's"/>').join('');
-  const bunting = [50, 85, 120, 155, 190, 225, 260, 295].map((x, i) => '<g id="f-bf' + i + '" transform="translate(' + x + ' ' + (390 + Math.sin(i / 7 * Math.PI) * 14).toFixed(1) + ')"><path d="M-9 0h18v13l-4-3l-5 4l-5-4l-4 3z" class="pp' + (i % 4) + '"/></g>').join('');
-  return fG('f-berlin',
-    '<rect x="0" y="40" width="360" height="236" fill="url(#f-sky-g)"/><rect x="0" y="240" width="360" height="40" class="f-ground"/><circle id="f-moon" cx="64" cy="96" r="20" class="f-moon"/>' +
-    '<g id="f-de-far" class="f-sky-far"><rect x="10" y="190" width="30" height="50" rx="3"/><rect x="126" y="176" width="26" height="64" rx="3"/><rect x="226" y="184" width="28" height="56" rx="3"/><rect x="316" y="198" width="30" height="42" rx="3"/></g>' +
-    '<g class="f-sky-de"><rect x="40" y="170" width="38" height="70" rx="3"/><rect x="84" y="150" width="30" height="90" rx="3"/><path d="M146 240V104M146 82V96"/><circle cx="146" cy="110" r="14"/><rect x="176" y="182" width="50" height="58" rx="3"/><rect x="232" y="160" width="34" height="80" rx="3"/><rect x="272" y="196" width="48" height="44" rx="3"/></g>' +
-    '<g class="f-wins">' + win(40, 170, 38, 70, 4) + win(84, 150, 30, 90, 4) + win(176, 182, 50, 58, 4) + win(232, 160, 34, 80, 6) + win(272, 196, 48, 44, 2) + '</g>' +
-    '<text x="180" y="62" class="f-city de">Berlin · Deutsch</text>') +
-    fG('f-cdmx',
-    '<rect x="0" y="330" width="360" height="236" fill="url(#f-sky-e)"/><rect x="0" y="492" width="360" height="74" class="f-ground"/><circle id="f-sun" cx="322" cy="364" r="20" class="f-sun"/>' +
-    '<g class="f-sky-es"><rect x="40" y="430" width="46" height="62" rx="4" class="h1"/><rect x="92" y="412" width="40" height="80" rx="4" class="h2"/><rect x="138" y="440" width="52" height="52" rx="4" class="h3"/><rect x="196" y="420" width="42" height="72" rx="4" class="h1"/><rect x="244" y="436" width="36" height="56" rx="4" class="h2"/><rect x="286" y="416" width="36" height="76" rx="4" class="h3"/></g>' +
-    '<g class="f-doors">' + [63, 112, 164, 217, 262, 304].map((x, i) => '<rect x="' + (x - 6) + '" y="' + (472 - (i % 2) * 6) + '" width="12" height="20" rx="6"/>').join('') + '</g>' +
-    '<path d="M30 386Q180 420 330 386" class="f-string"/>' + bunting + '<text x="180" y="358" class="f-city es">Ciudad de México · Español</text>') +
+  const rc = (x, y, w, h2, cls, r) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h2 + '" rx="' + (r == null ? 3 : r) + '"' + (cls ? ' class="' + cls + '"' : '') + '/>';
+  const sky = (i, grad, art, label, cls) => fG('f-city' + i,
+    '<rect x="0" y="' + FILM_BAND(i) + '" width="360" height="170" rx="22" fill="url(#' + grad + ')"/><circle cx="326" cy="' + (FILM_BAND(i) + 34) + '" r="14" class="f-orb ' + cls + '"/>' +
+    '<g transform="translate(0 ' + FILM_BASE(i) + ')">' + art + '</g><text x="16" y="' + (FILM_BAND(i) + 24) + '" class="f-city ' + cls + '">' + label + '</text>');
+  const berlin = '<g class="f-sky-far">' + rc(4, -40, 26, 40) + rc(118, -52, 24, 52) + rc(218, -46, 26, 46) + rc(316, -34, 26, 34) + '</g><g class="f-sky-de">' + rc(10, -44, 34, 44) + rc(48, -62, 26, 62) + rc(78, -34, 30, 34) + '<path d="M150 0V-72M150 -72V-86"/><circle cx="150" cy="-62" r="10"/>' + rc(184, -50, 40, 50) + rc(228, -66, 30, 66) + rc(262, -40, 38, 40) + rc(304, -56, 34, 56) + '</g>' +
+    '<g class="f-wins">' + [[18, -34], [28, -34], [56, -52], [56, -34], [190, -40], [208, -40], [236, -56], [236, -38], [270, -30], [290, -30], [312, -46], [324, -46]].map(([x, y], n) => '<rect x="' + x + '" y="' + y + '" width="6" height="8" rx="1.5" class="f-win" style="animation-delay:' + (n * 0.4).toFixed(1) + 's"/>').join('') + '</g>';
+  const cdmx = '<g class="f-sky-es">' + [[14, 48], [58, 62], [96, 40], [144, 54], [184, 44], [218, 60], [256, 46], [300, 58]].map(([x, h2], n) => rc(x, -h2, n % 2 ? 34 : 40, h2, 'h' + (n % 3 + 1), 4)).join('') + '</g><g class="f-doors">' + [34, 75, 118, 162, 199, 236, 274, 318].map((x, n) => '<rect x="' + (x - 6) + '" y="' + (-20 - (n % 2) * 6) + '" width="12" height="20" rx="6"/>').join('') + '</g>' +
+    '<path d="M10 -74Q180 -50 350 -74" class="f-string"/>' + [0, 1, 2, 3, 4, 5, 6, 7].map(n => '<g id="f-bf' + n + '"><path d="M-9 0h18v13l-4-3l-5 4l-5-4l-4 3z" class="pp' + (n % 4) + '"/></g>').join('');
+  const arch = (x, y) => '<path d="M' + x + ' ' + y + 'v-10a4 4 0 0 1 8 0v10z" class="f-arch"/>';
+  const rome = rc(14, -52, 140, 52, 'f-cream', 4) + [0, 1, 2, 3, 4, 5, 6].map(k => arch(22 + k * 19, -4) + arch(22 + k * 19, -28)).join('') +
+    rc(212, -34, 36, 34, 'f-cream', 2) + '<path d="M208 -34A22 28 0 0 1 252 -34Z" class="f-cream"/>' + rc(227, -76, 6, 12, 'f-cream', 2) + rc(160, -30, 38, 30, 'f-terra', 3) + rc(262, -40, 30, 40, 'f-terra', 3) + rc(296, -28, 44, 28, 'f-cream', 3) +
+    [172, 322].map(x => '<rect x="' + (x - 1.5) + '" y="-8" width="3" height="8" class="f-trunk"/><ellipse cx="' + x + '" cy="-16" rx="14" ry="7" class="f-pine"/>').join('');
+  return sky(0, 'f-sky-g', berlin, 'Berlin · Deutsch', 'de') + sky(1, 'f-sky-e', cdmx, 'Ciudad de México · Español', 'es') + sky(2, 'f-sky-i', rome, 'Roma · Italiano', 'it') +
     '<g id="f-cast">' + FILM_CAST.flat().map(id => avatarAt(id)).join('') + '</g>' +
-    fG('f-hallo', '<rect x="-32" y="-13" width="64" height="26" rx="13" class="f-bub"/><text x="0" y="5" class="f-bub-t">Hallo!</text>') +
-    fG('f-hola', '<rect x="-35" y="-13" width="70" height="26" rx="13" class="f-bub"/><text x="0" y="5" class="f-bub-t">¡Hola!</text>');
+    ['Hallo!', '¡Hola!', 'Ciao!'].map((w, n) => fG('f-hi' + n, '<rect x="-34" y="-13" width="68" height="26" rx="13" class="f-bub"/><text x="0" y="5" class="f-bub-t">' + w + '</text>')).join('');
 }
 
 /* scenes 4 to 7 share one phone, which shows the app. Its screen is 180 x 376, centred on (0,0). */
@@ -258,7 +262,7 @@ function sceneRoute(){
 /* scene 10: the end card */
 function sceneEnd(){
   return '<g id="f-rain">' + Array.from({ length: 30 }, (_, i) => '<rect id="f-rn' + i + '" width="7" height="11" rx="2" class="cf' + (i % 5) + '"/>').join('') + '</g>' +
-    fG('f-end', fT(180, 142, 'Los geht’s!', 'f-end de', 'id="f-end0"') + fT(180, 188, '¡Vámonos!', 'f-end es', 'id="f-end1"') + fT(180, 226, 'Let’s go.', 'f-end en', 'id="f-end2"')) +
+    fG('f-end', fT(180, 128, 'Los geht’s!', 'f-end de', 'id="f-end0"') + fT(180, 168, '¡Vámonos!', 'f-end es', 'id="f-end1"') + fT(180, 208, 'Andiamo!', 'f-end it', 'id="f-end2"') + fT(180, 242, 'Let’s go.', 'f-end en', 'id="f-end3"')) +
     fG('f-brand', '<g transform="translate(-58 0) scale(.5)"><path d="' + LOGO_DE + '" transform="translate(-17 -17)" class="f-mk de"/></g><g transform="translate(-44 0) scale(.5)"><path d="' + LOGO_ES + '" transform="translate(-17 -17)" class="f-mk es"/></g>' + fT(-20, 8, 'Parlance', 'f-brand-t'));
 }
 
@@ -285,8 +289,9 @@ function filmActors(){
   A['f-mk0'] = { x: [[0.2, -150], [1.3, -15.3, 'spring']], y: [[0.2, 40], [1.3, 0, 'out']], r: [[0.2, -200], [1.3, 0, 'out']], s: [[0.2, 0.3], [1.3, 1.7, 'out']], o: [[0.2, 0], [0.5, 1]] };
   A['f-mk1'] = { x: [[0.2, 150], [1.3, 15.3, 'spring']], y: [[0.2, -40], [1.3, 0, 'out']], r: [[0.2, 200], [1.3, 0, 'out']], s: [[0.2, 0.3], [1.3, 1.7, 'out']], o: [[0.2, 0], [0.5, 1]] };
   A['f-subt'] = { o: [[bar(1) + 0.15, 0], [bar(1) + 0.7, 1]], y: [[bar(1) + 0.15, 12], [bar(1) + 0.8, 0, 'out']] };
-  A['f-chip0'] = { x: 134, y: 338, s: [[bar(1) + 0.6, 0.01], [bar(1) + 1.0, 1, 'back']], o: [[bar(1) + 0.6, 0], [bar(1) + 0.7, 1]] };
-  A['f-chip1'] = { x: 232, y: 338, s: [[bar(1) + 0.8, 0.01], [bar(1) + 1.2, 1, 'back']], o: [[bar(1) + 0.8, 0], [bar(1) + 0.9, 1]] };
+  A['f-chip0'] = { x: 82, y: 338, s: [[bar(1) + 0.6, 0.01], [bar(1) + 1.0, 1, 'back']], o: [[bar(1) + 0.6, 0], [bar(1) + 0.7, 1]] };
+  A['f-chip2'] = { x: 278, y: 338, s: [[bar(1) + 1.0, 0.01], [bar(1) + 1.4, 1, 'back']], o: [[bar(1) + 1.0, 0], [bar(1) + 1.1, 1]] };
+  A['f-chip1'] = { x: 180, y: 338, s: [[bar(1) + 0.8, 0.01], [bar(1) + 1.2, 1, 'back']], o: [[bar(1) + 0.8, 0], [bar(1) + 0.9, 1]] };
   A['f-line1'] = { draw: [[2.9, 0], [4.5, 1, 'out']], o: [[2.9, 0], [3.0, 1], [b4 - 0.1, 1], [b4 + 0.4, 0]] };
   A['f-stations'] = { o: [[3.4, 0], [3.9, 1], [b2 + 0.3, 1], [b2 + 0.7, 0]] };
 
@@ -309,23 +314,21 @@ function filmActors(){
   /* the learner's bird: flies in, perches, visits the cities, then hops from corner to corner of the phone */
   const phoneTop = PHONE_Y - 196 - 24, side = [PHONE_X + 96, PHONE_X - 96];   // where it perches on the phone
   A['f-b-' + star] = { bird: 1,
-    x: [[b2, -90], [b2 + 0.7, 90, 'out'], [b2 + 1.4, 180, 'inOut'], [b4 - 0.2, 180], [b4 + 0.7, 296, 'inOut'], [b5 - 0.1, 296], [b5 + 0.7, 64, 'inOut'], [b6 - 0.3, 64], [b6 + 0.5, side[0], 'inOut'], [b8 - 0.2, side[0]], [b8 + 0.5, side[1], 'inOut'], [b10 - 0.2, side[1]], [b10 + 0.5, side[0], 'inOut'], [b11 - 0.2, side[0]], [b11 + 0.5, side[1], 'inOut'], [b12 - 0.2, side[1]], [b12 + 0.5, side[0], 'inOut'], [b14 - 0.4, side[0]], [b14 + 0.5, 52, 'inOut'],
+    x: [[b2, -90], [b2 + 0.7, 90, 'out'], [b2 + 1.4, 180, 'inOut'], [b4 - 0.2, 180], [b4 + 0.55, FILM_PERCH[0][0], 'inOut'], [b4 + 1.15, FILM_PERCH[0][0]], [b4 + 1.75, FILM_PERCH[1][0], 'inOut'], [b5 + 0.1, FILM_PERCH[1][0]], [b5 + 0.7, FILM_PERCH[2][0], 'inOut'], [b6 - 0.3, FILM_PERCH[2][0]], [b6 + 0.5, side[0], 'inOut'], [b8 - 0.2, side[0]], [b8 + 0.5, side[1], 'inOut'], [b10 - 0.2, side[1]], [b10 + 0.5, side[0], 'inOut'], [b11 - 0.2, side[0]], [b11 + 0.5, side[1], 'inOut'], [b12 - 0.2, side[1]], [b12 + 0.5, side[0], 'inOut'], [b14 - 0.4, side[0]], [b14 + 0.5, 52, 'inOut'],
       [b16 - 0.2, 52], [ROUTE_T0 - 0.1, 64, 'inOut'], ...ROUTE_PTS.map((p, i) => [ROUTE_T0 + i * ROUTE_DT, p[0], 'inOut']), [b18 - 0.5, 296], [b18 + 0.35, 180, 'inOut']],
-    y: [[b2, 110], [b2 + 0.7, 170, 'inOut'], [b2 + 1.4, 427, 'out'], [b4 - 0.2, 427], [b4 + 0.7, 160, 'inOut'], [b5 - 0.1, 160], [b5 + 0.7, 400, 'inOut'], [b6 - 0.3, 400], [b6 + 0.5, phoneTop, 'inOut'], [b8 - 0.2, phoneTop], [b8 + 0.5, phoneTop, 'inOut'], [b14 - 0.4, phoneTop], [b14 + 0.5, 468, 'inOut'],
-      [b16 - 0.2, 468], [ROUTE_T0 - 0.1, 490, 'inOut'], ...ROUTE_PTS.map((p, i) => [ROUTE_T0 + i * ROUTE_DT, p[1] - 30, 'inOut']), [b18 - 0.5, 130], [b18 + 0.35, 350, 'inOut']],
-    s: [[b2, 0.7], [b2 + 1.4, 1], [b4 - 0.2, 1], [b4 + 0.7, 0.55], [b5 - 0.1, 0.55], [b5 + 0.7, 0.6], [b6 - 0.3, 0.6], [b6 + 0.5, 0.55], [b14 + 0.5, 0.7], [b16 - 0.2, 0.7], [ROUTE_T0 + 5 * ROUTE_DT, 0.62], [b18 - 0.5, 0.62], [b18 + 0.35, 1.45, 'back']],
+    y: [[b2, 110], [b2 + 0.7, 170, 'inOut'], [b2 + 1.4, 427, 'out'], [b4 - 0.2, 427], [b4 + 0.55, FILM_PERCH[0][1] - 24, 'inOut'], [b4 + 1.15, FILM_PERCH[0][1] - 24], [b4 + 1.75, FILM_PERCH[1][1] - 24, 'inOut'], [b5 + 0.1, FILM_PERCH[1][1] - 24], [b5 + 0.7, FILM_PERCH[2][1] - 24, 'inOut'], [b6 - 0.3, FILM_PERCH[2][1] - 24], [b6 + 0.5, phoneTop, 'inOut'], [b8 - 0.2, phoneTop], [b8 + 0.5, phoneTop, 'inOut'], [b14 - 0.4, phoneTop], [b14 + 0.5, 468, 'inOut'],
+      [b16 - 0.2, 468], [ROUTE_T0 - 0.1, 490, 'inOut'], ...ROUTE_PTS.map((p, i) => [ROUTE_T0 + i * ROUTE_DT, p[1] - 30, 'inOut']), [b18 - 0.5, 130], [b18 + 0.35, 372, 'inOut']],
+    s: [[b2, 0.7], [b2 + 1.4, 1], [b4 - 0.2, 1], [b4 + 0.55, 0.55], [b6 - 0.3, 0.55], [b6 + 0.5, 0.55], [b14 + 0.5, 0.7], [b16 - 0.2, 0.7], [ROUTE_T0 + 5 * ROUTE_DT, 0.62], [b18 - 0.5, 0.62], [b18 + 0.35, 1.45, 'back']],
     o: [[b2 - 0.05, 0], [b2 + 0.1, 1]],
-    sq: [b2 + 1.4, b4 + 0.7, b5 + 0.7, b6 + 0.5, b8 + 0.5, b10 + 0.5, b11 + 0.5, b12 + 0.5, b14 + 0.5, b18 + 0.35],
+    sq: [b2 + 1.4, b4 + 0.55, b4 + 1.75, b5 + 0.7, b6 + 0.5, b8 + 0.5, b10 + 0.5, b11 + 0.5, b12 + 0.5, b14 + 0.5, b18 + 0.35],
     hop: [[b2 + 1.85, b2 + 2.3], [b7 + 1.55, b7 + 1.95], [b9 + 0.1, b9 + 0.5], [b13 + 0.2, b13 + 0.6], [b19 + 0.1, b19 + 0.7]],
     dance: [[b18 + 0.4, FILM_DUR]] };
 
   /* ---- 3: two cities and their friends ---- */
-  A['f-berlin'] = { o: fade(b4 - 0.05, b4 + 0.7, b6 - 0.55, b6 - 0.1), y: [[b4 - 0.05, -40], [b4 + 0.9, 0, 'out'], [b6 - 0.55, 0], [b6 - 0.1, -30, 'in']] };
-  A['f-cdmx'] = { o: fade(b4 + 0.2, b4 + 0.9, b6 - 0.55, b6 - 0.1), y: [[b4 + 0.2, 40], [b4 + 1.1, 0, 'out'], [b6 - 0.55, 0], [b6 - 0.1, 30, 'in']] };
+  [0, 1, 2].forEach(n => { const a = b4 - 0.05 + n * 0.2; A['f-city' + n] = { o: fade(a, a + 0.7, b6 - 0.55, b6 - 0.1), y: [[a, n % 2 ? 40 : -40], [a + 0.9, 0, 'out'], [b6 - 0.55, 0], [b6 - 0.1, n % 2 ? 30 : -30, 'in']] }; });
   A['f-cast'] = { o: [[b4 + 0.5, 0], [b4 + 0.6, 1], [b6 - 0.55, 1], [b6 - 0.1, 0]] };
   FILM_CAST.forEach((row, r) => row.forEach((id, i) => { const { x, y, t } = filmCastAt(r, i); A['f-av-' + id] = { x, y, s: [[t, 0.01], [t + 0.45, 1, 'back']], o: [[t, 0], [t + 0.1, 1]] }; }));
-  A['f-hallo'] = { x: Math.max(40, filmCastAt(0, 0).x), y: 248, o: fade(b4 + 1.0, b4 + 1.3, b5 + 0.6, b5 + 1.0), s: [[b4 + 1.0, 0.6], [b4 + 1.4, 1, 'back']] };
-  A['f-hola'] = { x: Math.max(40, filmCastAt(1, 0).x), y: 502, o: fade(b5 + 1.3, b5 + 1.6, b6 - 0.55, b6 - 0.2), s: [[b5 + 1.3, 0.6], [b5 + 1.7, 1, 'back']] };
+  [0, 1, 2].forEach(n => { const t = FILM_ROW_T[n] + 0.75, out = n === 2 ? b6 - 0.6 : FILM_ROW_T[n + 1] + 0.6; A['f-hi' + n] = { x: Math.max(40, filmCastAt(n, 0).x), y: FILM_BAND(n) + 108, o: fade(t, t + 0.25, out - 0.3, out), s: [[t, 0.6], [t + 0.4, 1, 'back']] }; });
 
   /* ---- 4 to 7: the phone ---- */
   const tilt = [[b6, -6], [b6 + 0.3, -5], [b8 - 0.35, -5], [b8 + 0.25, 4, 'inOut'], [b10 - 0.35, 4], [b10 + 0.25, -3, 'inOut'], [b12 - 0.35, -3], [b12 + 0.25, 2, 'inOut'], [b14 - 0.4, 2], [b14 + 0.3, 8, 'in']];
@@ -375,9 +378,7 @@ function filmActors(){
   A['f-crown'] = { y: 0, o: [[ROUTE_T0 + 5 * ROUTE_DT - 0.05, 0], [ROUTE_T0 + 5 * ROUTE_DT + 0.1, 1]] };
 
   /* ---- 10: the end ---- */
-  A['f-end0'] = { x: 0, y: [[b18 + 0.3, 24], [b18 + 0.75, 0, 'spring']], o: [[b18 + 0.3, 0], [b18 + 0.45, 1]], s: [[b18 + 0.3, 0.6], [b18 + 0.8, 1, 'back']] };
-  A['f-end1'] = { x: 0, y: [[b18 + 0.9, 24], [b18 + 1.35, 0, 'spring']], o: [[b18 + 0.9, 0], [b18 + 1.05, 1]], s: [[b18 + 0.9, 0.6], [b18 + 1.4, 1, 'back']] };
-  A['f-end2'] = { x: 0, y: [[b19, 24], [b19 + 0.45, 0, 'spring']], o: [[b19, 0], [b19 + 0.15, 1]], s: [[b19, 0.6], [b19 + 0.5, 1, 'back']] };
+  [0.3, 0.9, 1.5, 2.1].forEach((d, n) => { const t = b18 + d; A['f-end' + n] = { x: 0, y: [[t, 24], [t + 0.45, 0, 'spring']], o: [[t, 0], [t + 0.15, 1]], s: [[t, 0.6], [t + 0.5, 1, 'back']] }; });
   A['f-brand'] = { x: 180, y: 552, o: [[b19 + 0.7, 0], [b19 + 1.1, 1]] };
   A['f-rays'] = { o: [[0, 0.5], [b14, 0.5], [b14 + 0.8, 1], [b16 - 0.3, 1], [b16, 0.5], [b18, 0.5], [b18 + 0.6, 1.2]] };
   /* the glow behind everything: green for German, mango for Spanish, both for the finale */
@@ -389,8 +390,8 @@ function filmActors(){
 /* each bird's mood and pose by time: [time, mood, 'fly' | ''], the last one at or before t wins */
 function filmLooks(){
   const L = {}, b = bar, star = filmStar();
-  L[star] = [[0, 'happy', ''], [b(2), 'happy', 'fly'], [b(2) + 1.4, 'happy', ''], [b(2) + 1.8, 'wave', ''], [b(3) + 0.1, 'happy', ''], [b(3) + 1.1, 'love', ''], [b(4) - 0.2, 'happy', 'fly'], [b(4) + 0.7, 'think', ''],
-    [b(5) - 0.1, 'happy', 'fly'], [b(5) + 0.7, 'wave', ''], [b(6) - 0.3, 'happy', 'fly'], [b(6) + 0.5, 'think', ''], [b(7) + 1.5, 'cheer', ''], [b(8) - 0.2, 'happy', 'fly'], [b(8) + 0.5, 'listen', ''], [b(9) + 0.1, 'love', ''], [b(10) - 0.2, 'happy', 'fly'],
+  L[star] = [[0, 'happy', ''], [b(2), 'happy', 'fly'], [b(2) + 1.4, 'happy', ''], [b(2) + 1.8, 'wave', ''], [b(3) + 0.1, 'happy', ''], [b(3) + 1.1, 'love', ''], [b(4) - 0.2, 'happy', 'fly'], [b(4) + 0.55, 'think', ''], [b(4) + 1.15, 'happy', 'fly'], [b(4) + 1.75, 'wave', ''], [b(5) + 0.1, 'happy', 'fly'], [b(5) + 0.7, 'love', ''],
+    [b(6) - 0.3, 'happy', 'fly'], [b(6) + 0.5, 'think', ''], [b(7) + 1.5, 'cheer', ''], [b(8) - 0.2, 'happy', 'fly'], [b(8) + 0.5, 'listen', ''], [b(9) + 0.1, 'love', ''], [b(10) - 0.2, 'happy', 'fly'],
     [b(10) + 0.5, 'happy', ''], [b(10) + 1.3, 'wow', ''], [b(11) - 0.2, 'happy', 'fly'], [b(11) + 0.5, 'proud', ''], [b(11) + 1.85, 'cheer', ''], [b(12) - 0.2, 'happy', 'fly'], [b(12) + 0.5, 'happy', ''], [b(13) + 0.15, 'dance', ''], [b(14) - 0.4, 'happy', 'fly'],
     [b(14) + 0.5, 'cheer', ''], [b(16) - 0.2, 'happy', 'fly'], [ROUTE_T0 + 5 * ROUTE_DT + 0.1, 'cheer', 'fly'], [b(18) - 0.5, 'happy', 'fly'], [b(18) + 0.35, 'cheer', ''], [b(18) + 1.2, 'dance', '']];
   for (const [id] of filmFinale()) L[id] = [[0, 'happy', ''], [b(3) + 0.9, 'wave', ''], [b(4) - 0.35, 'happy', 'fly'], [b(18), 'happy', ''], [b(18) + 0.6, 'dance', '']];
@@ -562,8 +563,7 @@ function filmFX(t){
   });
   // cities: windows glow, bunting flutters, sun and moon bob
   Q.wins.forEach((w, i) => { w.style.opacity = (0.35 + 0.55 * (0.5 + 0.5 * Math.sin(t * 1.3 + i * 2.1))).toFixed(2); });
-  const bf = [50, 85, 120, 155, 190, 225, 260, 295];
-  Q.flags.forEach((g, i) => g.setAttribute('transform', 'translate(' + bf[i] + ' ' + (390 + Math.sin(i / 7 * Math.PI) * 14).toFixed(1) + ') rotate(' + (Math.sin(t * 3.2 + i * 0.9) * 8).toFixed(1) + ')'));
+  Q.flags.forEach((g, i) => { const x = 30 + i * 43, f = (x - 10) / 340; g.setAttribute('transform', 'translate(' + x + ' ' + (-74 + 48 * f * (1 - f)).toFixed(1) + ') rotate(' + (Math.sin(t * 3.2 + i * 0.9) * 8).toFixed(1) + ')'); });
   // the phone: the speaker's waves, typing dots, the mic, taps
   const wv = (arcs, on, t0) => arcs.forEach((p, i) => { p.style.opacity = on ? (0.25 + 0.75 * Math.max(0, Math.sin((t - t0) * 11 - i * 1.1))).toFixed(2) : '0'; });
   wv(Q.ltWave, t > b(6) + 1.1 && t < b(7) - 0.1, 0); wv(Q.tkWave, t > b(8) + 1.15 && t < b(9) - 0.2, 0);

@@ -47,7 +47,7 @@
 .f-h1{font:700 58px var(--display);fill:var(--film-ink);text-anchor:middle}
 .f-sub{font:600 16px var(--body);fill:var(--film-muted);text-anchor:middle}
 .f-chip{stroke:none}
-.f-chip.de{fill:var(--film-de)}.f-chip.es{fill:var(--film-es)}
+.f-chip.de{fill:var(--film-de)}.f-chip.es{fill:var(--film-es)}.f-chip.it{fill:var(--film-it)}
 .f-chip-t{font:700 14px var(--display);text-anchor:middle;fill:var(--film-bg2)}
 .f-line{fill:none;stroke:var(--film-line);stroke-width:10;stroke-linecap:round}
 .f-st{fill:var(--film-bg);stroke:var(--film-white);stroke-width:5}
@@ -69,7 +69,10 @@
 .f-string{fill:none;stroke:var(--film-muted);stroke-width:1.5}
 .pp0{fill:var(--film-red)}.pp1{fill:var(--film-mango)}.pp2{fill:var(--film-leaf)}.pp3{fill:var(--film-rose)}
 .f-city{font:800 18px var(--display);text-anchor:middle}
-.f-city.de{fill:var(--film-de-text)}.f-city.es{fill:var(--film-es-text)}
+.f-city{font-size:15px;text-anchor:start}
+.f-city.de{fill:var(--film-de-text)}.f-city.es{fill:var(--film-es-text)}.f-city.it{fill:var(--film-it-text)}
+.f-orb.de{fill:var(--film-spark);opacity:.9}.f-orb.es{fill:var(--film-sun);opacity:.9}.f-orb.it{fill:var(--film-it);opacity:.85}
+.f-cream{fill:var(--film-cream);opacity:.9}.f-terra{fill:var(--film-terra);opacity:.9}.f-arch{fill:var(--film-bg2);opacity:.6}.f-trunk{fill:var(--film-frond)}.f-pine{fill:var(--film-leaf)}
 
 /* scenes 4 to 7: the phone and what is on it */
 .f-phone-body{fill:var(--film-phone);filter:drop-shadow(0 10px 18px rgb(0 0 0 / .45))}
@@ -164,8 +167,8 @@
 .cf0{fill:var(--film-sun)}.cf1{fill:var(--film-line)}.cf2{fill:var(--film-red)}.cf3{fill:var(--film-white)}.cf4{fill:var(--film-rose)}
 
 /* scene 10: the end */
-.f-end{font:800 38px var(--display);text-anchor:middle}
-.f-end.de{fill:var(--film-de-text)}.f-end.es{fill:var(--film-es-text)}.f-end.en{font-size:24px;fill:var(--film-ink)}
+.f-end{font:800 34px var(--display);text-anchor:middle}
+.f-end.de{fill:var(--film-de-text)}.f-end.es{fill:var(--film-es-text)}.f-end.it{fill:var(--film-it-text)}.f-end.en{font-size:24px;fill:var(--film-ink)}
 .f-brand-t{font:700 20px var(--display);fill:var(--film-ink)}
 
 /* onboarding film card */
