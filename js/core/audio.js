@@ -256,7 +256,8 @@ function silentWav(){
 /* what a lesson can say: its tip examples, words and sentences with every accepted form, and its filled-in blanks */
 function lessonSaid(l){
   const forms = x => [x.t, ...(x.alt || [])];
-  return [...((l.tip && l.tip.examples) || []).map(x => x.t), ...(l.vocab || []).flatMap(forms), ...(l.sentences || []).flatMap(forms), ...(l.blanks || []).map(blankSaid)].filter(t => typeof t === 'string');
+  const drills = typeof formDrills === 'function' && l.tip && l.tip.tables ? formDrills(l).flatMap(d => d.pool) : [];   // the verb forms a form question can offer and say
+  return [...((l.tip && l.tip.examples) || []).map(x => x.t), ...(l.vocab || []).flatMap(forms), ...(l.sentences || []).flatMap(forms), ...(l.blanks || []).map(blankSaid), ...drills].filter(t => typeof t === 'string');
 }
 /* every line the built-in course can say, as [lang, speaker, text, pack] in course order: what dev/voices.js records.
    A line goes in the pack where it first appears. Single words (for tap-a-word and word tiles) use the narrator. Every
