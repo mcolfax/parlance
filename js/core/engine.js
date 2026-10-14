@@ -201,45 +201,68 @@ function makeEx(type, lesson, kind, i){
 function blankSaid(b){ return b.t.replace('___', b.a).replace(/\s*\([^)]*\)\s*$/, '').replace(/^.*→\s*/, ''); }
 function blankEx(lesson, i){ const b = lesson.blanks[i]; return { id: ++EXID, type: 'blank', lang: lesson.lang, lesson, blank: b, correct: b.a, options: shuffle(b.o) }; }
 function matchEx(lesson, idxs){ return { id: ++EXID, type: 'match', lang: lesson.lang, lesson, items: idxs.map(i => lesson.vocab[i]) }; }
-/* teaching cards sit in the lesson's queue between the exercises: a few new words, or one bite of the lesson's idea */
+/* teaching cards sit in the lesson's queue between the exercises: a few new words, one bite of the lesson's idea, or the phrases about to be asked */
 function teachEx(lesson, mode, extra){ return Object.assign({ id: ++EXID, type: 'teach', mode, lang: lesson.lang, lesson }, extra); }
-/* a lesson meets its words two or three at a time, and its idea in small bites placed between those groups */
+const ARTICLES = new Set(['der', 'die', 'das', 'den', 'dem', 'ein', 'eine', 'el', 'la', 'los', 'las', 'un', 'una']);
+function lexToks(text, lang){ return String(text).split(/\s+/).map(p => coreWord(p)).filter(c => /\p{L}/u.test(c)).map(c => fold(norm(c, lang))); }
+/* A lesson meets its words two or three at a time, and its idea in small bites placed between those groups.
+   Nothing is asked before it has been shown: a phrase waits until every lesson word it uses has been taught, and arrives on a card
+   (with the meaning of any form or extra word in it) just before its first question. */
 function buildLesson(lesson){
-  const nV = lesson.vocab.length, nS = lesson.sentences.length, nB = Math.min(lesson.blanks.length, 3);
-  const out = [], usedS = new Set(), usedB = new Set(), taught = [];
-  const V = (t, i) => { if (i < nV){ out.push(makeEx(t, lesson, 'v', i)); } };
-  const Sx = (t, i) => { if (nS){ usedS.add(i % nS); out.push(makeEx(t, lesson, 's', i % nS)); } };
-  const Bx = i => { if (i < nB){ usedB.add(i); out.push(blankEx(lesson, i)); } };
+  const lang = lesson.lang, nV = lesson.vocab.length, nS = lesson.sentences.length, nB = Math.min(lesson.blanks.length, 3);
+  const out = [], covered = new Set(), taught = new Set(), usedS = new Set(), usedB = new Set(), met = new Set(), shown = new Set();
+  const vk = lesson.vocab.map(v => { const k = lexToks(v.t, lang), c = k.filter(x => !ARTICLES.has(x)); return c.length ? c : k; });
+  const sText = i => lesson.sentences[i].t, bText = i => blankSaid(lesson.blanks[i]);
+  const ready = text => { const tk = lexToks(text, lang); return vk.every((k, i) => taught.has(i) || !k.every(x => tk.includes(x))); };
+  const extras = lessonForms(lesson);
+  const V = (t, i) => { if (i < nV) out.push(makeEx(t, lesson, 'v', i)); };
+  const Sx = (t, i) => { if (nS && i != null){ usedS.add(i % nS); out.push(makeEx(t, lesson, 's', i % nS)); } };
+  const Bx = i => { if (i != null && i < nB){ usedB.add(i); out.push(blankEx(lesson, i)); } };
+  const phrases = items => {   // items: ['s', i] or ['b', i]; one card for those not shown yet
+    const fresh = items.filter(([k, i]) => !met.has(k + i)); if (!fresh.length) return;
+    const lines = fresh.map(([k, i]) => { met.add(k + i); return k === 's' ? { t: sText(i), e: lesson.sentences[i].e[0] } : { t: bText(i), e: lesson.blanks[i].e }; });
+    const tk = new Set(lines.flatMap(x => lexToks(x.t, lang)));
+    const more = extras.filter(f => !shown.has(f.w) && lexToks(f.w, lang).every(k => tk.has(k) && !covered.has(k)));
+    more.forEach(f => shown.add(f.w));
+    out.push(teachEx(lesson, 'phrases', { lines, more }));
+  };
   const typedSentence = ['A1', 'A2', 'B1'].includes(lesson.level);
   const groups = [], per = Math.ceil(nV / Math.ceil(nV / 3));
   for (let i = 0; i < nV; i += per) groups.push([...Array(Math.min(per, nV - i)).keys()].map(k => i + k));
-  const bites = tipBites(lesson.tip);
-  const bitesAfter = gi => bites.filter((_, j) => Math.floor((j + 1) * groups.length / (bites.length + 1)) === gi);
-  const recognise = ['mc-t2e', 'mc-e2t', 'listen-mc'];
+  const pending = tipBites(lesson.tip).map((bite, j, all) => ({ bite, at: Math.floor((j + 1) * groups.length / (all.length + 1)) }));
+  const recognise = ['mc-t2e', 'mc-e2t', 'listen-mc'], done = [];
   groups.forEach((g, gi) => {
     out.push(teachEx(lesson, 'words', { idxs: g }));
-    g.forEach((i, k) => { V(recognise[k % 3], i); taught.push(i); });
+    g.forEach((i, k) => { V(recognise[k % 3], i); taught.add(i); done.push(i); });
     if (gi > 0){   // the newest words that can be told apart (du and Sie both mean “you”)
       const pick = [], ts = new Set(), es = new Set();
-      for (const i of taught.slice().reverse()){ const v = lesson.vocab[i]; if (pick.length < 5 && !ts.has(v.t) && !es.has(v.e[0])){ pick.push(i); ts.add(v.t); es.add(v.e[0]); } }
+      for (const i of done.slice().reverse()){ const v = lesson.vocab[i]; if (pick.length < 5 && !ts.has(v.t) && !es.has(v.e[0])){ pick.push(i); ts.add(v.t); es.add(v.e[0]); } }
       if (pick.length >= 3) out.push(matchEx(lesson, pick));
     }
-    for (const bite of bitesAfter(gi)){
+    while (pending.length && pending[0].at <= gi){
+      const si = [...Array(nS).keys()].find(i => !usedS.has(i) && ready(sText(i)));
+      const bi = [...Array(nB).keys()].find(i => !usedB.has(i) && ready(bText(i)));
+      if (si === undefined && bi === undefined && gi < groups.length - 1) break;   // wait for more words
+      const { bite } = pending.shift();
       out.push(teachEx(lesson, 'concept', { bite }));
-      if (bite.i === 0){ Sx('bank-e2t', 0); Bx(0); } else if (bite.i === 1){ Bx(1); Sx('bank-t2e', 1); } else { Bx(2); Sx('listen', 2); }
+      lexToks([bite.body.replace(/\*\*/g, ''), ...bite.examples.map(x => x.t), ...bite.tables.flatMap(t => t.rows.flat().map(c => c.replace(/\*\*/g, '')))].join(' '), lang).forEach(k => covered.add(k));   // forms the idea card shows
+      phrases([si !== undefined ? ['s', si] : null, bi !== undefined ? ['b', bi] : null].filter(Boolean));
+      if (bite.i === 0){ Sx('bank-e2t', si); Bx(bi); } else if (bite.i === 1){ Bx(bi); Sx('bank-t2e', si); } else { Bx(bi); Sx('listen', si); }
     }
   });
-  // everything has been met: now put it together
-  const more = lessonForms(lesson);
-  if (more.length) out.push(teachEx(lesson, 'forms', { list: more.slice(0, 8) }));
-  if (!usedS.has(0)) Sx('bank-e2t', 0);
-  V('type-t2e', Math.floor(nV / 3));
-  if (!usedS.has(1 % nS)) Sx('bank-t2e', 1);
-  V('type-e2t', Math.floor(2 * nV / 3));
-  if (!usedS.has(2 % nS)) Sx('listen', 2);
-  for (let i = 0; i < nB; i++) if (!usedB.has(i)) Bx(i);
-  Sx(typedSentence ? 'type-e2t' : 'bank-e2t', 3);
-  if (S.settings.speaking) Sx('speak', nS > 4 ? 4 : 0);
+  // everything has been taught: now put it together
+  const order = [...Array(nS).keys()].filter(i => !usedS.has(i)).concat([...usedS].sort((a, b) => a - b));
+  const sAt = k => order[k % order.length];
+  const seq = [{ v: 'type-t2e', i: Math.floor(nV / 3) }, { s: 'bank-t2e', i: sAt(0) }, { v: 'type-e2t', i: Math.floor(2 * nV / 3) }, { s: 'listen', i: sAt(1) }];
+  for (let i = 0; i < nB; i++) if (!usedB.has(i)) seq.push({ b: i });
+  seq.push({ s: typedSentence ? 'type-e2t' : 'bank-e2t', i: sAt(2) });
+  if (S.settings.speaking) seq.push({ s: 'speak', i: sAt(3) });
+  const pair = d => d.b != null ? ['b', d.b] : d.s ? ['s', d.i % nS] : null;
+  seq.forEach((d, n) => {
+    const p = pair(d);
+    if (p && !met.has(p[0] + p[1])){ const nx = seq[n + 1] && pair(seq[n + 1]); phrases(nx ? [p, nx] : [p]); }
+    if (d.v) V(d.v, d.i); else if (d.b != null) Bx(d.b); else Sx(d.s, d.i);
+  });
   shuffle(formDrills(lesson)).slice(0, 2).forEach(d => out.push(formEx(lesson, d)));   // the forms in the lesson's tables
   return out;
 }

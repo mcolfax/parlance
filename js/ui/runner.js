@@ -340,8 +340,11 @@ const RENDER = {
         lang === 'de' && items.some(v => v.g) ? h('div', { class: 'legend g small' }, h('span', { class: 'g-m' }, 'der'), h('span', { class: 'g-f' }, 'die'), h('span', { class: 'g-n' }, 'das'), h('span', { class: 'g-pl' }, 'plural')) : null,
         h('p', { class: 'hint' }, 'Tap a word to hear it.'));
     }
-    if (ex.mode === 'forms'){
-      return h('div', { class: 'ex teach' }, h('span', { class: 'eyebrow' }, 'Also in the phrases'), h('p', { class: 'muted' }, 'You’ll see these forms and words too. Here is what they mean.'), formRows(ex.list, lang));
+    if (ex.mode === 'phrases'){
+      if (S.settings.autoplay) speak(ex.lines[0].t, lang);
+      return h('div', { class: 'ex teach' }, h('span', { class: 'eyebrow' }, ex.lines.length > 1 ? 'New phrases' : 'New phrase'),
+        h('div', { class: 'tip' }, ex.lines.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e)))),
+        ex.more.length ? h('div', null, h('p', { class: 'muted small' }, 'Also in these phrases'), formRows(ex.more, lang)) : null);
     }
     const b = ex.bite;
     return h('div', { class: 'ex teach' }, h('div', { class: 'tip' }, h('span', { class: 'eyebrow' }, ic('bulb'), b.of > 1 ? 'Good to know · ' + (b.i + 1) + ' of ' + b.of : 'Good to know'), b.i === 0 ? h('h3', null, b.title) : null, h('p', { html: rich(b.body) }),

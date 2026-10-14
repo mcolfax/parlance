@@ -158,7 +158,21 @@ async function main(){
         { const bites = exs.filter(e => e.type === 'teach' && e.mode === 'concept'); ok(bites.length >= 1 && bites.length <= 3 && bites.every(b => b.bite.body.length <= 520), l.id + ' idea in 1-3 small bites');
           ok(bites.reduce((a, b) => a + b.bite.examples.length, 0) === l.tip.examples.length && bites.reduce((a, b) => a + b.bite.tables.length, 0) === (l.tip.tables || []).length, l.id + ' every example and table is shown');
           const seen = new Set(); let early = true; for (const e of exs){ if (e.type === 'teach' && e.mode === 'words') e.idxs.forEach(i => seen.add(i)); else if (e.kind === 'v' && e.type !== 'match' && !seen.has(l.vocab.indexOf(e.item))) early = false; }
-          ok(early, l.id + ' never asks a word before teaching it'); }
+          ok(early, l.id + ' never asks a word before teaching it');
+          // ...and never asks a phrase before showing it, nor one that uses a lesson word that hasn't been taught yet
+          const met = new Set(), taught = new Set(); let phraseOk = true, readyOk = true;
+          const vk = l.vocab.map(v => { const k = P.lexToks(v.t, l.lang), c = k.filter(x => !P.ARTICLES.has(x)); return c.length ? c : k; });
+          for (const e of exs){
+            if (e.type === 'teach' && e.mode === 'words') e.idxs.forEach(i => taught.add(i));
+            else if (e.type === 'teach' && e.mode === 'phrases') e.lines.forEach(x => met.add(x.t));
+            else if (e.kind === 's' || e.type === 'blank'){
+              const text = e.type === 'blank' ? P.blankSaid(e.blank) : e.item.t;
+              if (!met.has(text)) phraseOk = false;
+              const tk = P.lexToks(text, l.lang);
+              if (vk.some((k, i) => !taught.has(i) && k.every(x => tk.includes(x)))) readyOk = false;
+            }
+          }
+          ok(phraseOk, l.id + ' shows each phrase before asking it'); ok(readyOk, l.id + ' asks no phrase that uses a word not taught yet'); }
         for (const ex of exs.filter(e => e.type !== 'teach')){
           const tag = l.id + ' ' + ex.type + ' ' + (ex.item ? ex.item.t : ex.blank ? ex.blank.t : '');
           if (ex.options){
@@ -384,7 +398,7 @@ async function main(){
     const ci = T3.E('Run.queue.findIndex(e => e.type === "teach" && e.mode === "concept" && e.bite.tables.length)');
     ok(ci > 0, 'the idea arrives after some words'); T3.E('Run.pos = ' + ci + '; nextEx()');
     ok(ov().querySelector('.tip .forms table tbody tr'), 'a bite of the idea shows its forms table');
-    ok(T3.E('Run.queue.some(e => e.type === "teach" && e.mode === "forms")') === (T3.E('lessonForms(getLesson("de-1-2")).length') > 0), 'the extra words get their own card');
+    ok(T3.E('Run.queue.some(e => e.type === "teach" && e.mode === "phrases")'), 'phrases get their own card before they are asked');
     ok(T3.E('lessonForms(getLesson("es-1-3"))').every(f => f.w && f.val && f.w !== 'Ana'), 'extra words have meanings and skip names');
     // a pack lesson keeps its tables, and bad ones are cleaned
     const pk = T3.E('packTables([["Cap", ["a","b"], [["1","2"],["3","4"]]], "junk", ["x", null, []]])');

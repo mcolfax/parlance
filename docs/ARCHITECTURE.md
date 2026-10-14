@@ -170,8 +170,8 @@ A lesson opens with a short overview (`showIntro()` in `runner.js`: the idea's t
 
 - **Words**: the vocab is split into groups of two or three. Each group gets a `words` card, then a recognition question per word (and a match of the newest words from the second group on).
 - **The idea**: `tipBites()` in `content.js` cuts the tip body at sentence ends into one to three bites. Each example and table goes with the bite that mentions its bold words, otherwise the last one. A `concept` card per bite sits between word groups, followed by a blank or a sentence that uses it.
-- **Forms**: if `lessonForms()` finds forms or words the sentences use that nothing earlier showed, one `forms` card lists them before the harder practice (typing, listening, speaking, form drills) that closes the lesson.
-- Every word is taught before it is asked, and every example and table is shown; `dev/test.js` checks this for every lesson. Authors change nothing: tips are still `T(title, body, examples, tables)` and live packs use the same shape. Write a tip as short sentences, with each bold phrase near the example or table it belongs to.
+- **Phrases**: a sentence or blank is never asked cold. Before its first question a `phrases` card shows it with its meaning and audio, plus the meaning of any form or extra word in it that `lessonForms()` found and no idea card has covered. A phrase also waits until every lesson word it uses has been taught (`ready()` in `buildLesson`), so a concept bite can move later in the lesson. The harder practice (typing, listening, speaking, form drills) closes the lesson.
+- Every word and phrase is shown before it is asked, and every example and table is shown; `dev/test.js` checks this for every lesson. Authors change nothing: tips are still `T(title, body, examples, tables)` and live packs use the same shape. Write a tip as short sentences, with each bold phrase near the example or table it belongs to.
 - The Words button in the header lists the words met so far (`Run.taught`).
 
 ## Practice beyond lessons

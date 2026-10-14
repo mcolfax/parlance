@@ -32,6 +32,7 @@ const RELEASES = [
   { v: '4.18.0', date: '2026-10-14', title: 'Lessons that teach as you go', notes: [
     'Lessons no longer open with a wall of text. You now get a short overview, and then new words arrive two or three at a time, each group followed by a question or two.',
     'The idea behind the lesson comes in small bites between the exercises, with its examples and forms table right where you need them.',
+    'Every phrase is shown, with what it means and how it sounds, before you are asked it, and nothing is asked that uses a word you haven’t met yet.',
     'The Words button now shows the words you’ve met so far.'] },
   { v: '4.15.0', date: '2026-10-13', title: 'Forty more lessons in each language', notes: [
     'New units at every level, in German and in Spanish. A1: questions and small talk. A2: body and health. B1: cooking and eating, and travel and trouble. B2: careers, and society. C1: business and negotiation, and academic language. C2: nuance and humor, and culture and language.',
