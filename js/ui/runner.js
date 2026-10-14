@@ -167,6 +167,7 @@ function showFeedback(ex, res){
   }
   if (first && ex.key && Run.mode !== 'placement'){ noteMiss(Run.lang, ex.key, !res.ok || res.level === 'form'); touch(Run.lang); }
   if (res.ok && first && res.level === 'exact'){ Run.combo++; Run.bestCombo = Math.max(Run.bestCombo, Run.combo); }
+  if (first && res.ok && res.level === 'exact' && ex.type === 'form') S.stats.formsRight = (S.stats.formsRight || 0) + 1;
   if (first && res.ok && Run.mode === 'review') Run.reviewsRight = (Run.reviewsRight || 0) + 1;
   else if (!res.ok) Run.combo = 0;
   if (!res.ok){

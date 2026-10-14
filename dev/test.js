@@ -468,6 +468,9 @@ async function main(){
     }
     ok(Q.E('Run.finished') && L().cp[unit.title] && L().cp[unit.title].pass, 'a perfect checkpoint passes and is saved');
     qfoot('Continue').click();
+    ok(Q.P.S.badges.checkpoint1 && Q.P.S.badges.checkpoint100 && !Q.P.S.badges.checkpoint5, 'a perfect checkpoint earns its badges');
+    Q.E('S.stats.fixed = 25; S.stats.formsRight = 50; checkBadges({})');
+    ok(Q.P.S.badges.fixer && Q.P.S.badges.forms50, 'fixing mistakes and form questions earn badges');
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

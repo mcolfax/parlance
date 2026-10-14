@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.15.0';
+const APP_VERSION = '4.15.1';
 const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,6 +12,9 @@ const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.15.1', date: '2026-10-14', title: 'Five new badges', notes: [
+    'Pass a unit checkpoint, pass five, or score 100% on one to earn Checkpoint cleared, Test-taker and Top marks.',
+    'Fix 25 mistakes for Fixer-upper, and get 50 form questions right for Form master.'] },
   { v: '4.15.0', date: '2026-10-13', title: 'Forty more lessons in each language', notes: [
     'New units at every level, in German and in Spanish. A1: questions and small talk. A2: body and health. B1: cooking and eating, and travel and trouble. B2: careers, and society. C1: business and negotiation, and academic language. C2: nuance and humor, and culture and language.',
     'Each one opens with a full explanation and forms tables, like the rest of the course.',
@@ -216,6 +219,11 @@ const BADGES = [
   { id: 'levelA1', icon: 'trophy', name: 'A1 complete', desc: 'Finish every A1 lesson in one language.' },
   { id: 'levelB1', icon: 'trophy', name: 'Halfway there', desc: 'Finish every B1 lesson in one language.' },
   { id: 'levelC2', icon: 'mountain', name: 'Summit', desc: 'Finish every C2 lesson in one language.' },
+  { id: 'checkpoint1', icon: 'flag', name: 'Checkpoint cleared', desc: 'Pass your first unit checkpoint.' },
+  { id: 'checkpoint5', icon: 'trophy', name: 'Test-taker', desc: 'Pass 5 unit checkpoints.' },
+  { id: 'checkpoint100', icon: 'target', name: 'Top marks', desc: 'Score 100% on a unit checkpoint.' },
+  { id: 'fixer', icon: 'stack', name: 'Fixer-upper', desc: 'Fix 25 mistakes in Fix my mistakes.' },
+  { id: 'forms50', icon: 'abc', name: 'Form master', desc: 'Get 50 form questions right.' },
   { id: 'both', icon: 'globe', name: 'Bilingual', desc: 'Finish a lesson in both German and Spanish.' },
   { id: 'early', icon: 'sun', name: 'Early bird', desc: 'Practice before 8 a.m.' },
   { id: 'night', icon: 'moon', name: 'Night owl', desc: 'Practice after 10 p.m.' }

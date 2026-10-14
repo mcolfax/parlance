@@ -80,6 +80,9 @@ function checkBadges(ctx = {}){
   if (st >= 3) award('streak3'); if (st >= 7) award('streak7'); if (st >= 30) award('streak30');
   const words = both.reduce((n, l) => n + wordCount(l), 0);
   if (words >= 50) award('words50'); if (words >= 250) award('words250'); if (words >= 1000) award('words1000');
+  const passed = both.flatMap(l => Object.values(S.langs[l].cp || {})).filter(c => c && c.pass);
+  if (passed.length >= 1) award('checkpoint1'); if (passed.length >= 5) award('checkpoint5'); if (passed.some(c => c.acc >= 1)) award('checkpoint100');
+  if ((S.stats.fixed || 0) >= 25) award('fixer'); if ((S.stats.formsRight || 0) >= 50) award('forms50');
   if (ctx.flawless) award('flawless');
   if ((S.stats.bestCombo || 0) >= 10) award('combo10');
   if ((S.stats.reviewsRight || 0) >= 100) award('review100');
@@ -234,7 +237,7 @@ function noteMiss(lang, key, bad){
   if (!key) return;
   const m = S.langs[lang].miss, now = Date.now(), x = m[key];
   if (bad) m[key] = { ts: now, ok: x ? +x.ok || 0 : 0 };
-  else if (x && x.ts > (+x.ok || 0)) m[key] = { ts: x.ts, ok: now };
+  else if (x && x.ts > (+x.ok || 0)){ m[key] = { ts: x.ts, ok: now }; S.stats.fixed = (S.stats.fixed || 0) + 1; }
 }
 function mistakeEntries(lang){
   const out = [];
