@@ -164,6 +164,16 @@ data/users/{self}  (platform default: private to each person)
 - Everything a learner reads is plain, warm English in sentence case.
 - Every word in a built-in story has a meaning when tapped: from the lessons, `COMMON_GLOSS`, `STORY_GLOSS` (both in `content/glossary.js`) or a cast member's name. `glossLookup()` also finds dictionary forms from common endings (bezahlst → bezahlen, vende → vender). When you add or change a story, `npm test` lists any word that still needs a `STORY_GLOSS` entry. Words outside the built-in content (Talk, live packs) are looked up by the tutor when Claude is there; otherwise the popover shows the whole line's translation.
 
+## How a lesson teaches
+
+A lesson opens with a short overview (`showIntro()` in `runner.js`: the idea's title, word and phrase counts), not the whole tip. `buildLesson()` in `engine.js` returns a queue that mixes **teaching cards** (`type: 'teach'`, no answer, a Continue button) with the exercises:
+
+- **Words**: the vocab is split into groups of two or three. Each group gets a `words` card, then a recognition question per word (and a match of the newest words from the second group on).
+- **The idea**: `tipBites()` in `content.js` cuts the tip body at sentence ends into one to three bites. Each example and table goes with the bite that mentions its bold words, otherwise the last one. A `concept` card per bite sits between word groups, followed by a blank or a sentence that uses it.
+- **Forms**: if `lessonForms()` finds forms or words the sentences use that nothing earlier showed, one `forms` card lists them before the harder practice (typing, listening, speaking, form drills) that closes the lesson.
+- Every word is taught before it is asked, and every example and table is shown; `dev/test.js` checks this for every lesson. Authors change nothing: tips are still `T(title, body, examples, tables)` and live packs use the same shape. Write a tip as short sentences, with each bold phrase near the example or table it belongs to.
+- The Words button in the header lists the words met so far (`Run.taught`).
+
 ## Practice beyond lessons
 
 - **Word hints** (`HINTS` in `config.js`, `hintMode()` in `engine.js`): sentence prompts, blanks and answers can be tapped for a word's meaning; the help fades by level (A: full, B: tap only, C: off) and `settings.hints` overrides it. `lessonForms()` lists the forms and extra words a lesson's sentences use that earlier lessons haven't shown.

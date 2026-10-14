@@ -1,29 +1,27 @@
 "use strict";
 /* ===================== LESSON RUNNER ===================== */
 function runHead(title){
-  const peek = !title && Run.started && Run.mode === 'lesson' && Run.lesson && hintMode(Run.lesson.level) === 'full'
+  const peek = !title && Run.started && Run.mode === 'lesson' && Run.lesson && Run.taught && Run.taught.size && hintMode(Run.lesson.level) === 'full'
     ? h('button', { class: 'linkish small words-btn', type: 'button', onclick: () => showWords() }, ic('bulb'), 'Words') : null;
   const close = h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'Close', html: IC.close, onclick: () => askLeave() });
   OV.prog = h('i');
   OV.combo = h('span', { class: 'combo', 'aria-live': 'polite' });
-  OV.head.replaceChildren(close, title ? h('div', { class: 'ov-title' }, title) : h('div', { class: 'progress', role: 'progressbar', 'aria-label': 'Progress' }, OV.prog), peek, OV.combo);
+  OV.head.replaceChildren(...[close, title ? h('div', { class: 'ov-title' }, title) : h('div', { class: 'progress', role: 'progressbar', 'aria-label': 'Progress' }, OV.prog), peek, OV.combo].filter(Boolean));
 }
 /* the lesson's words and their meanings, one tap away while the exercises run */
-function wordRows(l, lang){ return h('div', { class: 'wordlist' }, l.vocab.map(v => h('div', { class: 'wl-row' }, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang)))); }
+function wordRows(l, lang, only){ return h('div', { class: 'wordlist' }, l.vocab.filter((v, i) => !only || only.has(i)).map(v => h('div', { class: 'wl-row' }, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang)))); }
 /* conjugation, article and ending tables from a lesson's tip */
 function formsTable(t){
   const cell = (tag, x) => h(tag, { html: rich(x) });
-  return h('div', { class: 'forms' }, t.cap ? h('div', { class: 'forms-cap' }, t.cap) : null,
+  return h('div', { class: 'forms' }, t.cap ? h('div', { class: 'forms-cap' }, t.cap.replace(/\*\*/g, '')) : null,
     h('div', { class: 'forms-scroll' }, h('table', null, t.head ? h('thead', null, h('tr', null, t.head.map(x => cell('th', x)))) : null,
       h('tbody', null, t.rows.map(r => h('tr', null, r.map((x, i) => cell(i === 0 && !t.head ? 'th' : 'td', x))))))));
 }
 /* the forms and extra words this lesson's sentences use that earlier lessons haven't shown */
-function formRows(l, lang){
-  const list = lessonForms(l); if (!list.length) return null;
-  return h('div', null, h('div', { class: 'row', style: 'margin-bottom:6px' }, h('h3', null, 'Also in the sentences'), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, 'new forms and words')),
-    h('div', { class: 'wordlist forms-list' }, list.map(f => h('div', { class: 'wl-row' }, h('div', { class: 't' }, sayText(f.w, lang)), h('div', { class: 'e' }, (f.base ? 'form of ' + f.base + ' · ' : '') + f.val), speakBtn(f.w, lang)))));
+function formRows(list, lang){
+  return h('div', { class: 'wordlist forms-list' }, list.map(f => h('div', { class: 'wl-row' }, h('div', { class: 't' }, sayText(f.w, lang)), h('div', { class: 'e' }, (f.base ? 'form of ' + f.base + ' · ' : '') + f.val), speakBtn(f.w, lang))));
 }
-function showWords(){ if (Run.lesson) sheet('Words in this lesson', wordRows(Run.lesson, Run.lang), [{ label: 'Back to the lesson', primary: true }]); }
+function showWords(){ if (Run.lesson) sheet('Words so far', wordRows(Run.lesson, Run.lang, Run.taught), [{ label: 'Back to the lesson', primary: true }]); }
 /* a nudge under a sentence that can be tapped; the questions stop saying it once the hints fade */
 function hintLine(ex){ return ex.lesson && hintMode(ex.lesson.level) === 'full' ? h('p', { class: 'hint tap-hint' }, 'Tap an underlined word to see what it means.') : null; }
 function glossOn(ex){ return !!ex.lesson && hintMode(ex.lesson.level) !== 'off'; }
@@ -36,23 +34,23 @@ function askLeave(){
 function endRun(){ clearTimeout(Run.sayTimer); speakStop(); if (Run.finished && Run.mode === 'lesson' && Run.lesson) UI.justDone = Run.lesson.id; Run.active = false; closeOverlay(); UI.animate = true; render(); }
 function startLesson(id){
   const lesson = getLesson(id); if (!lesson) return;
-  Object.assign(Run, { active: true, started: false, finished: false, mode: 'lesson', lang: lesson.lang, lesson, queue: [], pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 });
+  Object.assign(Run, { active: true, started: false, finished: false, mode: 'lesson', lang: lesson.lang, lesson, taught: new Set(), queue: [], pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 });
   openOverlay('run'); sfx('open'); recWarm(lesson.lang, lessonSaid(lesson)); showIntro();
 }
 function showIntro(){
   const l = Run.lesson, lang = Run.lang;
   runHead(l.title);
-  const tip = h('div', { class: 'tip' }, h('span', { class: 'eyebrow' }, ic('bulb'), 'Before you start'), h('h3', null, l.tip.title), h('p', { html: rich(l.tip.body) }),
-    (l.tip.tables || []).map(t => formsTable(t)),
-    l.tip.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e))));
-  const words = wordRows(l, lang), forms = formRows(l, lang);
+  const plan = h('div', { class: 'plan' },
+    l.tip && l.tip.title ? h('div', { class: 'plan-row' }, h('span', { class: 'plan-ic' }, ic('bulb')), h('div', null, h('b', null, l.tip.title), h('span', { class: 'small muted' }, 'The idea you’ll pick up'))) : null,
+    h('div', { class: 'plan-row' }, h('span', { class: 'plan-ic' }, ic('speaker')), h('div', null, h('b', null, l.vocab.length + ' new words'), h('span', { class: 'small muted' }, 'A few at a time, with a question after each'))),
+    h('div', { class: 'plan-row' }, h('span', { class: 'plan-ic' }, ic('check')), h('div', null, h('b', null, l.sentences.length + ' phrases'), h('span', { class: 'small muted' }, 'You’ll use them as you go'))));
   swapBody([
-    h('div', { class: 'intro-head' }, l.core ? unitSign(COURSE[lang].units[l.unit].title, 52) : null, h('span', { class: 'eyebrow' }, (l.core ? 'Unit ' + (l.unit + 1) + ' · ' : '') + l.level + ' ' + LEVEL_NAME[l.level] + ' · ' + LANGS[lang].name), h('h1', null, l.title), h('p', { class: 'muted' }, l.vocab.length + ' words · ' + l.sentences.length + ' phrases · about ' + minutesFor(l) + ' min')),
-    tip, h('div', null, h('div', { class: 'row', style: 'margin-bottom:6px' }, h('h3', null, 'Words in this lesson'), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, 'tap to hear')), lang === 'de' ? h('div', { class: 'legend g small' }, h('span', { class: 'g-m' }, 'der'), h('span', { class: 'g-f' }, 'die'), h('span', { class: 'g-n' }, 'das'), h('span', { class: 'g-pl' }, 'plural')) : null, words), forms]);
+    h('div', { class: 'intro-head' }, l.core ? unitSign(COURSE[lang].units[l.unit].title, 52) : null, h('span', { class: 'eyebrow' }, (l.core ? 'Unit ' + (l.unit + 1) + ' · ' : '') + l.level + ' ' + LEVEL_NAME[l.level] + ' · ' + LANGS[lang].name), h('h1', null, l.title), h('p', { class: 'muted' }, 'About ' + minutesFor(l) + ' min')),
+    plan]);
   OV.foot.className = 'ov-foot';
   const share = !l.core && !l.custom && studioAvailable() ? h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: async e => { const b = e.currentTarget; b.disabled = true; b.textContent = 'Sharing…'; const ok = await shareLessonToAll(l); if (ok){ sfx('badge'); toast('Shared. Every learner now has “' + l.title + '”.'); endRun(); } else { b.disabled = false; b.textContent = 'Share with all learners'; } } }, ic('wand'), 'Share with all learners') : null;
   OV.footIn.replaceChildren(...[share].filter(Boolean));
-  OV.footIn.append(h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => { Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx(); } }, 'Start exercises'));
+  OV.footIn.append(h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => { Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx(); } }, 'Start lesson'));
 }
 function startReview(practice){
   const lang = S.settings.lang;
@@ -107,6 +105,7 @@ function nextEx(){
   if (Run.pos >= Run.queue.length){ if (Run.mode === 'placement' && placementNext()) return nextEx(); return finishRun(); }
   const ex = Run.queue[Run.pos];
   Run.cur = ex; Run.value = null; Run.checking = false;
+  if (ex.type === 'teach' && ex.mode === 'words' && Run.taught){ const n = Run.taught.size; ex.idxs.forEach(i => Run.taught.add(i)); if (!n) runHead(); }
   setProgress();
   const api = {
     ready: ok => { Run.canCheck = !!ok; if (OV.checkBtn) OV.checkBtn.disabled = !ok; },
@@ -118,6 +117,11 @@ function nextEx(){
   const node = RENDER[ex.type](ex, api);
   swapBody(node);
   OV.foot.className = 'ov-foot';
+  if (ex.type === 'teach'){
+    OV.checkBtn = null; Run.canCheck = false;
+    OV.footIn.replaceChildren(h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => { clearTimeout(Run.sayTimer); speakStop(); sfx('select'); Run.pos++; nextEx(); } }, 'Continue'));
+    return;
+  }
   OV.checkBtn = h('button', { class: 'btn btn-primary btn-wide', type: 'button', disabled: true, onclick: () => doCheck() }, 'Check');
   const extra = ex.type === 'speak' ? h('button', { class: 'linkish', type: 'button', style: 'align-self:center', onclick: () => skipEx() }, 'Can’t speak right now') : null;
   OV.footIn.replaceChildren(...[ex.type === 'match' ? h('p', { class: 'hint center' }, 'Tap a word, then its meaning.') : OV.checkBtn, extra].filter(Boolean));
@@ -326,6 +330,24 @@ function tileBoard(tokens, lang, onChange){
 
 /* ----- renderers ----- */
 const RENDER = {
+  teach(ex){
+    const l = ex.lesson, lang = ex.lang;
+    if (ex.mode === 'words'){
+      const items = ex.idxs.map(i => l.vocab[i]);
+      if (S.settings.autoplay) speak(items[0].t, lang);
+      return h('div', { class: 'ex teach' }, h('span', { class: 'eyebrow' }, items.length > 1 ? 'New words' : 'New word'),
+        h('div', { class: 'wordlist teach-words' }, items.map(v => h('div', { class: 'wl-row' }, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang)))),
+        lang === 'de' && items.some(v => v.g) ? h('div', { class: 'legend g small' }, h('span', { class: 'g-m' }, 'der'), h('span', { class: 'g-f' }, 'die'), h('span', { class: 'g-n' }, 'das'), h('span', { class: 'g-pl' }, 'plural')) : null,
+        h('p', { class: 'hint' }, 'Tap a word to hear it.'));
+    }
+    if (ex.mode === 'forms'){
+      return h('div', { class: 'ex teach' }, h('span', { class: 'eyebrow' }, 'Also in the phrases'), h('p', { class: 'muted' }, 'You’ll see these forms and words too. Here is what they mean.'), formRows(ex.list, lang));
+    }
+    const b = ex.bite;
+    return h('div', { class: 'ex teach' }, h('div', { class: 'tip' }, h('span', { class: 'eyebrow' }, ic('bulb'), b.of > 1 ? 'Good to know · ' + (b.i + 1) + ' of ' + b.of : 'Good to know'), b.i === 0 ? h('h3', null, b.title) : null, h('p', { html: rich(b.body) }),
+      b.tables.map(t => formsTable(t)),
+      b.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e)))));
+  },
   'mc-t2e'(ex, api){
     return h('div', { class: 'ex' }, qLabel('What does this mean?'), targetPrompt(ex.item, ex.lang, true, ex),
       options(ex.options, o => { api.set(o); api.ready(true); }));

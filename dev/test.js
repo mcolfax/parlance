@@ -152,7 +152,14 @@ async function main(){
       for (let rep = 0; rep < 3; rep++){
         const exs = P.buildLesson(l);
         ok(exs.length >= 12, l.id + ' has ' + exs.length + ' exercises');
-        for (const ex of exs){
+        // the lesson opens with a small card of words, the idea comes in bites, and every word still gets a question
+        ok(exs[0].type === 'teach' && exs[0].mode === 'words' && exs[0].idxs.length <= 3, l.id + ' starts with a few words');
+        ok(exs.filter(e => e.type === 'teach' && e.mode === 'words').flatMap(e => e.idxs).sort().join() === l.vocab.map((_, i) => i).sort().join(), l.id + ' teaches every word exactly once');
+        { const bites = exs.filter(e => e.type === 'teach' && e.mode === 'concept'); ok(bites.length >= 1 && bites.length <= 3 && bites.every(b => b.bite.body.length <= 520), l.id + ' idea in 1-3 small bites');
+          ok(bites.reduce((a, b) => a + b.bite.examples.length, 0) === l.tip.examples.length && bites.reduce((a, b) => a + b.bite.tables.length, 0) === (l.tip.tables || []).length, l.id + ' every example and table is shown');
+          const seen = new Set(); let early = true; for (const e of exs){ if (e.type === 'teach' && e.mode === 'words') e.idxs.forEach(i => seen.add(i)); else if (e.kind === 'v' && e.type !== 'match' && !seen.has(l.vocab.indexOf(e.item))) early = false; }
+          ok(early, l.id + ' never asks a word before teaching it'); }
+        for (const ex of exs.filter(e => e.type !== 'teach')){
           const tag = l.id + ' ' + ex.type + ' ' + (ex.item ? ex.item.t : ex.blank ? ex.blank.t : '');
           if (ex.options){
             ok(ex.options.includes(ex.correct), tag + ' correct in options');
@@ -297,7 +304,7 @@ async function main(){
   {
     const H = await makeDom(); H.P.S.settings.onboarded = true;
     const hd = H.w.document, ov = () => hd.querySelector('.overlay:not(.out)');
-    const open = id => { H.E('endRun(); startLesson(' + JSON.stringify(id) + ')'); [...ov().querySelectorAll('.ov-foot button')].find(b => b.textContent === 'Start exercises').click(); };
+    const open = id => { H.E('endRun(); startLesson(' + JSON.stringify(id) + ')'); [...ov().querySelectorAll('.ov-foot button')].find(b => b.textContent === 'Start lesson').click(); };
     const show = type => { const i = H.E('Run.queue.findIndex(e => e.type === ' + JSON.stringify(type) + ')'); ok(i >= 0, 'hint test finds a ' + type); H.E('Run.pos = ' + i + '; nextEx()'); };
     const firstLesson = lv => H.P.COURSE.es.units.flatMap(u => u.lessons).find(l => l.level === lv).id;
     H.E('S.settings.lang = "es"');
@@ -305,7 +312,7 @@ async function main(){
     open('es-1-1');
     ok(ov().querySelector('.words-btn'), 'A1 lesson has a Words button');
     ov().querySelector('.words-btn').click();
-    ok(hd.querySelectorAll('.sheet .wl-row').length === H.E('Run.lesson.vocab.length'), 'Words sheet lists the lesson words');
+    ok(hd.querySelectorAll('.sheet .wl-row').length === H.E('Run.taught.size') && H.E('Run.taught.size') < H.E('Run.lesson.vocab.length'), 'Words sheet lists only the words met so far');
     hd.querySelectorAll('.sheet-back').forEach(x => x.remove());
     show('blank');
     ok(ov().querySelector('.gap-sent .say.gl .w') && ov().querySelector('.tap-hint'), 'A1 blank has tappable words and the nudge');
@@ -371,8 +378,13 @@ async function main(){
     ok(withTables >= total * 0.9, 'most lessons have a forms table: ' + withTables + ' of ' + total);
     const ov = () => T3.w.document.querySelector('.overlay:not(.out)');
     T3.E('startLesson("de-1-2")');
-    ok(ov().querySelector('.tip .forms table tbody tr'), 'the lesson opening shows a forms table');
-    ok(/Also in the sentences/.test(ov().textContent) || T3.E('lessonForms(getLesson("de-1-2")).length') === 0, 'the opening lists extra words');
+    ok(!ov().querySelector('.tip') && !ov().querySelector('.wordlist') && ov().querySelector('.plan'), 'the lesson opening is a short overview, not a wall of text');
+    [...ov().querySelectorAll('.ov-foot button')].find(b => b.textContent === 'Start lesson').click();
+    ok(ov().querySelector('.teach-words .wl-row'), 'the first card teaches a few words');
+    const ci = T3.E('Run.queue.findIndex(e => e.type === "teach" && e.mode === "concept" && e.bite.tables.length)');
+    ok(ci > 0, 'the idea arrives after some words'); T3.E('Run.pos = ' + ci + '; nextEx()');
+    ok(ov().querySelector('.tip .forms table tbody tr'), 'a bite of the idea shows its forms table');
+    ok(T3.E('Run.queue.some(e => e.type === "teach" && e.mode === "forms")') === (T3.E('lessonForms(getLesson("de-1-2")).length') > 0), 'the extra words get their own card');
     ok(T3.E('lessonForms(getLesson("es-1-3"))').every(f => f.w && f.val && f.w !== 'Ana'), 'extra words have meanings and skip names');
     // a pack lesson keeps its tables, and bad ones are cleaned
     const pk = T3.E('packTables([["Cap", ["a","b"], [["1","2"],["3","4"]]], "junk", ["x", null, []]])');
@@ -400,7 +412,7 @@ async function main(){
     ok(explained > 10, 'wrong blank options that are other forms are explained: ' + explained);
     // in the lesson screen
     F.E('S.settings.lang = "es"; endRun(); startLesson("es-1-3")');
-    [...F.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start exercises').click();
+    [...F.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click();
     F.E('Run.queue = [makeEx("type-e2t", Run.lesson, "s", 2)]; Run.pos = 0; nextEx()');
     F.E('Run.value = "¿Dónde vivo?"; Run.canCheck = true; doCheck()');
     const foot = F.w.document.querySelector('.overlay:not(.out) .ov-foot');
@@ -426,7 +438,7 @@ async function main(){
     ok(Q.E('buildLesson')(Q.E('getLesson')('es-1-3')).some(e => e.type === 'form'), 'lessons include form drills');
     // mistakes are noted, listed and cleared
     Q.E('S.settings.lang = "es"');
-    Q.E('startLesson("es-1-1")'); qfoot('Start exercises').click();
+    Q.E('startLesson("es-1-1")'); qfoot('Start lesson').click();
     const ex0 = Q.E('Run.queue.find(e => e.key && e.type !== "match")'); const idx = Q.E('Run.queue.findIndex(e => e.id === ' + ex0.id + ')');
     Q.E('Run.pos = ' + idx + '; nextEx()');
     Q.E('Run.value = "zzz nope"; Run.canCheck = true; doCheck()');
@@ -493,6 +505,7 @@ async function main(){
   const footBtn = label => [...w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === label);
   function answerCurrent(){
     const ex = Run().cur;
+    if (ex.type === 'teach'){ footBtn('Continue').click(); return 'next'; }
     if (ex.type === 'match'){
       const opts = [...w.document.querySelectorAll('.overlay:not(.out) .match .opt')];
       const left = opts.filter((_, i) => i % 2 === 0), right = opts.filter((_, i) => i % 2 === 1);
@@ -523,7 +536,7 @@ async function main(){
     E('S.settings.lang=' + JSON.stringify(lang) + ';render()');
     for (const u of P.COURSE[lang].units) for (const l of u.lessons){
       E('startLesson(' + JSON.stringify(l.id) + ')');
-      const start = footBtn('Start exercises'); ok(!!start, 'intro ' + l.id); start.click();
+      const start = footBtn('Start lesson'); ok(!!start, 'intro ' + l.id); start.click();
       await finishCurrent();
       ok(Run().finished, 'finished ' + l.id);
       ok(!!P.S.langs[lang].done[l.id], 'done ' + l.id);
@@ -593,9 +606,10 @@ async function main(){
   for (const b of ['first', 'both', 'levelA1', 'levelB1', 'levelC2', 'flawless', 'words1000', 'story1', 'stories8']) ok(P.S.badges[b], 'badge ' + b);
   // gloss popover
   E('S.settings.lang="de"; UI.tab="learn"; render()');
-  E('startLesson("de-7-1")');
+  E('startLesson("de-7-1")'); [...w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click();
+  E('Run.pos = Run.queue.findIndex(e => e.type === "teach" && e.mode === "concept" && e.bite.examples.length); nextEx()');
   const word = w.document.querySelector('.overlay:not(.out) .tip .say.gl .w');
-  ok(!!word, 'lesson intro has tappable words');
+  ok(!!word, 'the idea cards have tappable words');
   if (word){ word.click(); const g = w.document.querySelector('.gloss'); ok(g && g.textContent.length > 2, 'gloss popover ' + (g && g.textContent)); w.document.body.dispatchEvent(new w.Event('pointerdown', { bubbles: true })); }
   E('endRun()');
   { /* a word nothing knows: the popover shows the whole line, and the tutor looks it up when Claude is there */
@@ -650,7 +664,7 @@ async function main(){
     ok(remoteDe.done['de-1-2'] && remoteDe.done['de-1-1'], 'remote got merged progress');
     ok(B.P.S.owner === 'u_test', 'owner adopted');
     // make progress -> pushed
-    B.E('startLesson("de-1-3")'); const st = [...B.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start exercises'); st.click();
+    B.E('startLesson("de-1-3")'); const st = [...B.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson'); st.click();
     B.E('Run.pos = Run.queue.length; nextEx()');
     for (let i = 0; i < 60 && !JSON.parse(store.get('data/users/u_test/de').blob).done['de-1-3']; i++) await sleep(50);
     ok(JSON.parse(store.get('data/users/u_test/de').blob).done['de-1-3'], 'lesson completion pushed to account');
@@ -710,7 +724,7 @@ async function main(){
     for (let i = 0; i < 40 && !X.E('AI.ready'); i++) await sleep(20);
     const D = X.w.document, foot = () => D.querySelector('.overlay:not(.out) .ov-foot'), q = s => foot().querySelector(s), qa = s => [...foot().querySelectorAll(s)];
     const cont = () => qa('button').find(b => b.textContent === 'Continue').click();
-    X.E('startLesson("de-1-1")'); qa('button').find(b => b.textContent === 'Start exercises').click();
+    X.E('startLesson("de-1-1")'); qa('button').find(b => b.textContent === 'Start lesson').click();
     const l = X.E('Run.lesson');
     const drive = async (type, kind, i, value) => { X.E('Run.queue[Run.pos] = makeEx(' + JSON.stringify(type) + ', Run.lesson, ' + JSON.stringify(kind) + ', ' + i + '); nextEx()'); const R = X.E('Run'); R.value = value; R.canCheck = true; await X.E('doCheck()'); };
     // the tutor accepts a different wording: why it counts, both answers side by side, and its list of differences
@@ -783,8 +797,8 @@ async function main(){
     ok(M.w.document.getElementById('update-banner'), 'update banner shows for newer version');
     ok(JSON.parse(M.w.localStorage.getItem('parlance.content')).length === 2, 'content cached for next visit');
     // the new lesson plays end to end
-    M.E('startLesson("de-p1-1")'); [...M.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start exercises').click();
-    let g = 0; while (M.E('Run.active && !Run.finished') && g++ < 200){ const ex = M.E('Run.cur'); if (ex.type === 'match'){ M.E('Run.cur.items.length'); M.E('showFeedback(Run.cur, {ok:true, level:"exact"})'); } else { const R = M.E('Run'); R.value = ex.type === 'bank-t2e' ? M.P.tileTokens(ex.item.e[0]).join(' ') : ex.type.startsWith('bank') || ex.type === 'listen' ? M.P.tileTokens(ex.item.t).join(' ') : (ex.accepted ? ex.accepted[0] : ex.correct); R.canCheck = true; M.E('doCheck()'); } [...M.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Continue').click(); }
+    M.E('startLesson("de-p1-1")'); [...M.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click();
+    let g = 0; while (M.E('Run.active && !Run.finished') && g++ < 200){ const ex = M.E('Run.cur'); if (ex.type === 'teach'){} else if (ex.type === 'match'){ M.E('Run.cur.items.length'); M.E('showFeedback(Run.cur, {ok:true, level:"exact"})'); } else { const R = M.E('Run'); R.value = ex.type === 'bank-t2e' ? M.P.tileTokens(ex.item.e[0]).join(' ') : ex.type.startsWith('bank') || ex.type === 'listen' ? M.P.tileTokens(ex.item.t).join(' ') : (ex.accepted ? ex.accepted[0] : ex.correct); R.canCheck = true; M.E('doCheck()'); } [...M.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Continue').click(); }
     ok(M.P.S.langs.de.done['de-p1-1'], 'pack lesson completed');
     ok(Object.keys(M.P.S.langs.de.cards).some(k => k.startsWith('de-p1-1|v|~das_fahrrad')), 'pack lesson cards use stable keys');
     // a pack can be switched off and its lessons disappear without touching progress
@@ -831,7 +845,7 @@ async function main(){
     ok(store.get('content/config').announce.title === 'New stories!', 'announcement stored');
     F.E('closeStudio()');
     // quick rating on a finish screen
-    F.E('startLesson("de-1-2")'); [...F.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start exercises').click(); F.E('Run.pos = Run.queue.length; nextEx()');
+    F.E('startLesson("de-1-2")'); [...F.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click(); F.E('Run.pos = Run.queue.length; nextEx()');
     const hard = [...F.w.document.querySelectorAll('.overlay:not(.out) .rate button')].find(b => b.textContent === 'Too hard'); ok(!!hard, 'rating chips on finish'); hard.click();
     for (let i = 0; i < 30 && !(store.get('feedback/u_test').items.some(x => x.type === 'rating')); i++) await sleep(30);
     ok(store.get('feedback/u_test').items.some(x => x.type === 'rating' && x.rating === 1 && x.ctx.lessonId === 'de-1-2'), 'rating stored');

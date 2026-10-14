@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.17.0';
+const APP_VERSION = '4.18.0';
 const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -29,6 +29,10 @@ const RELEASES = [
   { v: '4.15.1', date: '2026-10-14', title: 'Five new badges', notes: [
     'Pass a unit checkpoint, pass five, or score 100% on one to earn Checkpoint cleared, Test-taker and Top marks.',
     'Fix 25 mistakes for Fixer-upper, and get 50 form questions right for Form master.'] },
+  { v: '4.18.0', date: '2026-10-14', title: 'Lessons that teach as you go', notes: [
+    'Lessons no longer open with a wall of text. You now get a short overview, and then new words arrive two or three at a time, each group followed by a question or two.',
+    'The idea behind the lesson comes in small bites between the exercises, with its examples and forms table right where you need them.',
+    'The Words button now shows the words you’ve met so far.'] },
   { v: '4.15.0', date: '2026-10-13', title: 'Forty more lessons in each language', notes: [
     'New units at every level, in German and in Spanish. A1: questions and small talk. A2: body and health. B1: cooking and eating, and travel and trouble. B2: careers, and society. C1: business and negotiation, and academic language. C2: nuance and humor, and culture and language.',
     'Each one opens with a full explanation and forms tables, like the rest of the course.',

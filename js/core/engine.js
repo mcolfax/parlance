@@ -201,22 +201,45 @@ function makeEx(type, lesson, kind, i){
 function blankSaid(b){ return b.t.replace('___', b.a).replace(/\s*\([^)]*\)\s*$/, '').replace(/^.*→\s*/, ''); }
 function blankEx(lesson, i){ const b = lesson.blanks[i]; return { id: ++EXID, type: 'blank', lang: lesson.lang, lesson, blank: b, correct: b.a, options: shuffle(b.o) }; }
 function matchEx(lesson, idxs){ return { id: ++EXID, type: 'match', lang: lesson.lang, lesson, items: idxs.map(i => lesson.vocab[i]) }; }
+/* teaching cards sit in the lesson's queue between the exercises: a few new words, or one bite of the lesson's idea */
+function teachEx(lesson, mode, extra){ return Object.assign({ id: ++EXID, type: 'teach', mode, lang: lesson.lang, lesson }, extra); }
+/* a lesson meets its words two or three at a time, and its idea in small bites placed between those groups */
 function buildLesson(lesson){
   const nV = lesson.vocab.length, nS = lesson.sentences.length, nB = Math.min(lesson.blanks.length, 3);
-  const out = []; const used = new Set();
-  const V = (t, i) => { if (i < nV){ out.push(makeEx(t, lesson, 'v', i)); used.add(i); } };
-  const Sx = (t, i) => { if (nS) out.push(makeEx(t, lesson, 's', i % nS)); };
-  const Bx = i => { if (i < nB) out.push(blankEx(lesson, i)); };
+  const out = [], usedS = new Set(), usedB = new Set(), taught = [];
+  const V = (t, i) => { if (i < nV){ out.push(makeEx(t, lesson, 'v', i)); } };
+  const Sx = (t, i) => { if (nS){ usedS.add(i % nS); out.push(makeEx(t, lesson, 's', i % nS)); } };
+  const Bx = i => { if (i < nB){ usedB.add(i); out.push(blankEx(lesson, i)); } };
   const typedSentence = ['A1', 'A2', 'B1'].includes(lesson.level);
-  V('mc-t2e', 0); V('mc-e2t', 1); V('listen-mc', 2); Sx('bank-e2t', 0); Bx(0); V('type-t2e', 3);
-  const mi = [...Array(nV).keys()].filter(i => !used.has(i)).slice(0, 5);
-  for (const i of used) if (mi.length < 5 && !mi.includes(i)) mi.push(i);
-  if (mi.length >= 3){ out.push(matchEx(lesson, mi)); mi.forEach(i => used.add(i)); }
-  Sx('bank-t2e', 1); V('type-e2t', 4); Sx('listen', 2); Bx(1); Sx(typedSentence ? 'type-e2t' : 'bank-e2t', 3);
+  const groups = [], per = Math.ceil(nV / Math.ceil(nV / 3));
+  for (let i = 0; i < nV; i += per) groups.push([...Array(Math.min(per, nV - i)).keys()].map(k => i + k));
+  const bites = tipBites(lesson.tip);
+  const bitesAfter = gi => bites.filter((_, j) => Math.floor((j + 1) * groups.length / (bites.length + 1)) === gi);
+  const recognise = ['mc-t2e', 'mc-e2t', 'listen-mc'];
+  groups.forEach((g, gi) => {
+    out.push(teachEx(lesson, 'words', { idxs: g }));
+    g.forEach((i, k) => { V(recognise[k % 3], i); taught.push(i); });
+    if (gi > 0){   // the newest words that can be told apart (du and Sie both mean “you”)
+      const pick = [], ts = new Set(), es = new Set();
+      for (const i of taught.slice().reverse()){ const v = lesson.vocab[i]; if (pick.length < 5 && !ts.has(v.t) && !es.has(v.e[0])){ pick.push(i); ts.add(v.t); es.add(v.e[0]); } }
+      if (pick.length >= 3) out.push(matchEx(lesson, pick));
+    }
+    for (const bite of bitesAfter(gi)){
+      out.push(teachEx(lesson, 'concept', { bite }));
+      if (bite.i === 0){ Sx('bank-e2t', 0); Bx(0); } else if (bite.i === 1){ Bx(1); Sx('bank-t2e', 1); } else { Bx(2); Sx('listen', 2); }
+    }
+  });
+  // everything has been met: now put it together
+  const more = lessonForms(lesson);
+  if (more.length) out.push(teachEx(lesson, 'forms', { list: more.slice(0, 8) }));
+  if (!usedS.has(0)) Sx('bank-e2t', 0);
+  V('type-t2e', Math.floor(nV / 3));
+  if (!usedS.has(1 % nS)) Sx('bank-t2e', 1);
+  V('type-e2t', Math.floor(2 * nV / 3));
+  if (!usedS.has(2 % nS)) Sx('listen', 2);
+  for (let i = 0; i < nB; i++) if (!usedB.has(i)) Bx(i);
+  Sx(typedSentence ? 'type-e2t' : 'bank-e2t', 3);
   if (S.settings.speaking) Sx('speak', nS > 4 ? 4 : 0);
-  Bx(2);
-  let flip = false;
-  for (let i = 0; i < nV; i++) if (!used.has(i)){ V(flip ? 'mc-e2t' : 'mc-t2e', i); flip = !flip; }
   shuffle(formDrills(lesson)).slice(0, 2).forEach(d => out.push(formEx(lesson, d)));   // the forms in the lesson's tables
   return out;
 }

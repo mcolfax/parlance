@@ -103,6 +103,30 @@ function lessonForms(l){
   }
   return FORMS.by[lang][l.id] || [];
 }
+/* a lesson's tip cut into small bites that arrive between the exercises instead of one wall of text up front.
+   The body is split at sentence ends into 1–3 bites; each example and table goes with the bite that talks about it (otherwise the last one) */
+function tipBites(tip){
+  if (!tip || !tip.body) return [];
+  const plain = s => String(s).replace(/\*\*/g, '').toLowerCase();
+  const sents = String(tip.body).split(/(?<=[.!?)])\s+(?=[A-ZÄÖÜÁÉÍÓÚÑ¿¡*])/).map(x => x.trim()).filter(Boolean);
+  const n = Math.max(1, Math.min(3, sents.length, Math.round(String(tip.body).length / 200)));
+  const total = sents.reduce((a, x) => a + x.length, 0), bites = [];
+  let cur = [], len = 0;
+  for (const x of sents){
+    cur.push(x); len += x.length;
+    if (bites.length < n - 1 && len >= total / n * (bites.length + 1)){ bites.push({ body: cur.join(' '), examples: [], tables: [] }); cur = []; }
+  }
+  if (cur.length) bites.push({ body: cur.join(' '), examples: [], tables: [] });
+  const bolds = b => [...b.body.matchAll(/\*\*(.+?)\*\*/g)].map(m => m[1].toLowerCase());
+  const home = key => {
+    let best = -1, at = bites.length - 1;
+    bites.forEach((b, i) => { const hit = bolds(b).filter(w => w.length > 2 && key.includes(w)).length; if (hit > best && hit > 0){ best = hit; at = i; } });
+    return bites[at];
+  };
+  for (const e of tip.examples || []) home(plain(e.t)).examples.push(e);
+  for (const t of tip.tables || []) home(plain(t.cap)).tables.push(t);
+  return bites.map((b, i) => ({ ...b, title: tip.title, i, of: bites.length }));
+}
 function allLessons(lang){ return coreOrder(lang).concat(genLessons(lang)); }
 const CUSTOM_CACHE = new Map();
 function customLesson(id){
