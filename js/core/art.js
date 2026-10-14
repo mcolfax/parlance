@@ -11,7 +11,8 @@
    proud, love, listen, fly, dance, ready. */
 const PIP_MOODS = Object.keys(PIP.moods);
 const PIP_VIEW = [-8, 14, 256, 244];     // the bird's frame in rig units: the 120 x 114 box the screens are laid out for
-const PIP_HEAD = [38, 18, 164, 164];     // head and shoulders, for avatars
+const PIP_HEAD = [38, 18, 164, 164];     // head and shoulders
+const PIP_FACE = [56, 24, 128, 128];     // a closer crop of the head, for round avatars
 const pipMood = mood => (PIP.moods[mood] ? mood : 'happy');
 /* the learner's bird. Pip's part sheet always loads; another bird's loads when it's picked (loadMascot), and Pip
    stands in until it has. A bird this version doesn't know is drawn as Pip. */
@@ -183,8 +184,8 @@ function avatar(id, size, cls, asIs){
   let def = id === 'pip' ? (asIs ? PIP : mascotDef()) : asIs && MASCOTS[id] ? (Bird.birds[id] || PIP) : null;
   const late = asIs && MASCOTS[id] && !Bird.birds[id] ? id : '';
   const el = h('span', { class: 'cast-av' + (def ? ' is-pip' : '') + (cls ? ' ' + cls : ''), style: '--av:' + (size || 40) + 'px', title: def ? MASCOTS[id] ? MASCOTS[id].name : def.name : CAST[id] ? CAST[id].name : '' });
-  el.innerHTML = def ? pipSVG('happy', size || 40, PIP_HEAD, def) : avatarSVG(id);
-  if (late) loadMascot(late).then(b => { el.innerHTML = pipSVG('happy', size || 40, PIP_HEAD, b); }, () => {});
+  el.innerHTML = def ? pipSVG('happy', size || 40, PIP_FACE, def) : avatarSVG(id);
+  if (late) loadMascot(late).then(b => { el.innerHTML = pipSVG('happy', size || 40, PIP_FACE, b); }, () => {});
   return el;
 }
 
