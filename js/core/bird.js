@@ -58,6 +58,7 @@ const Bird = (() => {
       question: p('s-ink', 'M168 40 Q168 30 177 30 Q186 30 186 38.5 Q186 44 179.5 47 Q177 48.4 177 53', 'stroke-width:4.4px') + ci('k-ink', 177, 61, 2.9),
       exclaim: p('s-ink', 'M178 24 L176 50', 'stroke-width:5.4px') + ci('k-ink', 175.6, 60, 3.2) + p('s-ink', 'M160 30 L163.6 46 M194 34 L188 48', 'stroke-width:3px'),
       hearts: HEART(166, 46, 1) + HEART(184, 28, 0.75) + HEART(72, 40, 0.65),
+      stars: STAR(150, 30, 7) + STAR(204, 40, 9) + STAR(178, 12, 6),
       sound: p('s-ink', 'M182 96 Q190 106 182 116 M190 88 Q202 106 190 124', 'stroke-width:3.2px')
     },
     fxBody: {
@@ -204,6 +205,7 @@ const Bird = (() => {
       unsure: { slots: { pupilL: 'open', pupilR: 'open', mouth: 'smile', beak: 'closed' }, bones: { browL: { y: -5, r: -6 }, browR: { y: -3, r: 4 } }, params: { lookX: -0.2 } },
       proud: { slots: { pupilL: 'happy', pupilR: 'happy', mouth: 'smile', beak: 'closed' }, bones: sym({ brow: { y: -2 } }), blink: false },
       love: { slots: { pupilL: 'heart', pupilR: 'heart', mouth: 'smile', beak: 'closed', cheekL: 'blush', cheekR: 'blush', fxHead: 'hearts' }, blink: false },
+      dizzy: { slots: { pupilL: 'squeeze', pupilR: 'squeeze', mouth: 'o', beak: 'closed', fxHead: 'stars' }, bones: { browL: { r: -12, y: 2 }, browR: { r: 12, y: 2 } }, blink: false, glance: false },
       listen: { slots: { pupilL: 'open', pupilR: 'open', mouth: 'closed', beak: 'closed', fxHead: 'sound' }, bones: { browL: { y: -4 }, browR: { y: 0 } }, glance: false },
       focus: { slots: { pupilL: 'open', pupilR: 'open', mouth: 'smile', beak: 'closed' }, bones: { browL: { r: 14, y: 2 }, browR: { r: -14, y: 2 } } }
     },
@@ -224,6 +226,7 @@ const Bird = (() => {
       proud: { pose: 'proud', face: 'proud', clip: 'shine' },
       love: { pose: 'love', face: 'love', clip: 'flutter' },
       listen: { pose: 'listen', face: 'listen', clip: 'listen' },
+      dizzy: { pose: 'stand', face: 'dizzy', clip: 'woozy', params: { turn: 0.1 } },
       fly: { pose: 'fly', face: 'happy', clip: 'flap', glance: false },
       dance: { pose: 'stand', face: 'joy', clip: 'dance', params: { turn: 0.1 } },
       ready: { pose: 'stand', face: 'focus', params: { turn: 0.12 } }
@@ -294,6 +297,14 @@ const Bird = (() => {
         'wingL.r': [[0, 0], [0.25, 34, 'sine'], [0.5, 0, 'sine'], [0.75, 6, 'sine'], [1, 0, 'sine']],
         'wingR.r': [[0, 0], [0.25, -6, 'sine'], [0.5, 0, 'sine'], [0.75, -34, 'sine'], [1, 0, 'sine']],
         'slot.fxBody': [[0, 'notes']], 'fx.y': [[0, 0], [0.5, -4, 'sine'], [1, 0, 'sine']] } },
+      /* tapped silly: sways like a tipsy bird while a ring of stars circles its head */
+      woozy: { dur: 1.6, loop: true, tracks: {
+        'body.r': [[0, 0], [0.4, 7, 'sine'], [0.8, 0, 'sine'], [1.2, -7, 'sine'], [1.6, 0, 'sine']],
+        'root.x': [[0, 0], [0.4, 5, 'sine'], [0.8, 0, 'sine'], [1.2, -5, 'sine'], [1.6, 0, 'sine']],
+        'head.r': [[0, 0], [0.4, -9, 'sine'], [0.8, 0, 'sine'], [1.2, 9, 'sine'], [1.6, 0, 'sine']],
+        'wingL.r': [[0, 0], [0.4, 10, 'sine'], [0.8, 0, 'sine'], [1.2, 3, 'sine'], [1.6, 0, 'sine']],
+        'wingR.r': [[0, 0], [0.4, -3, 'sine'], [0.8, 0, 'sine'], [1.2, -10, 'sine'], [1.6, 0, 'sine']],
+        'fxHead.r': [[0, 0], [1.6, 360, 'linear']] } },
       nod: { dur: 0.7, tracks: {
         'head.r': [[0, 0], [0.15, 5], [0.3, -1], [0.45, 4], [0.7, 0]], 'head.y': [[0, 0], [0.15, 2.5], [0.3, 0], [0.45, 2], [0.7, 0]] } },
       /* turns are offsets from the mood's turn: a shake swings either side of the rest turn, front to three-quarter */

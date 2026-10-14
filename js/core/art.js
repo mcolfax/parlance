@@ -74,6 +74,15 @@ function pipBriefly(rig, mood, ms){
    A sleeping Pip wakes with a start, then nods off again. */
 const PIP_TAPS = [{ move: 'hop' }, { mood: 'wave', ms: 1800 }, { move: 'lookAround' }, { mood: 'dance', ms: 2000 }, { move: 'bow' }, { move: 'nod' }];
 let pipTaps = 0;
+/* Easter egg: tap a bird six times in a row (each within 0.7s of the last) and it gets dizzy for a few seconds. */
+const PIP_DIZZY = { de: 'Mir dreht sich alles…', es: '¡Todo me da vueltas!', it: 'Che giramento…' };
+function pipDizzy(rig){
+  const now = Date.now();
+  rig.rapid = now - (rig.lastTap || 0) < 700 ? (rig.rapid || 0) + 1 : 1; rig.lastTap = now;
+  if (rig.rapid < 6 || rig.home === 'sleep') return false;
+  rig.rapid = 0; pipBriefly(rig, 'dizzy', 3200);
+  return true;
+}
 function pipTap(rig){
   if (rig.home === 'sleep') return pipBriefly(rig, 'wow', 1600);
   const t = PIP_TAPS[pipTaps++ % PIP_TAPS.length];
@@ -105,10 +114,12 @@ function pip(mood, size, opts = {}){
       e.stopPropagation();
       const lang = opts.lang || (typeof S !== 'undefined' ? S.settings.lang : 'de');
       const m = rig.home, line = pickSay(lang, ['oops', 'cheer', 'sleep'].includes(m) ? m : 'hello');
-      pipTap(rig);
+      const dizzy = pipDizzy(rig);
+      if (!dizzy) pipTap(rig);
       const b = el.querySelector('.pip-say') || h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : '') });
-      b.textContent = line; if (!b.parentNode) el.append(b);
+      b.textContent = dizzy ? (PIP_DIZZY[lang] || PIP_DIZZY.de) : line; if (!b.parentNode) el.append(b);
       b.classList.remove('pop'); void b.getBoundingClientRect(); b.classList.add('pop');
+      if (dizzy){ sfx('dizzy'); haptic(30); return; }
       sfx('chirp'); haptic(8);
       setTimeout(() => { rig.talking(true); speak(line, lang, false, MASCOTS[def.id]).then(() => rig.talking(false)); }, 180);
     });

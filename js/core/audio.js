@@ -330,6 +330,7 @@ const SOUNDS = {
   whoosh: c => hiss(c, 0, 0.38, 0.035, { f: 300, to: 2600, q: 0.7, attack: 0.12 }),
   pop: c => tone(c, 320, 0, 0.09, 'sine', 0.05, { to: 980, glide: 0.06 }),
   chirp: c => { tone(c, 1700, 0, 0.07, 'sine', 0.04, { to: 2600, glide: 0.05 }); tone(c, 2300, 0.08, 0.09, 'sine', 0.035, { to: 1500, glide: 0.07 }); tone(c, 1900, 0.18, 0.06, 'triangle', 0.025, { to: 2800, glide: 0.04 }); },
+  dizzy: c => [0, 0.14, 0.28, 0.42, 0.56].forEach((t, i) => tone(c, i % 2 ? 520 : 700, t, 0.16, 'sine', 0.035, { to: i % 2 ? 700 : 480, glide: 0.12 })),
   page: c => { hiss(c, 0, 0.06, 0.015, { f: 3200, q: 1.4 }); tone(c, 1900, 0, 0.04, 'sine', 0.01); },
   flip: c => tone(c, 1100, 0, 0.07, 'sine', 0.025, { to: 1650, glide: 0.05 }),
   quest: c => { bell(c, 1318.5, 0, 0.5, 0.045); bell(c, 1760, 0.11, 0.7, 0.045); },
