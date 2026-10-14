@@ -128,6 +128,30 @@ if (typeof document !== 'undefined') document.addEventListener('pointerdown', e 
   }
 }, { passive: true });
 
+/* Birds keep their heads level when the phone is turned, the way a chicken's does. The phone's orientation gives which
+   way is up in the screen's plane; the head turns to match. Flat on a table there is no up, so it fades out. Portrait
+   only. iOS asks permission once, from a touch. */
+if (typeof window !== 'undefined' && 'DeviceOrientationEvent' in window){
+  let tiltOn = false, tiltAsked = false;
+  const onTilt = e => {
+    const ang = (screen.orientation && screen.orientation.angle) || 0;
+    if (e.beta == null || e.gamma == null || ang) return Rig.setHorizon(0);
+    const b = e.beta * Math.PI / 180, g = e.gamma * Math.PI / 180;
+    const ux = -Math.sin(g) * Math.cos(b), uy = Math.sin(b);   // which way is up, in the screen's plane
+    const lean = Math.hypot(ux, uy);                           // 1 when upright, 0 when flat
+    const w = Math.min(1, Math.max(0, (lean - 0.35) / 0.3));
+    Rig.setHorizon(Math.atan2(ux, uy) * 180 / Math.PI * w);
+  };
+  const tiltStart = () => { if (tiltOn) return; tiltOn = true; window.addEventListener('deviceorientation', onTilt, { passive: true }); };
+  const tiltAsk = () => {
+    if (tiltAsked) return; tiltAsked = true;
+    const D = window.DeviceOrientationEvent;
+    if (typeof D.requestPermission === 'function') D.requestPermission().then(r => { if (r === 'granted') tiltStart(); }).catch(() => {});
+  };
+  if (typeof window.DeviceOrientationEvent.requestPermission === 'function') document.addEventListener('pointerup', tiltAsk, { once: true, passive: true });
+  else tiltStart();
+}
+
 /* ----- cast portraits ----- */
 const HAIR = {
   bob: { back: '<path d="M19 30 C17 16 25 11 32 11 C39 11 47 16 45 30 L46 41 C42 43 38 42 37 39.5 L27 39.5 C26 42 22 43 18 41 Z"/>',
