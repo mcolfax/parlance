@@ -1,5 +1,6 @@
 /* ===================== INTRO FILM =====================
-   The film stage is always dark (a little cinema), in both themes. Colors come from --film-* tokens.
+   The film stage is always dark (a little cinema), in both themes. Colors come from --film-* tokens; the phone in it
+   shows the app in its light theme. Everything is placed and timed by js/ui/film.js; this file only dresses it.
    ====================================================== */
 .overlay.film{background:var(--film-bg);color:var(--film-ink)}
 .overlay.film .ov-head{color:var(--film-ink)}
@@ -9,8 +10,8 @@
 .film-wrap{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;height:100%;cursor:pointer}
 .film-stage{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
 .film-svg{width:100%;height:100%;max-height:100%;display:block}
-.film-cap{position:absolute;left:12px;right:12px;bottom:14px;text-align:center;font:700 17px/1.35 var(--body);color:var(--film-ink);text-shadow:0 2px 12px rgb(0 0 0 / .6);opacity:0;transform:translateY(6px);transition:opacity .35s var(--ease),transform .35s var(--ease);pointer-events:none;text-wrap:balance}
-.film-cap.on{opacity:1;transform:none}
+.film-cap{position:absolute;left:14px;right:14px;bottom:12px;text-align:center;font:700 17px/1.35 var(--body);color:var(--film-ink);text-shadow:0 2px 12px rgb(0 0 0 / .7),0 0 2px rgb(0 0 0 / .5);pointer-events:none;text-wrap:balance}
+.film-cap span{display:inline-block;margin:0 .14em;opacity:0;will-change:opacity,transform}
 .film-big{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;border:0;background:rgb(255 255 255 / .16);color:#fff;display:grid;place-items:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 0 0 6px rgb(255 255 255 / .08)}
 .film-big svg{margin-left:4px}
 .film-foot{background:var(--film-bg);border-color:rgb(255 255 255 / .08)}
@@ -23,42 +24,154 @@
 .f-range{flex:1;min-width:0;accent-color:var(--line);height:28px}
 .btn.pulse-cta{animation:ctapulse 1.6s ease-in-out infinite}
 @keyframes ctapulse{50%{box-shadow:0 0 0 8px var(--line-glow)}}
-/* stage art */
-.f-bg{fill:var(--film-bg)}
-.f-stars circle{fill:#fff;animation:twinkle 2.6s ease-in-out infinite}
-.f-h1{font:700 54px var(--display);fill:var(--film-ink);text-anchor:middle}
+
+/* backdrop: rays, fireflies and palm fronds */
+.f-rays path{fill:var(--film-white);opacity:.035}
+.f-rays2 path{fill:var(--film-sun);opacity:.16}
+.f-fly{fill:var(--film-spark)}
+.f-frond{fill:var(--film-frond);opacity:.9}
+.f-frond1{fill:var(--film-frond2);opacity:.75}
+.f-stem{fill:none;stroke:var(--film-frond2);stroke-width:4;stroke-linecap:round}
+.f-ring{fill:none;stroke:var(--film-white);stroke-width:3}
+.f-markring{fill:none;stroke:var(--film-white);stroke-width:3}
+
+/* the icons the film draws itself */
+.f-ic{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.f-ic.fill{fill:currentColor;stroke:none}
+.f-white{color:var(--film-white)}.f-dim{color:var(--film-muted2)}.f-ok{color:var(--film-ok)}.f-okic{color:var(--film-ok)}.f-sun{color:var(--film-sun);fill:currentColor;stroke:none}.f-heart{color:var(--film-flame);fill:var(--film-flame)}
+.f-flame{fill:var(--film-flame)}
+
+/* scene 1: title */
+.f-mk.de{fill:var(--film-de)}
+.f-mk.es{fill:var(--film-es);opacity:.95}
+.f-h1{font:700 58px var(--display);fill:var(--film-ink);text-anchor:middle}
 .f-sub{font:600 16px var(--body);fill:var(--film-muted);text-anchor:middle}
+.f-chip{stroke:none}
+.f-chip.de{fill:var(--film-de)}.f-chip.es{fill:var(--film-es)}
+.f-chip-t{font:700 14px var(--display);text-anchor:middle;fill:var(--film-bg2)}
 .f-line{fill:none;stroke:var(--film-line);stroke-width:10;stroke-linecap:round}
-.f-st{fill:var(--film-bg);stroke:#fff;stroke-width:5}
+.f-st{fill:var(--film-bg);stroke:var(--film-white);stroke-width:5}
+.f-bname{font:700 12px var(--display);text-anchor:middle;fill:var(--film-muted)}
+.f-bname.me{fill:var(--film-es-text)}
+.f-bub{fill:var(--film-white)}
+.f-bub-t{font:800 14px var(--display);fill:var(--film-bg2);text-anchor:middle}
+
+/* scene 3: two cities */
+.f-ground{fill:var(--film-frond)}
+.f-sky-far rect{fill:var(--film-frond2);opacity:.55}
 .f-sky-de rect,.f-sky-de circle{fill:var(--film-line);opacity:.85}
 .f-sky-de path{stroke:var(--film-line);stroke-width:6;stroke-linecap:round;fill:none}
-.f-sky-es .h1{fill:#F0B42C}.f-sky-es .h2{fill:#E4572E}.f-sky-es .h3{fill:#3FA77A}
+.f-win{fill:var(--film-sun)}
+.f-moon{fill:var(--film-spark);opacity:.9}
+.f-sun{fill:var(--film-sun);opacity:.9}
+.f-sky-es .h1{fill:var(--film-mango)}.f-sky-es .h2{fill:var(--film-red)}.f-sky-es .h3{fill:var(--film-leaf)}
+.f-doors rect{fill:var(--film-bg2);opacity:.55}
 .f-string{fill:none;stroke:var(--film-muted);stroke-width:1.5}
-.pp0{fill:#E4572E}.pp1{fill:#F0B42C}.pp2{fill:#3FA77A}.pp3{fill:#E25E9A}
+.pp0{fill:var(--film-red)}.pp1{fill:var(--film-mango)}.pp2{fill:var(--film-leaf)}.pp3{fill:var(--film-rose)}
 .f-city{font:800 18px var(--display);text-anchor:middle}
-.f-city.de{fill:#5CC3CD}.f-city.es{fill:#F4C657}
-.f-bub{fill:#fff}
-.f-bub-t{font:800 14px var(--display);fill:#13262B;text-anchor:middle}
-.f-card{fill:var(--film-card);stroke:rgb(255 255 255 / .08)}
-.f-card-ic{fill:var(--film-line)}
-#f-card1 .f-card-ic{fill:#F0B42C}#f-card2 .f-card-ic{fill:#E4572E}#f-card3 .f-card-ic{fill:#3FA77A}
-.f-card-a{font:800 17px var(--display);fill:var(--film-ink)}
-.f-card-b{font:500 13px var(--body);fill:var(--film-muted)}
-.f-coin{fill:#F2C14E;stroke:#B8860B;stroke-width:2}
+.f-city.de{fill:var(--film-de-text)}.f-city.es{fill:var(--film-es-text)}
+
+/* scenes 4 to 7: the phone and what is on it */
+.f-phone-body{fill:var(--film-phone);filter:drop-shadow(0 10px 18px rgb(0 0 0 / .45))}
+.f-phone-edge{fill:none;stroke:var(--film-phone-edge);stroke-width:2}
+.f-screen{fill:var(--film-screen)}
+.f-notch{fill:var(--film-phone)}
+.f-card2{fill:var(--film-card2);stroke:var(--film-hair);stroke-width:2}
+.f-card2.me{fill:var(--film-de-soft);stroke:var(--film-de)}
+.f-eyebrow{font:800 10px var(--body);letter-spacing:.12em;text-anchor:middle;fill:var(--film-muted2)}
+.f-word2{font:700 30px var(--display);fill:var(--film-ink2);text-anchor:middle}
+.f-der{fill:var(--film-der)}
+.f-mean{font:600 15px var(--body);fill:var(--film-muted2);text-anchor:middle}
+.f-spk{fill:var(--film-de)}.f-spk-s{fill:var(--film-de)}
+.f-arc{fill:none;stroke:var(--film-de);stroke-width:2.6;stroke-linecap:round;opacity:0}
+.f-tiny{font:600 10px var(--body);fill:var(--film-muted2)}
+.f-tiny.c,.f-title-s.c,.c{text-anchor:middle}
+.f-tiny.ok{fill:var(--film-ok)}
+.f-tiny.w{fill:var(--film-white)}
+.f-title-s{font:700 15px var(--display);fill:var(--film-ink2)}
+.f-trk{fill:var(--film-hair)}
+.f-fill{fill:var(--film-de)}
+.f-q{font:700 16px var(--display);fill:var(--film-ink2);text-anchor:middle}
+.f-tile{fill:var(--film-card2);stroke:var(--film-hair);stroke-width:2}
+.f-tile-ok{fill:var(--film-ok-bg);stroke:var(--film-de);stroke-width:2.5}
+.f-tile-t{font:700 16px var(--display);fill:var(--film-ink2)}
+.f-btn{fill:var(--film-de)}
+.f-btn-edge{fill:var(--film-ink2);opacity:.35}
+.f-btn-edge.ok{fill:var(--film-ok);opacity:.5}
+.f-btn.ok{fill:var(--film-de)}
+.f-btn-t{font:700 16px var(--display);fill:var(--film-white);text-anchor:middle}
+.f-btn-s{font:700 11px var(--body);fill:var(--film-white);text-anchor:middle;opacity:.9}
+.f-banner{fill:var(--film-ok-bg)}
+.f-ok-t{font:700 17px var(--display);fill:var(--film-ok)}
+.f-xp{fill:var(--film-sun)}
+.f-xp-t{font:800 13px var(--display);fill:var(--film-bg2);text-anchor:middle}
+.f-dot{fill:var(--film-muted2);opacity:.7}
+.f-bubl{fill:var(--film-card2);stroke:var(--film-hair);stroke-width:2}
+.f-bubr{fill:var(--film-de)}
+.f-bt{font:600 12.5px var(--body);fill:var(--film-ink2)}
+.f-bt.w{fill:var(--film-white)}
+.f-bt.c{text-anchor:middle}
+.f-miss{text-decoration:underline;text-decoration-color:var(--film-sun);text-decoration-thickness:2px;text-underline-offset:3px}
+.f-chipok{fill:var(--film-ok-bg);stroke:var(--film-de);stroke-width:1.5}
+.f-okdot{fill:var(--film-de)}
+.f-chip-s{font:700 11.5px var(--body);fill:var(--film-ok)}
+.f-divider{stroke:var(--film-hair);stroke-width:2;fill:none}
+.f-input{fill:var(--film-screen);stroke:var(--film-hair);stroke-width:2}
+.f-mic{fill:var(--film-de)}
+.f-ring-mic{fill:none;stroke:var(--film-de);stroke-width:3;opacity:0}
+.f-ill-bg{fill:var(--film-es-soft)}
+.f-ill-floor{fill:var(--film-hair)}
+.f-awn0{fill:var(--film-red)}.f-awn1{fill:var(--film-card2)}
+.f-sw{font:600 22px var(--display);fill:var(--film-ink2)}
+.f-sw.es{fill:var(--film-es-text)}
+.f-hi{fill:var(--film-es-soft)}
+.f-dots{stroke:var(--film-es);stroke-width:2.5;stroke-dasharray:1 5;stroke-linecap:round;fill:none}
+.f-pop{fill:var(--film-ink2)}
+.f-pop-t{font:700 14px var(--display);fill:var(--film-white);text-anchor:middle}
+.f-pop-s{font:600 10px var(--body);fill:var(--film-hair);text-anchor:middle}
+.f-pdot{fill:var(--film-hair)}.f-pdot.on{fill:var(--film-de)}
+.f-rw{font:700 15px var(--display);fill:var(--film-ink2)}
+.f-baddot{fill:var(--film-bad-bg);stroke:var(--film-bad);stroke-width:1.5}
+.f-bang{font:800 14px var(--display);fill:var(--film-bad);text-anchor:middle}
+.f-rank{font:800 14px var(--display);fill:var(--film-muted2)}
+.f-lname{font:700 13px var(--body);fill:var(--film-ink2)}
+.f-lxp{font:700 12px var(--body);fill:var(--film-muted2);font-variant-numeric:tabular-nums}
+.f-duel{fill:var(--film-ink2)}
+.f-duel-t{font:700 13px var(--display);fill:var(--film-white)}
+.f-bar0{fill:var(--film-de)}.f-bar1{fill:var(--film-es)}
+.f-tapc{fill:var(--film-de);opacity:0}
+
+/* scene 8: rewards */
+.f-pill{fill:var(--film-card);stroke:rgb(255 255 255 / .18);stroke-width:2}
+.f-pill-t{font:800 18px var(--display);fill:var(--film-ink)}
+.f-coin{fill:var(--chest-coin);stroke:var(--chest-coin2);stroke-width:2}
+.f-coin-in{fill:none;stroke:var(--chest-coin2);stroke-width:1.5}
 .f-num{font:800 44px var(--display);fill:var(--film-ink)}
-.f-num-l{font:600 14px var(--body);fill:var(--film-muted)}
+.f-num-l{font:600 14px var(--body);fill:var(--film-muted);text-anchor:middle}
+.f-sdot{fill:var(--film-card);stroke:rgb(255 255 255 / .2);stroke-width:1.5}
+.f-sdot.on{fill:var(--film-flame);stroke:none}
+
+/* scene 9: the route */
+.f-hills{fill:var(--film-frond);opacity:.55}
 .f-route{fill:none;stroke:url(#f-grad);stroke-width:9;stroke-linecap:round;stroke-linejoin:round}
-.f-rst{fill:var(--film-bg);stroke:#fff;stroke-width:4;transition:fill .3s}
-.f-rst.lit{fill:#F0B42C}
+.f-route-glow{fill:none;stroke:var(--film-sun);stroke-width:22;stroke-linecap:round;stroke-linejoin:round;opacity:.16}
+.f-rst{fill:var(--film-bg);stroke:var(--film-white);stroke-width:4;transition:fill .25s}
+.f-rst.lit{fill:var(--film-sun)}
 .f-rlb{font:800 15px var(--body);fill:var(--film-ink)}
-.cf0{fill:#F0B42C}.cf1{fill:var(--film-line)}.cf2{fill:#E4572E}.cf3{fill:#fff}
-.f-end{font:800 32px var(--display);text-anchor:middle}
-.f-end.de{fill:#5CC3CD}.f-end.es{fill:#F4C657}.f-end.en{font-size:22px;fill:var(--film-ink)}
-/* Pip in the film takes the German line color for its body */
+.f-ck{fill:var(--film-card);stroke:rgb(255 255 255 / .3);stroke-width:1.5;transition:fill .25s}
+.f-ck.lit{fill:var(--film-sun);stroke:none}
+.f-crown{fill:var(--film-sun);stroke:var(--film-gold);stroke-width:2;stroke-linejoin:round}
+.cf0{fill:var(--film-sun)}.cf1{fill:var(--film-line)}.cf2{fill:var(--film-red)}.cf3{fill:var(--film-white)}.cf4{fill:var(--film-rose)}
+
+/* scene 10: the end */
+.f-end{font:800 38px var(--display);text-anchor:middle}
+.f-end.de{fill:var(--film-de-text)}.f-end.es{fill:var(--film-es-text)}.f-end.en{font-size:24px;fill:var(--film-ink)}
+.f-brand-t{font:700 20px var(--display);fill:var(--film-ink)}
+
 /* onboarding film card */
 .film-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;padding:12px 14px;border-radius:var(--r-lg);background:var(--film-bg);color:var(--film-ink);font:inherit;box-shadow:var(--shadow);transition:transform .15s var(--ease)}
 .film-card:active{transform:scale(.98)}
-.fc-thumb{position:relative;display:grid;place-items:center;width:72px;height:64px;border-radius:var(--r-md);background:radial-gradient(circle at 50% 60%, rgb(47 163 174 / .45), transparent 70%)}
+.fc-thumb{position:relative;display:grid;place-items:center;width:72px;height:64px;border-radius:var(--r-md);background:radial-gradient(circle at 50% 60%, rgb(67 191 115 / .45), transparent 70%)}
 .fc-play{position:absolute;right:-4px;bottom:-4px;width:28px;height:28px;border-radius:50%;background:#fff;color:var(--film-bg);display:grid;place-items:center}
 .fc-play svg{width:14px;height:14px;margin-left:2px}
 .fc-text{display:flex;flex-direction:column;gap:2px}

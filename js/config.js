@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.18.0';
+const APP_VERSION = '4.19.0';
 const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,6 +12,10 @@ const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.19.0', date: '2026-10-14', title: 'A new intro film', notes: [
+    'The intro film is rebuilt, and it’s timed to the beat of the theme song.',
+    'It now shows what Parlance has become: your bird and the four others you can pick, lessons that teach as you go with natural voices, the Talk tutor, stories you can tap through, Review, the Friends league and the A1 to C2 route.',
+    'Watch it any time from Me.'] },
   { v: '4.17.0', date: '2026-10-14', title: 'Open in Claude, ChatGPT or Gemini', notes: [
     'On the web version, Talk, Lessons on demand and Me now have a button that opens Parlance in Claude, where the tutor lives.',
     'Pick a Talk scene and open it in Claude, ChatGPT or Gemini. The prompt sets the language, your level and the role, and asks for a correction after each message.',

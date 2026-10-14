@@ -88,6 +88,14 @@
   --chest-gem:#25B8B0; --chest-gem2:#13837D; --chest-glow:#FFD86B; --chest-shadow:var(--pip-shadow);
   /* intro film (always dark, like a cinema) */
   --film-bg:#10241A; --film-ink:#F3FAF0; --film-muted:#A3BFA9; --film-card:#1A3A28; --film-line:#43BF73;
+  --film-bg2:#0A1A12; --film-mid:#1B4A31; --film-frond:#14301F; --film-frond2:#1C4029;
+  --film-de:#43BF73; --film-de-text:#6FD796; --film-es:#FF9D45; --film-es-text:#FFB877;
+  --film-sun:#FFD84F; --film-flame:#FF6A4D; --film-spark:#FFF4C4; --film-white:#FFFFFF;
+  --film-red:#E4572E; --film-rose:#E25E9A; --film-leaf:#3FA77A; --film-mango:#F0B42C;
+  /* the phone in the film shows the app in its light theme, whatever the learner's theme is */
+  --film-phone:#0B1510; --film-phone-edge:#2C4A38; --film-screen:#F3F7EC; --film-card2:#FFFFFF; --film-ink2:#15301F; --film-muted2:#4F6B57;
+  --film-hair:#D6E3CF; --film-de-soft:#DDF1E3; --film-es-soft:#FFE9D2; --film-ok-bg:#DDF4E4; --film-ok:#11643A; --film-bad:#A3231B; --film-bad-bg:#FFE3DE;
+  --film-der:#2360C6; --film-gold:#B8860B;
   --line:var(--de); --line-ink:var(--de-ink); --line-text:var(--de-text); --line-soft:var(--de-soft); --line-glow:var(--de-glow); --line-edge:var(--de-edge); --line-soft-edge:var(--de-soft-edge);
 }
 @media (prefers-color-scheme: dark){
