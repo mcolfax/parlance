@@ -9,6 +9,7 @@ function viewTalk(){
     h('section', { class: 'talk-intro' }, h('div', { class: 'grow' }, h('h1', null, 'Talk with your tutor'), h('p', { class: 'muted' }, 'Real back-and-forth in ' + LANGS[lang].name + '. The cast plays each scene, answers out loud, corrects every message, and can save fixes to your review deck.'),
       h('div', { class: 'av-stack big' }, castOf(lang).map(id => avatar(id, 38))))));
   if (!AI.ready){ v.append(h('p', { class: 'status' }, 'Checking tutor access…')); return v; }
+  if (!aiOn() && Web.on) return webTalk(v, lang, lv);
   if (!aiOn()){ v.append(h('div', { class: 'empty' }, pip('shrug', 72, { tap: false })), h('div', { class: 'notice' }, AI.denied ? 'Claude access is turned off for this page. ' : 'The tutor needs Claude. Open Parlance in the Claude app or on claude.ai while signed in. Lessons and reviews work without it. ', AI.denied ? h('button', { class: 'linkish', type: 'button', onclick: manageAccess }, 'Manage permissions') : null)); return v; }
   v.append(h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Level'), h('div', { class: 'chips' }, LEVELS.map(x => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(x === lv), onclick: () => { UI.talkLevel = x; render(); } }, x)))));
   const li = LEVELS.indexOf(lv);
@@ -21,6 +22,29 @@ function viewTalk(){
   })));
   v.append(h('section', { class: 'card' }, h('div', { class: 'dictate-coach' }, h('span', { class: 'coach-mic', html: IC.mic, 'aria-hidden': 'true' }),
     h('div', null, h('strong', null, 'Speak instead of typing'), h('p', { class: 'small muted' }, 'Tap the message box, switch your keyboard to ' + LANGS[lang].keyboard + ' with the globe key, and tap its mic. Add keyboards in iPhone Settings → General → Keyboard → Keyboards.')))));
+  return v;
+}
+/* The web version has no tutor, so each scene becomes a prompt for Claude, ChatGPT or Gemini. */
+function chatPrompt(sc, lang, level){
+  const L = LANGS[lang], c = cast(sc.cast[lang] || 'pip');
+  return 'Be my ' + L.name + ' conversation partner. I am an English speaker at CEFR level ' + level + '. ' + L.dialect + '\n' +
+    'Your name is ' + c.name + '. Roleplay: ' + sc.prompt + '\n' +
+    'Rules:\n- Write only in ' + L.name + ', at level ' + level + ' (' + LEVEL_GUIDE[level] + '). Keep each reply to 1 to 3 sentences and end with a question so I can answer.\n' +
+    '- After each message from me, first show a corrected version of what I wrote and a short English note on the main fix (or brief praise if it was right). Then give your reply, with an English translation in brackets.\n' +
+    '- I may type by dictation, so ignore missing punctuation and capitals. If I write in English, show me how to say it in ' + L.name + '.\n' +
+    'Start now with your first line.';
+}
+function webTalk(v, lang, lv){
+  v.append(h('div', { class: 'notice' }, h('strong', null, 'The tutor runs on Claude. '), 'Open Parlance in Claude for the full thing, or pick a scene below and practice it in Claude, ChatGPT or Gemini. Lessons and reviews work here as usual.'),
+    h('div', { class: 'field' }, openInClaude()));
+  v.append(h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Level'), h('div', { class: 'chips' }, LEVELS.map(x => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(x === lv), onclick: () => { UI.talkLevel = x; render(); } }, x)))));
+  const li = LEVELS.indexOf(lv);
+  v.append(h('div', { class: 'scen-grid' }, SCENARIOS.map(sc => {
+    const locked = sc.min && li < LEVELS.indexOf(sc.min), who = sc.cast[lang];
+    return h('button', { class: 'scen', type: 'button', disabled: locked, onclick: () => sheet(sc.title + ' · ' + lv, h('div', { class: 'ai-options' }, h('p', { class: 'small muted' }, 'Open this scene in a chat app. ' + cast(who).name + ' will play the part and correct each message.'), aiPicker(chatPrompt(sc, lang, lv))), [{ label: 'Close' }]) },
+      h('span', { class: 'scen-top' }, avatar(who, 40), h('span', { class: 'scen-who' }, cast(who).name)),
+      h('span', { class: 'st-title' }, sc.title), h('span', { class: 'st-meta' }, locked ? 'From ' + sc.min + ' up' : sc.desc));
+  })));
   return v;
 }
 function talkInstructions(){

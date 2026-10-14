@@ -1166,6 +1166,21 @@ async function main(){
     ok(W1.E('Web.on') && W1.E('Remote.ready') && W1.E('Remote.status') === 'local', 'web version runs signed out: ' + W1.E('Remote.status'));
     ok(W1.w.document.getElementById('update-banner'), 'live content reaches signed-out visitors');
     ok(!W1.E('aiOn()'), 'the tutor stays Claude-only on the web');
+    // the web version points at Claude, and can hand a scene or a lesson to Claude, ChatGPT or Gemini
+    for (const tab of ['talk', 'learn', 'me']){
+      W1.E('UI.tab=' + JSON.stringify(tab) + '; render()');
+      const app = W1.w.document.querySelector('#app');
+      ok([...app.querySelectorAll('a')].some(a => a.href === 'https://claude.ai/artifact/8ZNHqMUCms2THTSfDkTp72' && a.target === '_blank'), 'the ' + tab + ' tab links to Parlance in Claude on the web');
+    }
+    W1.E('UI.tab="talk"; render()');
+    W1.w.document.querySelector('.scen').click();
+    { const links = [...W1.w.document.querySelectorAll('.sheet .ai-picker a')].map(a => a.href);
+      ok(links.length === 3 && links[0].startsWith('https://claude.ai/new?q=') && links[1].startsWith('https://chatgpt.com/?q=') && links[2] === 'https://gemini.google.com/app', 'a Talk scene opens in Claude, ChatGPT or Gemini: ' + links.join(' ')); 
+      ok(decodeURIComponent(links[0].split('?q=')[1]).includes('German') && decodeURIComponent(links[0].split('?q=')[1]).includes('barista'), 'the scene prompt carries the language and the role'); }
+    [...W1.w.document.querySelectorAll('.sheet button')].find(b => b.textContent === 'Close').click(); await sleep(200);
+    W1.E('UI.tab="learn"; render()');
+    ok(W1.w.document.querySelectorAll('.gen .ai-picker a').length === 3, 'lessons on demand can be handed to a chat app on the web');
+    W1.E('UI.tab="me"; render()');
     W1.P.S.langs.de.done['de-1-1'] = { at: '2026-10-11', acc: 1, times: 1 }; W1.E('touch("de")');
     W1.E('UI.tab="me"; render()');
     ok(W1.w.document.querySelector('#sync-status').textContent.includes('Sign in to sync'), 'web sync copy when signed out');

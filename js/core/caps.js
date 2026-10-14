@@ -29,3 +29,22 @@ async function manageAccess(){
   toast('Open this page’s Permissions menu to turn Claude access back on.');
 }
 
+/* ----- open in a chat app: for the web version, which has no tutor of its own ----- */
+function copyThen(text, msg){ try { navigator.clipboard.writeText(text).then(() => toast(msg), () => toast('Couldn’t copy. Select the text and copy it.')); } catch (e) { toast('Couldn’t copy. Select the text and copy it.'); } }
+/* Buttons that open `prompt` (a string, or a function that returns one when tapped) in Claude, ChatGPT or Gemini.
+   They are plain links, so they also open from a Home Screen app. Gemini can't take a prompt in the link, so tapping it copies the prompt first. */
+function aiPicker(prompt){
+  const text = () => typeof prompt === 'function' ? prompt() : prompt;
+  return h('div', { class: 'ai-picker' }, AI_APPS.map(a => h('a', { class: 'btn btn-quiet btn-sm', href: a.url(text()), target: '_blank', rel: 'noopener',
+    onclick: e => { if (a.copy) copyThen(text(), 'Prompt copied. Paste it into ' + a.name + '.'); else e.currentTarget.href = a.url(text()); } }, a.name)));
+}
+/* The full tutor lives in Parlance on Claude. A plain link to it, for the web version. */
+function openInClaude(label){ return h('a', { class: 'btn btn-primary btn-sm', href: FRIENDS.links.claude, target: '_blank', rel: 'noopener' }, label || 'Open Parlance in Claude'); }
+/* What to show where the tutor is missing on the web version: the way into Claude, plus a prompt for any chat app. */
+function tutorOptions(what, prompt){
+  return h('div', { class: 'ai-options' },
+    h('p', { class: 'small muted' }, what + ' Claude runs it inside Parlance. Your progress is separate there; use a backup code in Me to bring it over.'),
+    openInClaude(),
+    prompt ? h('p', { class: 'small muted' }, 'Or hand it to a chat app instead:') : null,
+    prompt ? aiPicker(prompt) : null);
+}

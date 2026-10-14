@@ -120,8 +120,9 @@ function viewMe(){
     toggleRow('Speaking exercises', 'speaking', 'Say sentences out loud during lessons.'),
     toggleRow('Tutor grading', 'aiGrade', 'If a typed answer doesn’t match, Claude checks whether it’s still right and explains what’s different.')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Tutor access'),
-    h('p', { class: 'small muted' }, !AI.ready ? 'Checking…' : aiOn() ? 'Claude is available for conversations, new lessons and grading. Each use counts toward your own Claude usage.' : AI.denied ? 'Claude access is turned off for this page.' : 'Claude isn’t available here. Open Parlance in the Claude app or on claude.ai while signed in.'),
-    AI.denied ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: manageAccess }, 'Manage permissions') : null));
+    h('p', { class: 'small muted' }, !AI.ready ? 'Checking…' : aiOn() ? 'Claude is available for conversations, new lessons and grading. Each use counts toward your own Claude usage.' : AI.denied ? 'Claude access is turned off for this page.' : Web.on ? 'The tutor isn’t part of the web version.' : 'Claude isn’t available here. Open Parlance in the Claude app or on claude.ai while signed in.'),
+    AI.denied ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: manageAccess }, 'Manage permissions') : null,
+    Web.on ? tutorOptions('Conversations, new lessons and grading need the tutor.', null) : null));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Your progress is saved'),
     Web.on ? webAccountRow() : null,
     h('p', { class: 'sync-line small', id: 'sync-status' }, ...syncLine()),

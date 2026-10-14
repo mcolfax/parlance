@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.16.0';
+const APP_VERSION = '4.17.0';
 const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
@@ -12,6 +12,10 @@ const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.17.0', date: '2026-10-14', title: 'Open in Claude, ChatGPT or Gemini', notes: [
+    'On the web version, Talk, Lessons on demand and Me now have a button that opens Parlance in Claude, where the tutor lives.',
+    'Pick a Talk scene and open it in Claude, ChatGPT or Gemini. The prompt sets the language, your level and the role, and asks for a correction after each message.',
+    'Lessons on demand does the same for a lesson at your level on any topic. Gemini can’t take a prompt in a link, so Parlance copies it for you to paste.'] },
   { v: '4.16.0', date: '2026-10-14', title: 'Heads up', notes: [
     'Tilt your phone and the birds keep their heads level, the way a chicken does.',
     'It eases off when the phone is lying flat, and on iPhone it asks to use the motion sensor the first time you touch the screen.'] },
@@ -161,6 +165,13 @@ const FRIENDS = { links: { claude: 'https://claude.ai/artifact/8ZNHqMUCms2THTSfD
   duel: 7, answer: 3, keep: 7, history: 35, max: 30,
   metrics: { xp: { label: 'Most XP' }, goal: { label: 'Most goal days' }, lessons: { label: 'Most lessons' } },
   league: { xp: 'XP', goal: 'Goal days', streak: 'Streak' } };
+/* Chat apps a learner can hand a practice prompt to (js/core/caps.js, aiPicker). url(prompt) is the link that opens the
+   app. Claude and ChatGPT take the prompt in the link. Gemini can't, so copy: true copies it first for the learner to paste. */
+const AI_APPS = [
+  { id: 'claude', name: 'Claude', url: p => 'https://claude.ai/new?q=' + encodeURIComponent(p) },
+  { id: 'chatgpt', name: 'ChatGPT', url: p => 'https://chatgpt.com/?q=' + encodeURIComponent(p) },
+  { id: 'gemini', name: 'Gemini', url: () => 'https://gemini.google.com/app', copy: true }
+];
 /* ===================== LANGUAGES & LEVELS ===================== */
 const LANGS = {
   de: { code: 'de', name: 'German', native: 'Deutsch', tts: 'de-DE', prefs: ['de-DE', 'de-AT', 'de-CH', 'de'],

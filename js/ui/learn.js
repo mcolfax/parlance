@@ -185,6 +185,13 @@ function genSection(){
   if (gl.length) sec.append(stationList(gl, lang));
   const card = h('div', { class: 'card' });
   if (!AI.ready) card.append(h('p', { class: 'status' }, 'Checking tutor access…'));
+  else if (!aiOn() && Web.on){
+    const lv = UI.genLevel || currentLevel(lang); UI.genLevel = lv;
+    const topic = h('input', { class: 'input', id: 'gen-topic', type: 'text', placeholder: 'Topic (optional), e.g. renting a car', value: UI.genTopic, maxlength: '80', oninput: e => { UI.genTopic = e.target.value; } });
+    card.append(h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Level'), h('div', { class: 'chips' }, LEVELS.map(x => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(x === lv), onclick: () => { UI.genLevel = x; render(); } }, x)))),
+      h('div', { class: 'field' }, h('label', { for: 'gen-topic' }, 'Topic'), topic),
+      tutorOptions('Lessons on demand are written by Claude.', () => lessonPrompt(lang, UI.genLevel, UI.genTopic)));
+  }
   else if (!aiOn()) card.append(h('p', { class: 'notice' }, AI.denied ? 'Claude access is off for this page. Turn it on in Me → Tutor access to write new lessons.' : 'Writing lessons needs Claude. Open Parlance in the Claude app or on claude.ai while signed in.'));
   else {
     const lv = UI.genLevel || currentLevel(lang); UI.genLevel = lv;
@@ -199,6 +206,11 @@ function genSection(){
   }
   sec.append(card);
   return sec;
+}
+function lessonPrompt(lang, level, topic){
+  const L = LANGS[lang], t = (topic || '').trim();
+  return 'Write me a short ' + L.name + ' lesson at CEFR level ' + level + (t ? ' on this topic: ' + t : '') + '. I am an English speaker. ' + L.dialect + '\n' +
+    'Give: a one-paragraph tip on the key grammar; 6 to 8 vocabulary items (with the article for nouns) and their English meanings; 5 short example sentences with English translations; then 4 fill-in-the-blank questions with three options each. Put the answers at the very end so I can try first.';
 }
 function lessonToPlain(l){ return { title: l.title, tip: l.tip, vocab: l.vocab.map(v => ({ t: v.t, alt: v.alt, e: v.e, g: v.g })), sentences: l.sentences.map(s => ({ t: s.t, alt: s.alt, e: s.e })), blanks: l.blanks.map(b => ({ t: b.t, o: b.o, e: b.e })) }; }
 function sanitizeLesson(r, lang){

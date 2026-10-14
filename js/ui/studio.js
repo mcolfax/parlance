@@ -51,6 +51,7 @@ function studioFeedback(){
     h('div', { class: 'row' }, h('div', { class: 'grow' }, h('h3', null, fresh.length + ' new ' + plural(fresh.length, 'note')), h('p', { class: 'small muted' }, Studio.fb.length + ' total from ' + new Set(Studio.fb.map(f => f.uid)).size + ' ' + plural(new Set(Studio.fb.map(f => f.uid)).size, 'person', 'people') + (Studio.meta.lastSynthAt ? ' · last synthesized ' + new Date(Studio.meta.lastSynthAt).toLocaleDateString() : '')))),
     h('button', { class: 'btn btn-primary btn-wide' + (Studio.busy ? ' busy' : ''), type: 'button', disabled: Studio.busy || !fresh.length || !aiOn(), onclick: () => synthesize(false) }, ic('spark'), Studio.busy ? 'Claude is reading the feedback…' : 'Turn new feedback into proposals'),
     !aiOn() ? h('p', { class: 'small muted' }, 'Synthesis needs Claude access on this page.') : null,
+    !aiOn() && Web.on ? openInClaude('Open Parlance in Claude') : null,
     Studio.fb.length ? h('button', { class: 'linkish small', type: 'button', disabled: Studio.busy || !aiOn(), onclick: () => synthesize(true) }, 'Re-synthesize everything') : null));
   // difficulty signal from one-tap ratings
   if (ratings.length){
