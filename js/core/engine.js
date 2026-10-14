@@ -71,7 +71,7 @@ function bumpQuest(key, n, max){ const d = dayRec(); d.q = d.q || {}; d.q[key] =
 /* ===================== BADGES ===================== */
 const BADGE_MAP = new Map(BADGES.map(b => [b.id, b]));
 function checkBadges(ctx = {}){
-  const got = []; const both = ['de', 'es'];
+  const got = []; const both = LANG_IDS;
   const award = id => { if (!S.badges[id]){ S.badges[id] = today(); got.push(id); } };
   const lessons = both.map(l => Object.keys(S.langs[l].done).length);
   if (lessons.some(n => n > 0)) award('first');
@@ -204,14 +204,17 @@ function matchEx(lesson, idxs){ return { id: ++EXID, type: 'match', lang: lesson
 /* teaching cards sit in the lesson's queue between the exercises: a few new words, one bite of the lesson's idea, or the phrases about to be asked */
 function teachEx(lesson, mode, extra){ return Object.assign({ id: ++EXID, type: 'teach', mode, lang: lesson.lang, lesson }, extra); }
 const ARTICLES = new Set(['der', 'die', 'das', 'den', 'dem', 'ein', 'eine', 'el', 'la', 'los', 'las', 'un', 'una']);
-function lexToks(text, lang){ return String(text).split(/\s+/).map(p => coreWord(p)).filter(c => /\p{L}/u.test(c)).map(c => fold(norm(c, lang))); }
+const ARTICLES_IT = new Set(['il', 'lo', 'la', 'i', 'gli', 'le', 'un', 'uno', 'una', 'l']);
+function articlesFor(lang){ return lang === 'it' ? ARTICLES_IT : ARTICLES; }
+/* Italian elides an article or preposition before a vowel (l’amico, un’amica, dell’acqua): the word after it is the one to match */
+function lexToks(text, lang){ if (lang === 'it') text = String(text).replace(/(^|\s)(l|un|dell|all|dall|nell|sull|quest|quell)['’]/giu, '$1$2 '); return String(text).split(/\s+/).map(p => coreWord(p)).filter(c => /\p{L}/u.test(c)).map(c => fold(norm(c, lang))); }
 /* A lesson meets its words two or three at a time, and its idea in small bites placed between those groups.
    Nothing is asked before it has been shown: a phrase waits until every lesson word it uses has been taught, and arrives on a card
    (with the meaning of any form or extra word in it) just before its first question. */
 function buildLesson(lesson){
   const lang = lesson.lang, nV = lesson.vocab.length, nS = lesson.sentences.length, nB = Math.min(lesson.blanks.length, 3);
   const out = [], covered = new Set(), taught = new Set(), usedS = new Set(), usedB = new Set(), met = new Set(), shown = new Set();
-  const vk = lesson.vocab.map(v => { const k = lexToks(v.t, lang), c = k.filter(x => !ARTICLES.has(x)); return c.length ? c : k; });
+  const vk = lesson.vocab.map(v => { const k = lexToks(v.t, lang), c = k.filter(x => !articlesFor(lang).has(x)); return c.length ? c : k; });
   const sText = i => lesson.sentences[i].t, bText = i => blankSaid(lesson.blanks[i]);
   const ready = text => { const tk = lexToks(text, lang); return vk.every((k, i) => taught.has(i) || !k.every(x => tk.includes(x))); };
   const extras = lessonForms(lesson);
@@ -488,7 +491,7 @@ async function aiGrade(ex, answer){
   const toTarget = ex.ansLang !== 'en';
   const from = toTarget ? 'English' : lname, to = toTarget ? lname : 'English';
   const prompt = toTarget ? ex.item.e[0] : ex.item.t;
-  const rules = to === 'German' ? ' Wrong articles, cases, verb endings or word order make it incorrect.' : to === 'Spanish' ? ' Wrong gender agreement, mood or verb endings make it incorrect. Latin American Spanish is the standard; vosotros forms are not expected.' : ' Accept natural English paraphrases with the same meaning.';
+  const rules = to === 'German' ? ' Wrong articles, cases, verb endings or word order make it incorrect.' : to === 'Spanish' ? ' Wrong gender agreement, mood or verb endings make it incorrect. Latin American Spanish is the standard; vosotros forms are not expected.' : to === 'Italian' ? ' Wrong articles, gender or number agreement, auxiliary verbs (avere or essere), mood or verb endings make it incorrect.' : ' Accept natural English paraphrases with the same meaning.';
   const text = 'You grade one answer from a language learner. Be fair, and strict about grammar.\n' +
     'Task: translate this ' + from + ' text into ' + to + ': "' + prompt + '"\n' +
     'Reference answers: ' + ex.accepted.slice(0, 6).map(a => '"' + a + '"').join(', ') + '\n' +

@@ -8,7 +8,7 @@ function viewStories(){
   const cl = LEVELS.indexOf(currentLevel(lang));
   const v = h('div', { class: 'view' }, topBar(),
     h('section', { class: 'stories-intro' },
-      h('div', { class: 'grow' }, h('h1', null, 'Stories'), h('p', { class: 'muted' }, 'Short scenes from ' + (lang === 'de' ? 'a Berlin street' : 'a Mexico City neighborhood') + '. Tap any word for its meaning, hear every line, and answer as you go.')),
+      h('div', { class: 'grow' }, h('h1', null, 'Stories'), h('p', { class: 'muted' }, 'Short scenes from ' + ({ de: 'a Berlin street', es: 'a Mexico City neighborhood', it: 'a Rome neighborhood' }[lang]) + '. Tap any word for its meaning, hear every line, and answer as you go.')),
       pip('listen', 70, { cls: 'stories-pip' })),
     h('div', { class: 'cast-row' }, castOf(lang).map((id, i) => h('div', { class: 'cast-chip', style: '--i:' + i }, avatar(id, 46), h('div', { class: 'cc-text' }, h('b', null, CAST[id].name), h('span', { class: 'small muted' }, CAST[id].role))))),
     h('div', { class: 'row' }, h('span', { class: 'eyebrow' }, read + ' of ' + list.length + ' read'), h('span', { class: 'spacer' }), h('span', { class: 'bar-mini wide', 'aria-hidden': 'true' }, h('i', { style: 'width:' + Math.round(read / list.length * 100) + '%' }))));

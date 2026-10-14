@@ -373,7 +373,7 @@ const RENDER = {
   },
   'type-e2t'(ex, api){
     const box = answerBox(api, ex.lang, 'Type it in ' + LANGS[ex.lang].name);
-    const hint = ex.item.g ? (ex.lang === 'de' ? 'Include der, die or das.' : 'Include el, la, los or las.') : null;
+    const hint = ex.item.g ? ({ de: 'Include der, die or das.', es: 'Include el, la, los or las.', it: 'Include il, lo, la, i, gli or le.' }[ex.lang]) : null;
     return h('div', { class: 'ex' }, qLabel('Write this in ' + LANGS[ex.lang].name), h('div', { class: 'prompt en' }, ex.item.e[0]), hint ? h('p', { class: 'hint' }, hint) : null, box, charBar(box, ex.lang), hintLink(ex, ex.item.t));
   },
   'bank-e2t'(ex, api){

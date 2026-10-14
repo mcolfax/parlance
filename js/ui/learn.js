@@ -3,6 +3,7 @@
 function greetingWord(lang){
   const hr = new Date().getHours();
   if (lang === 'de') return hr < 11 ? 'Guten Morgen' : hr < 18 ? 'Guten Tag' : 'Guten Abend';
+  if (lang === 'it') return hr < 13 ? 'Buongiorno' : hr < 18 ? 'Buon pomeriggio' : 'Buonasera';
   return hr < 12 ? 'Buenos días' : hr < 19 ? 'Buenas tardes' : 'Buenas noches';
 }
 function topBar(){
@@ -11,7 +12,7 @@ function topBar(){
     h('div', { class: 'brand' }, h('span', { class: 'mark', 'aria-hidden': 'true' }, h('i'), h('i')), h('span', { class: 'brand-name' }, 'Parlance')),
     MEDIA.song ? musicBtn() : null,
     h('div', { class: 'seg', role: 'group', 'aria-label': 'Language' },
-      ['de', 'es'].map(l => h('button', { type: 'button', 'aria-pressed': String(lang === l), onclick: () => setLang(l) }, LANGS[l].native))));
+      LANG_IDS.map(l => h('button', { type: 'button', 'aria-pressed': String(lang === l), onclick: () => setLang(l) }, LANGS[l].native))));
 }
 /* The music switch, on every tab's top bar. Turning it on starts the song right away (the tap counts as permission to play). */
 function musicBtn(){
@@ -58,7 +59,7 @@ function heroCard(){
   const where = nx.core ? 'Unit ' + (nx.unit + 1) + ' · ' + COURSE[lang].units[nx.unit].title : 'Your lessons';
   const started = Object.keys(S.langs[lang].done).length > 0;
   const mood = pipMoodNow();
-  const say = mood === 'wow' ? (lang === 'de' ? 'Deine Serie!' : '¡Tu racha!') : mood === 'cheer' ? pickSay(lang, 'cheer') : pipHello(lang);
+  const say = mood === 'wow' ? ({ de: 'Deine Serie!', es: '¡Tu racha!', it: 'La tua serie!' }[lang]) : mood === 'cheer' ? pickSay(lang, 'cheer') : pipHello(lang);
   // Pip waves hello and mouths its line when you come to Learn, and through the redraws right after (sync, profile), not on every redraw
   if (UI.animate) UI.helloAt = Date.now();
   const arriving = Date.now() - UI.helloAt < 1500;
@@ -218,7 +219,7 @@ function sanitizeLesson(r, lang){
   const str = x => typeof x === 'string' ? x.trim() : '';
   const arr = x => Array.isArray(x) ? x : [];
   const strs = x => typeof x === 'string' ? [x.trim()].filter(Boolean) : arr(x).map(str).filter(Boolean);
-  const arts = { de: { der: 'm', die: 'f', das: 'n' }, es: { el: 'm', la: 'f', los: 'pl', las: 'pl' } }[lang];
+  const arts = { de: { der: 'm', die: 'f', das: 'n' }, es: { el: 'm', la: 'f', los: 'pl', las: 'pl' }, it: { il: 'm', lo: 'm', la: 'f', i: 'pl', gli: 'pl', le: 'pl' } }[lang];
   const vocab = arr(r.vocab).map(v => {
     const t = str(v && v.t); const e = [...new Set(strs(v && v.e))].slice(0, 6);
     if (!t || !e.length) return null;
@@ -245,13 +246,15 @@ async function runGenerate(){
   const example = JSON.stringify(lessonToPlain(coreOrder(lang).find(l => l.level === level) || coreOrder(lang)[9]));
   const nounRule = lang === 'de'
     ? 'Nouns include their article in "t" (der/die/das, or die for plurals) and set "g" to "m", "f", "n" or "pl"; every other word sets "g": null.'
+    : lang === 'it'
+    ? 'Nouns include their article in "t" (il/lo/la/i/gli/le, with a space after it; skip the article for nouns that start with a vowel and take l’) and set "g" to "m", "f" or "pl"; every other word sets "g": null.'
     : 'Nouns include their article in "t" (el/la/los/las) and set "g" to "m", "f" or "pl"; every other word sets "g": null.';
   const prompt = 'Write one new ' + L.name + ' lesson for an English-speaking learner at CEFR level ' + level + ' (' + LEVEL_GUIDE[level] + '). ' + L.dialect + '\n' +
     'Topic: ' + (topic || 'choose a useful topic that fits the level and is not already covered') + '.\n' +
     'Words the learner already knows (build on them; do not teach them again as new vocabulary): ' + knownList + '\n' +
     'Existing lesson titles (do not duplicate): ' + titles + '\n' +
     'Requirements:\n' +
-    '- Native-speaker accuracy. Every ' + L.name + ' string must be correct, natural and fully accented' + (lang === 'de' ? ' (umlauts and ß)' : '') + '.\n' +
+    '- Native-speaker accuracy. Every ' + L.name + ' string must be correct, natural and fully accented' + (lang === 'de' ? ' (umlauts and ß)' : lang === 'it' ? ' (accents on è, é, à, ì, ò, ù)' : '') + '.\n' +
     '- "title": a short English title, at most 5 words.\n' +
     '- "vocab": 8 new items suited to ' + level + '. ' + nounRule + ' "e" lists 1-4 accepted English translations, most common first; verbs start with "to". "alt" lists other correct ' + L.name + ' forms, often empty.\n' +
     '- "sentences": 5 example sentences that use the new vocab, each with "e" listing 3-6 accepted English translations covering natural variants, and "alt" listing other correct ' + L.name + ' versions.\n' +

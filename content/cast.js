@@ -30,5 +30,17 @@ const CAST = {
             look: { skin: '#8A5A3C', hair: '#1E1B1A', style: 'braids', ribbon: '#FFD23F', shirt: '#00737D', bg: '#D6F0EC', earrings: true } },
   andres: { name: 'Andrés', lang: 'es', role: 'Runs a family hotel downtown', pitch: 0.9, rate: 0.96,
             look: { skin: '#B07A52', hair: '#2B1D18', style: 'side', shirt: '#8E3B46', bg: '#F6E1E4', mustache: true } },
+  giulia: { name: 'Giulia', lang: 'it', role: 'Runs a tiny café-bar in Rome', pitch: 1.1, rate: 1.0,
+            look: { skin: '#EBC09A', hair: '#4A2C20', style: 'long', shirt: '#E0A53A', bg: '#FAEDCB', earrings: true } },
+  luca:   { name: 'Luca', lang: 'it', role: 'Student, delivers by scooter at night', pitch: 0.94, rate: 1.0,
+            look: { skin: '#E3B48E', hair: '#2B1D18', style: 'messy', shirt: '#3D7D4F', bg: '#E1F0E5', freckles: true } },
+  nonna:  { name: 'Nonna Rosa', lang: 'it', role: 'Retired teacher, everyone’s nonna', pitch: 1.02, rate: 0.9,
+            look: { skin: '#EBC9AE', hair: '#D4D4D4', style: 'bun', shirt: '#7847B3', bg: '#E9E0F5', glasses: true, earrings: true } },
+  marco:  { name: 'Marco', lang: 'it', role: 'Runs the deli and a market stall', pitch: 0.86, rate: 1.0,
+            look: { skin: '#D9A27A', hair: '#3A2A20', style: 'short', shirt: '#F4F1EA', bg: '#FDEBD2', mustache: true } },
+  conti:  { name: 'Dottoressa Conti', lang: 'it', role: 'Doctor, lives upstairs', pitch: 1.06, rate: 0.96,
+            look: { skin: '#F0C9AE', hair: '#5A3A2A', style: 'bob', shirt: '#4A7FB5', bg: '#E1ECF6', glasses: true } },
+  bianchi: { name: 'Signor Bianchi', lang: 'it', role: 'Runs a family pensione near the station', pitch: 0.82, rate: 0.94,
+            look: { skin: '#E9BE9C', hair: '#C4C4C4', style: 'side', shirt: '#5B4A7A', bg: '#E8E3F0', mustache: true, tie: '#E9A23B' } },
   pip:    { name: 'Pip', lang: '*', role: 'Your parrot and travel buddy', pitch: 1.35, rate: 1.0 }
 };

@@ -46,18 +46,19 @@ function osa(a, b){
   }
   return d[m][n];
 }
-let KNOWN = { de: new Set(), es: new Set(), en: new Set() };
+let KNOWN = { ...Object.fromEntries(LANG_IDS.map(l => [l, new Set()])), en: new Set() };
 let NOUNS = new Map();
 const COMMON = {
   de: 'der die das den dem des ein eine einen einem einer eines kein keine keinen mein meine meinen meinem meiner dein deine deinen sein seine seinen ihr ihre ihren unser unsere unseren ich du er sie es wir mich dich mir dir ihm ihn uns euch bin bist ist sind seid habe hast hat haben habt war waren wird werden kann kannst können muss nicht noch auch aber oder und mit nach von bei aus zum zur',
   es: 'el la los las un una unos unas mi mis tu tus su sus yo tú él ella nosotros nosotras ellos ellas usted ustedes es son está están estoy estás soy eres somos tengo tiene tienes tienen hay muy más pero porque para por con sin del al que qué',
+  it: 'il lo la i gli le un uno una di a da in con su per tra fra del dello della dei degli delle al allo alla ai agli alle dal dallo dalla dai dagli dalle nel nello nella nei negli nelle sul sullo sulla io tu lui lei noi voi loro mi ti ci vi si è sono sei siamo siete ho hai ha abbiamo avete hanno e o ma che non più molto anche come se qui qua lì là',
   en: 'he she his her him the a an is are was were me my you your we our they their them it its this that these those in on at to for of from with and or but not no yes there where were here hear have has had will would can could do does did'
 };
 function reindex(){
-  KNOWN = { de: new Set(), es: new Set(), en: new Set() };
+  KNOWN = { ...Object.fromEntries(LANG_IDS.map(l => [l, new Set()])), en: new Set() };
   NOUNS = new Map();
   const addT = (lang, s) => fold(norm(s, lang)).split(' ').forEach(w => w && KNOWN[lang].add(w));
-  for (const lang of ['de', 'es']){
+  for (const lang of LANG_IDS){
     COMMON[lang].split(' ').forEach(w => KNOWN[lang].add(fold(w)));
     for (const l of allLessons(lang)){
       for (const v of l.vocab){
@@ -69,8 +70,8 @@ function reindex(){
     }
   }
   COMMON.en.split(' ').forEach(w => KNOWN.en.add(w));
-  GLOSS = { de: { exact: new Map(), fold: new Map() }, es: { exact: new Map(), fold: new Map() } };
-  for (const lang of ['de', 'es']){
+  GLOSS = Object.fromEntries(LANG_IDS.map(l => [l, { exact: new Map(), fold: new Map() }]));
+  for (const lang of LANG_IDS){
     for (const l of allLessons(lang)) for (const v of l.vocab){
       const val = v.e.slice(0, 2).join(' · ');
       for (const t of [v.t, ...v.alt]){
@@ -86,10 +87,10 @@ function reindex(){
   const names = Object.values(CAST).map(c => c.name.split(' ').pop());
   for (const c of Object.values(CAST)){
     const who = c.name + ' · ' + (names.some(n => c.role.startsWith(n)) ? c.role : c.role[0].toLowerCase() + c.role.slice(1));
-    for (const lang of c.lang === '*' ? ['de', 'es'] : [c.lang]) for (const part of c.name.split(' ')) if (!COMMON_GLOSS[lang][part.toLowerCase()]) addGloss(lang, part, who);
+    for (const lang of c.lang === '*' ? LANG_IDS : [c.lang]) for (const part of c.name.split(' ')) if (!COMMON_GLOSS[lang][part.toLowerCase()]) addGloss(lang, part, who);
   }
 }
-let GLOSS = { de: { exact: new Map(), fold: new Map() }, es: { exact: new Map(), fold: new Map() } };
+let GLOSS = Object.fromEntries(LANG_IDS.map(l => [l, { exact: new Map(), fold: new Map() }]));
 function addGloss(lang, key, val, over){
   const k = norm(key, lang); if (!k) return; const G = GLOSS[lang];
   if (over || !G.exact.has(k)) G.exact.set(k, val);
@@ -100,6 +101,10 @@ function glossLookup(word, lang){
   const k = norm(word, lang); if (!k) return null;
   const hit = G.exact.get(k) || G.fold.get(fold(k));
   if (hit) return { val: hit };
+  if (lang === 'it'){   // l’amico, un’amica, dell’acqua: the word after the elision has its own meaning
+    const el = /^(?:l|un|dell|all|dall|nell|sull|quest|quell|c|d|m|t|s|v|n|ch|com|dov|cos|nessun|buon|sant)['’]([\p{L}]{2,})$/iu.exec(String(word).normalize('NFC').replace(/^[¿¡"“„«(]+|[.,!?;:"“”»)…]+$/g, ''));
+    if (el){ const r = glossLookup(el[1], lang); if (r) return r.base ? r : { val: r.val, base: norm(el[1], lang) }; }
+  }
   const bases = baseForms(k, lang).filter(b => b.length >= 3 && b !== k);
   for (const b of bases){ const v = G.exact.get(b); if (v) return { val: v, base: b }; }
   if (lang !== 'de') for (const b of bases){ const v = G.fold.get(fold(b)); if (v) return { val: v, base: b }; }   // in German an umlaut changes the word (Küche, Kuchen)
@@ -114,6 +119,11 @@ function baseForms(k, lang){
     ['e', 'st', 't', 'et', 'est', 'te', 'ten', 'test', 'tet'].forEach(x => cut(x, 'en'));
     const ge = k.match(/^(an|auf|aus|ein|mit|vor|zu|ab|zurück|weg|her|hin|los|nach|vorbei|rein|raus)?ge(.{3,})$/);
     if (ge){ const pre = ge[1] || '', rest = ge[2]; out.push(pre + rest); if (rest.endsWith('et')) out.push(pre + rest.slice(0, -2) + 'en'); if (rest.endsWith('t')) out.push(pre + rest.slice(0, -1) + 'en'); }
+  } else if (lang === 'it'){
+    [['i', 'o'], ['e', 'a'], ['i', 'e'], ['he', 'a'], ['hi', 'o'], ['ci', 'co'], ['gi', 'go'], ['ghe', 'ga'], ['che', 'ca']].forEach(([x, a]) => cut(x, a));
+    for (const x of ['o', 'i', 'a', 'e', 'iamo', 'ate', 'ete', 'ite', 'ano', 'ono', 'ato', 'uto', 'ito', 'ata', 'uta', 'ita', 'ati', 'uti', 'iti', 'ate', 'ando', 'endo', 'avo', 'avi', 'ava', 'avamo', 'avate', 'avano', 'evo', 'evi', 'eva', 'evamo', 'evate', 'evano', 'ivo', 'ivi', 'iva', 'ivamo', 'ivate', 'ivano', 'erò', 'erà', 'eremo', 'erete', 'eranno', 'irò', 'irà', 'irai', 'iremo', 'irete', 'iranno', 'ai', 'ò', 'ammo', 'asti', 'arono', 'ei', 'etti', 'esti', 'emmo', 'este', 'erono', 'ii', 'isti', 'immo', 'irono'])
+      if (k.endsWith(x) && k.length - x.length >= 2) for (const inf of ['are', 'ere', 'ire']) out.push(k.slice(0, -x.length) + inf);
+    for (const x of ['mi', 'ti', 'si', 'ci', 'vi', 'lo', 'la', 'li', 'le', 'ne']) if (k.endsWith(x) && k.length - x.length >= 3) out.push(k.slice(0, -x.length) + 'e', k.slice(0, -x.length));
   } else {
     [['es', ''], ['s', ''], ['as', 'o'], ['a', 'o']].forEach(([x, a]) => cut(x, a));
     for (const x of ['o', 'as', 'a', 'amos', 'an', 'es', 'e', 'emos', 'en', 'imos', 'ó', 'é', 'aste', 'aron', 'ió', 'iste', 'ieron', 'aba', 'abas', 'ábamos', 'aban', 'ía', 'ías', 'íamos', 'ían', 'ando', 'iendo', 'ado', 'ada', 'ados', 'adas', 'ido', 'ida', 'idos', 'idas'])

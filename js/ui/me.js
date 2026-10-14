@@ -134,7 +134,7 @@ function viewMe(){
   v.append(h('div', { class: 'row wrap center' },
     h('button', { class: 'linkish', type: 'button', onclick: () => openOnboarding(true) }, 'Change language or level'),
     h('button', { class: 'linkish danger', type: 'button', onclick: resetLang }, 'Reset ' + LANGS[lang].name + ' progress')));
-  v.append(h('p', { class: 'small muted center' }, 'German is ' + LANGS.de.variety + '. Spanish is ' + LANGS.es.variety + ' (ustedes, no vosotros).'));
+  v.append(h('p', { class: 'small muted center' }, 'German is ' + LANGS.de.variety + '. Spanish is ' + LANGS.es.variety + ' (ustedes, no vosotros). Italian is ' + LANGS.it.variety + '.'));
   return v;
 }
 /* your account's photo, else your initials, else a person: never a letter that isn't yours */

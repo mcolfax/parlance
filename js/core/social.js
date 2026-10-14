@@ -48,8 +48,8 @@ const inboxPath = (uid, secret) => 'inbox/' + uid + '/' + secret;
 function inviteLink(){ return socialHome() === 'w' ? FRIENDS.links.web + '?friend=' + encodeURIComponent(myCode()) : FRIENDS.links.claude; }
 function inviteText(){
   return socialHome() === 'w'
-    ? 'Learn German and Spanish with me on Parlance! Open this link and we’ll be friends:\n' + inviteLink() + '\n\nOr paste this in Friends → I have an invite:\n' + myCode()
-    : 'Learn German and Spanish with me on Parlance! Open ' + inviteLink() + ', go to Friends, tap “I have an invite” and paste this:\n' + myCode();
+    ? 'Learn languages with me on Parlance! Open this link and we’ll be friends:\n' + inviteLink() + '\n\nOr paste this in Friends → I have an invite:\n' + myCode()
+    : 'Learn languages with me on Parlance! Open ' + inviteLink() + ', go to Friends, tap “I have an invite” and paste this:\n' + myCode();
 }
 
 /* ----- friends ----- */
@@ -78,7 +78,7 @@ function duelLive(d){
 }
 function buildCard(){
   const so = S.social; const langs = {};
-  for (const l of ['de', 'es']){ const L = S.langs[l]; const lessons = Object.keys(L.done).length; if (lessons || L.xp) langs[l] = { level: currentLevel(l), xp: L.xp || 0, lessons, words: wordCount(l) }; }
+  for (const l of LANG_IDS){ const L = S.langs[l]; const lessons = Object.keys(L.done).length; if (lessons || L.xp) langs[l] = { level: currentLevel(l), xp: L.xp || 0, lessons, words: wordCount(l) }; }
   const duels = Object.values(so.duels).filter(d => d && (d.a === Remote.uid || d.b === Remote.uid) && duelLive(d))
     .map(d => ({ id: d.id, a: d.a, b: d.b, metric: d.metric, at: d.at, state: d.state, start: d.start || '', end: d.end || '' }));
   const cheers = {}; const since = addDays(today(), -FRIENDS.keep);
@@ -93,7 +93,7 @@ function cleanCard(d){
   const str = (x, n) => typeof x === 'string' ? x.slice(0, n) : '';
   const day = x => typeof x === 'string' && /^\d{4}-\d\d-\d\d$/.test(x) ? x : '';
   const days = {}; for (const [k, v] of Object.entries(obj(d.days)).slice(0, 400)) if (day(k) && Array.isArray(v)) days[k] = [num(v[0], 100000), num(v[1], 1000), v[2] ? 1 : 0];
-  const langs = {}; for (const l of ['de', 'es']){ const x = obj(d.langs)[l]; if (x && typeof x === 'object') langs[l] = { level: LEVELS.includes(x.level) ? x.level : 'A1', xp: num(x.xp, 1e8), lessons: num(x.lessons, 1e5), words: num(x.words, 1e6) }; }
+  const langs = {}; for (const l of LANG_IDS){ const x = obj(d.langs)[l]; if (x && typeof x === 'object') langs[l] = { level: LEVELS.includes(x.level) ? x.level : 'A1', xp: num(x.xp, 1e8), lessons: num(x.lessons, 1e5), words: num(x.words, 1e6) }; }
   const duels = (Array.isArray(d.duels) ? d.duels : []).slice(0, 100).filter(x => x && typeof x === 'object' && typeof x.id === 'string' && FRIENDS.metrics[x.metric])
     .map(x => ({ id: str(x.id, 40), a: str(x.a, 200), b: str(x.b, 200), metric: x.metric, at: num(x.at, 1e14), state: ['pending', 'on', 'declined', 'cancelled', 'done', 'closed'].includes(x.state) ? x.state : 'pending', start: day(x.start), end: day(x.end) }));
   const cheers = {}; for (const [k, v] of Object.entries(obj(d.cheers)).slice(0, 200)) if (day(v)) cheers[k] = v;

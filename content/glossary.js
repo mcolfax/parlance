@@ -21,11 +21,13 @@ const COMMON_GLOSS = {
     tengo: 'I have', tiene: 'has', tienes: 'you have', tienen: 'they have', hay: 'there is · there are', voy: 'I go · I’m going', va: 'goes', vamos: 'let’s go · we go', vas: 'you go', puedo: 'I can', puedes: 'you can', puede: 'can', quiero: 'I want', quieres: 'you want',
     no: 'no · not', muy: 'very', 'más': 'more', menos: 'less', 'también': 'also · too', ya: 'already · now', 'todavía': 'still', aquí: 'here', 'ahí': 'there', 'allí': 'there', hoy: 'today', 'mañana': 'tomorrow · morning', ayer: 'yesterday', siempre: 'always', nunca: 'never', luego: 'then · later', entonces: 'then · so', 'después': 'afterwards · after',
     'dónde': 'where', 'cuándo': 'when', 'quién': 'who', 'quiénes': 'who', 'cuál': 'which', 'cuánto': 'how much', todo: 'everything · all', todos: 'everyone · all', nada: 'nothing', algo: 'something', bien: 'well · good', bueno: 'good · well', buena: 'good', claro: 'sure · of course', gracias: 'thanks',
-    'señor': 'sir · Mr.', 'señora': 'ma’am · Mrs.', 'doña': 'title of respect for an older woman', mijo: 'my son · sweetie', pesos: 'pesos', 'ay': 'oh', uf: 'phew', pues: 'well · so' }
+    'señor': 'sir · Mr.', 'señora': 'ma’am · Mrs.', 'doña': 'title of respect for an older woman', mijo: 'my son · sweetie', pesos: 'pesos', 'ay': 'oh', uf: 'phew', pues: 'well · so' },
+  it: {}
 };
 /* Words the stories use that the lessons don't teach (yet), so every word in a story has a meaning when tapped.
    dev/test.js checks that each word in each built-in story finds one. */
 const STORY_GLOSS = {
+  it: {},
   de: { zucker: 'sugar', croissant: 'croissant', machen: 'to make · to do', geld: 'money', dabei: 'on me · with it · there', problem: 'problem', bezahlen: 'to pay',
     beste: 'best', tag: 'day', gleich: 'right · just · in a moment', herzlich: 'warmly (herzlich willkommen: welcome)', willkommen: 'welcome', allein: 'alone',
     student: 'student', beruflich: 'for work · for a living', barista: 'barista', 'café': 'café', wunderbar: 'wonderful', trinken: 'to drink', vorbei: 'by · past · over',
@@ -84,6 +86,7 @@ const STORY_GLOSS = {
 
 /* Meanings for the words in lesson sentences and blanks that the lesson vocabulary and COMMON_GLOSS don't cover, so tapping any word in a lesson question gives its meaning. */
 const LESSON_GLOSS = {
+  it: {},
   de: {
     "anna": "Anna", "matt": "Matt", "wiedersehen": "to see again (auf Wiedersehen: goodbye)", "freut": "is pleased (from sich freuen)", "freue": "am pleased (from sich freuen)",
     "freust": "are pleased (from sich freuen)", "gefreut": "was pleased (from sich freuen)", "amerika": "America", "boston": "Boston", "los": "loose · off (was ist los?: what’s wrong?)",

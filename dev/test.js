@@ -161,7 +161,7 @@ async function main(){
           ok(early, l.id + ' never asks a word before teaching it');
           // ...and never asks a phrase before showing it, nor one that uses a lesson word that hasn't been taught yet
           const met = new Set(), taught = new Set(); let phraseOk = true, readyOk = true;
-          const vk = l.vocab.map(v => { const k = P.lexToks(v.t, l.lang), c = k.filter(x => !P.ARTICLES.has(x)); return c.length ? c : k; });
+          const vk = l.vocab.map(v => { const k = P.lexToks(v.t, l.lang), c = k.filter(x => !P.articlesFor(l.lang).has(x)); return c.length ? c : k; });
           for (const e of exs){
             if (e.type === 'teach' && e.mode === 'words') e.idxs.forEach(i => taught.add(i));
             else if (e.type === 'teach' && e.mode === 'phrases') e.lines.forEach(x => met.add(x.t));
