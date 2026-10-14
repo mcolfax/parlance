@@ -16,6 +16,9 @@ const RELEASES = [
     'On the web version, Talk, Lessons on demand and Me now have a button that opens Parlance in Claude, where the tutor lives.',
     'Pick a Talk scene and open it in Claude, ChatGPT or Gemini. The prompt sets the language, your level and the role, and asks for a correction after each message.',
     'Lessons on demand does the same for a lesson at your level on any topic. Gemini can’t take a prompt in a link, so Parlance copies it for you to paste.'] },
+  { v: '4.16.1', date: '2026-10-14', title: 'Friends pictures', notes: [
+    'Friends’ bird pictures are bigger and easier to see.',
+    'Kiwi, Mango, Kakadu and Rojo now show up when you pick your picture on your friends card.'] },
   { v: '4.16.0', date: '2026-10-14', title: 'Heads up', notes: [
     'Tilt your phone and the birds keep their heads level, the way a chicken does.',
     'It eases off when the phone is lying flat, and on iPhone it asks to use the motion sensor the first time you touch the screen.'] },

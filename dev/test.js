@@ -1335,8 +1335,8 @@ async function main(){
     ok(md.querySelector('.fr-hero') && md.querySelector('.fr-hero').textContent.includes('Learn with friends') && md.querySelector('.fr-privacy'), 'friends intro explains who sees your card');
     btnIn(md.querySelector('.fr-hero'), 'Invite a friend').click(); await sleep(40);
     let sh = lastSheet(M);
-    ok(sh && sh.querySelector('#fr-name') && sh.querySelector('#fr-name').value === 'Matt' && sh.querySelectorAll('.fr-bird').length === M.E('BIRDS.length') && M.E('BIRDS.length') >= 13, 'card setup starts with your first name and a choice of pictures');
-    sh.querySelectorAll('.fr-bird')[2].click();
+    ok(sh && sh.querySelector('#fr-name') && sh.querySelector('#fr-name').value === 'Matt' && sh.querySelectorAll('.fr-bird').length === M.E('BIRDS.length') && M.E('BIRDS.length') >= 17 && sh.querySelector('.fr-bird[aria-label="Kiwi"]'), 'card setup starts with your first name and a choice of pictures');
+    [...sh.querySelectorAll('.fr-bird')].find(b => b.getAttribute('aria-label') === 'Jonas').click();
     btnIn(lastSheet(M), 'Continue').click(); await sleep(450);
     const mattCard = [...store.keys()].find(k => k.startsWith('cards/u_matt/'));
     ok(mattCard && /^cards\/u_matt\/[A-Za-z0-9]{24}\/card$/.test(mattCard) && store.get(mattCard).name === 'Matt' && store.get(mattCard).bird === 'jonas', 'card published at a secret path: ' + mattCard);

@@ -16,7 +16,7 @@
 /* cast portraits */
 .cast-av{display:inline-block;width:var(--av);height:var(--av);border-radius:50%;overflow:hidden;flex:none;background:var(--line-soft);vertical-align:middle}
 .cast-av svg{display:block;width:100%;height:100%}
-.cast-av.is-pip{padding:6%}
+.cast-av.is-pip{padding:0}
 .av-stack{display:inline-flex;align-items:center}
 .av-stack .cast-av{margin-left:-9px;box-shadow:0 0 0 2px var(--surface)}
 .av-stack .cast-av:first-child{margin-left:0}
