@@ -37,6 +37,10 @@ const Rig = (() => {
   let RM = !!(RMQ && RMQ.matches);
   if (RMQ && RMQ.addEventListener) RMQ.addEventListener('change', e => { RM = e.matches; });
   const reduced = () => RM;
+  /* the horizon: how far the screen is turned from level, in degrees (clockwise is positive). A bird's head turns the
+     other way, like a chicken's, so it stays upright within HORIZON_MAX. Set by Rig.setHorizon (the phone's sensor feeds it from art.js). */
+  const HORIZON_MAX = 28;
+  let horizon = 0;
   const f3 = v => (Math.abs(v) < 1e-4 ? '0' : String(Math.round(v * 1000) / 1000));
 
   /* ----- 2D affine matrices, SVG order [a b c d e f] ----- */
@@ -400,7 +404,7 @@ const Rig = (() => {
     let from = dense(c, def, resolve(def, def.restMood || {})), to = from, b0 = 0, bdur = 0, bease = EASE.out, switchAt = 0.3;
     let moodClip = null;   // the clip the current mood started (R.set), which ends with the mood
     let clips = [], blinkAt = 1.5 + Math.random() * 2, blinkT = -1, glanceAt = 2.5 + Math.random() * 3, glance = { x: 0, y: 0, tx: 0, ty: 0, until: 0 };
-    let talk = null, babble = false, babbleNext = 0, babbleV = null, lookTarget = null, cur = null;
+    let hz = 0, talk = null, babble = false, babbleNext = 0, babbleV = null, lookTarget = null, cur = null;
     const springs = c.springs.map(s => Object.assign({}, s));
     const swapOn = c.swaps.map(() => false);
 
@@ -546,6 +550,12 @@ const Rig = (() => {
       const F = P.facing < 0 ? -1 : 1;   // a look is on screen; lookX, turn and the head's tilt follow the bird
       P.lookX = clamp(P.lookX + glance.x * F, -1, 1); P.lookY = clamp(P.lookY + glance.y, -1, 1);
       if (lookTarget && def.look && def.look.head){ const hb = c.byId[def.look.head]; if (hb) chans[hb.i].r += glance.x * F * (def.look.headR || 3); P.turn += glance.x * F * (def.look.turn || 0.2); }
+      // the head holds level against a turned screen; it eases toward the level rather than snapping
+      const hb = def.look && def.look.head && c.byId[def.look.head];
+      if (hb){
+        hz += ((rm ? 0 : clamp(horizon, -HORIZON_MAX, HORIZON_MAX)) - hz) * Math.min(1, dt * 7);
+        if (Math.abs(hz) > 0.02) chans[hb.i].r += hz;
+      }
       // overrides from puppet controls (absolute)
       const O = R.override;
       for (const id in O.bones){ const bo = c.byId[id]; if (bo) Object.assign(chans[bo.i], O.bones[id]); }
@@ -656,6 +666,6 @@ const Rig = (() => {
     return errs;
   }
 
-  return { create, svg, parts, validate, resolve, compile, css, lineWidth, EASE, staticFrame, inRoom, version: '1.0.0' };
+  return { create, setHorizon: d => { horizon = Number.isFinite(d) ? d : 0; }, svg, parts, validate, resolve, compile, css, lineWidth, EASE, staticFrame, inRoom, version: '1.0.0' };
 })();
 if (typeof module !== 'undefined') module.exports = Rig;
