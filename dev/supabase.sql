@@ -19,9 +19,11 @@ create table public.docs (
            and array_length(string_to_array(path, '/'), 1) % 2 = 0),
   coll text not null,
   data jsonb not null check (jsonb_typeof(data) = 'object'),
+  author uuid,   -- who first wrote it (auth.uid()); what the storage limits in check_quota count
   updated_at timestamptz not null default now()
 );
 create index docs_coll_idx on public.docs (coll);
+create index docs_author_idx on public.docs (author);
 
 create table public.owners (
   user_id uuid primary key references auth.users (id) on delete cascade
@@ -80,23 +82,42 @@ language sql stable security definer set search_path = '' as $$
   select d.path, d.data from public.docs d where d.coll = c and public.can_read(d.path) order by d.path;
 $$;
 
+-- Storage limits, so one account can't fill the free database: each person may hold 200 documents and 5 MB in all,
+-- and no document may pass 1 MB. A normal learner uses about 10 documents and 20 KB, so these are far above real use.
+-- Overwriting a document you already hold is never refused for the document count, and owners are exempt.
+-- (Added by the migration parlance_quota, which also backfilled docs.author from the path.)
+create function public.check_quota(p text, newsize int) returns void
+language plpgsql security definer set search_path = '' as $$
+declare me uuid := auth.uid(); n int; bytes bigint; old int;
+begin
+  if me is null or public.is_owner() then return; end if;
+  if newsize > 1000000 then raise exception 'document too large' using errcode = '54000'; end if;
+  select octet_length(x.data::text) into old from public.docs x where x.path = p and x.author = me;
+  select count(*), coalesce(sum(octet_length(x.data::text)), 0) into n, bytes from public.docs x where x.author = me;
+  if old is null and n >= 200 then raise exception 'too many documents' using errcode = '54000'; end if;
+  if bytes - coalesce(old, 0) + newsize > 5000000 then raise exception 'storage limit reached' using errcode = '54000'; end if;
+end $$;
+
 create function public.doc_set(p text, d jsonb) returns void
 language plpgsql security definer set search_path = '' as $$
 begin
   if not public.can_write(p) then raise exception 'not allowed to write %', p using errcode = '42501'; end if;
-  if octet_length(d::text) > 1000000 then raise exception 'document too large' using errcode = '54000'; end if;
-  insert into public.docs (path, coll, data, updated_at)
-  values (p, regexp_replace(p, '/[^/]+$', ''), d, now())
-  on conflict on constraint docs_pkey do update set data = excluded.data, updated_at = now();
+  perform public.check_quota(p, octet_length(d::text));
+  insert into public.docs (path, coll, data, author, updated_at)
+  values (p, regexp_replace(p, '/[^/]+$', ''), d, auth.uid(), now())
+  on conflict on constraint docs_pkey do update set data = excluded.data, author = coalesce(public.docs.author, excluded.author), updated_at = now();
 end $$;
 
 create function public.doc_update(p text, d jsonb) returns void
 language plpgsql security definer set search_path = '' as $$
+declare merged jsonb;
 begin
   if not public.can_write(p) then raise exception 'not allowed to write %', p using errcode = '42501'; end if;
   if jsonb_typeof(d) <> 'object' then raise exception 'update must be an object' using errcode = '22023'; end if;
-  update public.docs x set data = x.data || d, updated_at = now() where x.path = p;
+  select x.data || d into merged from public.docs x where x.path = p;
   if not found then raise exception 'no document at %', p using errcode = 'P0002'; end if;
+  perform public.check_quota(p, octet_length(merged::text));
+  update public.docs x set data = merged, updated_at = now() where x.path = p;
 end $$;
 
 create function public.doc_delete(p text) returns void
@@ -119,7 +140,7 @@ language sql stable security definer set search_path = '' as $$
   select p.id::text, p.name from public.profiles p where public.is_owner() and p.id::text = any (ids);
 $$;
 
-revoke all on function public.is_owner(), public.can_read(text), public.can_write(text), public.doc_get(text), public.doc_list(text),
+revoke all on function public.is_owner(), public.check_quota(text, int), public.can_read(text), public.can_write(text), public.doc_get(text), public.doc_list(text),
   public.doc_set(text, jsonb), public.doc_update(text, jsonb), public.doc_delete(text), public.profile_set(text), public.profile_names(text[]) from public, anon, authenticated;
 grant execute on function public.doc_get(text), public.doc_list(text) to anon, authenticated;
 grant execute on function public.doc_set(text, jsonb), public.doc_update(text, jsonb), public.doc_delete(text), public.is_owner(),

@@ -1342,6 +1342,15 @@ async function main(){
     require('child_process').execFileSync(process.execPath, [path.join(ROOT, 'dev', 'web.js')], { cwd: ROOT });
     const built = fs.readFileSync(path.join(ROOT, 'dist', 'index.html'), 'utf8'), manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'dist', 'manifest.webmanifest'), 'utf8'));
     ok(built.startsWith('<!doctype html>') && built.includes('window.PARLANCE_WEB = true') && built.includes('rel="manifest"') && built.includes('rel="apple-touch-icon" href="media/icons/icon-180.png"'), 'web build page');
+    // vercel.json's Content-Security-Policy allows the build's one inline script by hash: if that script changes, the page would load with no scripts
+    {
+      const inline = [...built.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+      const csp = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8')).headers[0].headers.find(h => h.key === 'Content-Security-Policy').value;
+      const hash = s => "'sha256-" + require('crypto').createHash('sha256').update(s).digest('base64') + "'";
+      ok(inline.length === 1 && csp.includes(hash(inline[0])), 'the CSP hash matches the web build’s inline script (' + inline.length + ' inline: ' + inline.map(hash).join(' ') + ')');
+      ok(!/<script(?![^>]*\bsrc=)[^>]*>/.test(built.replace(/<script>[\s\S]*?<\/script>/, '')), 'no other inline scripts in the web build');
+      ok(!/unsafe-eval|script-src[^;]*unsafe-inline/.test(csp), 'the CSP never allows eval or inline scripts');
+    }
     ok(manifest.display === 'standalone' && /^#[0-9A-F]{6}$/i.test(manifest.theme_color) && manifest.icons.every(i => fs.existsSync(path.join(ROOT, 'dist', i.src))) && fs.existsSync(path.join(ROOT, 'dist', 'media', 'icons', 'icon-180.png')), 'web manifest and icons ' + JSON.stringify(manifest.icons.map(i => i.src)));
   }
   /* ---------- 12. friends: invites, the league, duels, cheers, removing (learners sharing one database) ---------- */
