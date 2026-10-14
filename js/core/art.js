@@ -101,6 +101,7 @@ function pip(mood, size, opts = {}){
   if (opts.tap !== false){
     el.addEventListener('click', e => {
       e.stopPropagation();
+      if (rig.home === 'shrug'){ rig.play('shrug'); haptic(8); return; }   // a shrugging bird just shrugs
       const lang = opts.lang || (typeof S !== 'undefined' ? S.settings.lang : 'de');
       const m = rig.home, line = pickSay(lang, ['oops', 'cheer', 'sleep'].includes(m) ? m : 'hello');
       pipTap(rig);

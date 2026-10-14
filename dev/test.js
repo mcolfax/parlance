@@ -866,6 +866,8 @@ async function main(){
     G.E('filmSeek(35.5)'); [...G.w.document.querySelectorAll('.overlay.film .ov-foot button')].find(b => b.textContent === 'Close').click();
     ok(G.P.S.settings.filmSeen && !G.E('Film.open'), 'film closes and is remembered');
     ok(G.w.document.querySelector('.hero .pip [data-s="beak"]') && G.w.document.querySelector('.hero .pip [data-s="crest2"]'), 'Pip is a parrot');
+    { const r = G.E('(() => { const e = pip("shrug", 60); document.body.append(e); const before = e.rig.playing("shrug"); e.click(); return [before, e.rig.playing("shrug"), e.rig.mood]; })()');
+      ok(r[0] === false && r[1] === true && r[2] === 'shrug', 'a shrugging bird holds still, then shrugs when tapped: ' + r); }
     { const r = G.E('(() => { const e = pip("happy", 60, { tap: false }); document.body.append(e); const rg = e.rig; rg.render(1);  Rig.setHorizon(20); for (let i = 0; i < 40; i++) rg.render(0.05); const hb = Rig.compile(rg.def).byId.head.i; const tilted = rg.frame.chans[hb].r; Rig.setHorizon(90); for (let i = 0; i < 40; i++) rg.render(0.05); const capped = rg.frame.chans[hb].r; Rig.setHorizon(0); for (let i = 0; i < 80; i++) rg.render(0.05); return [tilted, capped, rg.frame.chans[hb].r]; })()');
       ok(r[0] > 15 && r[0] < 25 && r[1] > 25 && r[1] < 32 && Math.abs(r[2]) < 8, 'the head holds level against a turned screen, within reason: ' + r); }
     ok(G.E('Rig.validate(PIP).length') === 0, 'Pip rig validates: ' + G.E('Rig.validate(PIP).join("; ")'));

@@ -183,7 +183,7 @@ const Bird = (() => {
       sleep: { bones: Object.assign(sym({ wing: { r: -8 } }), { head: { r: 9, y: 4 }, body: { sy: 0.97 }, crest1: { r: -12 }, crest3: { r: 10 }, crest2: { r: 8 } }), params: { turn: 0.12 } },
       sad: { bones: Object.assign(sym({ wing: { r: 5 } }), { crest1: { r: -24, sy: 0.9 }, crest3: { r: 22, sy: 0.9 }, crest2: { r: -12, sy: 0.88 }, head: { y: 5, r: -3 }, body: { sy: 0.965 } }), params: { turn: 0.1 } },
       laugh: { bones: { wingL: { r: -34 }, wingR: { r: -10 }, head: { r: -8, y: -2 }, body: { r: -2 } }, params: { turn: 0.2 } },
-      shrug: { bones: Object.assign(sym({ wing: { r: 12 } }), { head: { r: 8, y: 1 }, body: { y: -1 } }), params: { turn: 0.18 } },
+      shrug: { bones: { head: { r: 8, y: 1 }, body: { y: -1 } }, params: { turn: 0.18 } },
       proud: { bones: Object.assign(sym({ wing: { r: 14 } }), { crest1: { r: -8 }, crest3: { r: 8 }, body: { sx: 1.04, sy: 1.02 }, head: { r: -6, y: -3 } }), params: { turn: 0.05 } },
       love: { bones: Object.assign(sym({ wing: { r: -22 } }), { head: { r: 9, y: 1 } }), params: { turn: 0.22 } },
       listen: { bones: { head: { r: 12, y: 1 }, wingL: { r: -4 }, wingR: { r: 6 } }, params: { turn: 0.5, lookX: -0.5 } },
@@ -220,7 +220,7 @@ const Bird = (() => {
       point: { pose: 'point', face: 'smile', clip: 'tap' },
       sad: { pose: 'sad', face: 'sad', idle: { energy: 0.7, amp: 0.8 } },
       laugh: { pose: 'laugh', face: 'laugh', clip: 'laugh' },
-      shrug: { pose: 'shrug', face: 'unsure', clip: 'shrug' },
+      shrug: { pose: 'shrug', face: 'unsure' },
       proud: { pose: 'proud', face: 'proud', clip: 'shine' },
       love: { pose: 'love', face: 'love', clip: 'flutter' },
       listen: { pose: 'listen', face: 'listen', clip: 'listen' },
@@ -270,9 +270,16 @@ const Bird = (() => {
       laugh: { dur: 0.36, loop: true, tracks: {
         'body.y': [[0, 0], [0.09, -1.8], [0.18, 0], [0.27, -1.8], [0.36, 0]],
         'head.r': [[0, 0], [0.18, -3], [0.36, 0]], 'body.sy': [[0, 1], [0.09, 1.015], [0.18, 1], [0.27, 1.015], [0.36, 1]] } },
-      shrug: { dur: 0.8, tracks: {
-        'body.y': [[0, 0], [0.2, -3, 'out'], [0.5, 0, 'inOut'], [0.8, 0]],
-        'wingL.r': [[0, 0], [0.2, 12, 'out'], [0.5, 0, 'inOut']], 'wingR.r': [[0, 0], [0.2, -12, 'out'], [0.5, 0, 'inOut']] } },
+      /* the shoulders come up: the wings stay pointing down but lift, the head sinks between them, then they drop. Played
+         when a shrugging bird is tapped. */
+      shrug: { dur: 1.2, tracks: {
+        'body.y': [[0, 0], [0.2, -3, 'out'], [0.75, -3], [1.1, 0, 'inOut'], [1.2, 0]],
+        'head.y': [[0, 0], [0.2, 4, 'out'], [0.75, 4], [1.1, 0, 'inOut'], [1.2, 0]],
+        'head.r': [[0, 0], [0.2, -4, 'out'], [0.75, -4], [1.1, 0, 'inOut'], [1.2, 0]],
+        'wingL.y': [[0, 0], [0.2, -9, 'out'], [0.75, -9], [1.1, 0, 'inOut'], [1.2, 0]],
+        'wingR.y': [[0, 0], [0.2, -9, 'out'], [0.75, -9], [1.1, 0, 'inOut'], [1.2, 0]],
+        'wingL.r': [[0, 0], [0.2, 7, 'out'], [0.75, 7], [1.1, 0, 'inOut'], [1.2, 0]],
+        'wingR.r': [[0, 0], [0.2, -7, 'out'], [0.75, -7], [1.1, 0, 'inOut'], [1.2, 0]] } },
       shine: { dur: 1.6, tracks: {
         'slot.fxBody': [[0, 'sparkle'], [1.6, null]],
         'fx.a': [[0, 0], [0.2, 1], [1.2, 1], [1.6, 0]], 'fx.sx': [[0, 0.7], [0.4, 1.06, 'back'], [1.6, 1]], 'fx.sy': [[0, 0.7], [0.4, 1.06, 'back'], [1.6, 1]],

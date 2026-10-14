@@ -13,7 +13,7 @@ const SCHEMA_VERSION = 8;          // bump when the saved-state shape changes; a
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
   { v: '4.16.1', date: '2026-10-14', title: 'Wings in', notes: [
-    'The shrugging bird, on the Talk tab when the tutor isn\'t available, no longer holds its wings straight out.'] },
+    'The shrugging bird, on the Talk tab when the tutor isn\'t available, no longer holds its wings straight out. It stands with its wings down, and when you tap it, its shoulders lift in a little shrug.'] },
   { v: '4.16.0', date: '2026-10-14', title: 'Heads up', notes: [
     'Tilt your phone and the birds keep their heads level, the way a chicken does.',
     'It eases off when the phone is lying flat, and on iPhone it asks to use the motion sensor the first time you touch the screen.'] },
