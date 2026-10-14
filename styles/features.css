@@ -164,3 +164,22 @@
 .msg-row .cast-av{align-self:flex-start}
 .scen-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
 .scen-who{font:var(--type-label);color:var(--muted)}
+
+/* ----- small wrappers that had no rules ----- */
+.board{display:flex;flex-direction:column;gap:6px}
+.words-sec{display:flex;flex-direction:column;gap:12px}
+.words-sec .row h2{font-size:22px}
+.forms-list{border-top:1px solid var(--hair-2)}
+.tap-hint{margin-top:2px}
+.w-meta{color:var(--muted);font-size:13px}
+.field.vol .row{gap:12px}
+.field.vol input[type="range"]{min-width:0}
+.ov-title.grow{display:flex;flex-direction:column;gap:2px}
+.ov-name{font:var(--type-title-s);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ov-sub{font:var(--type-small);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bc-cast{display:inline-flex;margin-top:8px}
+.bc-cast .cast-av{margin-left:-8px;box-shadow:0 0 0 2px var(--surface)}
+.bc-cast .cast-av:first-child{margin-left:0}
+.f-x{flex:none}
+.view.friends{gap:16px}
+.fr-duel.waiting{background:transparent;box-shadow:inset 0 0 0 2px var(--hair-2)}
