@@ -228,7 +228,8 @@ async function main(){
   for (const sc of A.E('SCENARIOS')) for (const lang of LANG_IDS){ const who = sc.cast[lang]; ok(who === 'pip' || (P.CAST[who] && P.CAST[who].lang === lang), 'Talk ' + sc.id + ' ' + lang + ' is played by ' + who); }
   ok(A.E('avatarSVG("leyla")').includes('evenodd') && A.E('avatarSVG("brandt")').includes(P.CAST.brandt.look.tie) && A.E('avatarSVG("valentina")').includes(P.CAST.valentina.look.ribbon), 'new looks: headscarf, tie, braid ribbons');
   ok(A.E('FILM_CAST').map(r => r.length).join() === '6,6' && A.E('FILM_CAST.flat().length') === Object.entries(P.CAST).filter(([id, c]) => id !== 'pip' && ['de', 'es'].includes(c.lang)).length, 'the film meets the Berlin and Mexico City cast ' + JSON.stringify(A.E('FILM_CAST')));
-  ok(A.E('FILM_CUES').filter(c => c[1] === 'pop' && c[0] >= 10 && c[0] < 14).length === 12, 'a pop for every face in the film');
+  ok(A.E('FILM_CAST.every((row, r) => row.every((id, i) => FILM_CUES.some(c => c[1] === "pop" && Math.abs(c[0] - filmCastAt(r, i).t) < 0.01)))'), 'a pop for every face in the film');
+  ok(A.E('FILM_CUES.every(c => SOUNDS[c[1]] && c[0] >= 0 && c[0] < FILM_DUR)') && A.E('FILM_CAPTIONS.every(c => c[0] < c[1] && c[1] <= FILM_DUR + 1)') && Math.abs(A.E('bar(1) - bar(0)') - 240 / 99) < 1e-9, 'film cues use real sounds and captions are in order');
   { const ch = A.E('chestSVG()'); ok(['ch-lid', 'ch-lidup', 'ch-loot', 'ch-fly', 'ch-rays', 'ch-spark'].every(k => ch.includes('class="' + k)) && !/NaN|undefined/.test(ch) && A.E('chestSVG()') === ch, 'chest drawing'); }
   /* glossary */
   ok(P.glossLookup('ich', 'de') && P.glossLookup('ich', 'de').val === 'I', 'gloss ich');
@@ -899,14 +900,19 @@ async function main(){
     for (const name of Object.keys(G.E('SOUNDS'))) G.E('playSound(' + JSON.stringify(name) + ', 0.5)');
     G.E('openFilm({ autoplay: false })');
     ok(G.w.document.querySelector('.overlay.film .film-svg'), 'film stage');
-    for (const t of [0, 3, 6.5, 10.5, 14, 17, 20, 23.5, 25, 28, 30.5, 33, 35.5]){ G.E('filmSeek(' + t + ')'); }
+    for (const t of [0, 3, 6.5, 9, 11, 14, 17, 20, 23.5, 25, 28, 30.5, 33, 35.5, 38, 41, 44, 49.6]){ G.E('filmSeek(' + t + ')'); }
     G.E('filmSeek(12)');
-    ok(G.w.document.querySelector('#f-av-lena').style.visibility === 'visible' && G.w.document.querySelector('#f-card0').style.visibility === 'hidden', 'film scene 3 visible, scene 4 not yet');
-    ok(/translate\(296/.test(G.w.document.querySelector('#f-pip').getAttribute('transform')), 'Pip position at 12s ' + G.w.document.querySelector('#f-pip').getAttribute('transform'));
+    ok(G.w.document.querySelector('#f-av-lena').style.visibility === 'visible' && G.w.document.querySelector('#f-phone').style.visibility === 'hidden', 'film scene 3 visible, the phone not yet');
+    ok(/translate\(296/.test(G.w.document.querySelector('#f-b-pip').getAttribute('transform')), 'Pip position at 12s ' + G.w.document.querySelector('#f-b-pip').getAttribute('transform'));
     ok(G.w.document.querySelector('.film-cap').textContent.includes('Berlin'), 'caption at 12s');
-    G.E('filmSeek(18.5)'); ok(G.w.document.querySelector('#f-pip-in').classList.contains('cheer'), 'Pip mood follows the film');
+    G.E('filmSeek(19)'); ok(G.w.document.querySelector('#f-bi-pip').classList.contains('cheer'), 'Pip mood follows the film');
+    G.E('filmSeek(8.8)'); ok(['kiwi', 'mango', 'kakadu', 'rojo'].every(id => G.w.document.querySelector('#f-b-' + id).style.visibility === 'visible'), 'the other four birds join Pip on the perch');
+    G.E('filmSeek(26)'); ok(G.w.document.querySelector('#pg-story').style.visibility === 'visible' && G.w.document.querySelector('#pg-talk').style.visibility === 'hidden', 'the phone shows the story at 26s');
+    G.E('filmSeek(32)'); ok(G.w.document.querySelector('#lg-3').getAttribute('transform') !== G.w.document.querySelector('#lg-0').getAttribute('transform') && /XP/.test(G.w.document.querySelector('#lg-xp3').textContent), 'the league has moving rows');
+    G.E('filmSeek(48)'); ok(G.w.document.querySelector('#f-end0').style.visibility === 'visible' && G.w.document.querySelectorAll('#f-bs-pip, #f-bs-kiwi').length === 2, 'the end card');
     G.E('filmPlay()'); await sleep(120); G.E('filmPause()');
-    ok(G.E('Film.t') > 18.5, 'film plays forward ' + G.E('Film.t'));
+    ok(G.E('Film.t') > 19, 'film plays forward ' + G.E('Film.t'));
+    G.E('filmSeek(26)'); G.E('filmSeek(12)'); ok(G.w.document.querySelector('.film-cap').textContent.includes('Berlin'), 'scrubbing back brings the caption back');
     G.E('filmSeek(35.5)'); [...G.w.document.querySelectorAll('.overlay.film .ov-foot button')].find(b => b.textContent === 'Close').click();
     ok(G.P.S.settings.filmSeen && !G.E('Film.open'), 'film closes and is remembered');
     ok(G.w.document.querySelector('.hero .pip [data-s="beak"]') && G.w.document.querySelector('.hero .pip [data-s="crest2"]'), 'Pip is a parrot');
@@ -967,7 +973,7 @@ async function main(){
     ok(B.E('cast("pip").name') === 'Kiwi' && B.E('cast("pip").pitch') === B.E('MASCOTS.kiwi.pitch') && B.E('cast("lena").name') === 'Lena', 'Kiwi speaks for Pip, in its own voice');
     ok(B.E('(() => { Object.assign(Talk, { who: "pip", lang: "de", level: "A1", scen: { prompt: "x" } }); return talkInstructions(); })()').includes('Your name is Kiwi. You are a cheerful, curious budgie'), 'Talk’s persona is your bird');
     B.E('openFilm({ autoplay: false }); filmSeek(6)');
-    ok(B.w.document.querySelector('.film-cap').textContent === 'Meet Kiwi, a budgie who loves to repeat after you.' && B.w.document.querySelector('#f-pip-in .rig-kiwi'), 'the film stars your bird: ' + B.w.document.querySelector('.film-cap').textContent);
+    ok(B.w.document.querySelector('.film-cap').textContent === 'Meet Kiwi, a budgie who loves to repeat after you.' && B.w.document.querySelector('#f-bi-kiwi .rig-kiwi'), 'the film stars your bird: ' + B.w.document.querySelector('.film-cap').textContent);
     B.E('endFilm(false)'); await sleep(50);
     console.log('page errors (B2):', B.errors.length ? B.errors.slice(0, 5) : 'none'); ok(!B.errors.length, 'no page errors B2');
     B.dom.window.close();
