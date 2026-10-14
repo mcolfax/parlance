@@ -361,7 +361,7 @@ U('Travel & directions', 'A2', [
         ['Rooms', ['say it', 'meaning'], [['una camera **singola**', 'a single room'], ['una camera **doppia**', 'a double room'], ['con **bagno**', 'with a bathroom']]]]),
     [['la prenotazione', 'booking|reservation', 'f'], ['la camera', 'room|bedroom', 'f'], ['la chiave', 'key', 'f'], ['il passaporto', 'passport', 'm'], ['la notte', 'night', 'f'],
      ['il bagno', 'bathroom|bath', 'm'], ['incluso', 'included'], ['potere', 'can|to be able to']],
-    [['Ho una prenotazione per due notti.', 'I have a booking for two nights.|I have a reservation for two nights.|I have a booking for two nights.'],
+    [['Ho una prenotazione per due notti.', 'I have a booking for two nights.|I have a reservation for two nights.'],
      ['Vorrei una camera doppia con bagno.', 'I would like a double room with a bathroom.|I’d like a double room with a bathroom.|I would like a double room with bath.|I’d like a double room with a bath.'],
      ['La colazione è inclusa?', 'Is breakfast included?|Is the breakfast included?'],
      ['Mi può dare la chiave, per favore?', 'Can you give me the key, please?|Could you give me the key, please?|Can I have the key, please?|Could I have the key, please?'],
