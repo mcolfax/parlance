@@ -1,0 +1,121 @@
+<title>Recraft Prompts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500..700&family=Nunito:ital,wght@0,400..800;1,400&display=swap">
+<style>
+/* Layout: a work list. Steps and the shared style first, then the 18 characters and the 27 scenes as cards with one
+   copy button each. Colors and type are the app's own tokens (styles/tokens.css). */
+*{box-sizing:border-box}
+html,body{height:auto;min-height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--type-body);padding-block:14px 72px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.r-sheet{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:30px}
+.r-top{display:flex;flex-direction:column;gap:6px}
+.r-top h1{font:var(--type-h1);margin:0;text-wrap:balance}
+.r-top p{margin:0;color:var(--muted);max-width:62ch}
+.r-prog{display:flex;align-items:center;gap:10px;font:var(--type-label);color:var(--muted)}
+.r-bar{flex:1;height:12px;border-radius:var(--r-pill);background:var(--hair-2);overflow:hidden}
+.r-bar i{display:block;height:100%;width:0;background:var(--line);border-radius:inherit;transition:width .3s var(--ease)}
+.r-sec{display:flex;flex-direction:column;gap:12px;min-width:0}
+.r-sec h2{font:var(--type-h2);margin:0}
+.r-note{margin:0;color:var(--muted);max-width:64ch}
+.r-steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;max-width:66ch}
+.r-box{background:var(--surface);border:2px solid var(--hair);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--edge);min-width:0}
+.r-box h3{font:var(--type-title-s);margin:0}
+.r-text{margin:0;font:500 14px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--ink);background:var(--surface-2);border:1px solid var(--hair);border-radius:var(--r-sm);padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;user-select:all}
+.r-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.r-btn{font:var(--type-label);border:2px solid var(--line);background:var(--line);color:var(--line-ink);border-radius:var(--r-pill);padding:9px 16px;cursor:pointer;box-shadow:0 3px 0 var(--line-edge);min-height:42px}
+.r-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line-edge)}
+.r-btn.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok);box-shadow:0 3px 0 var(--ok)}
+.r-btn:focus-visible,.r-chip:focus-visible,.r-done input:focus-visible{outline:3px solid var(--line);outline-offset:2px}
+.r-chip{font:var(--type-label);border:2px solid var(--hair);background:var(--surface);color:var(--muted);border-radius:var(--r-pill);padding:7px 14px;cursor:pointer}
+.r-chip[aria-pressed="true"]{background:var(--line-soft);border-color:var(--line);color:var(--line-text)}
+.r-file{font:700 13px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--line-soft);color:var(--line-text);border-radius:var(--r-pill);padding:6px 10px}
+.r-meta{margin:0;color:var(--muted);font:var(--type-small)}
+.r-done{display:inline-flex;align-items:center;gap:8px;font:var(--type-label);cursor:pointer;margin-left:auto}
+.r-done input{width:22px;height:22px;accent-color:var(--line)}
+.r-card.is-done{opacity:.62}
+.r-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.r-sw{display:flex;flex-wrap:wrap;gap:8px}
+.r-sw span{display:inline-flex;align-items:center;gap:6px;font:var(--type-small);background:var(--surface);border:1px solid var(--hair);border-radius:var(--r-pill);padding:4px 10px 4px 5px}
+.r-sw b{width:18px;height:18px;border-radius:50%;border:1px solid rgb(0 0 0 / .2)}
+.r-fix{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.r-toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);font:var(--type-label);padding:10px 18px;border-radius:var(--r-pill);opacity:0;pointer-events:none;transition:opacity .2s}
+.r-toast.on{opacity:1}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="r-sheet" id="app"></div>
+<div class="r-toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+var BASE = /\/design\/pictures\/recraft\//.test(location.pathname) ? '../../../' : '';
+['styles/tokens.css', 'styles/base.css'].forEach(function(f){ document.write('<link rel="stylesheet" href="' + BASE + f + '">'); });
+document.write('<script src="prompts-data.js"><\/script>');
+</script>
+<script>
+(function(){
+  var LANGS = { de: 'German', es: 'Spanish', it: 'Italian' };
+  var KEY = 'recraft-done', done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { done = {}; }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} }
+  function el(tag, attrs){
+    var n = document.createElement(tag), kids = Array.prototype.slice.call(arguments, 2);
+    for (var k in (attrs || {})){ var v = attrs[k]; if (v == null || v === false) continue; if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? '' : v); }
+    kids.flat(Infinity).forEach(function(c){ if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(String(c))); });
+    return n;
+  }
+  var toastT;
+  function toast(msg){ var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ t.classList.remove('on'); }, 1400); }
+  function copy(text, btn, box){
+    function ok(){ var old = btn.textContent; btn.textContent = 'Copied'; btn.classList.add('ok'); toast('Copied. Paste it into Recraft.'); setTimeout(function(){ btn.textContent = old; btn.classList.remove('ok'); }, 1400); }
+    function fallback(){ try { var r = document.createRange(); r.selectNodeContents(box); var s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Selected. Press copy on your keyboard.'); } catch (e) {} }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback); else fallback();
+  }
+  function promptBox(text, label){
+    var box = el('p', { class: 'r-text', text: text }), btn = el('button', { class: 'r-btn', type: 'button', text: label || 'Copy prompt' });
+    btn.addEventListener('click', function(){ copy(text, btn, box); });
+    return { box: box, btn: btn };
+  }
+  var P = PROMPTS, total = P.cast.length + P.scenes.length, bar, count;
+  function progress(){ var n = Object.keys(done).filter(function(k){ return done[k]; }).length; count.textContent = n + ' of ' + total + ' done'; bar.style.width = Math.round(n / total * 100) + '%'; }
+  function card(item, kind){
+    var pb = promptBox(item.prompt), id = kind + ':' + item.id;
+    var cb = el('input', { type: 'checkbox', 'aria-label': 'Mark ' + (item.name || item.id) + ' done' });
+    cb.checked = !!done[id];
+    var c = el('div', { class: 'r-box r-card' + (cb.checked ? ' is-done' : ''), 'data-lang': item.lang },
+      el('div', { class: 'r-row' }, el('h3', { text: kind === 'cast' ? item.name : item.title }), el('span', { class: 'r-file', text: item.file })),
+      el('p', { class: 'r-meta', text: kind === 'cast' ? item.role + ' (' + LANGS[item.lang] + ')' : item.en + ' (' + item.level + '). In the story: ' + item.cast.join(', ') + '.' }),
+      pb.box,
+      el('div', { class: 'r-row' }, pb.btn, el('span', { class: 'r-meta', text: item.bytes + ' bytes' }), el('label', { class: 'r-done' }, cb, 'Done')));
+    cb.addEventListener('change', function(){ done[id] = cb.checked; if (!cb.checked) delete done[id]; c.classList.toggle('is-done', cb.checked); save(); progress(); });
+    return c;
+  }
+  function filtered(title, note, items, kind){
+    var grid = el('div', { class: 'r-grid' }, items.map(function(i){ return card(i, kind); }));
+    var chips = ['all'].concat(Object.keys(LANGS)).map(function(l){
+      var b = el('button', { class: 'r-chip', type: 'button', 'aria-pressed': String(l === 'all'), text: l === 'all' ? 'All' : LANGS[l] });
+      b.addEventListener('click', function(){ chips.forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); }); Array.prototype.forEach.call(grid.children, function(c){ c.hidden = l !== 'all' && c.getAttribute('data-lang') !== l; }); });
+      return b;
+    });
+    return el('section', { class: 'r-sec' }, el('h2', { text: title }), el('p', { class: 'r-note', text: note }), el('div', { class: 'r-row' }, chips), grid);
+  }
+  var app = document.getElementById('app');
+  bar = el('i'); count = el('span');
+  var sc = promptBox(P.styleCast, 'Copy cast style'), ss = promptBox(P.styleScene, 'Copy scene style');
+  app.append(
+    el('header', { class: 'r-top' }, el('h1', { text: 'Recraft prompts' }),
+      el('p', { text: 'One prompt for each of the 18 characters and 27 story scenes, written from the cast and the stories in the app. Each one stands alone: copy it, paste it into Recraft, and export the result as SVG.' }),
+      el('div', { class: 'r-prog' }, count, el('div', { class: 'r-bar' }, bar))),
+    el('section', { class: 'r-sec' }, el('h2', { text: 'How to use these' }), el('ol', { class: 'r-steps' }, P.steps.map(function(s){ return el('li', { text: s }); }))),
+    el('section', { class: 'r-sec' }, el('h2', { text: 'The shared look' }),
+      el('p', { class: 'r-note', text: 'Every prompt below already starts with one of these two blocks. Keep them if you save a custom style in Recraft, or paste them into a style description. The white sticker border and the shadow are added by the app, so Recraft should not draw them.' }),
+      el('div', { class: 'r-box' }, el('h3', { text: 'Characters' }), sc.box, el('div', { class: 'r-row' }, sc.btn)),
+      el('div', { class: 'r-box' }, el('h3', { text: 'Scenes' }), ss.box, el('div', { class: 'r-row' }, ss.btn)),
+      el('div', { class: 'r-box' }, el('h3', { text: 'Palette' }), el('div', { class: 'r-sw' }, P.palette.map(function(p){ var b = el('b'); b.style.background = p[1]; return el('span', null, b, p[0] + ' ' + p[1]); }))),
+      el('div', { class: 'r-box' }, el('h3', { text: 'If it goes wrong' }), el('ul', { class: 'r-fix' }, P.fixes.map(function(f){ return el('li', null, el('b', { text: f[0] + '. ' }), f[1]); })))),
+    filtered('Cast', 'Tall canvas, one character, transparent background. The app crops each face out of the full figure for the round portraits, so the head should sit near the top and the figure should fill the height.', P.cast, 'cast'),
+    filtered('Scenes', 'Widest canvas Recraft offers. People are added by the app, standing on the open floor area, so the scene has none.', P.scenes, 'scene'));
+  progress();
+})();
+</script>

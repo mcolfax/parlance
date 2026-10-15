@@ -15,6 +15,9 @@ He wants to sign off on the style before anything is drawn at scale.
 - **Where pictures show:** the new-word cards, and a new picture question at every level. The question gets harder with the level, the same way hints fade (`HINTS` in `js/config.js:223`).
 - **Stories:** one scene per story (27), with the story's cast drawn full-body in the setting. The cast style ("Flat", "Ink and spot color" or "Sticker", see `design/README.md`) is still undecided, so the style board settles it at the same time.
 
+**Style decided (STOP A passed, Oct 15):** Sticker (full Selva fills, an ink outline, a white border and a soft shadow added by CSS). Palette and line weight stay as on the board (`design/pictures/board.html`, `--pic-*` tokens, 2.3-unit outline). The story header stays 320 by 140.
+**Cast and story scenes are made in Recraft by Matt, not drawn in code.** The prompts are in `design/pictures/recraft/` (`PROMPTS.md`, and a copy-button page). Phase 6 below is the plan for putting the SVGs he sends into the app. Word pictures (Phases 0 to 5) are still drawn in code.
+
 **Facts the plan relies on:**
 - 1,826 distinct English meanings across the three courses. Most German, Spanish and Italian words share a meaning, so one picture serves all three languages.
 - My estimate: 700–900 pictures in total. Many B and C words are abstract and get no picture.
@@ -30,7 +33,7 @@ He wants to sign off on the style before anything is drawn at scale.
 3. **Branches and shipping.** Work on the branch your session names. Shipping follows "Shipping a release" in `CLAUDE.md`. No voice recording is needed, because no lesson or story text changes.
 4. **The order of work:**
    - Phase 0 doesn't depend on the style, so it can run before STOP A.
-   - Phases 4 and 6 are independent of each other once Phase 2 exists.
+   - Phase 6 waits for Matt's SVGs and is independent of Phases 2 to 5.
 
 ## Phase 0: Inventory (no drawing)
 
@@ -220,51 +223,29 @@ Draw the `b-*` batches, then the `c-*` batches, using the batch procedure. After
 
 Abstract B and C words get a picture only when a clear visual metaphor exists, and those are mostly `quiz: 0`: shown on the card, never asked.
 
-## Phase 6: A scene per story, with the cast → its own release
+## Phase 6: Cast and story scenes from Recraft -> its own release
 
-1. **`castHead(L)`** (`js/core/art.js`).
-   - Extract the head (hair back, face, hair front, features) from `avatarSVG` (lines 191–214) into `castHead(L)` on the 64 grid.
-   - `avatarSVG` becomes background + `castHead` + shoulders, so portraits and figures share one head.
-   - If Matt said portraits follow the new style, apply the style here.
-2. **`js/core/scenes.js` (new; after `art.js` in `index.html` and `styleguide.html`).**
-   - Move `SCENES` and `sceneArt` here from `art.js`.
-   - **Keep every existing `SCENES` key.** Live packs refer to them, and `content.js:216` validates against them.
-   - **`castFigure(id, pose, { prop, flip })`** returns `<g data-cast="id">`.
-     - The figure is 100 units tall with the feet at (0,0). The head is `castHead` scaled at the top.
-     - Shirt: `look.shirt`. Legs: an optional new `look.legs` in `content/cast.js` (literal colors there follow existing practice). Shoes are ink.
-   - **`FIG_POSES`:** `stand`, `talk`, `wave`, `point`, `hold`, `sit`, `walk`, `shrug`, `phone`, and `behind` (upper body only, for counters and desks). Each pose is arm paths, legs, and a `hand: [x, y]` anchor.
-   - **Props:** a prop is a `PICS` id drawn at the hand anchor at about 16 units (cup, phone, key, bag, umbrella…).
-   - **`SCENE_SLOTS[setting]`:** `[{ x, y, s, face }]`, where figures stand. **`SCENE_FRONT[setting]`:** optional foreground drawn over the figures (counter, desk, car door).
-   - **`storyArt(st, cls)`** returns the same `.scene` element as `sceneArt`: `SCENES[set]`, then the figures (back to front), then `SCENE_FRONT[set]`, with `data-story` set.
-   - **Fallback** when a story has no `STORY_ART` entry (live packs): use `set = st.scene` (an unknown scene becomes `cafe`), and put `st.cast` in slot order with poses `talk`/`stand`, up to the number of slots.
-3. **`content/story-art.js` (new; after the stories in `index.html`).**
-   - Shape: `const STORY_ART = { 'de-s1': { set: 'cafe', who: [['lena', 'behind', 0, 'coffee'], ['jonas', 'stand', 1]] }, … };` where each entry in `who` is `[castId, pose, slot, prop?, flip?]`.
-   - All 27 stories get an entry. Read each story first.
-     - Stage its place and opening moment.
-     - Show every speaker, up to 3 (most lines first). Faces stay uncovered, and figures face each other.
-   - The stories and their current setting:
-     - `cafe`: de-s1, es-s1, it-s1
-     - `home`: de-s2, es-s2, it-s2
-     - `rain`: de-s3, es-s4, it-s4, es-s9 (taxi), it-s9 (scooter)
-     - `shop`: de-s4, de-s9 (late-night pharmacy)
-     - `night`: de-s5, es-s5, it-s5 (blackouts)
-     - `cinema`: de-s6
-     - `concert`: es-s6, it-s6
-     - `flat`: de-s7, es-s7, it-s7
-     - `desk`: de-s8, it-s8 (interview)
-     - `studio`: es-s8 (interview)
-     - `market`: es-s3, it-s3
-4. **Settings.** Redraw all 11 existing settings in the chosen style.
-   - Keep their animation classes (`steam`, `rain`, `stars`, `beams`, `sc-onair`).
-   - Add the settings the stories need (likely `pharmacy`, `taxi`, `scooter`, `interview`, and a Rome café-bar if the café stories should differ), with slots for each.
-   - New keys go in `SCENES`, so packs can use them too. Story ids are never renamed.
-5. **`js/ui/stories.js`:** lines 19 and 43 use `storyArt(st, '')` and `storyArt(st, 'big')` instead of `sceneArt(...)`.
-6. **Tests:**
-   - Every built-in story renders one `[data-cast]` per staged member.
-   - Every `STORY_ART` entry names a real story, setting, pose and prop, and a cast member who is in that story.
-   - A pack story with an unknown scene still renders.
-   - Every cast member renders in every pose without `NaN` or `undefined`.
-7. **Review and release.** Add a "Story scenes" section (all 27) and a "Cast" section (every member in every pose) to `design/pictures/index.html`, republish, ask "ready to ship?", then release.
+Matt generates the SVGs in Recraft from the prompts in `design/pictures/recraft/PROMPTS.md` (`node design/pictures/recraft/prompts.js` rebuilds them from `content/cast.js` and the stories; prompts stay under 950 bytes, plain ASCII). He uploads them to `design/pictures/recraft/incoming/` (cast as `<id>.svg`, scenes as `<story-id>.svg`) or attaches them in chat. The code below waits for the files; none of it needs the style to be re-decided.
+
+**What the files are:** one full-length figure per cast member (18, tall canvas, transparent background, no white border or shadow) and one people-free scene per story (27, widest canvas, with the lower middle left open). The round portraits are cropped from the full figure, so there is one source of truth per person. The app puts the cast in front of the scene, so a character looks the same in every story.
+
+1. **`tools.js svg <dir>` (ingest).** For each SVG in `incoming/`:
+   - Refuse it if it has `<script>`, `<foreignObject>`, `<image>`, an `on*` attribute, a `javascript:` URL, or any `href`/`url(...)` that is not `#id` or `data:` (it is untrusted input).
+   - Strip a full-canvas background rect from cast files (a rect covering the whole viewBox with a white or near-white fill).
+   - Optimize with svgo (`npx svgo@3`, `removeViewBox` off, 1-decimal precision) and write the result to `media/cast/<id>.svg` or `media/scenes/<story-id>.svg`.
+   - Print a table: file, bytes before and after, element count, viewBox and shape (cast about 1:2, scenes about 2:1) and warn above the budget (cast 150 KB, scenes 300 KB, 8 MB in all).
+   - Run it from `node design/pictures/tools.js svg design/pictures/recraft/incoming`; keep the originals in `incoming/`.
+2. **Cast in the app.**
+   - `content/cast.js`: each person gets `img: 'media/cast/<id>.svg'` and `face: [x, y, w, h]`, the square of the figure's viewBox that holds the head and shoulders. Find `face` per person by rendering the figure and looking (a `tools.js shots` contact sheet with the crop drawn on it). Keep `look` (it still gives the portrait background color and a fallback).
+   - `avatar()` and `avatarSVG()` (`js/core/art.js`): when the person has `img`, draw `<svg viewBox="face"><image href="img" width="W" height="H"/></svg>` in the same `.cast-av` circle; on error or while loading, draw the old portrait from `look`. Friends, Talk and story bubbles all go through `avatar()`, so they change together.
+   - New `castFig(id, height)` for the full figure, with the sticker border as one CSS rule (stacked `drop-shadow()` from `--pic-*` tokens in `styles/art.css`).
+3. **Scenes in the app.**
+   - `content/story-art.js` (after the stories in `index.html`): `STORY_ART = { 'de-s1': { floor: .72, who: [['lena', .62, 'l'], ['jonas', .28, 'r']] }, ... }`. Each entry in `who` is `[castId, x as a share of the width, which way it faces]`; a figure that faces the other way is mirrored. Read each story first: put every speaker in (up to three, most lines first), facing each other, none covering the story's key props.
+   - `storyArt(st, cls)` (replaces `sceneArt` at `js/ui/stories.js:19` and `:43`): a `.scene` box with a fixed 320:140 shape; the scene `<img>` fills it (`object-fit: cover`), figures stand with their feet on `floor` at about 46% of the box height. If a story has no `STORY_ART` entry or its file fails to load, fall back to today's `sceneArt()` drawing. Keep every `SCENES` key: live packs name them (`content.js:216` checks against them).
+   - Stories keep working offline-first: the images load on demand and the old drawings stand in until then.
+4. **Web version and publishing.** Check that `dev/web.js` copies `media/cast` and `media/scenes` into `dist/` and that `vercel.json`'s Content-Security-Policy allows `img-src 'self'` (an `<image href>` inside an inline `<svg>` is an image load too). `node dev/files.js` already lists `media/`. SVG is a served file type, so the artifact publish takes it.
+5. **Tests (`dev/test.js`).** Every `STORY_ART` id is a real story; every named person is in that story and has a file in `media/cast/`; every scene file exists and is under budget; no cast or scene SVG has a forbidden element or an external reference; a pack story with an unknown scene still renders; `avatar()` falls back when the image is missing.
+6. **Review and release.** Add "Cast" (every figure and its crop) and "Story scenes" (all 27 composed) sections to `design/pictures/index.html`, republish, ask "ready to ship?", then release with `RELEASES` copy such as "Every story now has its own scene, with the people who are in it."
 
 ## Phase 7: Docs (with Release 1; extended in Phase 6)
 
