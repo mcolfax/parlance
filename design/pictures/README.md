@@ -7,6 +7,7 @@ The plan is in [`PLAN.md`](PLAN.md). Read it first: it lists the phases, the sto
 - **Phase 0 (inventory):** `node design/pictures/tools.js inventory` writes `words.json` (1,826 concepts). Writing `briefs.json` waits until the style is chosen.
 - **Phase 1 (style board):** done. The board is at https://claude.ai/artifact/JoRs3n6D8eR8gLcvUUm4hG (private until shared). **Matt chose Sticker** (see Decisions).
 - **Cast and scenes:** Matt makes them in Recraft. Prompts for the 18 people and 27 scenes: https://claude.ai/artifact/BB73fC3hcNf4z1xF73Hpjm (copy buttons, a done checklist) and `recraft/PROMPTS.md`. His SVGs go in `recraft/incoming/`. Plan: Phase 6 in `PLAN.md`.
+- **Decided:** Recraft for word pictures, the cast and the story scenes (not the unit signs, badges or chest). Ask Matt before every paid batch.
 - **Direction change:** pictures drawn in code are paused; everything will be regenerated in Recraft for consistency. See "Direction change" in `PLAN.md`. Blocked on the environment's network policy for `external.api.recraft.ai`; `recraft/generate.js` is ready and tested against a mock.
 - **Was next in code:** the picture kit (Phase 2), `briefs.json` (Phase 0), then the first batch of word pictures, and **STOP B**.
 

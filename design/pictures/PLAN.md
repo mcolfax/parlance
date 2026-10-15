@@ -27,6 +27,8 @@ He wants to sign off on the style before anything is drawn at scale.
 
 Matt paused the pictures drawn in code and wants **all** illustrations regenerated in Recraft so they match. Read this section first; where it conflicts with the phases below, it wins.
 
+**Decided by Matt (Oct 15):** scope is word pictures, the cast and the story scenes. The unit signs, badges and chest stay as they are. Budget: **ask before every batch.** Say what a batch is and what it will cost (images x 0.08 USD, plus a third for re-rolls) and wait for a yes before running it; a `gen` run also stops at `--max-usd` (default 8). A style (0.005 USD) and one test image to check the connection are fine to do without asking.
+
 **State when the change was made**
 - Done and kept: the inventory (`words.json`), `briefs-src.txt`/`briefs.json` for the first 170 concepts, `tools.js` (briefs, words, check, shots, svg), the `--pic-*` tokens and Sticker CSS, `js/core/pics.js` with 58 hand-drawn pictures (a-food, a-home and the board samples), `PIC_WORDS`, the helpers in `art.js`, the optional picture field on vocab, the style board, the prompts page, and Lena and Jonas from Recraft (`media/cast/`). The hand-drawn pictures stay as placeholders and as a quality reference; **no more are drawn in code.**
 - Not started: the picture questions in lessons (Phase 4), the new-word card pictures, and putting the cast and scenes in the app (Phase 6).
