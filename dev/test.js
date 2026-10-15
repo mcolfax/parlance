@@ -259,7 +259,9 @@ async function main(){
     ok(P.STORIES.some(s => s.cast.includes(id)) || A.E('SCENARIOS').some(sc => sc.cast[c.lang] === id), 'has a story or a Talk scene ' + id);
   }
   for (const sc of A.E('SCENARIOS')) for (const lang of LANG_IDS){ const who = sc.cast[lang]; ok(who === 'pip' || (P.CAST[who] && P.CAST[who].lang === lang), 'Talk ' + sc.id + ' ' + lang + ' is played by ' + who); }
-  ok(A.E('avatarSVG("leyla")').includes('evenodd') && A.E('avatarSVG("brandt")').includes(P.CAST.brandt.look.tie) && A.E('avatarSVG("valentina")').includes(P.CAST.valentina.look.ribbon), 'new looks: headscarf, tie, braid ribbons');
+  /* the drawn portrait is still what a character without a figure gets (a live pack could add one), with every look it supports */
+  { const drawn = id => A.E('(() => { const c = CAST[' + JSON.stringify(id) + '], k = c.fig; c.fig = ""; try { return avatarSVG(' + JSON.stringify(id) + '); } finally { c.fig = k; } })()');
+    ok(drawn('leyla').includes('evenodd') && drawn('brandt').includes(P.CAST.brandt.look.tie) && drawn('valentina').includes(P.CAST.valentina.look.ribbon), 'new looks: headscarf, tie, braid ribbons'); }
   ok(A.E('FILM_CAST').map(r => r.length).join() === '6,6,6' && A.E('FILM_CAST.flat().length') === Object.entries(P.CAST).filter(([id, c]) => id !== 'pip' && ['de', 'es', 'it'].includes(c.lang)).length, 'the film meets the Berlin, Mexico City and Rome cast ' + JSON.stringify(A.E('FILM_CAST')));
   ok(A.E('FILM_CAST.every((row, r) => row.every((id, i) => FILM_CUES.some(c => c[1] === "pop" && Math.abs(c[0] - filmCastAt(r, i).t) < 0.01)))'), 'a pop for every face in the film');
   ok(A.E('FILM_CUES.every(c => SOUNDS[c[1]] && c[0] >= 0 && c[0] < FILM_DUR)') && A.E('FILM_CAPTIONS.every(c => c[0] < c[1] && c[1] <= FILM_DUR + 1)') && Math.abs(A.E('bar(1) - bar(0)') - 240 / 99) < 1e-9, 'film cues use real sounds and captions are in order');
