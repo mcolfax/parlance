@@ -7,6 +7,8 @@
      pick <id> <k>                copies candidates/<id>-<k>.svg to incoming/<id>.svg (then: node design/pictures/tools.js svg)
    Options: --max-usd 8 (stop before a run would take the total past this; default 8), --dry (print what would be sent).
    The token comes from the RECRAFT_API_TOKEN environment variable (or a file named by RECRAFT_API_TOKEN_FILE). It never goes in the repo.
+   If the environment holds Recraft as a network secret (the proxy adds the Authorization header to requests for external.api.recraft.ai),
+   set RECRAFT_AUTH=proxy and the script sends no token at all.
    Every call's cost (the "credits" Recraft returns, in API units) is added to recraft-usage.json: commit it with the pictures.
    Models and prices: recraftv4_1_vector makes SVG at 0.08 USD an image; a style costs 0.005 USD. Image URLs last about 24 hours, so
    candidates are downloaded as soon as they are made. On a non-2xx answer the script prints the status and body and stops. */
@@ -22,6 +24,7 @@ const F = { usage: path.join(HERE, 'recraft-usage.json'), style: path.join(HERE,
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function token(){
+  if (process.env.RECRAFT_AUTH === 'proxy') return null;   // the egress proxy adds the Authorization header
   const t = process.env.RECRAFT_API_TOKEN || (process.env.RECRAFT_API_TOKEN_FILE && fs.readFileSync(process.env.RECRAFT_API_TOKEN_FILE, 'utf8').trim());
   if (!t) throw new Error('Set RECRAFT_API_TOKEN (or RECRAFT_API_TOKEN_FILE) first.');
   return t;
@@ -32,7 +35,7 @@ function spend(kind, id, n, units){ const u = usage(); u.units += units; u.calls
 
 async function api(method, route, body){
   for (let i = 0; ; i++){
-    const res = await fetch(BASE + route, { method, headers: { Authorization: 'Bearer ' + token(), ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+    const res = await fetch(BASE + route, { method, headers: { ...(token() ? { Authorization: 'Bearer ' + token() } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
     const text = await res.text();
     if (res.ok){ try { return JSON.parse(text); } catch (e) { throw new Error('Recraft answered 200 but not JSON: ' + text.slice(0, 200)); } }
     if ((res.status === 429 || res.status >= 500) && i < 3){ await sleep(2000 * 2 ** i); continue; }
