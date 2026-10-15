@@ -4,6 +4,9 @@
      style [id,id…]               makes a reusable Recraft style from reference figures (default: lena,jonas from incoming/) and saves its id in style.json
      gen cast|scenes|<id,id…> [--n 2] [--force]
                                   generates candidates for those ids from prompts-data.js into candidates/<id>-<k>.svg
+     sheet <sheet-id> [--n 1] [--model recraftv4_1_pro_vector] [--style off]
+                                  generates a sticker sheet planned by sheets.js (many word pictures in one image) into candidates/<sheet-id>-<k>.svg;
+                                  the pro model costs 0.30 USD an image; --style off leaves out the Lena-and-Jonas style
      pick <id> <k>                copies candidates/<id>-<k>.svg to incoming/<id>.svg (then: node design/pictures/tools.js svg)
    Options: --max-usd 8 (stop before a run would take the total past this; default 8), --dry (print what would be sent).
    The token comes from the RECRAFT_API_TOKEN environment variable (or a file named by RECRAFT_API_TOKEN_FILE). It never goes in the repo.
@@ -99,6 +102,22 @@ const commands = {
       console.log(it.id + ': ' + res.data.length + ' candidate(s) in candidates/ (' + (units / 1000).toFixed(3) + ' USD, ' + spent.toFixed(2) + ' in all)');
     }
   },
+  async sheet(){
+    const id = args[1], f = path.join(HERE, 'sheets', id + '.json'), sheet = readJSON(f, null);
+    if (!sheet) throw new Error('No sheet ' + id + '. Plan it first: node design/pictures/recraft/sheets.js plan --only <batch>');
+    const model = opt('--model') || MODEL, price = /pro/.test(model) ? 0.30 : PRICE, style = readJSON(F.style, null);
+    const body = { prompt: sheet.prompt, model, size: sheet.ratio, n: N, response_format: 'url' };
+    if (style && model === style.model && opt('--style') !== 'off') body.style_id = style.id;
+    const spent = usage().units / 1000;
+    console.log('sheet ' + id + ': ' + sheet.per + ' objects, ' + sheet.cols + 'x' + sheet.rows + ', ' + model + (body.style_id ? ' with the style' : ' without a style') + ', ' + N + ' image(s) = ' + (N * price).toFixed(2) + ' USD (spent so far ' + spent.toFixed(2) + ', cap ' + MAX_USD + ')');
+    if (spent + N * price > MAX_USD) throw new Error('Stopping: this would take the total past ' + MAX_USD + ' USD. Raise --max-usd to go on.');
+    if (DRY){ console.log(JSON.stringify({ ...body, prompt: body.prompt.slice(0, 80) + '…' })); return; }
+    fs.mkdirSync(F.cand, { recursive: true });
+    const res = await api('POST', '/images/generations', body);
+    for (let k = 0; k < res.data.length; k++) fs.writeFileSync(path.join(F.cand, id + '-' + (k + 1) + '.svg'), await download(res.data[k].url));
+    const units = typeof res.credits === 'number' ? res.credits : N * price * 1000, total = spend('sheet', id, res.data.length, units) / 1000;
+    console.log(res.data.length + ' candidate(s) in candidates/ (' + (units / 1000).toFixed(3) + ' USD, ' + total.toFixed(2) + ' in all). Next: NODE_PATH="$(npm root -g)" node design/pictures/tools.js split ' + id + ' --debug <folder>');
+  },
   async pick(){
     const [id, k] = [args[1], args[2]], src = path.join(F.cand, id + '-' + k + '.svg');
     if (!id || !k || !fs.existsSync(src)) throw new Error('Usage: pick <id> <k>, with candidates/<id>-<k>.svg present.');
@@ -106,5 +125,5 @@ const commands = {
   }
 };
 const cmd = args[0];
-if (!commands[cmd]){ console.log('Usage: node design/pictures/recraft/generate.js balance | style [ids] | gen cast|scenes|<ids> [--n 2] [--force] [--max-usd 8] [--dry] | pick <id> <k>'); process.exit(cmd ? 1 : 0); }
+if (!commands[cmd]){ console.log('Usage: node design/pictures/recraft/generate.js balance | style [ids] | gen cast|scenes|<ids> [--n 2] [--force] [--max-usd 8] [--dry] | sheet <sheet-id> [--model m] [--style off] | pick <id> <k>'); process.exit(cmd ? 1 : 0); }
 commands[cmd]().then(() => console.log('ok'), e => { console.log('FAIL ' + (e && e.message || e)); process.exit(1); });

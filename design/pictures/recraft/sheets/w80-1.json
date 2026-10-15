@@ -1,0 +1,733 @@
+{
+ "id": "w80-1",
+ "per": 80,
+ "cols": 10,
+ "rows": 8,
+ "ratio": "5:4",
+ "bytes": 4324,
+ "ids": [
+  "black",
+  "blue",
+  "brown",
+  "color",
+  "gray",
+  "green",
+  "orange-color",
+  "pink",
+  "purple",
+  "red",
+  "white",
+  "yellow",
+  "apple",
+  "beer",
+  "bill",
+  "bread",
+  "cake",
+  "cappuccino",
+  "cheese",
+  "coffee",
+  "cup",
+  "dessert",
+  "egg",
+  "fish",
+  "food",
+  "glass",
+  "meat",
+  "menu",
+  "milk",
+  "orange",
+  "pasta",
+  "pear",
+  "pizza",
+  "potato",
+  "salad",
+  "soup",
+  "tea",
+  "tomato",
+  "water",
+  "apartment",
+  "bag",
+  "balcony",
+  "bathroom",
+  "bedroom",
+  "big",
+  "book",
+  "chair",
+  "clock",
+  "dining-room",
+  "door",
+  "entrance",
+  "garage",
+  "garden",
+  "glasses",
+  "key",
+  "kitchen",
+  "living-room",
+  "small",
+  "stairs",
+  "table",
+  "eight",
+  "five",
+  "four",
+  "nine",
+  "one",
+  "seven",
+  "six",
+  "ten",
+  "three",
+  "two",
+  "doctor",
+  "good",
+  "happy",
+  "old",
+  "teacher",
+  "tired",
+  "waiter",
+  "austria",
+  "city",
+  "colombia"
+ ],
+ "items": [
+  {
+   "id": "black",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "paint daub in black with a brush"
+  },
+  {
+   "id": "blue",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "brown",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "paint daub in brown with a brush"
+  },
+  {
+   "id": "color",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "painter's palette with five paint blobs and a thumb hole"
+  },
+  {
+   "id": "gray",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "paint daub in gray with a brush"
+  },
+  {
+   "id": "green",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "paint daub in green with a brush"
+  },
+  {
+   "id": "orange-color",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "paint daub in orange with a brush"
+  },
+  {
+   "id": "pink",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "paint daub in pink with a brush"
+  },
+  {
+   "id": "purple",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "paint daub in purple with a brush"
+  },
+  {
+   "id": "red",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "paint daub in red with a brush"
+  },
+  {
+   "id": "white",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "paint daub in white with a brush"
+  },
+  {
+   "id": "yellow",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "paint daub in yellow with a brush"
+  },
+  {
+   "id": "apple",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "beer",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "glass mug with a handle, golden beer and white foam"
+  },
+  {
+   "id": "bill",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "paper receipt with wavy lines and a coin beside it"
+  },
+  {
+   "id": "bread",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "cake",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "slice of layered cake with cream and a cherry on top"
+  },
+  {
+   "id": "cappuccino",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "cup with foam and a heart drawn in the foam"
+  },
+  {
+   "id": "cheese",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "yellow wedge with three round holes"
+  },
+  {
+   "id": "coffee",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "cup",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "empty teal cup with a handle, no saucer"
+  },
+  {
+   "id": "dessert",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "scoop of ice cream in a cone beside a small cake"
+  },
+  {
+   "id": "egg",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "fried egg: white wobbly blob, round yolk, a little shine"
+  },
+  {
+   "id": "fish",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "whole fish seen from the side, scales, a tail and a round eye"
+  },
+  {
+   "id": "food",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "plate with a fork and knife and a little of everything on it"
+  },
+  {
+   "id": "glass",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "empty clear drinking glass with a highlight"
+  },
+  {
+   "id": "meat",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "steak on a bone with grill marks"
+  },
+  {
+   "id": "menu",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "folded menu card standing up, wavy lines for the list"
+  },
+  {
+   "id": "milk",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "carton with a pointed top and a glass of milk beside it, no writing"
+  },
+  {
+   "id": "orange",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "round orange with a green leaf and a small shine"
+  },
+  {
+   "id": "pasta",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bowl of spaghetti with a fork twirling it, tomato sauce on top"
+  },
+  {
+   "id": "pear",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "green pear with a short stem and a leaf"
+  },
+  {
+   "id": "pizza",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "round pizza with a slice pulled away, cheese and red tomato circles"
+  },
+  {
+   "id": "potato",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "brown potato with eyes and a bit of dirt"
+  },
+  {
+   "id": "salad",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bowl of leaves with tomato and cucumber slices"
+  },
+  {
+   "id": "soup",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bowl of soup with steam and a spoon"
+  },
+  {
+   "id": "tea",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "cup with a teabag string and a leaf beside it"
+  },
+  {
+   "id": "tomato",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "round red tomato with a green star-shaped top"
+  },
+  {
+   "id": "water",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "tall glass of water with a droplet and a highlight"
+  },
+  {
+   "id": "apartment",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "block of flats seen from the front, rows of windows, a balcony, a door"
+  },
+  {
+   "id": "bag",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "handbag with a strap and a clasp"
+  },
+  {
+   "id": "balcony",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "balcony with a railing and a potted plant, a sliver of sky"
+  },
+  {
+   "id": "bathroom",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bathtub with taps and soap bubbles, a towel on a hook"
+  },
+  {
+   "id": "bedroom",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "bed with a pillow and blanket, a lamp on a bedside table"
+  },
+  {
+   "id": "big",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "book",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "closed book with a ribbon bookmark, no writing"
+  },
+  {
+   "id": "chair",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "wooden chair seen from the side with a round cushion"
+  },
+  {
+   "id": "clock",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "round wall clock, hands at three, tick marks and no numerals"
+  },
+  {
+   "id": "dining-room",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "table laid for two with chairs and a hanging lamp"
+  },
+  {
+   "id": "door",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "closed wooden door with a round handle and a small window"
+  },
+  {
+   "id": "entrance",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "front door with a doormat, a coat hook and a shoe"
+  },
+  {
+   "id": "garage",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "garage with a roll-up door half open and a car's nose inside"
+  },
+  {
+   "id": "garden",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "flower bed with three flowers, a small tree and a fence"
+  },
+  {
+   "id": "glasses",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "key",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "kitchen",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "cooker with two pots, a hanging pan and a kettle"
+  },
+  {
+   "id": "living-room",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "sofa with cushions, a lamp and a plant"
+  },
+  {
+   "id": "small",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "stairs",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "flight of steps with a handrail, seen from the side"
+  },
+  {
+   "id": "table",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "wooden table seen from the side, four legs, a checked cloth"
+  },
+  {
+   "id": "eight",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "eight orange dots in two rows of four"
+  },
+  {
+   "id": "five",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "five orange dots like a die"
+  },
+  {
+   "id": "four",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "four orange dots in a square"
+  },
+  {
+   "id": "nine",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "nine orange dots in three rows of three"
+  },
+  {
+   "id": "one",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "one big orange dot"
+  },
+  {
+   "id": "seven",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "seven orange dots, four above three"
+  },
+  {
+   "id": "six",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "six orange dots in two columns of three"
+  },
+  {
+   "id": "ten",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "ten orange dots in two rows of five"
+  },
+  {
+   "id": "three",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "three orange dots in a row"
+  },
+  {
+   "id": "two",
+   "batch": "a-numbers",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "two orange dots side by side"
+  },
+  {
+   "id": "doctor",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure in a white coat with a stethoscope and a red cross badge"
+  },
+  {
+   "id": "good",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "big thumbs-up hand"
+  },
+  {
+   "id": "happy",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "round face, big open smile, closed happy eyes, two sparkles"
+  },
+  {
+   "id": "old",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "elderly figure with white hair, glasses and a cane"
+  },
+  {
+   "id": "teacher",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure beside a green chalkboard, holding a pointer"
+  },
+  {
+   "id": "tired",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "waiter",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure with a bow tie carrying a tray with a coffee"
+  },
+  {
+   "id": "austria",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "waving flag, three horizontal bands: red, white, red"
+  },
+  {
+   "id": "city",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "row of tall and short buildings with lit windows, a tower, a sun behind"
+  },
+  {
+   "id": "colombia",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "waving flag, three horizontal bands: yellow (double height), blue, red"
+  }
+ ],
+ "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 8 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 80 objects are: 1) paint daub in black with a brush; 2) blue; 3) paint daub in brown with a brush; 4) painter's palette with five paint blobs and a thumb hole; 5) paint daub in gray with a brush; 6) paint daub in green with a brush; 7) paint daub in orange with a brush; 8) paint daub in pink with a brush; 9) paint daub in purple with a brush; 10) paint daub in red with a brush; 11) paint daub in white with a brush; 12) paint daub in yellow with a brush; 13) apple; 14) glass mug with a handle, golden beer and white foam; 15) paper receipt with wavy lines and a coin beside it; 16) bread; 17) slice of layered cake with cream and a cherry on top; 18) cup with foam and a heart drawn in the foam; 19) yellow wedge with three round holes; 20) coffee; 21) empty teal cup with a handle, no saucer; 22) scoop of ice cream in a cone beside a small cake; 23) fried egg: white wobbly blob, round yolk, a little shine; 24) whole fish seen from the side, scales, a tail and a round eye; 25) plate with a fork and knife and a little of everything on it; 26) empty clear drinking glass with a highlight; 27) steak on a bone with grill marks; 28) folded menu card standing up, wavy lines for the list; 29) carton with a pointed top and a glass of milk beside it, no writing; 30) round orange with a green leaf and a small shine; 31) bowl of spaghetti with a fork twirling it, tomato sauce on top; 32) green pear with a short stem and a leaf; 33) round pizza with a slice pulled away, cheese and red tomato circles; 34) brown potato with eyes and a bit of dirt; 35) bowl of leaves with tomato and cucumber slices; 36) bowl of soup with steam and a spoon; 37) cup with a teabag string and a leaf beside it; 38) round red tomato with a green star-shaped top; 39) tall glass of water with a droplet and a highlight; 40) block of flats seen from the front, rows of windows, a balcony, a door; 41) handbag with a strap and a clasp; 42) balcony with a railing and a potted plant, a sliver of sky; 43) bathtub with taps and soap bubbles, a towel on a hook; 44) bed with a pillow and blanket, a lamp on a bedside table; 45) big; 46) closed book with a ribbon bookmark, no writing; 47) wooden chair seen from the side with a round cushion; 48) round wall clock, hands at three, tick marks and no numerals; 49) table laid for two with chairs and a hanging lamp; 50) closed wooden door with a round handle and a small window; 51) front door with a doormat, a coat hook and a shoe; 52) garage with a roll-up door half open and a car's nose inside; 53) flower bed with three flowers, a small tree and a fence; 54) glasses; 55) key; 56) cooker with two pots, a hanging pan and a kettle; 57) sofa with cushions, a lamp and a plant; 58) small; 59) flight of steps with a handrail, seen from the side; 60) wooden table seen from the side, four legs, a checked cloth; 61) eight orange dots in two rows of four; 62) five orange dots like a die; 63) four orange dots in a square; 64) nine orange dots in three rows of three; 65) one big orange dot; 66) seven orange dots, four above three; 67) six orange dots in two columns of three; 68) ten orange dots in two rows of five; 69) three orange dots in a row; 70) two orange dots side by side; 71) figure in a white coat with a stethoscope and a red cross badge; 72) big thumbs-up hand; 73) round face, big open smile, closed happy eyes, two sparkles; 74) elderly figure with white hair, glasses and a cane; 75) figure beside a green chalkboard, holding a pointer; 76) tired; 77) figure with a bow tie carrying a tray with a coffee; 78) waving flag, three horizontal bands: red, white, red; 79) row of tall and short buildings with lit windows, a tower, a sun behind; 80) waving flag, three horizontal bands: yellow (double height), blue, red."
+}

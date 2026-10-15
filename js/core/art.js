@@ -254,8 +254,11 @@ function unitSign(title, size){
 
 /* ----- word pictures (js/core/pics.js; the Sticker style is in styles/art.css) ----- */
 const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);   // a live pack names pictures, so never trust a key
-const hasPic = id => typeof PICS !== 'undefined' && typeof id === 'string' && hasOwn(PICS, id);
-/* the picture for a lesson word: the one a live pack named, else the one PIC_WORDS (content/pictures.js) gives its main text; null if none */
+const hasFile = id => typeof PIC_FILES !== 'undefined' && typeof id === 'string' && hasOwn(PIC_FILES, id);   // media/pics/<id>.svg, made in Recraft: wins over a drawing
+const hasDrawn = id => typeof PICS !== 'undefined' && typeof id === 'string' && hasOwn(PICS, id);
+const hasPic = id => hasFile(id) || hasDrawn(id);
+/* the picture for a lesson word: the one a live pack named, else the one PIC_WORDS (content/pictures.js) gives its main text; null if none.
+   A picture is a file (media/pics/<id>.svg, PIC_FILES) or a drawing (PICS, js/core/pics.js); a file wins. */
 function picFor(item, lang){
   if (!item) return null;
   if (hasPic(item.p)) return item.p;
@@ -263,10 +266,13 @@ function picFor(item, lang){
   return hasPic(id) ? id : null;
 }
 /* the same, but only if the picture may be asked about (quiz: 1 in pics.js) */
-function picQuiz(item, lang){ const id = picFor(item, lang); return id && PICS[id].quiz === 1 ? id : null; }
-function picSVG(id){ return hasPic(id) ? '<svg viewBox="0 0 64 64" aria-hidden="true">' + PICS[id].svg + '</svg>' : ''; }
+function picQuiz(item, lang){ const id = picFor(item, lang); return id && (hasFile(id) ? PIC_FILES[id] : PICS[id].quiz) === 1 ? id : null; }
+function picSVG(id){ return hasDrawn(id) ? '<svg viewBox="0 0 64 64" aria-hidden="true">' + PICS[id].svg + '</svg>' : ''; }
 /* wordPic(id, size, cls) -> a picture tile of size px (the white sticker border and shadow come from styles/art.css) */
-function wordPic(id, size, cls){ return h('span', { class: 'pic' + (cls ? ' ' + cls : ''), style: '--pic:' + (size || 44) + 'px', 'aria-hidden': 'true', html: picSVG(id) }); }
+function wordPic(id, size, cls){
+  const box = { class: 'pic' + (cls ? ' ' + cls : ''), style: '--pic:' + (size || 44) + 'px', 'aria-hidden': 'true' };
+  return hasFile(id) ? h('span', box, h('img', { src: 'media/pics/' + id + '.svg', alt: '', loading: 'lazy', decoding: 'async', draggable: 'false' })) : h('span', { ...box, html: picSVG(id) });
+}
 
 /* ----- story scenes (320 x 140) ----- */
 const SCENES = {

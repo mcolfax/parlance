@@ -1,0 +1,175 @@
+{
+ "id": "w80-2",
+ "per": 18,
+ "cols": 10,
+ "rows": 2,
+ "ratio": "5:4",
+ "bytes": 1717,
+ "ids": [
+  "germany",
+  "italy",
+  "market",
+  "mexico",
+  "rome",
+  "united-states",
+  "to-buy",
+  "to-drink",
+  "to-eat",
+  "to-pay",
+  "dog",
+  "train",
+  "to-cook",
+  "to-read",
+  "to-sleep",
+  "to-swim",
+  "to-recycle",
+  "to-be-on-cloud-nine"
+ ],
+ "items": [
+  {
+   "id": "germany",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "waving flag, three horizontal bands: black, red, gold"
+  },
+  {
+   "id": "italy",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "waving flag, three vertical bands: green, white, red"
+  },
+  {
+   "id": "market",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "open-air stall with a striped awning and crates of fruit"
+  },
+  {
+   "id": "mexico",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "waving flag, vertical green, white, red with a small brown eagle blob in the middle"
+  },
+  {
+   "id": "rome",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "the Colosseum: a curved wall of stacked arches, a blue sky behind"
+  },
+  {
+   "id": "united-states",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "waving flag: red and white stripes, blue corner with white dots"
+  },
+  {
+   "id": "to-buy",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure carrying a shopping bag and holding out a coin"
+  },
+  {
+   "id": "to-drink",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure tipping a glass up to the mouth"
+  },
+  {
+   "id": "to-eat",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with a fork raised to the mouth, a plate in front"
+  },
+  {
+   "id": "to-pay",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "hand giving a coin to another hand over a counter"
+  },
+  {
+   "id": "dog",
+   "batch": "a-animals",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "dog's face, floppy brown ears, black nose, pink tongue"
+  },
+  {
+   "id": "train",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "side view of a steam train: blue boiler, red cab, black chimney, wheels on a rail"
+  },
+  {
+   "id": "to-cook",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with a chef's hat stirring a red pot, steam rising"
+  },
+  {
+   "id": "to-read",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure holding an open orange book, eyes looking down"
+  },
+  {
+   "id": "to-sleep",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure asleep in a bed under a purple blanket, a moon and a star above"
+  },
+  {
+   "id": "to-swim",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with a red cap in blue water, one arm lifted with splashes"
+  },
+  {
+   "id": "to-recycle",
+   "batch": "b-world",
+   "level": "B2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "green bin with two chasing arrows on it"
+  },
+  {
+   "id": "to-be-on-cloud-nine",
+   "batch": "c-idioms",
+   "level": "C1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "happy figure on a white cloud, arms up, hearts around"
+  }
+ ],
+ "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 2 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 18 objects are: 1) waving flag, three horizontal bands: black, red, gold; 2) waving flag, three vertical bands: green, white, red; 3) open-air stall with a striped awning and crates of fruit; 4) waving flag, vertical green, white, red with a small brown eagle blob in the middle; 5) the Colosseum: a curved wall of stacked arches, a blue sky behind; 6) waving flag: red and white stripes, blue corner with white dots; 7) figure carrying a shopping bag and holding out a coin; 8) figure tipping a glass up to the mouth; 9) figure with a fork raised to the mouth, a plate in front; 10) hand giving a coin to another hand over a counter; 11) dog's face, floppy brown ears, black nose, pink tongue; 12) side view of a steam train: blue boiler, red cab, black chimney, wheels on a rail; 13) figure with a chef's hat stirring a red pot, steam rising; 14) figure holding an open orange book, eyes looking down; 15) figure asleep in a bed under a purple blanket, a moon and a star above; 16) figure with a red cap in blue water, one arm lifted with splashes; 17) green bin with two chasing arrows on it; 18) happy figure on a white cloud, arms up, hearts around."
+}
