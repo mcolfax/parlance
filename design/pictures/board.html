@@ -1,0 +1,143 @@
+<title>Parlance Picture Styles</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500..700&family=Nunito:ital,wght@0,400..800;1,400&display=swap">
+<style>
+/* Layout: a review sheet. Header, then "The words" (all three styles side by side), then one chosen style in a lesson,
+   with the cast and a story scene. Page chrome comes from the app's own tokens (styles/tokens.css); the --pic-* tokens
+   below are new and move into tokens.css once a style is chosen. */
+:root{
+  --pic-tile:#EAF3E2; --pic-ink:#15301F; --pic-paper:#FFFFFF; --pic-shade:rgb(21 48 31 / .16); --pic-figure:#CBB8F0;
+  --pic-red:#E5483A; --pic-orange:#FF8A1F; --pic-yellow:#FFC93C; --pic-green:#3DAA5C; --pic-teal:#1FA3A0; --pic-blue:#2F7BE0;
+  --pic-sky:#9ED3F2; --pic-purple:#8B5CC6; --pic-pink:#F27BA4; --pic-brown:#9A6234; --pic-tan:#E6A957; --pic-grey:#A9B5AC;
+  --pic-cream:#FFF1D6; --pic-wall:#F6E7C9; --pic-floor:#DCC9A0; --pic-glow:rgb(255 214 120 / .35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --pic-tile:#1F3326; --pic-ink:#E4F0E2; --pic-paper:#F4F8EE; --pic-shade:rgb(0 0 0 / .26); --pic-figure:#B9A4EA;
+    --pic-red:#F0624F; --pic-orange:#FF9D45; --pic-yellow:#FFD255; --pic-green:#4CC27E; --pic-teal:#2BBDB8; --pic-blue:#5A9BF2;
+    --pic-sky:#7EBFE6; --pic-purple:#A683DD; --pic-pink:#FF8FB5; --pic-brown:#B27A48; --pic-tan:#EDB668; --pic-grey:#8FA096;
+    --pic-cream:#F7E6C4; --pic-wall:#2A3B2F; --pic-floor:#223227; --pic-glow:rgb(255 214 120 / .22);
+  }
+}
+:root[data-theme="dark"]{
+  --pic-tile:#1F3326; --pic-ink:#E4F0E2; --pic-paper:#F4F8EE; --pic-shade:rgb(0 0 0 / .26); --pic-figure:#B9A4EA;
+  --pic-red:#F0624F; --pic-orange:#FF9D45; --pic-yellow:#FFD255; --pic-green:#4CC27E; --pic-teal:#2BBDB8; --pic-blue:#5A9BF2;
+  --pic-sky:#7EBFE6; --pic-purple:#A683DD; --pic-pink:#FF8FB5; --pic-brown:#B27A48; --pic-tan:#EDB668; --pic-grey:#8FA096;
+  --pic-cream:#F7E6C4; --pic-wall:#2A3B2F; --pic-floor:#223227; --pic-glow:rgb(255 214 120 / .22);
+}
+*{box-sizing:border-box}
+html,body{height:auto;min-height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--type-body);padding-block:12px 64px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.b-sheet{max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.b-top{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
+.b-top h1{font:var(--type-h1);margin:0;text-wrap:balance}
+.b-top p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+.tbtn,.cbtn{font:var(--type-label);border:2px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:var(--r-pill);padding:7px 14px;cursor:pointer;box-shadow:0 2px 0 var(--hair)}
+.tbtn:focus-visible,.cbtn:focus-visible,.b-seg button:focus-visible{outline:3px solid var(--line);outline-offset:2px}
+[data-comments="off"] .cbtn{display:none}
+section.blk{display:flex;flex-direction:column;gap:14px;min-width:0}
+.blk-head{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.blk h2{font:var(--type-h2);margin:0}
+.note{margin:0;color:var(--muted);max-width:64ch}
+.b-seg{display:inline-flex;background:var(--surface);border:2px solid var(--hair);border-radius:var(--r-pill);padding:3px;gap:2px;align-self:flex-start;flex-wrap:wrap}
+.b-seg button{font:var(--type-label);border:0;background:none;color:var(--muted);padding:8px 14px;border-radius:var(--r-pill);cursor:pointer}
+.b-seg button[aria-pressed="true"]{background:var(--line);color:var(--line-ink)}
+.rule{background:var(--surface);border:2px solid var(--hair);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--edge)}
+.rule b{font:var(--type-title-s)}
+.rule p{margin:0;color:var(--muted)}
+.rule ul{margin:0;padding-left:20px;color:var(--ink)}
+.sticky{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--bg);padding-block:8px;margin-block:-8px;display:flex;flex-direction:column;gap:8px}
+
+/* the words: three versions side by side */
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font:var(--type-eyebrow);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.wgrid{display:flex;flex-direction:column;gap:14px}
+.b-wrow{display:flex;flex-direction:column;gap:6px}
+.b-wrow .wl{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font:var(--type-label)}
+.b-wrow .wl small{color:var(--muted);font:var(--type-small)}
+.trio{display:grid;grid-template-columns:repeat(3,112px);gap:8px;justify-content:space-between}
+.small-rows{display:flex;flex-direction:column;gap:10px}
+.small-rows .szrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.small-rows .szrow b{font:var(--type-eyebrow);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);width:100%}
+.szrow .pic{margin-right:0}
+
+/* word pictures: one drawing, three ways of painting it (s-flat, s-ink, s-sticker) */
+.pic{display:inline-block;width:var(--pic);height:var(--pic);border-radius:calc(var(--pic) * .24);background:var(--pic-tile);flex:none;line-height:0}
+.pic svg{width:100%;height:100%;display:block;overflow:visible}
+.pk-red{fill:var(--pic-red)}.pk-orange{fill:var(--pic-orange)}.pk-yellow{fill:var(--pic-yellow)}.pk-green{fill:var(--pic-green)}.pk-teal{fill:var(--pic-teal)}
+.pk-blue{fill:var(--pic-blue)}.pk-sky{fill:var(--pic-sky)}.pk-purple{fill:var(--pic-purple)}.pk-pink{fill:var(--pic-pink)}.pk-brown{fill:var(--pic-brown)}
+.pk-tan{fill:var(--pic-tan)}.pk-grey{fill:var(--pic-grey)}.pk-cream{fill:var(--pic-cream)}.pk-paper{fill:var(--pic-paper)}.pk-figure{fill:var(--pic-figure)}
+.pk-blush{fill:var(--pic-pink);opacity:.6}.pk-ink{fill:var(--pic-ink)}.pk-shade{fill:var(--pic-shade)}.pk-wall{fill:var(--pic-wall)}.pk-floor{fill:var(--pic-floor)}.pk-glow{fill:var(--pic-glow)}
+.pk-line,.pk-line3,.pk-linew,.pk-hi{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pk-linew{stroke:var(--pic-paper);stroke-width:3}
+.pk-linew.hd{fill:var(--pic-paper);stroke-width:1.6}
+.pk-line{stroke:var(--pic-ink);stroke-width:2}
+.pk-line3{stroke:var(--pic-ink);stroke-width:3.2}
+.pk-hi{stroke:#fff;stroke-opacity:.75;stroke-width:2.2}
+/* Flat: no outlines, a soft shade shape for depth, details in ink at 60% */
+.s-flat .pk-line,.s-flat .pk-line3{opacity:.6}
+/* Ink and spot: an ink outline on every shape, paper fill, spot color only where it carries the meaning (.sp) */
+.s-ink{--pic-ink:var(--ink);--pic-paper:var(--surface)}
+.s-ink [class*="pk-"]:not([class*="line"]):not(.pk-hi):not(.pk-shade):not(.pk-ink):not(.pk-glow):not(.pk-blush){stroke:var(--pic-ink);stroke-width:2.3;stroke-linejoin:round}
+.s-ink [class*="pk-"]:not(.sp):not([class*="line"]):not(.pk-hi):not(.pk-shade):not(.pk-ink):not(.pk-glow):not(.pk-blush){fill:var(--pic-paper)}
+.s-ink .pk-shade,.s-ink .pk-hi{display:none}
+/* Sticker: full fills, an ink outline, a white sticker border and a soft shadow */
+.s-sticker{--pic-ink:#0B2A1E}
+.s-sticker [class*="pk-"]:not([class*="line"]):not(.pk-hi):not(.pk-shade):not(.pk-ink):not(.pk-glow):not(.pk-blush){stroke:var(--pic-ink);stroke-width:2.3;stroke-linejoin:round}
+.s-sticker svg{filter:drop-shadow(calc(var(--pic) * .03) 0 0 #fff) drop-shadow(calc(var(--pic) * -.03) 0 0 #fff) drop-shadow(0 calc(var(--pic) * .03) 0 #fff) drop-shadow(0 calc(var(--pic) * -.03) 0 #fff) drop-shadow(0 calc(var(--pic) * .035) calc(var(--pic) * .04) rgb(11 42 30 / .3))}
+
+/* the mock lesson (real app classes, plus the picture row that components.css will get) */
+.phone{width:100%;max-width:412px;background:var(--bg);border:2px solid var(--hair);border-radius:var(--r-lg);padding:18px 16px 20px;display:flex;flex-direction:column;gap:14px}
+.phone .ex{gap:12px}
+.teach-words .wl-row.has-pic{grid-template-columns:auto minmax(0,1.1fr) minmax(0,1fr) 40px}
+.teach-words .wl-row.has-pic .t{font-size:22px}
+.noun .art{opacity:1}
+.opts.pics{grid-template-columns:1fr 1fr}
+.opts.pics .opt{display:grid;place-items:center;padding:10px;text-align:center}
+.opts.pics .opt.sel .pic{outline:3px solid var(--line);outline-offset:2px}
+.mock-foot{display:flex;gap:10px}
+.mock-foot .btn{flex:1}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px}
+.fig-row{display:flex;flex-wrap:wrap;gap:16px 14px;align-items:flex-end}
+.fig-row figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;font:var(--type-small);color:var(--muted);text-align:center}
+.o{stroke-width:1.1;stroke-linejoin:round}
+.s-flat .o{stroke:none}
+.s-ink .o{stroke:var(--ink)}
+.s-sticker .o{stroke:#0B2A1E}
+.s-ink .portrait{box-shadow:0 0 0 2.4px var(--ink)}
+.s-sticker .portrait{box-shadow:0 0 0 2.4px #0B2A1E,0 0 0 6px #fff,0 4px 10px rgb(0 0 0 / .25)}
+.s-sticker .fig svg{filter:drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 3px 4px rgb(11 42 30 / .3))}
+.fig{display:inline-block;width:calc(var(--fh) * .54);height:var(--fh);line-height:0}
+.fig svg{width:100%;height:100%;display:block;overflow:visible}
+.portrait{display:inline-block;width:var(--pw);height:var(--pw);border-radius:50%;overflow:hidden;line-height:0;background:var(--pic-tile)}
+.portrait svg{width:100%;height:100%;display:block}
+.scenes{display:flex;flex-direction:column;gap:14px}
+.sc{border-radius:var(--r-md);overflow:hidden;line-height:0;background:var(--pic-wall)}
+.sc svg{display:block;width:100%;height:auto;aspect-ratio:320/140}
+.sc.b-card{max-width:340px}
+.ask{background:var(--surface);border:2px solid var(--line);border-radius:var(--r-md);padding:16px;display:flex;flex-direction:column;gap:8px}
+.ask h2{font:var(--type-h2);margin:0}
+.ask ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+@media (max-width:420px){.trio{grid-template-columns:repeat(3,minmax(0,1fr))}.trio .pic{--pic:100% !important;width:100%;height:auto;aspect-ratio:1}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="b-sheet" id="sheet">
+  <header class="b-top">
+    <div>
+      <h1>Picture styles</h1>
+      <p>Three ways to draw the pictures that go with new words, and the people and places in stories. Pick one. Everything in the library will follow it.</p>
+    </div>
+    <button class="tbtn" id="theme" type="button">Theme</button>
+  </header>
+  <main id="main"></main>
+</div>
+
+<script>
+/* base path: this file lives in design/pictures/ in the repo, and at the root once published */
+var BASE = /\/design\/pictures\//.test(location.pathname) ? '../../' : '';
+['styles/tokens.css', 'styles/base.css', 'styles/art.css', 'styles/components.css'].forEach(function(f){ document.write('<link rel="stylesheet" href="' + BASE + f + '">'); });
+['js/config.js', 'js/core/util.js', 'js/core/text.js', 'js/core/content.js', 'content/cast.js', 'js/core/rig.js', 'js/core/bird.js', 'js/core/pip.js', 'js/core/art.js'].forEach(function(f){ document.write('<script src="' + BASE + f + '"><\/script>'); });
+document.write('<script src="' + (BASE ? '' : '') + 'board.js"><\/script>');
+</script>
