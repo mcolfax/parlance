@@ -12,6 +12,11 @@
    Every call's cost (the "credits" Recraft returns, in API units) is added to recraft-usage.json: commit it with the pictures.
    Models and prices: recraftv4_1_vector makes SVG at 0.08 USD an image; a style costs 0.005 USD. Image URLs last about 24 hours, so
    candidates are downloaded as soon as they are made. On a non-2xx answer the script prints the status and body and stops. */
+/* Node's fetch ignores HTTPS_PROXY unless NODE_USE_ENV_PROXY=1 is set when it starts, so start again with it (the egress proxy needs it). */
+if (process.env.HTTPS_PROXY && !process.env.NODE_USE_ENV_PROXY && !process.env.RECRAFT_API_BASE){
+  const r = require('child_process').spawnSync(process.execPath, [__filename, ...process.argv.slice(2)], { stdio: 'inherit', env: { ...process.env, NODE_USE_ENV_PROXY: '1', NODE_NO_WARNINGS: '1' } });
+  process.exit(r.status === null ? 1 : r.status);
+}
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');

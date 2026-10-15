@@ -160,7 +160,7 @@ const PROMPTS = {
    "role": "Doctor in Mexico City",
    "prompt": "Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a slim woman in her mid 30s, standing relaxed, arms slightly away from the body, both shoes visible. Warm tan skin (#D9A27A), very dark brown long straight hair past the shoulders (#2B1D18), small gold earrings. Wearing a blouse (#1A8448), light denim jeans, tan flats. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.",
    "bytes": 749,
-   "received": false
+   "received": true
   },
   {
    "id": "diego",

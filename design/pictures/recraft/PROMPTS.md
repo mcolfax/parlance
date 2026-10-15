@@ -68,7 +68,7 @@ Flat vector sticker illustration, friendly cartoon style: thick even dark green 
 Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a man in his early 60s, standing relaxed, arms slightly away from the body, both shoes visible. Light peach skin (#F0C9AE), bald on top with short grey hair above the ears (#9A9087), round glasses. Wearing a shirt (#3D5A80) with an amber tie (#E9A23B), dark grey trousers, polished black shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Sofía (es): `sofia.svg`
+### Sofía (es): `sofia.svg` (received)
 *Doctor in Mexico City*
 
 ```

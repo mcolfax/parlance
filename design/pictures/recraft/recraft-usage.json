@@ -1,0 +1,20 @@
+{
+ "note": "API units spent on Recraft, counted from the credits each call returns (1 USD = 1,000 units). Commit this with the pictures.",
+ "units": 85,
+ "calls": [
+  {
+   "at": "2026-10-15T16:45",
+   "kind": "style",
+   "id": "lena+jonas",
+   "n": 0,
+   "units": 5
+  },
+  {
+   "at": "2026-10-15T16:45",
+   "kind": "cast",
+   "id": "sofia",
+   "n": 1,
+   "units": 80
+  }
+ ]
+}
