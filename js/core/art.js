@@ -188,8 +188,16 @@ const HAIR = {
   hijab: { back: '', front: '<path fill-rule="evenodd" d="M32 9.5 C41 9.5 47.6 16 47.6 27 C47.6 36 46 42.5 43.8 46.5 C40.8 51 36.5 52.5 32 52.5 C27.5 52.5 23.2 51 20.2 46.5 C18 42.5 16.4 36 16.4 27 C16.4 16 23 9.5 32 9.5 Z M22 29.2 A10 11.6 0 1 0 42 29.2 A10 11.6 0 1 0 22 29.2 Z"/>' +
     '<path d="M21.2 44.5 C24.6 48.6 28.4 50.2 32 50.2 M24.6 13.6 C28.8 12 35.2 12 39.4 13.6" fill="none" stroke="#000" stroke-opacity=".14" stroke-width="1.3" stroke-linecap="round"/>' }
 };
+/* a portrait cropped from the character's Recraft figure (media/cast/<fig>.svg) on the character's own background color: the crop is the
+   head square measured in content/cast-art.js, shown through a nested svg so the figure file keeps its own units */
+function castFace(id){
+  const c = CAST[id], f = c && c.fig && typeof CAST_FIG !== 'undefined' ? CAST_FIG[c.fig] : null; if (!f || !c.look) return '';
+  const [x, y, s] = f.face, [vx, vy, vw, vh] = f.vb;
+  return '<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="' + c.look.bg + '"/><svg width="64" height="64" viewBox="' + [x, y, s, s].join(' ') + '"><image href="media/cast/' + c.fig + '.svg" x="' + vx + '" y="' + vy + '" width="' + vw + '" height="' + vh + '"/></svg></svg>';
+}
 function avatarSVG(id){
   const c = CAST[id]; if (!c || !c.look) return pipSVG('happy', 64, PIP_HEAD);
+  const face = castFace(id); if (face) return face;
   const L = c.look, hs = HAIR[L.style] || HAIR.short;
   const fill = (s, col) => s ? '<g fill="' + col + '">' + s + '</g>' : '';
   let s = '<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="' + L.bg + '"/>';
@@ -333,6 +341,18 @@ const SCENES = {
     '<rect class="sc-ink" x="34" y="18" width="70" height="22" rx="11"/><circle class="sc-onair" cx="48" cy="29" r="5"/><path class="sc-line light" d="M60 29h34"/>' +
     '<rect class="sc-paper" x="96" y="70" width="64" height="42" rx="6"/><path class="sc-line" d="M108 84h40M108 94h28"/><path class="sc-ink" d="M126 70V52"/><rect class="sc-ink" x="120" y="40" width="12" height="16" rx="6"/>'
 };
+/* storyArt(st, cls): a story's picture. A scene made in Recraft (media/scenes/<story id>.svg, listed in STORY_ART) fills the frame like a cover photo
+   and the story's cast stands in it (the figure files in media/cast/); every other story keeps its drawn scene, so live packs still work. */
+function storyArt(st, cls){
+  const a = typeof STORY_ART !== 'undefined' && typeof CAST_FIG !== 'undefined' ? STORY_ART[st.id] : null;
+  if (!a) return sceneArt(st.scene, cls, st.lang);
+  const figs = a.who.filter(w => CAST[w[0]] && CAST_FIG[CAST[w[0]].fig]).map(([id, x, y, hgt, flip]) => {
+    const f = CAST[id].fig;
+    return h('img', { class: 'scene-fig' + (flip ? ' flip' : ''), 'data-cast': id, src: 'media/cast/' + f + '.svg', alt: '', draggable: 'false', style: 'left:' + x + '%;bottom:' + y + '%;height:' + hgt + '%' });
+  });
+  return h('div', { class: 'scene has-art' + (cls ? ' ' + cls : ''), 'aria-hidden': 'true', 'data-story': st.id },
+    h('div', { class: 'scene-frame', style: '--ar:' + a.ar }, h('img', { class: 'scene-bg', src: 'media/scenes/' + st.id + '.svg', alt: '', draggable: 'false' }), ...figs));
+}
 function sceneArt(kind, cls, lang){ const svg = (SCENES[kind] || SCENES.cafe).replace('{HELLO}', (LANGS[lang] || LANGS.de).hello); return h('div', { class: 'scene' + (cls ? ' ' + cls : ''), 'aria-hidden': 'true', html: '<svg viewBox="0 0 320 140" preserveAspectRatio="xMidYMid slice">' + svg + '</svg>' }); }
 
 /* ----- chest + medals ----- */

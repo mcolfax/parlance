@@ -156,6 +156,22 @@ function pickDistractors(item, lesson, n, field){
   }
   return out;
 }
+/* picture questions: other words from the same pools that have a safe picture of their own, never two with the same picture or the same meaning */
+function picDistractors(item, lesson, n){
+  const lang = lesson.lang, out = [], seenPic = new Set([picQuiz(item, lang)]), seenT = new Set([norm(item.t, lang)]);
+  const itemEn = new Set(englishVariants(item).map(x => norm(x, 'en')));
+  for (const pool of vocabPools(lesson)){
+    for (const v of shuffle(pool)){
+      if (out.length >= n) break;
+      const id = picQuiz(v, lang);
+      if (!id || seenPic.has(id) || seenT.has(norm(v.t, lang))) continue;
+      if (englishVariants(v).some(x => itemEn.has(norm(x, 'en')))) continue;
+      seenPic.add(id); seenT.add(norm(v.t, lang)); out.push({ t: v.t, pic: id });
+    }
+    if (out.length >= n) break;
+  }
+  return out;
+}
 function sentencePools(lesson){
   const lang = lesson.lang;
   const unitS = lesson.core ? COURSE[lang].units[lesson.unit].lessons.flatMap(l => l.sentences) : [];
@@ -183,6 +199,14 @@ function makeEx(type, lesson, kind, i){
   const item = kind === 'v' ? lesson.vocab[i] : lesson.sentences[i];
   const lang = lesson.lang;
   const ex = { id: ++EXID, type, lang, lesson, item, kind, key: itemKey(lesson, kind, i) };
+  if (type === 'pic-pick' || type === 'pic-name' || type === 'pic-type'){
+    // a word without a safe picture, or too few other pictures to choose between, gets the plain question for the same job
+    const id = kind === 'v' ? picQuiz(item, lang) : null, ds = id && type !== 'pic-type' ? picDistractors(item, lesson, 3) : [];
+    if (!id || (type !== 'pic-type' && ds.length < 3)) return makeEx(type === 'pic-pick' ? 'mc-t2e' : type === 'pic-name' ? 'mc-e2t' : 'type-e2t', lesson, kind, i);
+    if (type === 'pic-type'){ ex.accepted = [item.t, ...item.alt]; ex.ansLang = lang; ex.pic = id; return ex; }
+    ex.correct = item.t; ex.options = shuffle([item.t, ...ds.map(d => d.t)]); ex.pics = { [item.t]: id }; ds.forEach(d => { ex.pics[d.t] = d.pic; });
+    return ex;
+  }
   switch (type){
     case 'mc-t2e': case 'listen-mc':
       ex.correct = item.e[0]; ex.options = shuffle([item.e[0], ...pickDistractors(item, lesson, 3, 'en')]); break;
@@ -218,7 +242,8 @@ function buildLesson(lesson){
   const sText = i => lesson.sentences[i].t, bText = i => blankSaid(lesson.blanks[i]);
   const ready = text => { const tk = lexToks(text, lang); return vk.every((k, i) => taught.has(i) || !k.every(x => tk.includes(x))); };
   const extras = lessonForms(lesson);
-  const V = (t, i) => { if (i < nV) out.push(makeEx(t, lesson, 'v', i)); };
+  const V = (t, i) => { if (i < nV){ const ex = makeEx(t, lesson, 'v', i); out.push(ex); return ex; } };
+  const picType = PIC_EX[lesson.level]; let picLeft = PIC_EX.perLesson || 0;
   const Sx = (t, i) => { if (nS && i != null){ usedS.add(i % nS); out.push(makeEx(t, lesson, 's', i % nS)); } };
   const Bx = i => { if (i != null && i < nB){ usedB.add(i); out.push(blankEx(lesson, i)); } };
   const phrases = items => {   // items: ['s', i] or ['b', i]; one card for those not shown yet
@@ -236,7 +261,12 @@ function buildLesson(lesson){
   const recognise = ['mc-t2e', 'mc-e2t', 'listen-mc'], done = [];
   groups.forEach((g, gi) => {
     out.push(teachEx(lesson, 'words', { idxs: g }));
-    g.forEach((i, k) => { V(recognise[k % 3], i); taught.add(i); done.push(i); });
+    let picHere = false;   // at most one picture question in each group of new words, right after the card that shows its picture
+    g.forEach((i, k) => {
+      if (picType && picLeft > 0 && !picHere && picQuiz(lesson.vocab[i], lang)){ const ex = V(picType, i); if (ex && ex.type === picType){ picLeft--; picHere = true; } }
+      else V(recognise[k % 3], i);
+      taught.add(i); done.push(i);
+    });
     if (gi > 0){   // the newest words that can be told apart (du and Sie both mean “you”)
       const pick = [], ts = new Set(), es = new Set();
       for (const i of done.slice().reverse()){ const v = lesson.vocab[i]; if (pick.length < 5 && !ts.has(v.t) && !es.has(v.e[0])){ pick.push(i); ts.add(v.t); es.add(v.e[0]); } }
@@ -446,7 +476,7 @@ function evaluate(ex, value){
       const ok = value === ex.correct || englishVariants(ex.item).some(v => norm(v, 'en') === norm(value, 'en'));
       return { ok, level: ok ? 'exact' : 'wrong' };
     }
-    case 'mc-e2t': {
+    case 'mc-e2t': case 'pic-pick': case 'pic-name': {
       const ok = value === ex.correct || [ex.item.t, ...ex.item.alt].some(v => norm(v, ex.lang) === norm(value, ex.lang));
       return { ok, level: ok ? 'exact' : 'wrong' };
     }
@@ -464,7 +494,7 @@ function evaluate(ex, value){
     default: {
       const tiles = ex.type.startsWith('bank') || (ex.type === 'listen' && ex.mode === 'tiles');
       let r = check(value, ex.accepted, ex.ansLang, { typo: !tiles });
-      if (!r.ok && ex.type === 'type-e2t' && ex.item.g){ const a = articleCheck(ex, value); if (a) r = a; }
+      if (!r.ok && (ex.type === 'type-e2t' || ex.type === 'pic-type') && ex.item.g){ const a = articleCheck(ex, value); if (a) r = a; }
       if (!r.ok && r.level === 'wrong'){ const f = formMiss(ex, value); if (f) r = f; }
       if (r.ok && r.level === 'exact' && !mainForms(ex).includes(r.match)) r = { ...r, alt: true, note: 'That’s another right way to say it.' };
       return r;

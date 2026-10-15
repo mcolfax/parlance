@@ -189,6 +189,14 @@ li.locked .st-title{color:var(--muted)}
 .wl-row .t{font:700 17px var(--body);overflow-wrap:anywhere}
 .wl-row .e{font-size:15px;color:var(--muted);overflow-wrap:anywhere}
 .wl-row .icon-btn{width:38px;height:38px}
+.wl-row.has-pic{grid-template-columns:56px minmax(0,1fr) 40px;grid-template-areas:"p t s" "p e s";column-gap:12px;row-gap:0}
+.wl-row.has-pic .wl-pic{grid-area:p}
+.wl-row.has-pic .t{grid-area:t;align-self:end}
+.wl-row.has-pic .e{grid-area:e;align-self:start}
+.wl-row.has-pic .icon-btn{grid-area:s}
+.opts.pics{grid-template-columns:1fr 1fr}
+.opt.pics-opt{display:flex;align-items:center;justify-content:center;padding:12px 8px}
+.pic-stage{display:flex;justify-content:center;padding:6px 0 4px}
 
 /* Complete */
 .complete{display:flex;flex-direction:column;align-items:center;gap:20px;padding-top:20px;text-align:center}

@@ -221,6 +221,10 @@ const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
    tap:  the same tappable words, with no nudge and no word list
    off:  questions show nothing extra; answers can still be tapped afterwards */
 const HINTS = { A1: 'full', A2: 'full', B1: 'tap', B2: 'tap', C1: 'off', C2: 'off' };
+/* Picture questions: the kind a lesson asks by level, and how many (at most one per group of new words, in place of a plain recognition question).
+   pic-pick: hear and read the word, tap its picture. pic-name: see the picture, choose the word. pic-type: see the picture, type the word.
+   Only words whose picture is safe to ask about are used (design/pictures/briefs-src.txt, quiz 1); see "Word pictures" in docs/ARCHITECTURE.md. */
+const PIC_EX = { A1: 'pic-pick', A2: 'pic-pick', B1: 'pic-name', B2: 'pic-name', C1: 'pic-type', C2: 'pic-type', perLesson: 2 };
 /* Wrong form of the right word (a wrong ending, person or tense): in the early levels the answer still counts and says what was off;
    from B1 on it does not count, and says why. */
 const FORM_PASS = { A1: true, A2: true, B1: false, B2: false, C1: false, C2: false };

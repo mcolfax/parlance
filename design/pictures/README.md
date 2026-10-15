@@ -2,14 +2,14 @@
 
 The plan is in [`PLAN.md`](PLAN.md). Read it first: it lists the phases, the stops where Matt signs off, and the drawing rules.
 
-## Where this stands
+## Where this stands (Oct 15)
 
-- **Phase 0 (inventory):** `node design/pictures/tools.js inventory` writes `words.json` (1,826 concepts). Writing `briefs.json` waits until the style is chosen.
-- **Phase 1 (style board):** done. The board is at https://claude.ai/artifact/JoRs3n6D8eR8gLcvUUm4hG (private until shared). **Matt chose Sticker** (see Decisions).
-- **Cast and scenes:** Matt makes them in Recraft. Prompts for the 18 people and 27 scenes: https://claude.ai/artifact/BB73fC3hcNf4z1xF73Hpjm (copy buttons, a done checklist) and `recraft/PROMPTS.md`. His SVGs go in `recraft/incoming/`. Plan: Phase 6 in `PLAN.md`.
-- **Decided:** Recraft for word pictures, the cast and the story scenes (not the unit signs, badges or chest). Ask Matt before every paid batch.
-- **Direction change:** pictures drawn in code are paused; everything will be regenerated in Recraft for consistency. See "Direction change" in `PLAN.md`. Blocked on the environment's network policy for `external.api.recraft.ai`; `recraft/generate.js` is ready and tested against a mock.
-- **Was next in code:** the picture kit (Phase 2), `briefs.json` (Phase 0), then the first batch of word pictures, and **STOP B**.
+- **Style: Sticker** (see Decisions). Word pictures, cast and scenes all use it.
+- **Words (Phase 0):** all 1,826 concepts are classified in `briefs-src.txt`: 440 get a picture, 150 share another's, 1,240 get none by decision. `node design/pictures/tools.js check` shows the coverage table.
+- **Word pictures:** 58 drawn in code (`js/core/pics.js`) and 218 made in Recraft as sticker sheets and placed in `media/pics/` (see "Word pictures" in `docs/ARCHITECTURE.md`). Objects, food, clothes, buildings and body parts came out well. People doing things (most verbs) did not: the model ignores per-cell instructions for figures. Matt's call (Oct 15): **Recraft only for the cast and the scenes from here on**; keys are fine for free services only. The rest of the words (about 220 concrete concepts, mostly verbs) wait on another source, for example free stock photos (Pexels, Pixabay) once the environment allows the host and has a key. Spent on Recraft so far: about 1.9 USD, see `recraft/recraft-usage.json`.
+- **In the app (Phase 4, built, not released):** the new-word card shows pictures, and lessons swap up to two recognition questions for `pic-pick`, `pic-name` or `pic-type` by level (`PIC_EX` in `js/config.js`). Tests cover it. No version bump yet.
+- **Cast:** 14 figures from Recraft are in `media/cast/` (originals in `recraft/incoming/`). Decision: all three languages reuse these models and the characters are renamed per language (nonna uses Weber, Marco uses Diego, Conti uses Sofía, Bianchi uses Andrés). Not wired into the app yet (Phase 6).
+- **Scenes:** 4 of 27 trial scenes are generated (`recraft/candidates/`, git-ignored: de-s1, de-s3, es-s3, de-s5). They look right, people-free with open floor. The other 23 need about 1.84 USD of Recraft credit (one image each).
 
 ## Files
 

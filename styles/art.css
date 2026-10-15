@@ -75,6 +75,12 @@ li.just .station{animation:flashbg 1.6s ease both}
 /* scenes */
 .scene{position:relative;overflow:hidden;border-radius:var(--r-md);background:var(--line-soft);line-height:0}
 .scene svg{display:block;width:100%;height:auto;aspect-ratio:320/140}
+/* a Recraft scene covers the 320 by 140 frame (cropped from the top and sides, never stretched, so its floor stays in view) and the cast stands on that floor */
+.scene.has-art{aspect-ratio:320/140;container-type:size}
+.scene-frame{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:max(100cqw, 100cqh * var(--ar));aspect-ratio:var(--ar)}
+.scene-bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.scene-fig{position:absolute;width:auto;display:block;transform:translateX(-50%);filter:drop-shadow(0 2px 2px var(--pic-drop))}
+.scene-fig.flip{transform:translateX(-50%) scaleX(-1)}
 .sc-sky{fill:var(--line-soft)}
 .sc-floor{fill:var(--hair-2)}
 .sc-floor.dark{fill:#0E1A22}

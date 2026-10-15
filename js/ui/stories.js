@@ -16,7 +16,7 @@ function viewStories(){
   list.forEach((st, i) => {
     const rec = S.langs[lang].stories[st.id]; const ahead = LEVELS.indexOf(st.level) > cl + 1;
     grid.append(h('button', { class: 'story-card' + (rec ? ' done' : '') + (ahead ? ' ahead' : ''), type: 'button', style: '--i:' + i, onclick: () => ahead && !rec ? confirmStory(st) : openStory(st.id) },
-      sceneArt(st.scene, '', st.lang),
+      storyArt(st, ''),
       h('span', { class: 'sc-body' },
         h('span', { class: 'row' }, h('span', { class: 'lvl-badge' }, st.level), rec ? h('span', { class: 'small good sc-done' }, ic('check'), 'Read' + (rec.score === 1 ? ' · perfect' : '')) : h('span', { class: 'small muted' }, 'about ' + storyMinutes(st) + ' min'), h('span', { class: 'spacer' }), h('span', { class: 'av-stack' }, st.cast.map(id => avatar(id, 28)))),
         h('span', { class: 'st-title', lang: LANGS[lang].tts }, st.title),
@@ -40,7 +40,7 @@ function openStory(id){
   OV.prog = h('i');
   OV.head.replaceChildren(close, h('div', { class: 'progress', role: 'progressbar', 'aria-label': 'Story progress' }, OV.prog), h('span', { class: 'icon-spacer' }));
   Story.list = h('div', { class: 'story-lines', 'aria-live': 'polite' });
-  swapBody([h('div', { class: 'story-head' }, sceneArt(st.scene, 'big', st.lang), h('span', { class: 'eyebrow' }, st.level + ' · ' + LANGS[st.lang].name + ' story'), h('h1', { lang: LANGS[st.lang].tts }, st.title), h('p', { class: 'muted' }, st.en),
+  swapBody([h('div', { class: 'story-head' }, storyArt(st, 'big'), h('span', { class: 'eyebrow' }, st.level + ' · ' + LANGS[st.lang].name + ' story'), h('h1', { lang: LANGS[st.lang].tts }, st.title), h('p', { class: 'muted' }, st.en),
     h('div', { class: 'tags' }, st.cast.map(cid => h('span', { class: 'cast-tag' }, avatar(cid, 26), CAST[cid].name)))), Story.list]);
   storyFoot('Start reading', () => storyNext());
   setStoryProgress();

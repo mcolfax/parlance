@@ -146,7 +146,7 @@ async function main(){
   const A = await makeDom();
   A.P.S.settings.onboarded = true;
   const P = A.P;
-  let lessonCount = 0;
+  let lessonCount = 0, picLessons = 0;
   for (const lang of LANG_IDS){
     for (const u of P.COURSE[lang].units) for (const l of u.lessons){
       lessonCount++;
@@ -174,6 +174,17 @@ async function main(){
             }
           }
           ok(phraseOk, l.id + ' shows each phrase before asking it'); ok(readyOk, l.id + ' asks no phrase that uses a word not taught yet'); }
+        { /* picture questions: few, of the level's kind, each about a word with a safe picture, with a different picture on every option */
+          const pq = exs.filter(e => e.type.startsWith('pic-')), want = A.E('PIC_EX[' + JSON.stringify(l.level) + ']');
+          if (rep === 0 && pq.length) picLessons++;
+          ok(pq.length <= A.E('PIC_EX.perLesson'), l.id + ' asks at most ' + A.E('PIC_EX.perLesson') + ' picture questions, got ' + pq.length);
+          for (const e of pq){
+            const pid = P.picQuiz(e.item, l.lang);
+            ok(e.type === want && !!pid, l.id + ' ' + e.item.t + ' picture question is the level’s kind and the word has a safe picture');
+            if (e.options){ const ids = e.options.map(o => e.pics[o]); ok(ids.every(Boolean) && new Set(ids).size === ids.length && e.pics[e.correct] === pid, l.id + ' ' + e.item.t + ' every option has its own picture and the right one is the word’s'); }
+            else ok(e.pic === pid, l.id + ' ' + e.item.t + ' typed picture is the word’s');
+          }
+        }
         for (const ex of exs.filter(e => e.type !== 'teach')){
           const tag = l.id + ' ' + ex.type + ' ' + (ex.item ? ex.item.t : ex.blank ? ex.blank.t : '');
           if (ex.options){
@@ -185,7 +196,7 @@ async function main(){
           }
           let ans;
           switch (ex.type){
-            case 'type-t2e': case 'type-e2t': case 'speak': ans = ex.accepted[0]; break;
+            case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break;
             case 'bank-e2t': case 'listen': ans = P.tileTokens(ex.item.t).join(' '); break;
             case 'bank-t2e': ans = P.tileTokens(ex.item.e[0]).join(' '); break;
             case 'match': ans = null; ok(new Set(ex.items.map(i => i.e[0])).size === ex.items.length, tag + ' match meanings distinct'); ok(new Set(ex.items.map(i => i.t)).size === ex.items.length, tag + ' match words distinct'); break;
@@ -193,12 +204,18 @@ async function main(){
           }
           if (ex.tiles){ const pool = ex.tiles.slice(); for (const t of ans.split(' ')){ const i = pool.indexOf(t); ok(i >= 0, tag + ' tile missing: ' + t); if (i >= 0) pool.splice(i, 1); } }
           if (ans != null){ const r = P.evaluate(ex, ans); ok(r.ok && r.level === 'exact', tag + ' expected answer accepted: ' + ans + ' -> ' + JSON.stringify(r)); }
-          if (ex.type === 'type-t2e' || ex.type === 'type-e2t') for (const a of ex.accepted) ok(P.evaluate(ex, a).ok, tag + ' variant ' + a);
+          if (ex.type === 'type-t2e' || ex.type === 'type-e2t' || ex.type === 'pic-type') for (const a of ex.accepted) ok(P.evaluate(ex, a).ok, tag + ' variant ' + a);
         }
       }
     }
   }
   ok(lessonCount === 396, 'lesson count ' + lessonCount);
+  /* word pictures: the mapping and the files follow the rules, and enough lessons ask about them (floors: the shipped numbers, rounded down) */
+  { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
+    let fails; try { fails = await T.check(); } finally { console.log = log; }
+    ok(!fails.length, 'word pictures check: ' + fails.slice(0, 3).join(' | '));
+    ok(fs.readdirSync(path.join(ROOT, 'media', 'pics')).filter(f => f.endsWith('.svg')).length >= 200, 'word picture files');
+    ok(picLessons >= 170, 'lessons that ask a picture question: ' + picLessons); }
   // units sorted by level, ids unique
   for (const lang of LANG_IDS){ const lv = P.COURSE[lang].units.map(u => ['A1','A2','B1','B2','C1','C2'].indexOf(u.level)); ok(lv.every((x, i) => i === 0 || x >= lv[i - 1]), lang + ' units sorted'); }
   { const ids = new Set(); for (const lang of LANG_IDS) for (const u of P.COURSE[lang].units) for (const l of u.lessons){ ok(!ids.has(l.id), 'unique id ' + l.id); ids.add(l.id); ok(l.vocab.length >= 6 && l.sentences.length >= 4 && l.blanks.length === 3, 'shape ' + l.id); for (const b of l.blanks){ ok(b.t.split('___').length === 2, 'blank ' + b.t); ok(new Set(b.o).size === b.o.length, 'blank opts unique ' + b.t); } } }
@@ -209,6 +226,22 @@ async function main(){
     for (const it of st.items){ if (it.q){ ok(it.o.length === 3 && new Set(it.o).size === 3, 'story q opts ' + st.id + ' ' + it.q); } else { ok(P.CAST[it.who] && P.CAST[it.who].lang === st.lang, 'speaker ' + st.id + ' ' + it.who); ok(it.t && it.e, 'line text ' + st.id); } }
   }
   ok(P.STORIES.length === 27, 'stories ' + P.STORIES.length);
+  /* cast figures and story scenes (made in Recraft): a portrait is cropped from each character's figure, a scene shows its cast, a story without a scene keeps its drawn one */
+  { const CF = A.E('CAST_FIG'), SA = A.E('STORY_ART');
+    for (const [id, c] of Object.entries(P.CAST)) if (c.look){
+      ok(c.fig && CF[c.fig], 'cast ' + id + ' has a figure'); const [x, y, side] = CF[c.fig].face;
+      ok(side > 0 && CF[c.fig].vb.length === 4 && fs.existsSync(path.join(ROOT, 'media', 'cast', c.fig + '.svg')), 'cast ' + id + ' figure file and face crop');
+      const svg = A.E('avatarSVG(' + JSON.stringify(id) + ')'); ok(/<image href="media\/cast\/[a-z]+\.svg"/.test(svg) && !/NaN|undefined/.test(svg), 'portrait of ' + id + ' is cropped from its figure');
+    }
+    ok(Object.keys(SA).length >= 1, 'story scenes listed: ' + Object.keys(SA).length);
+    for (const st of P.STORIES){
+      const el = A.E('storyArt(' + JSON.stringify({ id: st.id, scene: st.scene, lang: st.lang, cast: st.cast }) + ', "big")'), a = SA[st.id];
+      if (a){
+        ok(el.classList.contains('has-art') && el.querySelector('.scene-bg') && el.querySelectorAll('[data-cast]').length === a.who.length, st.id + ' scene shows every figure it stages');
+        ok(a.who.length >= 1 && a.who.every(w => st.cast.includes(w[0])) && fs.existsSync(path.join(ROOT, 'media', 'scenes', st.id + '.svg')), st.id + ' stages only its own cast, and its scene file exists');
+      } else ok(el.classList.contains('scene') && el.querySelector('svg') && !el.querySelector('[data-cast]'), st.id + ' keeps its drawn scene');
+    }
+    const packed = A.E('storyArt({ id: "pack-x", scene: "nowhere", lang: "de", cast: [] }, "")'); ok(packed.classList.contains('scene') && packed.querySelector('svg'), 'a pack story with an unknown scene still draws one'); }
   /* every word in every story has a meaning when tapped, learned yet or not */
   for (const st of P.STORIES) for (const it of st.items) if (it.t) for (const part of it.t.split(/\s+/)){
     if (!/[\p{L}]/u.test(part)) continue;
@@ -482,7 +515,7 @@ async function main(){
     let guard = 0;
     while (Q.E('Run.active && !Run.finished') && guard++ < 60){
       const ex = Q.E('Run.cur'); let ans;
-      switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = Q.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = Q.P.tileTokens(ex.item.e[0]).join(' '); break;
+      switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = Q.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = Q.P.tileTokens(ex.item.e[0]).join(' '); break;
         case 'match': Q.E('Run.pos++; nextEx()'); continue; default: ans = ex.correct; }
       Q.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()'); qfoot('Continue').click();
     }
@@ -505,7 +538,7 @@ async function main(){
     guard = 0;
     while (Q.E('Run.active && !Run.finished') && guard++ < 60){
       const ex = Q.E('Run.cur'); let ans;
-      switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = Q.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = Q.P.tileTokens(ex.item.e[0]).join(' '); break;
+      switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = Q.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = Q.P.tileTokens(ex.item.e[0]).join(' '); break;
         case 'match': Q.E('Run.pos++; nextEx()'); continue; default: ans = ex.correct; }
       Q.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()'); qfoot('Continue').click();
     }
@@ -545,7 +578,7 @@ async function main(){
     }
     let ans;
     switch (ex.type){
-      case 'type-t2e': case 'type-e2t': case 'speak': ans = ex.accepted[0]; break;
+      case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break;
       case 'bank-e2t': case 'listen': ans = P.tileTokens(ex.item.t).join(' '); break;
       case 'bank-t2e': ans = P.tileTokens(ex.item.e[0]).join(' '); break;
       default: ans = ex.correct;
@@ -573,6 +606,21 @@ async function main(){
       ok(!!P.S.langs[lang].done[l.id], 'done ' + l.id);
       ok(w.document.querySelector('.overlay:not(.out) .stamp'), 'stamp');
       footBtn('Continue').click();
+    }
+    { /* pictures: a words card shows them beside the words that have one, and a pick-the-picture question shows four to tap */
+      const id = lang + '-1-4';
+      E('startLesson(' + JSON.stringify(id) + ')'); footBtn('Start lesson').click();
+      const rows = [...w.document.querySelectorAll('.overlay:not(.out) .teach-words .wl-row')];
+      ok(rows.some(r => r.querySelector('.pic img, .pic svg')), id + ' the first card shows a picture beside a word that has one');
+      ok(rows.length > 0 && rows.every(r => r.querySelector('.wl-pic')), id + ' every row keeps a picture slot so the words line up');
+      const pi = E('Run.queue.findIndex(e => e.type === "pic-pick")'); ok(pi > 0, id + ' asks a pick-the-picture question');
+      E('Run.pos = ' + pi + '; nextEx()');
+      const btns = [...w.document.querySelectorAll('.overlay:not(.out) .opts.pics .opt')];
+      ok(btns.length === 4 && btns.every(b => b.querySelector('.pic') && b.getAttribute('aria-label')), id + ' four pictures to tap, each labelled for screen readers');
+      ok(btns.every(b => !b.textContent.trim()), id + ' the picture options show no words');
+      btns[E('Run.cur.options.indexOf(Run.cur.correct)')].click(); E('doCheck()');
+      ok(w.document.querySelector('.overlay:not(.out) .ov-foot').classList.contains('ok'), id + ' the right picture is accepted');
+      E('endRun()');
     }
     ok(Object.keys(P.S.langs[lang].cards).length > 750, lang + ' cards ' + Object.keys(P.S.langs[lang].cards).length);
     for (const lv of ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']) ok(E('levelComplete(' + JSON.stringify(lang) + ',' + JSON.stringify(lv) + ')'), lang + ' level complete ' + lv);

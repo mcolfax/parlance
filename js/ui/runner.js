@@ -133,7 +133,7 @@ async function doCheck(){
   if (Run.checking || !Run.canCheck) return;
   const ex = Run.cur; Run.checking = true;
   let res = evaluate(ex, Run.value);
-  if (!res.ok && ['type-t2e', 'type-e2t'].includes(ex.type) && res.level === 'wrong' && S.settings.aiGrade && aiOn() && norm(Run.value, ex.ansLang)){
+  if (!res.ok && ['type-t2e', 'type-e2t', 'pic-type'].includes(ex.type) && res.level === 'wrong' && S.settings.aiGrade && aiOn() && norm(Run.value, ex.ansLang)){
     OV.checkBtn.disabled = true; OV.checkBtn.classList.add('busy'); OV.checkBtn.textContent = 'Asking your tutor…';
     const g = await aiGrade(ex, Run.value);
     if (Run.cur !== ex) return;
@@ -147,7 +147,7 @@ function feedbackAnswer(ex){
   if (ex.type === 'form') return { t: ex.correct, en: ex.cap + ' · ' + ex.label, target: true };
   if (ex.type === 'blank') return { t: blankSaid(ex.blank), en: ex.blank.e, target: true };
   if (ex.type === 'match') return null;
-  return { t: ex.item.t, en: ex.item.e[0], target: ['mc-e2t', 'type-e2t', 'bank-e2t', 'listen', 'speak'].includes(ex.type) };
+  return { t: ex.item.t, en: ex.item.e[0], target: ['mc-e2t', 'type-e2t', 'bank-e2t', 'listen', 'speak', 'pic-name', 'pic-type'].includes(ex.type) };
 }
 function showCombo(n){
   if (!OV.combo) return;
@@ -164,7 +164,7 @@ function showFeedback(ex, res){
     if (ex.srs){
       const card = cardsFor(Run.lang)[ex.srs];
       if (card && Run.mode === 'review'){
-        const typed = ['type-t2e', 'type-e2t', 'listen', 'speak'].includes(ex.type);
+        const typed = ['type-t2e', 'type-e2t', 'pic-type', 'listen', 'speak'].includes(ex.type);
         srsUpdate(card, res.ok ? (res.level === 'exact' ? (typed ? 5 : 4) : 3) : 1); touch(Run.lang);
       }
     }
@@ -192,7 +192,7 @@ function showFeedback(ex, res){
     res.diffs && res.diffs.length && (cmp || !res.ok || res.level === 'form') ? diffList(res.diffs) : null);
   if (!res.ok || res.level === 'ai') fb.append(reportLink(ex));
   const userWords = !res.ok && typeof Run.value === 'string' ? new Set(fold(norm(Run.value, ans && ans.target ? lang : 'en')).split(' ')) : null;
-  if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank'].includes(ex.type))){
+  if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank', 'pic-pick'].includes(ex.type))){
     if (!res.ok) fb.append(h('div', { class: 'fb-label' }, 'Correct answer'));
     if (ans.target) fb.append(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, ex.type === 'blank' ? sayText(ans.t, lang, glossOpts(ans)) : (ex.item.g && ex.kind === 'v' ? itemText(ex.item, lang) : sayText(ans.t, lang, { ...(userWords ? { miss: userWords } : {}), ...glossOpts(ans) }))), speakBtn(ans.t, lang)), h('div', { class: 'fb-sub' }, ans.en));
     else fb.append(h('div', { class: 'fb-ans' }, userWords ? markMissing(ans.en, userWords) : ans.en), h('div', { class: 'fb-sub row' }, h('span', { class: 'grow' }, itemText(ex.item, lang)), speakBtn(ans.t, lang)));
@@ -291,10 +291,10 @@ function hintLink(ex, answer){
   const b = h('button', { class: 'linkish small', type: 'button', onclick: () => { ex.peeked = true; out.textContent = hintFor(answer); b.remove(); } }, ic('bulb'), 'Show a hint');
   return h('div', { class: 'hint-row' }, b, out);
 }
-function options(list, onPick, renderOpt){
-  const box = h('div', { class: 'opts' });
+function options(list, onPick, renderOpt, more){
+  const box = h('div', { class: 'opts' + (more && more.cls ? ' ' + more.cls : '') });
   list.forEach((o, i) => {
-    const b = h('button', { class: 'opt', type: 'button', style: '--i:' + i }, renderOpt ? renderOpt(o) : o);
+    const b = h('button', { class: 'opt' + (more && more.cls ? ' ' + more.cls + '-opt' : ''), type: 'button', style: '--i:' + i, 'aria-label': more && more.label ? more.label(o) : null }, renderOpt ? renderOpt(o) : o);
     b.addEventListener('click', () => { box.querySelectorAll('.opt').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); sfx('select'); onPick(o); });
     box.append(b);
   });
@@ -335,8 +335,9 @@ const RENDER = {
     if (ex.mode === 'words'){
       const items = ex.idxs.map(i => l.vocab[i]);
       if (S.settings.autoplay) speak(items[0].t, lang);
+      const pics = items.map(v => picFor(v, lang)), anyPic = pics.some(Boolean);   // a row without a picture keeps an empty slot, so the words line up
       return h('div', { class: 'ex teach' }, h('span', { class: 'eyebrow' }, items.length > 1 ? 'New words' : 'New word'),
-        h('div', { class: 'wordlist teach-words' }, items.map(v => h('div', { class: 'wl-row' }, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang)))),
+        h('div', { class: 'wordlist teach-words' }, items.map((v, n) => h('div', { class: 'wl-row' + (anyPic ? ' has-pic' : '') }, anyPic ? (pics[n] ? wordPic(pics[n], 56, 'wl-pic') : h('span', { class: 'wl-pic', 'aria-hidden': 'true' })) : null, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang)))),
         lang === 'de' && items.some(v => v.g) ? h('div', { class: 'legend g small' }, h('span', { class: 'g-m' }, 'der'), h('span', { class: 'g-f' }, 'die'), h('span', { class: 'g-n' }, 'das'), h('span', { class: 'g-pl' }, 'plural')) : null,
         h('p', { class: 'hint' }, 'Tap a word to hear it.'));
     }
@@ -366,6 +367,21 @@ const RENDER = {
     const byT = new Map(allLessons(ex.lang).flatMap(l => l.vocab).map(v => [v.t, v]));
     return h('div', { class: 'ex' }, qLabel('Choose the ' + LANGS[ex.lang].name), h('div', { class: 'prompt en' }, ex.item.e[0]),
       options(ex.options, o => { api.set(o); api.ready(true); speak(o, ex.lang); }, o => { const v = byT.get(o); return v ? itemText(v, ex.lang, { noTap: true }) : o; }));
+  },
+  'pic-pick'(ex, api){
+    const byT = new Map(allLessons(ex.lang).flatMap(l => l.vocab).map(v => [v.t, v]));
+    return h('div', { class: 'ex' }, qLabel('Tap the picture'), targetPrompt(ex.item, ex.lang, true, ex),
+      options(ex.options, o => { api.set(o); api.ready(true); }, o => wordPic(ex.pics[o], 104), { cls: 'pics', label: o => { const v = byT.get(o); return v ? v.e[0] : o; } }));
+  },
+  'pic-name'(ex, api){
+    const byT = new Map(allLessons(ex.lang).flatMap(l => l.vocab).map(v => [v.t, v]));
+    return h('div', { class: 'ex' }, qLabel('What is this in ' + LANGS[ex.lang].name + '?'), h('div', { class: 'pic-stage' }, wordPic(ex.pics[ex.correct], 128)),
+      options(ex.options, o => { api.set(o); api.ready(true); speak(o, ex.lang); }, o => { const v = byT.get(o); return v ? itemText(v, ex.lang, { noTap: true }) : o; }));
+  },
+  'pic-type'(ex, api){
+    const box = answerBox(api, ex.lang, 'Type it in ' + LANGS[ex.lang].name);
+    const hint = ex.item.g ? ({ de: 'Include der, die or das.', es: 'Include el, la, los or las.', it: 'Include il, lo, la, i, gli or le.' }[ex.lang]) : null;
+    return h('div', { class: 'ex' }, qLabel('Write what you see in ' + LANGS[ex.lang].name), h('div', { class: 'pic-stage' }, wordPic(ex.pic, 128)), hint ? h('p', { class: 'hint' }, hint) : null, box, charBar(box, ex.lang), hintLink(ex, ex.item.t));
   },
   'type-t2e'(ex, api){
     const box = answerBox(api, 'en', 'Type it in English');

@@ -11,7 +11,7 @@ const MAX_BYTES = 950;
 
 /* ---------- the shared look: the Sticker style Matt chose on the board ---------- */
 const STYLE_CAST = 'Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background.';
-const STYLE_SCENE = 'Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered.';
+const STYLE_SCENE = 'Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side.';
 
 /* ---------- the cast: what the data does not say (age, build, trousers, shoes) ---------- */
 const PEOPLE = {

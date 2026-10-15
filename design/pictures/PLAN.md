@@ -54,6 +54,14 @@ Matt paused the pictures drawn in code and wants **all** illustrations regenerat
 
 **Cost** (0.08 USD an image; plan for one re-roll in three): cast 16 x 2 candidates = 2.6 USD; scenes 27 x 2 = 4.3 USD; word pictures about 700 to 900 concepts = 56 to 72 USD, about 75 to 100 USD with re-rolls; unit signs, badges and chest about 4 USD. Everything: roughly 85 to 115 USD. `generate.js` stops before a run would take the total past `--max-usd` (default 8), so a big run needs Matt's go-ahead and a higher cap on purpose. Every call is logged in `recraft-usage.json`.
 
+## Where things stand (Oct 15, evening): read this before the section above
+
+- **Recraft is for the cast and the scenes only** (Matt). Keys are fine for free services only. The word-picture sheets were useful for objects but not for people doing things.
+- **Done:** all 1,826 concepts classified (440 pictured, 150 aliases, 1,240 none); 218 word pictures placed in `media/pics/` from sheets (`sheets.js plan`, `generate.js sheet`, `tools.js split`, `tools.js place` with `+` to join parts and `~` to mirror); the 14 cast figures cleaned into `media/cast/` and measured (`tools.js faces` writes `content/cast-art.js`); portraits in the app are cropped from them; 4 trial scenes ingested (`tools.js svg`, `tools.js scenes` writes `content/story-art.js`); scenes show their cast in the Stories tab and story header; new-word cards show pictures; lessons ask `pic-pick` (A), `pic-name` (B) and `pic-type` (C) questions (`PIC_EX`); tests and docs cover all of it. Not released: `APP_VERSION` is unchanged.
+- **Scenes still to make (23):** the scene prompt now asks for a full-bleed wide panorama (the trial scenes had white margins and odd aspect ratios, which `tools.js svg` now trims, but full-bleed covers the 320 by 140 frame better). Plan: top up, regenerate the 4 trial scenes with the new prompt if they come out narrow, then `gen scenes`, `generate.js pick <id> <k>`, `tools.js svg`, `tools.js scenes`, then tune who stands where in `design/pictures/story-figs.json` (percent of the scene: `[castId, x, bottom, height, flip]`) and rerun `tools.js scenes`. About 1.84 USD for one image each.
+- **Words still without a picture (about 220 concrete concepts, mostly verbs):** need another source. Free stock photos (Pexels, Pixabay) are the candidate; they need the host allowed in the environment and a free key as a secret. Not decided.
+- **Then:** the styleguide's "Word pictures" section should show `media/pics`; a "Cast figures" and "Story scenes" section too. Release 1 when Matt says go (bump `APP_VERSION`, add a `RELEASES` entry, `npm test` ends with `FAIL 0`, publish both homes).
+
 ## How to run this plan (read first)
 
 1. **Save the plan first.** Copy this file to `design/pictures/PLAN.md` and commit it, so every later session can find it.

@@ -7,6 +7,8 @@
      check            checks every picture against the drawing rules, the mapping against the course, and prints the coverage table
      svg [folder]     checks, cleans and places Recraft SVGs from design/pictures/recraft/incoming/ into media/cast/ and media/scenes/ (needs Playwright)
      split <sheet-id>  cuts recraft/candidates/<sheet-id>-1.svg (a sticker sheet of many words) into numbered parts and an index.png to look at (needs Playwright)
+     scenes           lists the scenes in media/scenes/ with who stands where and writes content/story-art.js
+     faces            measures the head of each figure in media/cast/ and writes content/cast-art.js (needs Playwright)
      place <sheet-id> "3=apple,5=bread"   copies those numbered parts to media/pics/<word>.svg ("24+6+7=sun" joins parts; "143~=left" mirrors one)
      shots <batch|id,id…> [--out dir]   contact sheets (20 pictures each, 44 and 112 px, light and dark) as PNGs; needs Playwright:
                       NODE_PATH="$(npm root -g)" node design/pictures/tools.js shots a-food --out /some/folder
@@ -216,6 +218,19 @@ async function check(){
       if (c.n) console.log('  ' + lang + ' ' + L + ': ' + String(c.n).padStart(3) + ' words | ' + String(c.pic).padStart(3) + ' pictured (' + String(c.quiz).padStart(3) + ' asked) | ' + String(c.none).padStart(3) + ' none | ' + String(c.briefed).padStart(3) + ' briefed | ' + String(c.undecided).padStart(3) + ' undecided');
     }
   }
+  /* cast figures and story scenes made in Recraft: every file is listed where the app looks, every listing has its file */
+  const art = JSON.parse(await loadApp((P, w) => JSON.stringify({ figs: w.eval('CAST_FIG'), art: w.eval('STORY_ART'), cast: Object.fromEntries(Object.entries(P.CAST).map(([id, c]) => [id, { fig: c.fig || null, lang: c.lang }])), stories: Object.fromEntries(P.STORIES.map(s => [s.id, s.cast])) })));
+  const dirCast = path.join(ROOT, 'media', 'cast'), dirScenes = path.join(ROOT, 'media', 'scenes');
+  const castFiles = fs.existsSync(dirCast) ? fs.readdirSync(dirCast).filter(f => f.endsWith('.svg')).map(f => f.replace(/\.svg$/, '')) : [], sceneFiles = fs.existsSync(dirScenes) ? fs.readdirSync(dirScenes).filter(f => f.endsWith('.svg')).map(f => f.replace(/\.svg$/, '')) : [];
+  for (const id of castFiles) if (!art.figs[id]) fails.push('media/cast/' + id + '.svg is not in content/cast-art.js (run: tools.js faces)');
+  for (const id of Object.keys(art.figs)) if (!castFiles.includes(id)) fails.push('content/cast-art.js lists ' + id + ', which has no file in media/cast');
+  for (const [id, c] of Object.entries(art.cast)) if (c.fig && !art.figs[c.fig]) fails.push('CAST.' + id + '.fig “' + c.fig + '” has no figure');
+  for (const id of sceneFiles) if (!art.art[id]) fails.push('media/scenes/' + id + '.svg is not in content/story-art.js (run: tools.js scenes)');
+  for (const [id, a] of Object.entries(art.art)){
+    if (!art.stories[id]) fails.push('STORY_ART.' + id + ' is not a story'); else for (const w of a.who){ if (!art.stories[id].includes(w[0])) fails.push('STORY_ART.' + id + ': ' + w[0] + ' is not in the story'); if (!art.figs[art.cast[w[0]] && art.cast[w[0]].fig]) fails.push('STORY_ART.' + id + ': ' + w[0] + ' has no figure'); if (w.slice(1, 4).some(v => !(v >= 0 && v <= 100))) fails.push('STORY_ART.' + id + ': ' + w[0] + ' is placed outside the scene'); }
+    if (!sceneFiles.includes(id)) fails.push('STORY_ART.' + id + ' has no file in media/scenes');
+  }
+  console.log(castFiles.length + ' cast figures, ' + sceneFiles.length + ' of ' + Object.keys(art.stories).length + ' story scenes');
   console.log(drawn.size + ' pictures drawn in pics.js, ' + fileIds.length + ' files in media/pics, ' + Object.keys(briefs.concepts).length + ' concepts briefed');
   return fails;
 }
@@ -285,15 +300,22 @@ async function svgIngest(dir){
     let out = cleanSvg(raw);
     const page = await browser.newPage({ viewport: { width: 1200, height: 1200 } });
     await page.setContent('<body style="margin:0">' + out.replace(/<svg\b/, '<svg width="1024" height="1024"') + '</body>');
+    if (kind === 'scenes'){   // Recraft puts a white rectangle behind a scene: take it out so the scene sits on the card's own tint
+      const cut = await page.evaluate(() => { const svg = document.querySelector('svg'), vb = svg.viewBox.baseVal; let n = 0;
+        for (const c of [...svg.children]){ if (!c.getBBox) continue; const x = c.getBBox(), f = (c.getAttribute('fill') || '').replace(/\s/g, '').toLowerCase();
+          if (x.width > vb.width * .97 && x.height > vb.height * .97 && /^(#fff(fff)?|white|rgb\(255,255,255\))$/.test(f)){ c.remove(); n++; } }
+        return { n, html: svg.outerHTML }; });
+      if (cut.n){ out = cut.html.replace(/ width="1024" height="1024"/, ''); rows.push(f + ': removed ' + cut.n + ' white background shape(s)'); }
+    }
     const m = await page.evaluate(() => { const svg = document.querySelector('svg'), vb = svg.viewBox.baseVal, b = svg.getBBox(), W = vb.width, H = vb.height;
       return { vb: [vb.x, vb.y, W, H], bb: [b.x, b.y, b.width, b.height], big: [...svg.children].filter(c => c.getBBox && (() => { const x = c.getBBox(); return x.width > W * .97 && x.height > H * .97; })()).length, nodes: svg.querySelectorAll('*').length }; });
     await page.close();
     let vb = m.vb;
-    if (kind === 'cast'){   // a figure sits in a square canvas with empty margin: tighten the box around it
+    if (kind === 'cast' || kind === 'scenes'){   // a figure or a scene sits in a canvas with empty margin: tighten the box around it
       const pad = Math.max(m.bb[2], m.bb[3]) * 0.02, x = Math.floor(m.bb[0] - pad), y = Math.floor(m.bb[1] - pad);
       vb = [x, y, Math.ceil(m.bb[0] + m.bb[2] + pad) - x, Math.ceil(m.bb[1] + m.bb[3] + pad) - y];
       out = out.replace(/viewBox="[^"]*"/, 'viewBox="' + vb.join(' ') + '"');
-      if (m.big) fails.push(f + ' has ' + m.big + ' shape(s) covering the whole canvas: a background? (cast figures should have none)');
+      if (kind === 'cast' && m.big) fails.push(f + ' has ' + m.big + ' shape(s) covering the whole canvas: a background? (cast figures should have none)');
     }
     const budget = SVG_BUDGET[kind]; if (out.length > budget) fails.push(f + ' is ' + Math.round(out.length / 1024) + ' KB after cleaning (budget ' + Math.round(budget / 1024) + ' KB)');
     const dest = path.join(ROOT, 'media', kind, f); fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.writeFileSync(dest, out); total += out.length;
@@ -384,6 +406,54 @@ async function splitSheet(o){
   report.push('Look at ' + path.relative(ROOT, path.join(o.out, 'index.png')) + ', then place the parts by number: node design/pictures/tools.js place <sheet-id> "3=apple,5=bread"');
   return { count: objs.length, report };
 }
+/* content/cast-art.js: for each figure in media/cast/, its viewBox and the square around its head (in the file's own units), which castFace() in js/core/art.js shows as the portrait */
+async function castFaces(){
+  let chromium; try { ({ chromium } = require('playwright')); } catch (e) { throw new Error('faces needs Playwright: NODE_PATH="$(npm root -g)" node design/pictures/tools.js faces'); }
+  const dir = path.join(ROOT, 'media', 'cast'), out = {}, browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {}), page = await browser.newPage();
+  for (const f of fs.readdirSync(dir).filter(x => x.endsWith('.svg')).sort()){
+    const id = f.replace(/\.svg$/, ''), text = fs.readFileSync(path.join(dir, f), 'utf8'), vb = (/viewBox="([^"]+)"/.exec(text) || [])[1];
+    if (!vb) throw new Error(f + ' has no viewBox');
+    const box = vb.split(/[\s,]+/).map(Number);
+    const r = await page.evaluate(async ([src, box]) => {
+      const W = 600, sc = W / box[2], H = Math.round(box[3] * sc), img = new Image(); img.src = src; await img.decode();
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const cx = cv.getContext('2d', { willReadFrequently: true }); cx.drawImage(img, 0, 0, W, H);
+      const px = cx.getImageData(0, 0, W, H).data, rows = [];
+      for (let y = 0; y < Math.round(H * 0.34); y++){ let l = -1, rr = -1; for (let x = 0; x < W; x++) if (px[(y * W + x) * 4 + 3] > 40){ if (l < 0) l = x; rr = x; } rows.push([l, rr]); }
+      return { sc, H, rows };
+    }, ['data:image/svg+xml;base64,' + Buffer.from(text).toString('base64'), box]);
+    // the head is the widest part of the top quarter; it ends at the neck, the narrowest row after it
+    const top = r.rows.findIndex(x => x[0] >= 0), headH = r.H * 0.25, w = r.rows.map(x => x[0] < 0 ? 0 : x[1] - x[0]);
+    let wi = top, wm = 0; for (let y = top; y < top + headH * 0.9 && y < w.length; y++) if (w[y] > wm){ wm = w[y]; wi = y; }
+    let ni = wi, nw = 1e9; for (let y = wi; y < Math.min(w.length, top + headH * 1.35); y++) if (w[y] > 0 && w[y] < nw){ nw = w[y]; ni = y; }
+    const bottom = Math.min(ni, top + headH * 1.1), band = r.rows.slice(top, Math.round(bottom)).filter(x => x[0] >= 0);
+    const x0 = Math.min(...band.map(x => x[0])), x1 = Math.max(...band.map(x => x[1])), side = Math.max(x1 - x0, bottom - top) * 1.2;
+    out[id] = { vb: box, face: [box[0] + ((x0 + x1) / 2 - side / 2) / r.sc, box[1] + (top - side * 0.08) / r.sc, side / r.sc].map(v => Math.round(v * 10) / 10) };
+  }
+  await browser.close();
+  const lines = Object.entries(out).map(([id, d]) => '  ' + id + ': { vb: ' + JSON.stringify(d.vb) + ', face: ' + JSON.stringify(d.face) + ' }');
+  const text = '"use strict";\n/* Generated by node design/pictures/tools.js faces from the figures in media/cast/. Do not edit by hand.\n   CAST_FIG[id]: the figure file\'s viewBox [x, y, w, h] and the square [x, y, side] around its head, in that file\'s own units.\n   castFace() in js/core/art.js shows that square as the portrait; CAST[id].fig names the figure (several characters can share one). */\nconst CAST_FIG = {\n' + lines.join(',\n') + '\n};\n';
+  fs.writeFileSync(path.join(ROOT, 'content', 'cast-art.js'), text);
+  return Object.keys(out).length;
+}
+/* content/story-art.js: for each story with a scene in media/scenes/, the scene's width to height and who stands where.
+   Positions come from story-figs.json ({ "de-s1": [["lena", x, bottom, height, flip], …] }, all in percent of the scene, flip 1 turns the figure to face right);
+   a story with no entry there gets its cast spread across the floor, the left one facing right and the others facing left. */
+async function storyArt(){
+  const stories = JSON.parse(await loadApp(P => JSON.stringify(P.STORIES.map(s => ({ id: s.id, cast: s.cast })))));
+  const figsFile = path.join(HERE, 'story-figs.json'), figs = fs.existsSync(figsFile) ? JSON.parse(fs.readFileSync(figsFile, 'utf8')) : {};
+  const dir = path.join(ROOT, 'media', 'scenes'), have = fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.svg')).map(f => f.replace(/\.svg$/, '')) : [];
+  const slots = { 1: [50], 2: [30, 70], 3: [20, 50, 80] }, out = [];
+  for (const st of stories){
+    if (!have.includes(st.id)) continue;
+    const vb = (/viewBox="([^"]+)"/.exec(fs.readFileSync(path.join(dir, st.id + '.svg'), 'utf8')) || [])[1]; if (!vb) throw new Error(st.id + ' scene has no viewBox');
+    const b = vb.split(/[\s,]+/).map(Number), ar = Math.round(b[2] / b[3] * 100) / 100;
+    const who = figs[st.id] || st.cast.slice(0, 3).map((id, i, a) => [id, slots[a.length][i], 3, 52, i === 0 ? 1 : 0]);
+    out.push("  '" + st.id + "': { ar: " + ar + ', who: ' + JSON.stringify(who) + ' }');
+  }
+  const text = '"use strict";\n/* Generated by node design/pictures/tools.js scenes from media/scenes/ and design/pictures/story-figs.json. Do not edit by hand.\n   STORY_ART[storyId]: the scene file\'s width to height, and who stands in it as [castId, x, bottom, height, flip] in percent of the scene.\n   storyArt() in js/core/art.js draws it; a story with no entry keeps its drawn scene (SCENES). */\nconst STORY_ART = {\n' + out.join(',\n') + '\n};\n';
+  fs.writeFileSync(path.join(ROOT, 'content', 'story-art.js'), text);
+  return out.length;
+}
 /* one placed picture from a spec: "3" is part 3, "24+6+7" joins parts (a sun and the rays that were cut off it), a trailing "~" mirrors it left to right */
 function partSVG(dir, spec){
   const flip = /~$/.test(spec), nums = spec.replace(/~$/, '').split('+').map(x => x.trim()), vbs = [], bodies = [];
@@ -412,7 +482,7 @@ function placeParts(sheetId, mapArg, o){
   return { report, fails };
 }
 
-module.exports = { loadApp, inventory, chunk, compileBriefs, buildPicWords, picProblems, check, svgIngest, splitSheet, placeParts, svgProblems, cleanSvg, meaningKey, slug, LEVELS, ROOT, HERE };
+module.exports = { storyArt, castFaces, loadApp, inventory, chunk, compileBriefs, buildPicWords, picProblems, check, svgIngest, splitSheet, placeParts, svgProblems, cleanSvg, meaningKey, slug, LEVELS, ROOT, HERE };
 if (require.main === module){
   const [cmd, ...rest] = process.argv.slice(2);
   const outAt = rest.indexOf('--out');
@@ -427,6 +497,8 @@ if (require.main === module){
       const g = n => { const i = rest.indexOf(n); return i >= 0 ? rest[i + 1] : null; }, R = path.join(HERE, 'recraft'), sheetFile = path.join(R, 'sheets', id + '.json');
       const r = await splitSheet({ file: g('--file') || path.join(R, 'candidates', id + '-' + (g('--k') || 1) + '.svg'), out: g('--out') || path.join(R, 'candidates', id + '-parts'), expected: fs.existsSync(sheetFile) ? JSON.parse(fs.readFileSync(sheetFile, 'utf8')).per : 0 });
       console.log(r.report.join('\n')); },
+    scenes: async () => console.log((await storyArt()) + ' scene(s) listed, content/story-art.js written'),
+    faces: async () => console.log((await castFaces()) + ' figures measured, content/cast-art.js written'),
     place: async () => { if (!rest[0] || !rest[1]) throw new Error('Usage: place <sheet-id> "3=apple,5=bread" | map.json [--force]'); const r = placeParts(rest[0], rest[1], { force: rest.includes('--force') }); console.log(r.report.join('\n')); if (r.fails.length) throw new Error(r.fails.join('\n')); },
     shots: () => shots(rest[0] || 'all', outAt >= 0 ? rest[outAt + 1] : path.join(os.tmpdir(), 'pic-shots'))
   }[cmd];

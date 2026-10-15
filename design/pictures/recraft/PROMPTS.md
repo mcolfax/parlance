@@ -155,191 +155,191 @@ Flat vector sticker illustration, friendly cartoon style: thick even dark green 
 
 ## Scenes (27)
 
-### de-s1 Ein Kaffee, bitte (A1): `de-s1.svg`
+### de-s1 Ein Kaffee, bitte (A1): `de-s1.svg` (received)
 *A coffee, please. In the story: Lena, Jonas.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Tiny corner cafe, sunny morning. Wooden counter along the back right with a shiny espresso machine, glass case of croissants, shelf of cups, small round tables, big window, pendant lamps. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Tiny corner cafe, sunny morning. Wooden counter along the back right with a shiny espresso machine, glass case of croissants, shelf of cups, small round tables, big window, pendant lamps. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
 ```
 
 ### de-s2 Die neue Nachbarin (A1): `de-s2.svg`
 *The new neighbor. In the story: Frau Weber, Lena.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Bright apartment-building hallway in daytime: two neighboring front doors, a doormat, a big potted plant, coat hooks, a bicycle against the wall, a window with soft light. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Bright apartment-building hallway in daytime: two neighboring front doors, a doormat, a big potted plant, coat hooks, a bicycle against the wall, a window with soft light. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
 ```
 
-### de-s3 Regen am Samstag (A2): `de-s3.svg`
+### de-s3 Regen am Samstag (A2): `de-s3.svg` (received)
 *Rain on Saturday. In the story: Jonas, Lena.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Rainy Saturday on a city street in front of an apartment building entrance with a small awning. Grey clouds, rain streaks, puddles, wet shiny pavement, parked bikes, a lit cafe window. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Rainy Saturday on a city street in front of an apartment building entrance with a small awning. Grey clouds, rain streaks, puddles, wet shiny pavement, parked bikes, a lit cafe window. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
 ```
 
 ### de-s4 Spätabends bei Emre (A2): `de-s4.svg`
 *Late at Emre’s shop. In the story: Frau Weber, Emre.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Late-evening corner shop (Spaeti), glowing windows: shelves of bread rolls, a milk fridge, crates of fruit outside, a street lamp, dark blue night sky. Counter with a till inside. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Late-evening corner shop (Spaeti), glowing windows: shelves of bread rolls, a milk fridge, crates of fruit outside, a street lamp, dark blue night sky. Counter with a till inside. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
 ```
 
-### de-s5 Der verlorene Schlüssel (B1): `de-s5.svg`
+### de-s5 Der verlorene Schlüssel (B1): `de-s5.svg` (received)
 *The lost key. In the story: Lena, Jonas.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Night outside an apartment building: a closed front door with a keyhole and a doorstep, a street lamp with warm light, dark blue starry sky, a bicycle leaning on the wall, one lit window above. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Night outside an apartment building: a closed front door with a keyhole and a doorstep, a street lamp with warm light, dark blue starry sky, a bicycle leaning on the wall, one lit window above. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
 ```
 
 ### de-s6 Nach dem Kino (B1): `de-s6.svg`
 *After the movie. In the story: Emre, Lena.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Evening in front of a small old cinema: glowing marquee with blank lights, two empty poster frames, a popcorn cart, a bench, a street lamp, dusk sky. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Evening in front of a small old cinema: glowing marquee with blank lights, two empty poster frames, a popcorn cart, a bench, a street lamp, dusk sky. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
 ```
 
 ### de-s7 Die Wohnung über dem Laden (B2): `de-s7.svg`
 *The flat above the shop. In the story: Emre, Jonas.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Empty sunny two-room apartment above a shop: wooden parquet floor, tall windows with a street view, a few cardboard moving boxes, a radiator, a set of keys on a hook. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Empty sunny two-room apartment above a shop: wooden parquet floor, tall windows with a street view, a few cardboard moving boxes, a radiator, a set of keys on a hook. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
 ```
 
 ### de-s8 Höflich, aber bestimmt (C1): `de-s8.svg`
 *Polite but firm. In the story: Lena, Frau Weber.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Cold winter living room: a desk with a laptop, a sheet of paper and a pen, a mug, a radiator, a thick blanket over a chair, a window with snowflakes outside. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Cold winter living room: a desk with a laptop, a sheet of paper and a pen, a mug, a radiator, a thick blanket over a chair, a window with snowflakes outside. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
 ```
 
 ### de-s9 Notdienst in der Apotheke (B1): `de-s9.svg`
 *The late-night pharmacy. In the story: Herr Brandt, Leyla.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Late-night pharmacy: a glowing green cross sign (symbol only), a counter with medicine boxes, tall shelves, a night bell by the glass door, dark street outside. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Late-night pharmacy: a glowing green cross sign (symbol only), a counter with medicine boxes, tall shelves, a night bell by the glass door, dark street outside. Berlin: cream and grey tenement buildings, tall windows, bicycles, linden trees.
 ```
 
 ### es-s1 Un café, por favor (A1): `es-s1.svg`
 *A coffee, please. In the story: Mateo, Sofía.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Small neighborhood cafe, sunny morning. Counter with an espresso machine and a basket of sweet rolls, colorful tile counter front, wooden stools, hanging plants, papel picado banner without text. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Small neighborhood cafe, sunny morning. Counter with an espresso machine and a basket of sweet rolls, colorful tile counter front, wooden stools, hanging plants, papel picado banner without text. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
 ```
 
 ### es-s2 La familia de Diego (A1): `es-s2.svg`
 *Diego’s family. In the story: Mateo, Diego.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Cozy family living room: a sofa with embroidered cushions, a wall of framed photos, a plant, a cat basket, a window with a purple jacaranda tree outside, afternoon light. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Cozy family living room: a sofa with embroidered cushions, a wall of framed photos, a plant, a cat basket, a window with a purple jacaranda tree outside, afternoon light. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
 ```
 
-### es-s3 En el mercado (A2): `es-s3.svg`
+### es-s3 En el mercado (A2): `es-s3.svg` (received)
 *At the market. In the story: Doña Carmen, Diego.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Open-air market stall, morning: crates of tomatoes, avocados and limes, bunches of cilantro, a hanging scale, a red and white striped awning, colorful cloths. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Open-air market stall, morning: crates of tomatoes, avocados and limes, bunches of cilantro, a hanging scale, a red and white striped awning, colorful cloths. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
 ```
 
 ### es-s4 Lluvia en la tarde (A2): `es-s4.svg`
 *Afternoon rain. In the story: Sofía, Mateo.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Park after a rainy afternoon starts: big old trees, a bike rack with bicycles, a wet path with puddles, grey-violet clouds, falling rain streaks. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Park after a rainy afternoon starts: big old trees, a bike rack with bicycles, a wet path with puddles, grey-violet clouds, falling rain streaks. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
 ```
 
 ### es-s5 La noche del apagón (B1): `es-s5.svg`
 *The night of the blackout. In the story: Sofía, Diego.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Restaurant dining room during a blackout at night: candles and lanterns on tables, a guitar leaning on a chair, dark windows with a city skyline, warm candlelight. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Restaurant dining room during a blackout at night: candles and lanterns on tables, a guitar leaning on a chair, dark windows with a city skyline, warm candlelight. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
 ```
 
 ### es-s6 Después del concierto (B1): `es-s6.svg`
 *After the concert. In the story: Mateo, Sofía.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Small concert hall after a show: a stage with a drum kit and microphone stand, speaker stacks, string lights, colored spotlight beams, a few empty chairs. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Small concert hall after a show: a stage with a drum kit and microphone stand, speaker stacks, string lights, colored spotlight beams, a few empty chairs. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
 ```
 
 ### es-s7 Se renta departamento (B2): `es-s7.svg`
 *Apartment for rent. In the story: Doña Carmen, Mateo.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Empty bright apartment for rent: living room with tiled floor, a balcony with plants, a few moving boxes, a set of keys on a hook, a blank paper sign on the door. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Empty bright apartment for rent: living room with tiled floor, a balcony with plants, a few moving boxes, a set of keys on a hook, a blank paper sign on the door. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
 ```
 
 ### es-s8 La entrevista (C1): `es-s8.svg`
 *The interview. In the story: Sofía, Diego.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Small TV studio set: two armchairs and a side table with water glasses, big studio lights on stands, a camera on a tripod, a red on-air lamp without text, colorful backdrop. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Small TV studio set: two armchairs and a side table with water glasses, big studio lights on stands, a camera on a tripod, a red on-air lamp without text, colorful backdrop. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
 ```
 
 ### es-s9 Taxi bajo la lluvia (B1): `es-s9.svg`
 *A taxi in the rain. In the story: Valentina, Andrés.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Street in heavy afternoon rain: a pink and white taxi parked at the curb with wipers on, wet street, puddles, jacaranda trees, rain streaks, buildings with lit windows. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Street in heavy afternoon rain: a pink and white taxi parked at the curb with wipers on, wet street, puddles, jacaranda trees, rain streaks, buildings with lit windows. Mexico City: colorful low buildings, jacaranda trees, bright tiles.
 ```
 
 ### it-s1 Un caffè, per favore (A1): `it-s1.svg`
 *A coffee, please. In the story: Giulia, Luca.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Roman cafe-bar, sunny morning: a zinc counter with a silver espresso machine, a glass case of cornetti, tiny marble tables, bottles on shelves, green shutters open to the street. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Roman cafe-bar, sunny morning: a zinc counter with a silver espresso machine, a glass case of cornetti, tiny marble tables, bottles on shelves, green shutters open to the street. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
 ```
 
 ### it-s2 La famiglia di Giulia (A1): `it-s2.svg`
 *Giulia’s family. In the story: Luca, Giulia.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Cozy family living room: a bookshelf full of books, a sofa with a crocheted blanket, framed photos on the wall, a plant, a window with shutters, warm evening light. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Cozy family living room: a bookshelf full of books, a sofa with a crocheted blanket, framed photos on the wall, a plant, a window with shutters, warm evening light. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
 ```
 
 ### it-s3 Al mercato (A2): `it-s3.svg`
 *At the market. In the story: Nonna Rosa, Marco.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Open-air market stall, morning: crates of tomatoes, oranges, potatoes and lemons, a hanging scale, a green striped awning, cobblestones. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Open-air market stall, morning: crates of tomatoes, oranges, potatoes and lemons, a hanging scale, a green striped awning, cobblestones. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
 ```
 
 ### it-s4 Pioggia nel pomeriggio (A2): `it-s4.svg`
 *Afternoon rain. In the story: Luca, Giulia.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Afternoon thunderstorm: dark clouds, heavy rain, wet cobblestones with puddles, a bus stop shelter, an ochre building, an umbrella pine. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Afternoon thunderstorm: dark clouds, heavy rain, wet cobblestones with puddles, a bus stop shelter, an ochre building, an umbrella pine. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
 ```
 
 ### it-s5 La notte del blackout (B1): `it-s5.svg`
 *The night of the blackout. In the story: Dottoressa Conti, Signor Bianchi.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Small family pensione lobby during a blackout at night: a reception desk with candles, a guitar on a chair, a key rack with keys, a staircase, dark windows, warm candlelight. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Small family pensione lobby during a blackout at night: a reception desk with candles, a guitar on a chair, a key rack with keys, a staircase, dark windows, warm candlelight. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
 ```
 
 ### it-s6 Dopo il concerto (B1): `it-s6.svg`
 *After the concert. In the story: Luca, Giulia.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Small concert hall after a show: a stage with a drum kit and microphone stand, speaker stacks, string lights, colored spotlight beams, a few empty chairs. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Small concert hall after a show: a stage with a drum kit and microphone stand, speaker stacks, string lights, colored spotlight beams, a few empty chairs. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
 ```
 
 ### it-s7 Affittasi appartamento (B2): `it-s7.svg`
 *Apartment for rent. In the story: Signor Bianchi, Luca.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Empty bright apartment for rent: parquet floor, tall shuttered windows, a balcony with terracotta pots, a few moving boxes, a set of keys on a hook. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Empty bright apartment for rent: parquet floor, tall shuttered windows, a balcony with terracotta pots, a few moving boxes, a set of keys on a hook. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
 ```
 
 ### it-s8 Il colloquio (C1): `it-s8.svg`
 *The interview. In the story: Nonna Rosa, Luca.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Cozy study at home: a desk with an open notebook, a coffee cup and a lamp, a bookshelf, a blank framed diploma, a necktie hung over a chair, a window with shutters. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Cozy study at home: a desk with an open notebook, a coffee cup and a lamp, a bookshelf, a blank framed diploma, a necktie hung over a chair, a window with shutters. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
 ```
 
 ### it-s9 Il motorino sotto la pioggia (B1): `it-s9.svg`
 *The scooter in the rain. In the story: Signor Bianchi, Luca.*
 
 ```
-Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered. Small hotel entrance in the rain, early evening: a lantern by the door, a scooter at the curb with a delivery box on the back, wet cobblestones, rain streaks. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
+Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. A wide panoramic 2:1 background that fills the whole canvas edge to edge (walls, sky and floor reach every border; no frame, no white margin, nothing floating in the middle), eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered, wide enough for two or three people to stand side by side. Small hotel entrance in the rain, early evening: a lantern by the door, a scooter at the curb with a delivery box on the back, wet cobblestones, rain streaks. Rome: ochre and terracotta walls, green shutters, cobblestones, umbrella pines.
 ```
