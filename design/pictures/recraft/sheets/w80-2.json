@@ -1,31 +1,493 @@
 {
  "id": "w80-2",
- "per": 18,
+ "per": 80,
  "cols": 10,
- "rows": 2,
+ "rows": 8,
  "ratio": "5:4",
- "bytes": 1717,
+ "bytes": 5214,
  "ids": [
+  "slow",
+  "belt",
+  "boots",
+  "cap",
+  "checked",
+  "coat",
+  "cotton",
+  "dress",
+  "gloves",
+  "hat",
+  "jacket",
+  "leather",
+  "pants",
+  "raincoat",
+  "scarf",
+  "shirt",
+  "shoes",
+  "striped",
+  "sunglasses",
+  "sweater",
+  "sweatshirt",
+  "tie",
+  "to-wear",
+  "umbrella",
+  "wool",
+  "color",
+  "light-blue",
+  "cheese",
+  "egg",
+  "food",
+  "glass",
+  "menu",
+  "potato",
+  "apartment",
+  "balcony",
+  "big",
+  "lamp",
+  "phone",
+  "small",
+  "sofa",
+  "television",
+  "wallet",
+  "wardrobe",
+  "window",
+  "flower",
+  "leaf",
+  "happy",
+  "teacher",
+  "tired",
+  "waiter",
   "germany",
   "italy",
   "market",
   "mexico",
   "rome",
   "united-states",
+  "behind",
+  "between",
+  "in-front-of",
+  "inside",
+  "next-to",
+  "on",
+  "under",
+  "autumn",
+  "birthday",
+  "calendar",
+  "christmas",
+  "holiday",
+  "spring",
+  "summer",
+  "winter",
   "to-buy",
   "to-drink",
   "to-eat",
+  "to-give",
+  "to-go",
+  "to-help",
+  "to-leave",
   "to-pay",
-  "dog",
-  "train",
-  "to-cook",
-  "to-read",
-  "to-sleep",
-  "to-swim",
-  "to-recycle",
-  "to-be-on-cloud-nine"
+  "to-see"
  ],
  "items": [
+  {
+   "id": "slow",
+   "batch": "a-animals",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "snail with a spiral shell crawling along a leaf"
+  },
+  {
+   "id": "belt",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "brown leather belt with a silver buckle, coiled"
+  },
+  {
+   "id": "boots",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pair of brown leather boots with thick soles"
+  },
+  {
+   "id": "cap",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "red baseball cap seen from the side"
+  },
+  {
+   "id": "checked",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "square of red-and-white checked cloth with a folded corner"
+  },
+  {
+   "id": "coat",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "long gray winter coat with big buttons and a collar"
+  },
+  {
+   "id": "cotton",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "cotton plant: white fluffy bolls on a branch with brown pods"
+  },
+  {
+   "id": "dress",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "red dress with thin straps and a belt, on a hanger"
+  },
+  {
+   "id": "gloves",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pair of red knitted gloves"
+  },
+  {
+   "id": "hat",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "felt hat with a brim and a ribbon band"
+  },
+  {
+   "id": "jacket",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "blue zip-up jacket with two pockets"
+  },
+  {
+   "id": "leather",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "piece of brown leather with stitched edges"
+  },
+  {
+   "id": "pants",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pair of blue trousers with belt loops and pockets"
+  },
+  {
+   "id": "raincoat",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "yellow hooded raincoat with a few raindrops"
+  },
+  {
+   "id": "scarf",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "long striped red-and-cream scarf with a loose knot and fringe"
+  },
+  {
+   "id": "shirt",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "light blue button-up shirt with a collar and buttons"
+  },
+  {
+   "id": "shoes",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pair of brown lace-up shoes"
+  },
+  {
+   "id": "striped",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "square of blue-and-white striped cloth with a folded corner"
+  },
+  {
+   "id": "sunglasses",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "black sunglasses with dark round lenses and a small glint"
+  },
+  {
+   "id": "sweater",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "chunky green knit sweater with ribbed cuffs and collar"
+  },
+  {
+   "id": "sweatshirt",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "gray hoodie with a pouch pocket and drawstrings"
+  },
+  {
+   "id": "tie",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "red necktie with diagonal stripes"
+  },
+  {
+   "id": "to-wear",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure pulling a jacket on, one arm in the sleeve"
+  },
+  {
+   "id": "umbrella",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "open red umbrella with a curved handle"
+  },
+  {
+   "id": "wool",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "ball of yarn with two knitting needles"
+  },
+  {
+   "id": "color",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "painter's palette with five paint blobs and a thumb hole"
+  },
+  {
+   "id": "light-blue",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "paint daub in light sky blue with a brush"
+  },
+  {
+   "id": "cheese",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "yellow wedge with three round holes"
+  },
+  {
+   "id": "egg",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "fried egg: white wobbly blob, round yolk, a little shine"
+  },
+  {
+   "id": "food",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "plate with a fork and knife and a little of everything on it"
+  },
+  {
+   "id": "glass",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "empty clear drinking glass with a highlight"
+  },
+  {
+   "id": "menu",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "folded menu card standing up, wavy lines for the list"
+  },
+  {
+   "id": "potato",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "brown potato with eyes and a bit of dirt"
+  },
+  {
+   "id": "apartment",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "block of flats seen from the front, rows of windows, a balcony, a door"
+  },
+  {
+   "id": "balcony",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "balcony with a railing and a potted plant, a sliver of sky"
+  },
+  {
+   "id": "big",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "lamp",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "table lamp with a round cream shade, glowing yellow, on a short base"
+  },
+  {
+   "id": "phone",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "smartphone with a bright blank screen and a rounded body"
+  },
+  {
+   "id": "small",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "sofa",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "two-seat sofa with two cushions, seen from the front"
+  },
+  {
+   "id": "television",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "flat-screen TV on a short stand, a green hill and sun on the screen"
+  },
+  {
+   "id": "wallet",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "open brown leather wallet with a bank card and a banknote poking out"
+  },
+  {
+   "id": "wardrobe",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "tall wooden wardrobe with two doors, one open showing hanging clothes"
+  },
+  {
+   "id": "window",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "window with a frame, four panes and curtains tied to the sides, blue sky outside"
+  },
+  {
+   "id": "flower",
+   "batch": "a-nature",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pink flower with a yellow center, green stem and two leaves"
+  },
+  {
+   "id": "leaf",
+   "batch": "a-nature",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "single green leaf with veins and a short stem"
+  },
+  {
+   "id": "happy",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "round face, big open smile, closed happy eyes, two sparkles"
+  },
+  {
+   "id": "teacher",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure beside a green chalkboard, holding a pointer"
+  },
+  {
+   "id": "tired",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "waiter",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure with a bow tie carrying a tray with a coffee"
+  },
   {
    "id": "germany",
    "batch": "a-places",
@@ -75,6 +537,126 @@
    "brief": "waving flag: red and white stripes, blue corner with white dots"
   },
   {
+   "id": "behind",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "ball hidden partly behind a box, only half of the ball showing"
+  },
+  {
+   "id": "between",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "a red ball between two blue boxes"
+  },
+  {
+   "id": "in-front-of",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "red ball in front of a blue box, ball fully visible and overlapping the box"
+  },
+  {
+   "id": "inside",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "red ball inside an open box, only the top of the ball showing"
+  },
+  {
+   "id": "next-to",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "red ball and blue box standing side by side, touching"
+  },
+  {
+   "id": "on",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "red ball sitting on top of a blue box"
+  },
+  {
+   "id": "under",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "red ball underneath a table, the table top above it"
+  },
+  {
+   "id": "autumn",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "tree with orange and red leaves, leaves falling, a pile of leaves below"
+  },
+  {
+   "id": "birthday",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "wrapped present with a big bow and a balloon on a string beside it"
+  },
+  {
+   "id": "calendar",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "wall calendar page with a grid of small blank squares, one circled in red, two rings on top"
+  },
+  {
+   "id": "christmas",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "decorated green fir tree with a gold star, red baubles and a wrapped present"
+  },
+  {
+   "id": "holiday",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "palm tree on a small island with a suitcase and a bright sun"
+  },
+  {
+   "id": "spring",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "small tree in pink blossom, green grass, a tulip and a butterfly"
+  },
+  {
+   "id": "summer",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "beach umbrella, a bright sun and a wave strip of blue water"
+  },
+  {
+   "id": "winter",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "snowman with a scarf and carrot nose under falling snow"
+  },
+  {
    "id": "to-buy",
    "batch": "a-verbs",
    "level": "A1",
@@ -99,6 +681,38 @@
    "brief": "figure with a fork raised to the mouth, a plate in front"
   },
   {
+   "id": "to-give",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure handing a wrapped gift to another figure"
+  },
+  {
+   "id": "to-go",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure walking with a backpack along a path toward a signpost arrow"
+  },
+  {
+   "id": "to-help",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure holding out a hand to help another figure climb a step"
+  },
+  {
+   "id": "to-leave",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure walking out through an open door pulling a suitcase"
+  },
+  {
    "id": "to-pay",
    "batch": "a-verbs",
    "level": "A1",
@@ -107,69 +721,13 @@
    "brief": "hand giving a coin to another hand over a counter"
   },
   {
-   "id": "dog",
-   "batch": "a-animals",
-   "level": "A2",
-   "kind": "n",
-   "quiz": 1,
-   "brief": "dog's face, floppy brown ears, black nose, pink tongue"
-  },
-  {
-   "id": "train",
-   "batch": "a-travel",
-   "level": "A2",
-   "kind": "n",
-   "quiz": 1,
-   "brief": "side view of a steam train: blue boiler, red cab, black chimney, wheels on a rail"
-  },
-  {
-   "id": "to-cook",
+   "id": "to-see",
    "batch": "a-verbs",
-   "level": "A2",
+   "level": "A1",
    "kind": "v",
    "quiz": 1,
-   "brief": "figure with a chef's hat stirring a red pot, steam rising"
-  },
-  {
-   "id": "to-read",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 1,
-   "brief": "figure holding an open orange book, eyes looking down"
-  },
-  {
-   "id": "to-sleep",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 1,
-   "brief": "figure asleep in a bed under a purple blanket, a moon and a star above"
-  },
-  {
-   "id": "to-swim",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 1,
-   "brief": "figure with a red cap in blue water, one arm lifted with splashes"
-  },
-  {
-   "id": "to-recycle",
-   "batch": "b-world",
-   "level": "B2",
-   "kind": "v",
-   "quiz": 0,
-   "brief": "green bin with two chasing arrows on it"
-  },
-  {
-   "id": "to-be-on-cloud-nine",
-   "batch": "c-idioms",
-   "level": "C1",
-   "kind": "x",
-   "quiz": 0,
-   "brief": "happy figure on a white cloud, arms up, hearts around"
+   "brief": "large open eye with lashes and a bright pupil with a sparkle"
   }
  ],
- "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 2 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 18 objects are: 1) waving flag, three horizontal bands: black, red, gold; 2) waving flag, three vertical bands: green, white, red; 3) open-air stall with a striped awning and crates of fruit; 4) waving flag, vertical green, white, red with a small brown eagle blob in the middle; 5) the Colosseum: a curved wall of stacked arches, a blue sky behind; 6) waving flag: red and white stripes, blue corner with white dots; 7) figure carrying a shopping bag and holding out a coin; 8) figure tipping a glass up to the mouth; 9) figure with a fork raised to the mouth, a plate in front; 10) hand giving a coin to another hand over a counter; 11) dog's face, floppy brown ears, black nose, pink tongue; 12) side view of a steam train: blue boiler, red cab, black chimney, wheels on a rail; 13) figure with a chef's hat stirring a red pot, steam rising; 14) figure holding an open orange book, eyes looking down; 15) figure asleep in a bed under a purple blanket, a moon and a star above; 16) figure with a red cap in blue water, one arm lifted with splashes; 17) green bin with two chasing arrows on it; 18) happy figure on a white cloud, arms up, hearts around."
+ "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 8 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 80 objects are: 1) snail with a spiral shell crawling along a leaf; 2) brown leather belt with a silver buckle, coiled; 3) pair of brown leather boots with thick soles; 4) red baseball cap seen from the side; 5) square of red-and-white checked cloth with a folded corner; 6) long gray winter coat with big buttons and a collar; 7) cotton plant: white fluffy bolls on a branch with brown pods; 8) red dress with thin straps and a belt, on a hanger; 9) pair of red knitted gloves; 10) felt hat with a brim and a ribbon band; 11) blue zip-up jacket with two pockets; 12) piece of brown leather with stitched edges; 13) pair of blue trousers with belt loops and pockets; 14) yellow hooded raincoat with a few raindrops; 15) long striped red-and-cream scarf with a loose knot and fringe; 16) light blue button-up shirt with a collar and buttons; 17) pair of brown lace-up shoes; 18) square of blue-and-white striped cloth with a folded corner; 19) black sunglasses with dark round lenses and a small glint; 20) chunky green knit sweater with ribbed cuffs and collar; 21) gray hoodie with a pouch pocket and drawstrings; 22) red necktie with diagonal stripes; 23) figure pulling a jacket on, one arm in the sleeve; 24) open red umbrella with a curved handle; 25) ball of yarn with two knitting needles; 26) painter's palette with five paint blobs and a thumb hole; 27) paint daub in light sky blue with a brush; 28) yellow wedge with three round holes; 29) fried egg: white wobbly blob, round yolk, a little shine; 30) plate with a fork and knife and a little of everything on it; 31) empty clear drinking glass with a highlight; 32) folded menu card standing up, wavy lines for the list; 33) brown potato with eyes and a bit of dirt; 34) block of flats seen from the front, rows of windows, a balcony, a door; 35) balcony with a railing and a potted plant, a sliver of sky; 36) big; 37) table lamp with a round cream shade, glowing yellow, on a short base; 38) smartphone with a bright blank screen and a rounded body; 39) small; 40) two-seat sofa with two cushions, seen from the front; 41) flat-screen TV on a short stand, a green hill and sun on the screen; 42) open brown leather wallet with a bank card and a banknote poking out; 43) tall wooden wardrobe with two doors, one open showing hanging clothes; 44) window with a frame, four panes and curtains tied to the sides, blue sky outside; 45) pink flower with a yellow center, green stem and two leaves; 46) single green leaf with veins and a short stem; 47) round face, big open smile, closed happy eyes, two sparkles; 48) figure beside a green chalkboard, holding a pointer; 49) tired; 50) figure with a bow tie carrying a tray with a coffee; 51) waving flag, three horizontal bands: black, red, gold; 52) waving flag, three vertical bands: green, white, red; 53) open-air stall with a striped awning and crates of fruit; 54) waving flag, vertical green, white, red with a small brown eagle blob in the middle; 55) the Colosseum: a curved wall of stacked arches, a blue sky behind; 56) waving flag: red and white stripes, blue corner with white dots; 57) ball hidden partly behind a box, only half of the ball showing; 58) a red ball between two blue boxes; 59) red ball in front of a blue box, ball fully visible and overlapping the box; 60) red ball inside an open box, only the top of the ball showing; 61) red ball and blue box standing side by side, touching; 62) red ball sitting on top of a blue box; 63) red ball underneath a table, the table top above it; 64) tree with orange and red leaves, leaves falling, a pile of leaves below; 65) wrapped present with a big bow and a balloon on a string beside it; 66) wall calendar page with a grid of small blank squares, one circled in red, two rings on top; 67) decorated green fir tree with a gold star, red baubles and a wrapped present; 68) palm tree on a small island with a suitcase and a bright sun; 69) small tree in pink blossom, green grass, a tulip and a butterfly; 70) beach umbrella, a bright sun and a wave strip of blue water; 71) snowman with a scarf and carrot nose under falling snow; 72) figure carrying a shopping bag and holding out a coin; 73) figure tipping a glass up to the mouth; 74) figure with a fork raised to the mouth, a plate in front; 75) figure handing a wrapped gift to another figure; 76) figure walking with a backpack along a path toward a signpost arrow; 77) figure holding out a hand to help another figure climb a step; 78) figure walking out through an open door pulling a suitcase; 79) hand giving a coin to another hand over a counter; 80) large open eye with lashes and a bright pupil with a sparkle."
 }

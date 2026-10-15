@@ -1,6 +1,6 @@
 {
  "note": "API units spent on Recraft, counted from the credits each call returns (1 USD = 1,000 units). Commit this with the pictures.",
- "units": 1125,
+ "units": 1365,
  "calls": [
   {
    "at": "2026-10-15T16:45",
@@ -104,6 +104,27 @@
    "at": "2026-10-15T17:03",
    "kind": "sheet",
    "id": "w80-1",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T17:14",
+   "kind": "sheet",
+   "id": "w80-2",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T17:14",
+   "kind": "sheet",
+   "id": "w80-3",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T17:14",
+   "kind": "sheet",
+   "id": "w80-4",
    "n": 1,
    "units": 80
   }

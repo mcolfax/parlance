@@ -7,7 +7,7 @@
      check            checks every picture against the drawing rules, the mapping against the course, and prints the coverage table
      svg [folder]     checks, cleans and places Recraft SVGs from design/pictures/recraft/incoming/ into media/cast/ and media/scenes/ (needs Playwright)
      split <sheet-id>  cuts recraft/candidates/<sheet-id>-1.svg (a sticker sheet of many words) into numbered parts and an index.png to look at (needs Playwright)
-     place <sheet-id> "3=apple,5=bread"   copies those numbered parts to media/pics/<word>.svg
+     place <sheet-id> "3=apple,5=bread"   copies those numbered parts to media/pics/<word>.svg ("24+6+7=sun" joins parts; "143~=left" mirrors one)
      shots <batch|id,id…> [--out dir]   contact sheets (20 pictures each, 44 and 112 px, light and dark) as PNGs; needs Playwright:
                       NODE_PATH="$(npm root -g)" node design/pictures/tools.js shots a-food --out /some/folder
    Ends with "ok", or lists FAIL lines and exits 1. */
@@ -384,17 +384,30 @@ async function splitSheet(o){
   report.push('Look at ' + path.relative(ROOT, path.join(o.out, 'index.png')) + ', then place the parts by number: node design/pictures/tools.js place <sheet-id> "3=apple,5=bread"');
   return { count: objs.length, report };
 }
-/* copy numbered parts to media/pics/<word>.svg. map: "3=apple,5=bread" or a JSON file of { "3": "apple" } */
+/* one placed picture from a spec: "3" is part 3, "24+6+7" joins parts (a sun and the rays that were cut off it), a trailing "~" mirrors it left to right */
+function partSVG(dir, spec){
+  const flip = /~$/.test(spec), nums = spec.replace(/~$/, '').split('+').map(x => x.trim()), vbs = [], bodies = [];
+  for (const n of nums){
+    const f = path.join(dir, String(n).padStart(2, '0') + '.svg'); if (!fs.existsSync(f)) throw new Error('No part ' + n);
+    const t = fs.readFileSync(f, 'utf8'), m = /^<svg[^>]*viewBox="([^"]+)"[^>]*>([\s\S]*)<\/svg>\s*$/.exec(t); if (!m) throw new Error('Part ' + n + ' isn’t a cut part');
+    vbs.push(m[1].split(/\s+/).map(Number)); bodies.push(m[2]);
+  }
+  if (nums.length === 1 && !flip) return fs.readFileSync(path.join(dir, String(nums[0]).padStart(2, '0') + '.svg'), 'utf8');
+  const x0 = Math.min(...vbs.map(v => v[0])), y0 = Math.min(...vbs.map(v => v[1])), x1 = Math.max(...vbs.map(v => v[0] + v[2])), y1 = Math.max(...vbs.map(v => v[1] + v[3]));
+  const side = Math.ceil(Math.max(x1 - x0, y1 - y0)), x = Math.floor((x0 + x1) / 2 - side / 2), y = Math.floor((y0 + y1) / 2 - side / 2);
+  const body = bodies.join('');
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [x, y, side, side].join(' ') + '">' + (flip ? '<g transform="matrix(-1 0 0 1 ' + (2 * x + side) + ' 0)">' + body + '</g>' : body) + '</svg>\n';
+}
+/* copy numbered parts to media/pics/<word>.svg. map: "3=apple,5=bread,24+6+7=sun,143~=left" or a JSON file of { "3": "apple" } */
 function placeParts(sheetId, mapArg, o){
   const R = path.join(HERE, 'recraft'), dir = path.join(R, 'candidates', sheetId + '-parts'), out = o.out || path.join(ROOT, 'media', 'pics');
-  let map = {}; if (fs.existsSync(mapArg)) map = JSON.parse(fs.readFileSync(mapArg, 'utf8')); else for (const pair of mapArg.split(',')){ const [n, id] = pair.split('='); if (n && id) map[+n] = id.trim(); }
+  let map = {}; if (fs.existsSync(mapArg)) map = JSON.parse(fs.readFileSync(mapArg, 'utf8')); else for (const pair of mapArg.split(',')){ const [n, id] = pair.split('='); if (n && id) map[n.trim()] = id.trim(); }
   const briefs = JSON.parse(fs.readFileSync(path.join(HERE, 'briefs.json'), 'utf8')), report = [], fails = [];
   fs.mkdirSync(out, { recursive: true });
   for (const [n, id] of Object.entries(map)){
-    const src = path.join(dir, String(n).padStart(2, '0') + '.svg'); if (!fs.existsSync(src)){ fails.push('No part ' + n); continue; }
     if (!briefs.concepts[id] || briefs.concepts[id].alias){ fails.push('Part ' + n + ': “' + id + '” isn’t a pictured concept in briefs.json'); continue; }
     const dest = path.join(out, id + '.svg'); if (fs.existsSync(dest) && !o.force){ report.push(id + ' exists, kept (use --force)'); continue; }
-    fs.copyFileSync(src, dest); report.push('part ' + n + ' -> ' + id);
+    try { fs.writeFileSync(dest, partSVG(dir, n)); report.push('part ' + n + ' -> ' + id); } catch (e) { fails.push(e.message); }
   }
   return { report, fails };
 }

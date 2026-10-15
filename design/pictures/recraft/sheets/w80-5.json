@@ -1,0 +1,130 @@
+{
+ "id": "w80-5",
+ "per": 13,
+ "cols": 10,
+ "rows": 2,
+ "ratio": "5:4",
+ "bytes": 1339,
+ "ids": [
+  "to-sneeze",
+  "to-study",
+  "to-swim",
+  "to-try-on",
+  "to-wake-up",
+  "to-walk",
+  "to-wash",
+  "to-watch-tv",
+  "to-work",
+  "cold-illness",
+  "tin-can",
+  "to-recycle",
+  "to-be-on-cloud-nine"
+ ],
+ "items": [
+  {
+   "id": "to-sneeze",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure sneezing into a tissue with spray dots"
+  },
+  {
+   "id": "to-study",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure at a desk with an open book and a pen, a stack of books beside"
+  },
+  {
+   "id": "to-swim",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with a red cap in blue water, one arm lifted with splashes"
+  },
+  {
+   "id": "to-try-on",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure holding a shirt up in front of a mirror"
+  },
+  {
+   "id": "to-wake-up",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "alarm clock with two bells ringing, motion lines around it"
+  },
+  {
+   "id": "to-walk",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure walking along a path, one foot ahead, trees behind"
+  },
+  {
+   "id": "to-wash",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure washing hands under a tap, soap bubbles"
+  },
+  {
+   "id": "to-watch-tv",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure sitting on a sofa watching a TV with a glowing screen"
+  },
+  {
+   "id": "to-work",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure at a desk typing on a laptop"
+  },
+  {
+   "id": "cold-illness",
+   "batch": "a-health",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure with a red nose blowing into a tissue, a tissue box beside"
+  },
+  {
+   "id": "tin-can",
+   "batch": "a-home",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "silver tin can with a ring pull and a plain label band"
+  },
+  {
+   "id": "to-recycle",
+   "batch": "b-world",
+   "level": "B2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "green bin with two chasing arrows on it"
+  },
+  {
+   "id": "to-be-on-cloud-nine",
+   "batch": "c-idioms",
+   "level": "C1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "happy figure on a white cloud, arms up, hearts around"
+  }
+ ],
+ "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 2 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 13 objects are: 1) figure sneezing into a tissue with spray dots; 2) figure at a desk with an open book and a pen, a stack of books beside; 3) figure with a red cap in blue water, one arm lifted with splashes; 4) figure holding a shirt up in front of a mirror; 5) alarm clock with two bells ringing, motion lines around it; 6) figure walking along a path, one foot ahead, trees behind; 7) figure washing hands under a tap, soap bubbles; 8) figure sitting on a sofa watching a TV with a glowing screen; 9) figure at a desk typing on a laptop; 10) figure with a red nose blowing into a tissue, a tissue box beside; 11) silver tin can with a ring pull and a plain label band; 12) green bin with two chasing arrows on it; 13) happy figure on a white cloud, arms up, hearts around."
+}

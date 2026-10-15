@@ -1,0 +1,733 @@
+{
+ "id": "w80-4",
+ "per": 80,
+ "cols": 10,
+ "rows": 8,
+ "ratio": "5:4",
+ "bytes": 5658,
+ "ids": [
+  "funny",
+  "hair",
+  "parents",
+  "pharmacist",
+  "queue",
+  "serious",
+  "tall",
+  "work",
+  "bakery",
+  "bank",
+  "bar",
+  "bookshop",
+  "butcher-s",
+  "church",
+  "cinema",
+  "closed",
+  "corner",
+  "far",
+  "fishmonger-s",
+  "hospital",
+  "library",
+  "meeting",
+  "museum",
+  "newsstand",
+  "office",
+  "open",
+  "pharmacy",
+  "police",
+  "post-office",
+  "school",
+  "square",
+  "street",
+  "supermarket",
+  "town-hall",
+  "university",
+  "atm",
+  "call",
+  "card",
+  "cash",
+  "cashier",
+  "change",
+  "checkout",
+  "discount",
+  "fitting-room",
+  "letter",
+  "money",
+  "package",
+  "plastic-bag",
+  "price",
+  "shop",
+  "size",
+  "stamp",
+  "tip",
+  "night",
+  "airport",
+  "bike",
+  "bus",
+  "elevator",
+  "hotel",
+  "passport",
+  "platform",
+  "stop",
+  "ticket",
+  "train",
+  "train-station",
+  "to-arrive",
+  "to-barbecue",
+  "to-cook",
+  "to-dance",
+  "to-depart",
+  "to-drive",
+  "to-get-up",
+  "to-hike",
+  "to-listen",
+  "to-move",
+  "to-read",
+  "to-rest",
+  "to-sell",
+  "to-send",
+  "to-sleep"
+ ],
+ "items": [
+  {
+   "id": "funny",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "laughing round face with a wide open mouth and tears of joy"
+  },
+  {
+   "id": "hair",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "long wavy brown lock of hair tied with a red ribbon, a comb beside it"
+  },
+  {
+   "id": "parents",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two tall figures standing side by side, one slightly taller"
+  },
+  {
+   "id": "pharmacist",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure in a white coat holding a pill bottle behind a counter"
+  },
+  {
+   "id": "queue",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "line of four figures standing one behind another"
+  },
+  {
+   "id": "serious",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "round face with a flat straight mouth and level eyebrows"
+  },
+  {
+   "id": "tall",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "tall figure standing beside a much shorter figure, the tall one highlighted"
+  },
+  {
+   "id": "work",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "brown briefcase with metal clasps and a handle"
+  },
+  {
+   "id": "bakery",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "shop front with a striped awning and a baguette and a croissant in the window"
+  },
+  {
+   "id": "bank",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bank building with four columns, steps and a big gold coin above the door"
+  },
+  {
+   "id": "bar",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bar counter with a coffee machine, two stools and cups on the counter"
+  },
+  {
+   "id": "bookshop",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "shop front with books in the window and a stack of books by the door"
+  },
+  {
+   "id": "butcher-s",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "shop front with sausages and a ham hanging in the window, striped awning"
+  },
+  {
+   "id": "church",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "church with a steeple, a cross on top and an arched door"
+  },
+  {
+   "id": "cinema",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "cinema front with a marquee of round light bulbs and a clapperboard above the door"
+  },
+  {
+   "id": "closed",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "roll-down shutter pulled down with a closed padlock"
+  },
+  {
+   "id": "corner",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "street corner where two building walls meet, with a lamp post"
+  },
+  {
+   "id": "far",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "long winding road shrinking to a tiny house on a distant hill"
+  },
+  {
+   "id": "fishmonger-s",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "market stall with fish laid on ice, a red-striped awning"
+  },
+  {
+   "id": "hospital",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "hospital building with a red cross and an ambulance in front"
+  },
+  {
+   "id": "library",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "tall bookshelf full of colorful books with a ladder"
+  },
+  {
+   "id": "meeting",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "four figures sitting around a table with papers and a screen"
+  },
+  {
+   "id": "museum",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "classical building front with columns, a statue and a vase beside the steps"
+  },
+  {
+   "id": "newsstand",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "small kiosk with newspapers and magazines on a stand and a little roof"
+  },
+  {
+   "id": "office",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "desk with a computer monitor, a chair, a potted plant and a stack of papers"
+  },
+  {
+   "id": "open",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "door wide open with warm light coming out"
+  },
+  {
+   "id": "pharmacy",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "green cross sign above a shop front, a pill bottle and a mortar"
+  },
+  {
+   "id": "police",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "police car with a blue light on the roof"
+  },
+  {
+   "id": "post-office",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "red mailbox on a post with a letter slot and a white horn symbol"
+  },
+  {
+   "id": "school",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "school building with a small bell tower, a flag and double doors"
+  },
+  {
+   "id": "square",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "open plaza with a fountain in the middle and buildings around it"
+  },
+  {
+   "id": "street",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "street with a pavement, a lamp post, a zebra crossing and houses"
+  },
+  {
+   "id": "supermarket",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "shopping cart full of groceries"
+  },
+  {
+   "id": "town-hall",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "grand town hall with a clock tower and a flag on top"
+  },
+  {
+   "id": "university",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "graduation cap on top of a stack of books beside a rolled diploma with a ribbon"
+  },
+  {
+   "id": "atm",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "cash machine with a screen, a keypad and banknotes coming out of the slot"
+  },
+  {
+   "id": "call",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "old-style phone handset with curved sound waves"
+  },
+  {
+   "id": "card",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "blue bank card with a chip and a magnetic stripe"
+  },
+  {
+   "id": "cash",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "wad of green banknotes with a rubber band"
+  },
+  {
+   "id": "cashier",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure at a cash register with a receipt coming out"
+  },
+  {
+   "id": "change",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "open hand holding a few coins"
+  },
+  {
+   "id": "checkout",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "cash register with a small screen and an open drawer of coins"
+  },
+  {
+   "id": "discount",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "price tag with a scissor cut and a downward arrow"
+  },
+  {
+   "id": "fitting-room",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "curtained cubicle with a mirror and a hanger"
+  },
+  {
+   "id": "letter",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "white envelope with a red stamp and a seal"
+  },
+  {
+   "id": "money",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "stack of gold coins and a green banknote"
+  },
+  {
+   "id": "package",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "brown cardboard parcel tied with string"
+  },
+  {
+   "id": "plastic-bag",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "white plastic carrier bag with two handles and groceries inside"
+  },
+  {
+   "id": "price",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "price tag with a string and a hole, blank"
+  },
+  {
+   "id": "shop",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "shop front with a big display window, an open door and a hanging sign"
+  },
+  {
+   "id": "size",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "yellow measuring tape curled up with tick marks"
+  },
+  {
+   "id": "stamp",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "postage stamp with zig-zag edges and a small flower picture, no text"
+  },
+  {
+   "id": "tip",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "coin dropping into a small glass jar"
+  },
+  {
+   "id": "night",
+   "batch": "a-time",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "crescent moon and stars in a dark blue sky above a small house"
+  },
+  {
+   "id": "airport",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "airplane taking off beside a control tower"
+  },
+  {
+   "id": "bike",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "blue bicycle seen from the side, round wheels, handlebar and saddle"
+  },
+  {
+   "id": "bus",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "yellow city bus seen from the side, windows, two wheels"
+  },
+  {
+   "id": "elevator",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "metal lift doors half open, a panel with two buttons and an up arrow"
+  },
+  {
+   "id": "hotel",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "tall building with many windows, a canopy over the door and a star"
+  },
+  {
+   "id": "passport",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "small dark red booklet with a golden emblem circle"
+  },
+  {
+   "id": "platform",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "railway platform with a yellow line, a train front and a clock"
+  },
+  {
+   "id": "stop",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bus stop pole with a round sign, a small roof and a bench"
+  },
+  {
+   "id": "ticket",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "paper train ticket with a tear-off stub and a star, no writing"
+  },
+  {
+   "id": "train",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "side view of a steam train: blue boiler, red cab, black chimney, wheels on a rail"
+  },
+  {
+   "id": "train-station",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "station building with a clock tower and a train at the platform"
+  },
+  {
+   "id": "to-arrive",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure stepping off a train with a suitcase"
+  },
+  {
+   "id": "to-barbecue",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure at a grill turning sausages, smoke rising"
+  },
+  {
+   "id": "to-cook",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with a chef's hat stirring a red pot, steam rising"
+  },
+  {
+   "id": "to-dance",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure dancing with one arm raised, music notes around"
+  },
+  {
+   "id": "to-depart",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "train pulling out of a station with speed lines behind"
+  },
+  {
+   "id": "to-drive",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "red car seen from the side with a figure at the wheel"
+  },
+  {
+   "id": "to-get-up",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure sitting up in bed with arms stretched high, sun coming through the window"
+  },
+  {
+   "id": "to-hike",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with a backpack and two walking poles climbing a rocky mountain trail"
+  },
+  {
+   "id": "to-listen",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure wearing big headphones with music notes"
+  },
+  {
+   "id": "to-move",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure carrying a cardboard box toward a small moving truck"
+  },
+  {
+   "id": "to-read",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure holding an open orange book, eyes looking down"
+  },
+  {
+   "id": "to-rest",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure lying in a hammock between two palm trees"
+  },
+  {
+   "id": "to-sell",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure behind a counter handing a bag to a customer"
+  },
+  {
+   "id": "to-send",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure dropping an envelope into a mailbox"
+  },
+  {
+   "id": "to-sleep",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure asleep in a bed under a purple blanket, a moon and a star above"
+  }
+ ],
+ "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 8 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 80 objects are: 1) laughing round face with a wide open mouth and tears of joy; 2) long wavy brown lock of hair tied with a red ribbon, a comb beside it; 3) two tall figures standing side by side, one slightly taller; 4) figure in a white coat holding a pill bottle behind a counter; 5) line of four figures standing one behind another; 6) round face with a flat straight mouth and level eyebrows; 7) tall figure standing beside a much shorter figure, the tall one highlighted; 8) brown briefcase with metal clasps and a handle; 9) shop front with a striped awning and a baguette and a croissant in the window; 10) bank building with four columns, steps and a big gold coin above the door; 11) bar counter with a coffee machine, two stools and cups on the counter; 12) shop front with books in the window and a stack of books by the door; 13) shop front with sausages and a ham hanging in the window, striped awning; 14) church with a steeple, a cross on top and an arched door; 15) cinema front with a marquee of round light bulbs and a clapperboard above the door; 16) roll-down shutter pulled down with a closed padlock; 17) street corner where two building walls meet, with a lamp post; 18) long winding road shrinking to a tiny house on a distant hill; 19) market stall with fish laid on ice, a red-striped awning; 20) hospital building with a red cross and an ambulance in front; 21) tall bookshelf full of colorful books with a ladder; 22) four figures sitting around a table with papers and a screen; 23) classical building front with columns, a statue and a vase beside the steps; 24) small kiosk with newspapers and magazines on a stand and a little roof; 25) desk with a computer monitor, a chair, a potted plant and a stack of papers; 26) door wide open with warm light coming out; 27) green cross sign above a shop front, a pill bottle and a mortar; 28) police car with a blue light on the roof; 29) red mailbox on a post with a letter slot and a white horn symbol; 30) school building with a small bell tower, a flag and double doors; 31) open plaza with a fountain in the middle and buildings around it; 32) street with a pavement, a lamp post, a zebra crossing and houses; 33) shopping cart full of groceries; 34) grand town hall with a clock tower and a flag on top; 35) graduation cap on top of a stack of books beside a rolled diploma with a ribbon; 36) cash machine with a screen, a keypad and banknotes coming out of the slot; 37) old-style phone handset with curved sound waves; 38) blue bank card with a chip and a magnetic stripe; 39) wad of green banknotes with a rubber band; 40) figure at a cash register with a receipt coming out; 41) open hand holding a few coins; 42) cash register with a small screen and an open drawer of coins; 43) price tag with a scissor cut and a downward arrow; 44) curtained cubicle with a mirror and a hanger; 45) white envelope with a red stamp and a seal; 46) stack of gold coins and a green banknote; 47) brown cardboard parcel tied with string; 48) white plastic carrier bag with two handles and groceries inside; 49) price tag with a string and a hole, blank; 50) shop front with a big display window, an open door and a hanging sign; 51) yellow measuring tape curled up with tick marks; 52) postage stamp with zig-zag edges and a small flower picture, no text; 53) coin dropping into a small glass jar; 54) crescent moon and stars in a dark blue sky above a small house; 55) airplane taking off beside a control tower; 56) blue bicycle seen from the side, round wheels, handlebar and saddle; 57) yellow city bus seen from the side, windows, two wheels; 58) metal lift doors half open, a panel with two buttons and an up arrow; 59) tall building with many windows, a canopy over the door and a star; 60) small dark red booklet with a golden emblem circle; 61) railway platform with a yellow line, a train front and a clock; 62) bus stop pole with a round sign, a small roof and a bench; 63) paper train ticket with a tear-off stub and a star, no writing; 64) side view of a steam train: blue boiler, red cab, black chimney, wheels on a rail; 65) station building with a clock tower and a train at the platform; 66) figure stepping off a train with a suitcase; 67) figure at a grill turning sausages, smoke rising; 68) figure with a chef's hat stirring a red pot, steam rising; 69) figure dancing with one arm raised, music notes around; 70) train pulling out of a station with speed lines behind; 71) red car seen from the side with a figure at the wheel; 72) figure sitting up in bed with arms stretched high, sun coming through the window; 73) figure with a backpack and two walking poles climbing a rocky mountain trail; 74) figure wearing big headphones with music notes; 75) figure carrying a cardboard box toward a small moving truck; 76) figure holding an open orange book, eyes looking down; 77) figure lying in a hammock between two palm trees; 78) figure behind a counter handing a bag to a customer; 79) figure dropping an envelope into a mailbox; 80) figure asleep in a bed under a purple blanket, a moon and a star above."
+}

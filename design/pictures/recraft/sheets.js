@@ -34,10 +34,10 @@ function plan(){
     .sort((a, b) => a.level.localeCompare(b.level) || a.batch.localeCompare(b.batch) || a.id.localeCompare(b.id));
   fs.mkdirSync(SHEETS, { recursive: true });
   for (const f of fs.readdirSync(SHEETS)) if (f.endsWith('.json') && !fs.existsSync(path.join(HERE, 'candidates', f.replace('.json', '-1.svg')))) fs.unlinkSync(path.join(SHEETS, f));   // forget plans that were never generated
-  const out = [];
-  for (let i = 0; i * per < items.length; i++){
-    const part = items.slice(i * per, (i + 1) * per), rows = Math.ceil(part.length / g.cols), id = 'w' + per + '-' + (i + 1);
-    if (fs.existsSync(path.join(SHEETS, id + '.json'))){ out.push(JSON.parse(fs.readFileSync(path.join(SHEETS, id + '.json'), 'utf8'))); continue; }   // keep a sheet that was already generated
+  const out = [], made = fs.readdirSync(SHEETS).filter(f => f.endsWith('.json')).map(f => JSON.parse(fs.readFileSync(path.join(SHEETS, f), 'utf8')));   // sheets that were already generated stay as they are
+  let next = Math.max(0, ...made.map(s => +s.id.split('-').pop() || 0)) + 1;
+  for (let i = 0; i * per < items.length; i++, next++){
+    const part = items.slice(i * per, (i + 1) * per), rows = Math.ceil(part.length / g.cols), id = 'w' + per + '-' + next;
     const prompt = build(part, { cols: g.cols, rows, ratio: g.ratio });
     const rec = { id, per: part.length, cols: g.cols, rows, ratio: g.ratio, bytes: Buffer.byteLength(prompt), ids: part.map(x => x.id), items: part, prompt };
     fs.writeFileSync(path.join(SHEETS, id + '.json'), JSON.stringify(rec, null, 1) + '\n'); out.push(rec);

@@ -1,0 +1,733 @@
+{
+ "id": "w80-3",
+ "per": 80,
+ "cols": 10,
+ "rows": 8,
+ "ratio": "5:4",
+ "bytes": 5320,
+ "ids": [
+  "to-ski",
+  "to-speak",
+  "to-understand",
+  "to-write",
+  "cloud",
+  "cold",
+  "fog",
+  "forecast",
+  "hot",
+  "rain",
+  "snow",
+  "sun",
+  "temperature",
+  "thunderstorm",
+  "warm",
+  "weather",
+  "wind",
+  "cat",
+  "dog",
+  "arm",
+  "ear",
+  "finger",
+  "foot",
+  "hand",
+  "head",
+  "knee",
+  "leg",
+  "mouth",
+  "neck",
+  "nose",
+  "tooth",
+  "skirt",
+  "socks",
+  "t-shirt",
+  "left",
+  "right",
+  "straight-ahead",
+  "to-turn",
+  "breakfast",
+  "dinner",
+  "vegetables",
+  "antibiotic",
+  "band-aid",
+  "cough",
+  "cough-syrup",
+  "dizzy",
+  "fever",
+  "fruit",
+  "headache",
+  "healthy",
+  "help",
+  "ointment",
+  "pill",
+  "prescription",
+  "sick",
+  "smoke",
+  "sore-throat",
+  "stomachache",
+  "bed",
+  "cozy",
+  "house",
+  "room",
+  "shower",
+  "invitation",
+  "music",
+  "party-fun",
+  "soccer",
+  "sport",
+  "finished",
+  "plan",
+  "beach",
+  "mountain",
+  "park",
+  "sea",
+  "blond",
+  "child",
+  "colleague",
+  "eyes",
+  "family",
+  "friends"
+ ],
+ "items": [
+  {
+   "id": "to-ski",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure on skis with poles going down a slope, snow spray behind"
+  },
+  {
+   "id": "to-speak",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with an open mouth and a speech bubble with wavy lines"
+  },
+  {
+   "id": "to-understand",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure with a lit lightbulb above its head"
+  },
+  {
+   "id": "to-write",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure writing in a notebook with a pen, wavy lines on the page"
+  },
+  {
+   "id": "cloud",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "fluffy white and pale gray cloud against a blue patch"
+  },
+  {
+   "id": "cold",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "figure shivering with arms wrapped around itself, a scarf, snowflakes and icicles around, blue tint"
+  },
+  {
+   "id": "fog",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "hills fading into layers of pale gray mist, a lamp post glowing"
+  },
+  {
+   "id": "forecast",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "weather map panel with a sun, a cloud and a raindrop symbol"
+  },
+  {
+   "id": "hot",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "blazing sun with wavy heat lines over a figure fanning itself, sweat drops"
+  },
+  {
+   "id": "rain",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "gray cloud with slanting blue raindrops falling and a puddle below"
+  },
+  {
+   "id": "snow",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pale cloud with white snowflakes falling over a snowy ground"
+  },
+  {
+   "id": "sun",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bright yellow sun disc with short triangular rays"
+  },
+  {
+   "id": "temperature",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "glass thermometer with a red column halfway and tick marks"
+  },
+  {
+   "id": "thunderstorm",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "dark cloud with a yellow lightning bolt and heavy rain"
+  },
+  {
+   "id": "warm",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "thermometer with orange liquid halfway up and a small sun beside it"
+  },
+  {
+   "id": "weather",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "sun peeking out from behind a cloud, a few raindrops and a rainbow"
+  },
+  {
+   "id": "wind",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bent tree with leaves blowing sideways and curly white gust lines"
+  },
+  {
+   "id": "cat",
+   "batch": "a-animals",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "orange tabby cat sitting, stripes, tail curled round its feet"
+  },
+  {
+   "id": "dog",
+   "batch": "a-animals",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "dog's face, floppy brown ears, black nose, pink tongue"
+  },
+  {
+   "id": "arm",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bent arm with the muscle flexed, shown from the shoulder to the fist"
+  },
+  {
+   "id": "ear",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "human ear seen from the side, tan skin with inner folds"
+  },
+  {
+   "id": "finger",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "hand with one index finger raised, other fingers curled"
+  },
+  {
+   "id": "foot",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bare foot seen from the side with five toes"
+  },
+  {
+   "id": "hand",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "open hand, palm facing the viewer, five fingers spread"
+  },
+  {
+   "id": "head",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "round tan head with two ears, eyes, a nose and a mouth"
+  },
+  {
+   "id": "knee",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "bent leg in trousers with a red circle marking the knee"
+  },
+  {
+   "id": "leg",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "single straight leg in trousers and a shoe"
+  },
+  {
+   "id": "mouth",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "smiling open mouth with red lips, white teeth and a pink tongue"
+  },
+  {
+   "id": "neck",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "head and shoulders silhouette with the neck marked by a red band"
+  },
+  {
+   "id": "nose",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "nose seen from the front with two nostrils and a highlight"
+  },
+  {
+   "id": "tooth",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "single white molar tooth with two roots"
+  },
+  {
+   "id": "skirt",
+   "batch": "a-clothes",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pleated green skirt"
+  },
+  {
+   "id": "socks",
+   "batch": "a-clothes",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pair of striped socks"
+  },
+  {
+   "id": "t-shirt",
+   "batch": "a-clothes",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "round-neck short-sleeve t-shirt in orange"
+  },
+  {
+   "id": "left",
+   "batch": "a-directions",
+   "level": "A2",
+   "kind": "x",
+   "quiz": 1,
+   "brief": "big blue arrow pointing left"
+  },
+  {
+   "id": "right",
+   "batch": "a-directions",
+   "level": "A2",
+   "kind": "x",
+   "quiz": 1,
+   "brief": "big blue arrow pointing right"
+  },
+  {
+   "id": "straight-ahead",
+   "batch": "a-directions",
+   "level": "A2",
+   "kind": "x",
+   "quiz": 1,
+   "brief": "big blue arrow pointing straight up"
+  },
+  {
+   "id": "to-turn",
+   "batch": "a-directions",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "road with a sharp bend and a curved arrow turning along it"
+  },
+  {
+   "id": "breakfast",
+   "batch": "a-food",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "plate with a fried egg and toast, a mug of coffee and a glass of orange juice"
+  },
+  {
+   "id": "dinner",
+   "batch": "a-food",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "plate with a roast chicken leg, vegetables and a lit candle beside it"
+  },
+  {
+   "id": "vegetables",
+   "batch": "a-food",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "carrot, broccoli and a green pepper together"
+  },
+  {
+   "id": "antibiotic",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "blister pack of red-and-white capsules"
+  },
+  {
+   "id": "band-aid",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "beige adhesive bandage with a white pad, slightly curved"
+  },
+  {
+   "id": "cough",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure coughing into a fist with small puff lines"
+  },
+  {
+   "id": "cough-syrup",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "brown medicine bottle with a measuring spoon"
+  },
+  {
+   "id": "dizzy",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "figure with spiral eyes and stars circling around its head"
+  },
+  {
+   "id": "fever",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "thermometer with the red column right at the top and heat lines around it"
+  },
+  {
+   "id": "fruit",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bowl of apples, a banana and a bunch of grapes"
+  },
+  {
+   "id": "headache",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure holding its head with a red zigzag over the top"
+  },
+  {
+   "id": "healthy",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "figure flexing an arm and holding a green apple"
+  },
+  {
+   "id": "help",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "red-and-white lifebuoy ring"
+  },
+  {
+   "id": "ointment",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "white tube with a red cap and a dab of cream"
+  },
+  {
+   "id": "pill",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "white round pill and a red-and-white capsule"
+  },
+  {
+   "id": "prescription",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "paper slip with wavy lines and a red cross"
+  },
+  {
+   "id": "sick",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "figure with a pale green face, a thermometer in the mouth and a blanket"
+  },
+  {
+   "id": "smoke",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "gray smoke plume curling up from a chimney"
+  },
+  {
+   "id": "sore-throat",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "open mouth with the throat glowing red"
+  },
+  {
+   "id": "stomachache",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure holding its belly with a red zigzag on it"
+  },
+  {
+   "id": "bed",
+   "batch": "a-home",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "single bed seen from the side with a pillow and a striped blanket"
+  },
+  {
+   "id": "cozy",
+   "batch": "a-home",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "armchair with a blanket and a steaming mug next to a small fire"
+  },
+  {
+   "id": "house",
+   "batch": "a-home",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "small house with a red roof, a chimney, a door and two windows"
+  },
+  {
+   "id": "room",
+   "batch": "a-home",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "empty room interior with a door, a window and a round rug"
+  },
+  {
+   "id": "shower",
+   "batch": "a-home",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "shower head with water spraying and soap bubbles"
+  },
+  {
+   "id": "invitation",
+   "batch": "a-leisure",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "open envelope with a card tucked in and a heart sticker"
+  },
+  {
+   "id": "music",
+   "batch": "a-leisure",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "two beamed music notes and a treble clef"
+  },
+  {
+   "id": "party-fun",
+   "batch": "a-leisure",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "disco ball, confetti and a string of small flags"
+  },
+  {
+   "id": "soccer",
+   "batch": "a-leisure",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "black-and-white soccer ball in front of a goal net"
+  },
+  {
+   "id": "sport",
+   "batch": "a-leisure",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "tennis racket, a dumbbell and a running shoe in a small pile"
+  },
+  {
+   "id": "finished",
+   "batch": "a-misc",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "big green check mark inside a circle"
+  },
+  {
+   "id": "plan",
+   "batch": "a-misc",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "notepad with a checklist of three boxes with check marks and wavy lines"
+  },
+  {
+   "id": "beach",
+   "batch": "a-nature",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "sandy beach with a palm tree and a beach umbrella, small waves"
+  },
+  {
+   "id": "mountain",
+   "batch": "a-nature",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "three mountains with snow caps and a pine tree in front"
+  },
+  {
+   "id": "park",
+   "batch": "a-nature",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "park with a big tree, a bench, a pond and a winding path"
+  },
+  {
+   "id": "sea",
+   "batch": "a-nature",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "big blue waves with a sailboat and a seagull"
+  },
+  {
+   "id": "blond",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "long wavy lock of yellow-blond hair tied with a blue ribbon"
+  },
+  {
+   "id": "child",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "small figure with two pigtails holding a balloon"
+  },
+  {
+   "id": "colleague",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two figures side by side at a desk, each with a laptop"
+  },
+  {
+   "id": "eyes",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pair of eyes with eyebrows and blue irises"
+  },
+  {
+   "id": "family",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two tall figures and two small figures standing close together holding hands"
+  },
+  {
+   "id": "friends",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two figures with arms around each other's shoulders"
+  }
+ ],
+ "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 8 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 80 objects are: 1) figure on skis with poles going down a slope, snow spray behind; 2) figure with an open mouth and a speech bubble with wavy lines; 3) figure with a lit lightbulb above its head; 4) figure writing in a notebook with a pen, wavy lines on the page; 5) fluffy white and pale gray cloud against a blue patch; 6) figure shivering with arms wrapped around itself, a scarf, snowflakes and icicles around, blue tint; 7) hills fading into layers of pale gray mist, a lamp post glowing; 8) weather map panel with a sun, a cloud and a raindrop symbol; 9) blazing sun with wavy heat lines over a figure fanning itself, sweat drops; 10) gray cloud with slanting blue raindrops falling and a puddle below; 11) pale cloud with white snowflakes falling over a snowy ground; 12) bright yellow sun disc with short triangular rays; 13) glass thermometer with a red column halfway and tick marks; 14) dark cloud with a yellow lightning bolt and heavy rain; 15) thermometer with orange liquid halfway up and a small sun beside it; 16) sun peeking out from behind a cloud, a few raindrops and a rainbow; 17) bent tree with leaves blowing sideways and curly white gust lines; 18) orange tabby cat sitting, stripes, tail curled round its feet; 19) dog's face, floppy brown ears, black nose, pink tongue; 20) bent arm with the muscle flexed, shown from the shoulder to the fist; 21) human ear seen from the side, tan skin with inner folds; 22) hand with one index finger raised, other fingers curled; 23) bare foot seen from the side with five toes; 24) open hand, palm facing the viewer, five fingers spread; 25) round tan head with two ears, eyes, a nose and a mouth; 26) bent leg in trousers with a red circle marking the knee; 27) single straight leg in trousers and a shoe; 28) smiling open mouth with red lips, white teeth and a pink tongue; 29) head and shoulders silhouette with the neck marked by a red band; 30) nose seen from the front with two nostrils and a highlight; 31) single white molar tooth with two roots; 32) pleated green skirt; 33) pair of striped socks; 34) round-neck short-sleeve t-shirt in orange; 35) big blue arrow pointing left; 36) big blue arrow pointing right; 37) big blue arrow pointing straight up; 38) road with a sharp bend and a curved arrow turning along it; 39) plate with a fried egg and toast, a mug of coffee and a glass of orange juice; 40) plate with a roast chicken leg, vegetables and a lit candle beside it; 41) carrot, broccoli and a green pepper together; 42) blister pack of red-and-white capsules; 43) beige adhesive bandage with a white pad, slightly curved; 44) figure coughing into a fist with small puff lines; 45) brown medicine bottle with a measuring spoon; 46) figure with spiral eyes and stars circling around its head; 47) thermometer with the red column right at the top and heat lines around it; 48) bowl of apples, a banana and a bunch of grapes; 49) figure holding its head with a red zigzag over the top; 50) figure flexing an arm and holding a green apple; 51) red-and-white lifebuoy ring; 52) white tube with a red cap and a dab of cream; 53) white round pill and a red-and-white capsule; 54) paper slip with wavy lines and a red cross; 55) figure with a pale green face, a thermometer in the mouth and a blanket; 56) gray smoke plume curling up from a chimney; 57) open mouth with the throat glowing red; 58) figure holding its belly with a red zigzag on it; 59) single bed seen from the side with a pillow and a striped blanket; 60) armchair with a blanket and a steaming mug next to a small fire; 61) small house with a red roof, a chimney, a door and two windows; 62) empty room interior with a door, a window and a round rug; 63) shower head with water spraying and soap bubbles; 64) open envelope with a card tucked in and a heart sticker; 65) two beamed music notes and a treble clef; 66) disco ball, confetti and a string of small flags; 67) black-and-white soccer ball in front of a goal net; 68) tennis racket, a dumbbell and a running shoe in a small pile; 69) big green check mark inside a circle; 70) notepad with a checklist of three boxes with check marks and wavy lines; 71) sandy beach with a palm tree and a beach umbrella, small waves; 72) three mountains with snow caps and a pine tree in front; 73) park with a big tree, a bench, a pond and a winding path; 74) big blue waves with a sailboat and a seagull; 75) long wavy lock of yellow-blond hair tied with a blue ribbon; 76) small figure with two pigtails holding a balloon; 77) two figures side by side at a desk, each with a laptop; 78) pair of eyes with eyebrows and blue irises; 79) two tall figures and two small figures standing close together holding hands; 80) two figures with arms around each other's shoulders."
+}
