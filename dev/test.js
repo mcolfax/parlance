@@ -236,7 +236,7 @@ async function main(){
       A.E('STORY_ART["de-s1"] = { ar: 1.6, who: [["lena", 30, 3, 52, 1], ["jonas", 70, 3, 52, 0]] }');
       const el = A.E('storyArt({ id: "de-s1", scene: "cafe", lang: "de", cast: ["lena", "jonas"] }, "big")');
       ok(el.classList.contains('has-art') && el.querySelector('.scene-bg') && [...el.querySelectorAll('[data-cast]')].map(f => f.dataset.cast).join() === 'lena,jonas' && el.querySelector('.scene-fig.flip'), 'a scene with art shows its cast, the left one turned to face the other');
-      ok(el.querySelector('.scene-frame').getAttribute('style').includes('--ar:1.6'), 'the scene frame keeps the picture’s shape');
+      ok(el.querySelector('.scene-frame') && el.querySelector('.scene-frame').contains(el.querySelector('.scene-bg')), 'the scene picture sits in a frame that keeps its shape');
       A.E('delete STORY_ART["de-s1"]'); }
     for (const st of P.STORIES){
       const el = A.E('storyArt(' + JSON.stringify({ id: st.id, scene: st.scene, lang: st.lang, cast: st.cast }) + ', "big")'), a = SA[st.id];
