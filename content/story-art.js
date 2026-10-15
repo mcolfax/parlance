@@ -3,8 +3,5 @@
    STORY_ART[storyId]: the scene file's width to height, and who stands in it as [castId, x, bottom, height, flip] in percent of the scene.
    storyArt() in js/core/art.js draws it; a story with no entry keeps its drawn scene (SCENES). */
 const STORY_ART = {
-  'de-s1': { ar: 1.66, who: [["lena",30,3,52,1],["jonas",70,3,52,0]] },
-  'de-s3': { ar: 1.21, who: [["jonas",30,3,52,1],["lena",70,3,52,0]] },
-  'de-s5': { ar: 1.63, who: [["lena",30,3,52,1],["jonas",70,3,52,0]] },
-  'es-s3': { ar: 1.89, who: [["carmen",30,3,52,1],["diego",70,3,52,0]] }
+
 };
