@@ -11,7 +11,7 @@ const SHEETS = path.join(HERE, 'sheets');
 const args = process.argv.slice(2), opt = n => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null; };
 /* the grids Recraft can make as a vector image: a ratio it accepts, and the columns and rows that give square cells */
 const GRIDS = { 48: { cols: 8, rows: 6, ratio: '4:3' }, 54: { cols: 9, rows: 6, ratio: '3:2' }, 64: { cols: 8, rows: 8, ratio: '1:1' }, 80: { cols: 10, rows: 8, ratio: '5:4' } };
-const STYLE = 'Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines.';
+const STYLE = 'Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Every object is one connected picture: rays, drops, steam and sparkles touch the object they belong to. A person is a simple friendly figure with a round head, short brown hair and two dot eyes, always wearing a plain orange t-shirt and dark navy trousers, never bare skin below the neck. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines.';
 const clip = (s, n) => s.length <= n ? s : s.slice(0, n - 1).replace(/[,;:\s]+\S*$/, '');
 const MAX_PROMPT = 9500;   // bytes; Recraft's V4.1 models take 10,000 characters
 function build(items, g){

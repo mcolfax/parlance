@@ -1,0 +1,733 @@
+{
+ "id": "w80-6",
+ "per": 80,
+ "cols": 10,
+ "rows": 8,
+ "ratio": "5:4",
+ "bytes": 5417,
+ "ids": [
+  "ticket",
+  "train",
+  "to-arrive",
+  "to-barbecue",
+  "to-cook",
+  "to-depart",
+  "to-drive",
+  "to-get-up",
+  "to-listen",
+  "to-read",
+  "to-sell",
+  "to-sneeze",
+  "to-study",
+  "to-swim",
+  "to-try-on",
+  "to-wake-up",
+  "to-walk",
+  "to-wash",
+  "to-watch-tv",
+  "to-work",
+  "cold-illness",
+  "tin-can",
+  "back",
+  "carnival",
+  "day-of-the-dead",
+  "easter",
+  "fireworks",
+  "nativity-scene",
+  "panettone",
+  "present",
+  "the-befana",
+  "angry",
+  "hunger",
+  "nervous",
+  "sad",
+  "shy",
+  "aperitif",
+  "gluten",
+  "lunch",
+  "nut",
+  "risotto",
+  "spicy",
+  "allergy",
+  "flour",
+  "frying-pan",
+  "garlic",
+  "heat",
+  "jar",
+  "knife",
+  "oil",
+  "onion",
+  "oven",
+  "pot",
+  "recipe",
+  "salt",
+  "spoon",
+  "band",
+  "concert",
+  "dream",
+  "exhibition",
+  "gym",
+  "seat",
+  "show",
+  "story",
+  "team",
+  "theatre",
+  "idea",
+  "landscape",
+  "luck",
+  "adventure",
+  "backpack",
+  "boarding-pass",
+  "breakdown",
+  "broken",
+  "destination",
+  "flight",
+  "hand-luggage",
+  "souvenir",
+  "suitcase",
+  "to-bake"
+ ],
+ "items": [
+  {
+   "id": "ticket",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "paper train ticket with a tear-off stub and a star, no writing"
+  },
+  {
+   "id": "train",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "side view of a steam train: blue boiler, red cab, black chimney, wheels on a rail"
+  },
+  {
+   "id": "to-arrive",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure stepping off a train with a suitcase"
+  },
+  {
+   "id": "to-barbecue",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure at a grill turning sausages, smoke rising"
+  },
+  {
+   "id": "to-cook",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with a chef's hat stirring a red pot, steam rising"
+  },
+  {
+   "id": "to-depart",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "train pulling out of a station with speed lines behind"
+  },
+  {
+   "id": "to-drive",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "red car seen from the side with a figure at the wheel"
+  },
+  {
+   "id": "to-get-up",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure sitting up in bed with arms stretched high, sun coming through the window"
+  },
+  {
+   "id": "to-listen",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure wearing big headphones with music notes"
+  },
+  {
+   "id": "to-read",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure holding an open orange book, eyes looking down"
+  },
+  {
+   "id": "to-sell",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure behind a counter handing a bag to a customer"
+  },
+  {
+   "id": "to-sneeze",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure sneezing into a tissue with spray dots"
+  },
+  {
+   "id": "to-study",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure at a desk with an open book and a pen, a stack of books beside"
+  },
+  {
+   "id": "to-swim",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with a red cap in blue water, one arm lifted with splashes"
+  },
+  {
+   "id": "to-try-on",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure holding a shirt up in front of a mirror"
+  },
+  {
+   "id": "to-wake-up",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "alarm clock with two bells ringing, motion lines around it"
+  },
+  {
+   "id": "to-walk",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure walking along a path, one foot ahead, trees behind"
+  },
+  {
+   "id": "to-wash",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure washing hands under a tap, soap bubbles"
+  },
+  {
+   "id": "to-watch-tv",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure sitting on a sofa watching a TV with a glowing screen"
+  },
+  {
+   "id": "to-work",
+   "batch": "a-verbs",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure at a desk typing on a laptop"
+  },
+  {
+   "id": "cold-illness",
+   "batch": "a-health",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure with a red nose blowing into a tissue, a tissue box beside"
+  },
+  {
+   "id": "tin-can",
+   "batch": "a-home",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "silver tin can with a ring pull and a plain label band"
+  },
+  {
+   "id": "back",
+   "batch": "b-body",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure seen from behind with the shoulder blades marked by a red patch"
+  },
+  {
+   "id": "carnival",
+   "batch": "b-culture",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "feathered carnival mask with sequins and a stick"
+  },
+  {
+   "id": "day-of-the-dead",
+   "batch": "b-culture",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "decorated sugar skull with flowers and a bright pattern"
+  },
+  {
+   "id": "easter",
+   "batch": "b-culture",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "decorated eggs in a basket with a small bunny"
+  },
+  {
+   "id": "fireworks",
+   "batch": "b-culture",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "colorful fireworks bursting in a dark night sky"
+  },
+  {
+   "id": "nativity-scene",
+   "batch": "b-culture",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "small wooden stable with a manger and a bright star above"
+  },
+  {
+   "id": "panettone",
+   "batch": "b-culture",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "tall domed sweet bread with candied fruit, tied with a ribbon"
+  },
+  {
+   "id": "present",
+   "batch": "b-culture",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "wrapped gift box with a ribbon and a big bow"
+  },
+  {
+   "id": "the-befana",
+   "batch": "b-culture",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "old witch with a pointed hat on a broomstick with a sack of sweets"
+  },
+  {
+   "id": "angry",
+   "batch": "b-feelings",
+   "level": "B1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "round red face with furrowed eyebrows and steam from the ears"
+  },
+  {
+   "id": "hunger",
+   "batch": "b-feelings",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "empty bowl with a spoon beside it and a rumbling wavy line above"
+  },
+  {
+   "id": "nervous",
+   "batch": "b-feelings",
+   "level": "B1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "round pale face with sweat drops and a wavy mouth"
+  },
+  {
+   "id": "sad",
+   "batch": "b-feelings",
+   "level": "B1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "round blue face with a tear and a downturned mouth"
+  },
+  {
+   "id": "shy",
+   "batch": "b-feelings",
+   "level": "B1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "figure hiding half its face behind its hands with a blush"
+  },
+  {
+   "id": "aperitif",
+   "batch": "b-food",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "glass of orange spritz with an orange slice and an olive on a stick"
+  },
+  {
+   "id": "gluten",
+   "batch": "b-food",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two ears of wheat"
+  },
+  {
+   "id": "lunch",
+   "batch": "b-food",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "lunch box with a sandwich, an apple and a small juice"
+  },
+  {
+   "id": "nut",
+   "batch": "b-food",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "walnut, one whole and one cracked open"
+  },
+  {
+   "id": "risotto",
+   "batch": "b-food",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "shallow plate of creamy rice with green peas"
+  },
+  {
+   "id": "spicy",
+   "batch": "b-food",
+   "level": "B1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "red chili pepper with flames"
+  },
+  {
+   "id": "allergy",
+   "batch": "b-health",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "face with red blotches sneezing next to a yellow flower"
+  },
+  {
+   "id": "flour",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "white paper sack of flour with a wooden scoop"
+  },
+  {
+   "id": "frying-pan",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "empty round frying pan with a long handle"
+  },
+  {
+   "id": "garlic",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "garlic bulb with a few loose cloves"
+  },
+  {
+   "id": "heat",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "gas burner with a blue flame under a pot"
+  },
+  {
+   "id": "jar",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "glass jar with a screw lid and jam inside"
+  },
+  {
+   "id": "knife",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "kitchen knife with a wooden handle"
+  },
+  {
+   "id": "oil",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bottle of golden olive oil with a cork and a green olive"
+  },
+  {
+   "id": "onion",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "brown-skinned onion with a green sprout"
+  },
+  {
+   "id": "oven",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "oven with a glass door showing a glowing tray and a row of round knobs"
+  },
+  {
+   "id": "pot",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "silver cooking pot with two handles and a lid"
+  },
+  {
+   "id": "recipe",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "open cookbook with a small picture of a dish and wavy lines"
+  },
+  {
+   "id": "salt",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "salt shaker with a few white crystals beside it"
+  },
+  {
+   "id": "spoon",
+   "batch": "b-kitchen",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "big wooden spoon"
+  },
+  {
+   "id": "band",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "three figures playing a guitar, a drum kit and a keyboard"
+  },
+  {
+   "id": "concert",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "microphone on a stand in a spotlight beam with music notes around"
+  },
+  {
+   "id": "dream",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "thought cloud with a crescent moon and stars above a pillow"
+  },
+  {
+   "id": "exhibition",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "three framed paintings on a gallery wall above a bench"
+  },
+  {
+   "id": "gym",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "barbell with round plates and a kettlebell beside it"
+  },
+  {
+   "id": "seat",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "red plush cinema seat with a folding back"
+  },
+  {
+   "id": "show",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "red theatre curtains pulled open on a stage with a spotlight"
+  },
+  {
+   "id": "story",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "open storybook with a small castle and a star popping out of the pages"
+  },
+  {
+   "id": "team",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "three figures in matching shirts with arms over each other's shoulders"
+  },
+  {
+   "id": "theatre",
+   "batch": "b-leisure",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "two theatre masks, one smiling, one sad"
+  },
+  {
+   "id": "idea",
+   "batch": "b-misc",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "glowing lightbulb with small rays"
+  },
+  {
+   "id": "landscape",
+   "batch": "b-nature",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "green hills, a winding river, a tree and a sun"
+  },
+  {
+   "id": "luck",
+   "batch": "b-nature",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "four-leaf clover"
+  },
+  {
+   "id": "adventure",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "compass with a red needle on top of a rolled map"
+  },
+  {
+   "id": "backpack",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "green hiking backpack with straps and pockets"
+  },
+  {
+   "id": "boarding-pass",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "boarding card with a plane silhouette and a stripe of vertical lines"
+  },
+  {
+   "id": "breakdown",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "small car with the hood raised and smoke coming out"
+  },
+  {
+   "id": "broken",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "white cup broken in two pieces with a crack"
+  },
+  {
+   "id": "destination",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "round red map pin stuck in a folded map"
+  },
+  {
+   "id": "flight",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "airplane flying above clouds with a dotted trail behind"
+  },
+  {
+   "id": "hand-luggage",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "small cabin bag with a pull handle and wheels"
+  },
+  {
+   "id": "souvenir",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "small snow globe with a tower inside and a base"
+  },
+  {
+   "id": "suitcase",
+   "batch": "b-travel",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "brown suitcase with a handle, a belt and a couple of stickers"
+  },
+  {
+   "id": "to-bake",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure sliding a tray of bread into an oven"
+  }
+ ],
+ "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Every object is one connected picture: rays, drops, steam and sparkles touch the object they belong to. A person is a simple friendly figure with a round head, short brown hair and two dot eyes, always wearing a plain orange t-shirt and dark navy trousers, never bare skin below the neck. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 8 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 80 objects are: 1) paper train ticket with a tear-off stub and a star, no writing; 2) side view of a steam train: blue boiler, red cab, black chimney, wheels on a rail; 3) figure stepping off a train with a suitcase; 4) figure at a grill turning sausages, smoke rising; 5) figure with a chef's hat stirring a red pot, steam rising; 6) train pulling out of a station with speed lines behind; 7) red car seen from the side with a figure at the wheel; 8) figure sitting up in bed with arms stretched high, sun coming through the window; 9) figure wearing big headphones with music notes; 10) figure holding an open orange book, eyes looking down; 11) figure behind a counter handing a bag to a customer; 12) figure sneezing into a tissue with spray dots; 13) figure at a desk with an open book and a pen, a stack of books beside; 14) figure with a red cap in blue water, one arm lifted with splashes; 15) figure holding a shirt up in front of a mirror; 16) alarm clock with two bells ringing, motion lines around it; 17) figure walking along a path, one foot ahead, trees behind; 18) figure washing hands under a tap, soap bubbles; 19) figure sitting on a sofa watching a TV with a glowing screen; 20) figure at a desk typing on a laptop; 21) figure with a red nose blowing into a tissue, a tissue box beside; 22) silver tin can with a ring pull and a plain label band; 23) figure seen from behind with the shoulder blades marked by a red patch; 24) feathered carnival mask with sequins and a stick; 25) decorated sugar skull with flowers and a bright pattern; 26) decorated eggs in a basket with a small bunny; 27) colorful fireworks bursting in a dark night sky; 28) small wooden stable with a manger and a bright star above; 29) tall domed sweet bread with candied fruit, tied with a ribbon; 30) wrapped gift box with a ribbon and a big bow; 31) old witch with a pointed hat on a broomstick with a sack of sweets; 32) round red face with furrowed eyebrows and steam from the ears; 33) empty bowl with a spoon beside it and a rumbling wavy line above; 34) round pale face with sweat drops and a wavy mouth; 35) round blue face with a tear and a downturned mouth; 36) figure hiding half its face behind its hands with a blush; 37) glass of orange spritz with an orange slice and an olive on a stick; 38) two ears of wheat; 39) lunch box with a sandwich, an apple and a small juice; 40) walnut, one whole and one cracked open; 41) shallow plate of creamy rice with green peas; 42) red chili pepper with flames; 43) face with red blotches sneezing next to a yellow flower; 44) white paper sack of flour with a wooden scoop; 45) empty round frying pan with a long handle; 46) garlic bulb with a few loose cloves; 47) gas burner with a blue flame under a pot; 48) glass jar with a screw lid and jam inside; 49) kitchen knife with a wooden handle; 50) bottle of golden olive oil with a cork and a green olive; 51) brown-skinned onion with a green sprout; 52) oven with a glass door showing a glowing tray and a row of round knobs; 53) silver cooking pot with two handles and a lid; 54) open cookbook with a small picture of a dish and wavy lines; 55) salt shaker with a few white crystals beside it; 56) big wooden spoon; 57) three figures playing a guitar, a drum kit and a keyboard; 58) microphone on a stand in a spotlight beam with music notes around; 59) thought cloud with a crescent moon and stars above a pillow; 60) three framed paintings on a gallery wall above a bench; 61) barbell with round plates and a kettlebell beside it; 62) red plush cinema seat with a folding back; 63) red theatre curtains pulled open on a stage with a spotlight; 64) open storybook with a small castle and a star popping out of the pages; 65) three figures in matching shirts with arms over each other's shoulders; 66) two theatre masks, one smiling, one sad; 67) glowing lightbulb with small rays; 68) green hills, a winding river, a tree and a sun; 69) four-leaf clover; 70) compass with a red needle on top of a rolled map; 71) green hiking backpack with straps and pockets; 72) boarding card with a plane silhouette and a stripe of vertical lines; 73) small car with the hood raised and smoke coming out; 74) white cup broken in two pieces with a crack; 75) round red map pin stuck in a folded map; 76) airplane flying above clouds with a dotted trail behind; 77) small cabin bag with a pull handle and wheels; 78) small snow globe with a tower inside and a base; 79) brown suitcase with a handle, a belt and a couple of stickers; 80) figure sliding a tray of bread into an oven."
+}

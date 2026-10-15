@@ -1,0 +1,607 @@
+{
+ "id": "w80-7",
+ "per": 66,
+ "cols": 10,
+ "rows": 7,
+ "ratio": "5:4",
+ "bytes": 4337,
+ "ids": [
+  "to-boil",
+  "to-chop",
+  "to-fry",
+  "to-land",
+  "to-mix",
+  "to-peel",
+  "to-run",
+  "to-save",
+  "to-take-off",
+  "application",
+  "company",
+  "contract",
+  "world",
+  "jealous",
+  "rent",
+  "trash",
+  "rich",
+  "success",
+  "roots",
+  "election",
+  "government",
+  "law",
+  "newspaper",
+  "thief",
+  "donation",
+  "graduate",
+  "relationship",
+  "exam",
+  "app",
+  "message",
+  "password",
+  "screen",
+  "to-break-up",
+  "to-build",
+  "to-marry",
+  "interview",
+  "energy",
+  "planet",
+  "pollution",
+  "to-recycle",
+  "falling",
+  "rising",
+  "to-sign",
+  "watermelon",
+  "to-be-on-cloud-nine",
+  "bee",
+  "goat",
+  "horse",
+  "kitten",
+  "shrimp",
+  "bread-roll-bavaria-austria",
+  "corn-on-the-cob-mexico",
+  "drinking-straw-mexico",
+  "peach",
+  "bench",
+  "fridge-argentina",
+  "dusk",
+  "trunk",
+  "applause",
+  "speech",
+  "wall",
+  "anchor",
+  "car",
+  "to-dig",
+  "to-sew",
+  "to-whisper"
+ ],
+ "items": [
+  {
+   "id": "to-boil",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "pot of bubbling water with steam rising"
+  },
+  {
+   "id": "to-chop",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure chopping a carrot with a knife on a board"
+  },
+  {
+   "id": "to-fry",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "frying pan with a sizzling sausage and oil splashes"
+  },
+  {
+   "id": "to-land",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "airplane touching down on a runway with a puff of smoke"
+  },
+  {
+   "id": "to-mix",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure whisking a bowl"
+  },
+  {
+   "id": "to-peel",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "peeler removing a long curl of skin from a carrot"
+  },
+  {
+   "id": "to-run",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure running with a sweat drop and speed lines"
+  },
+  {
+   "id": "to-save",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "coin dropping into a pink piggy bank"
+  },
+  {
+   "id": "to-take-off",
+   "batch": "b-verbs",
+   "level": "B1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "airplane climbing off the runway at an angle"
+  },
+  {
+   "id": "application",
+   "batch": "b-work",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "paper form with a photo box, blank lines and a paperclip"
+  },
+  {
+   "id": "company",
+   "batch": "b-work",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "three connected office buildings with a flag on the tallest"
+  },
+  {
+   "id": "contract",
+   "batch": "b-work",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "document with wavy lines, a signature squiggle and a pen"
+  },
+  {
+   "id": "world",
+   "batch": "b-world",
+   "level": "B1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "globe on a stand with green continents and blue sea"
+  },
+  {
+   "id": "jealous",
+   "batch": "b-feelings",
+   "level": "B2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "round green face with narrowed side-glancing eyes"
+  },
+  {
+   "id": "rent",
+   "batch": "b-home",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "small house with a key hanging from a tag"
+  },
+  {
+   "id": "trash",
+   "batch": "b-home",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "trash bin with an overflowing lid and a banana peel"
+  },
+  {
+   "id": "rich",
+   "batch": "b-misc",
+   "level": "B2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "pile of gold coins and a gold crown"
+  },
+  {
+   "id": "success",
+   "batch": "b-misc",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "gold trophy cup with two handles"
+  },
+  {
+   "id": "roots",
+   "batch": "b-nature",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "tree with its roots showing underground"
+  },
+  {
+   "id": "election",
+   "batch": "b-news",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "ballot box with a paper going into the slot"
+  },
+  {
+   "id": "government",
+   "batch": "b-news",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "parliament building with a dome and a flag"
+  },
+  {
+   "id": "law",
+   "batch": "b-news",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "scales of justice with a gavel"
+  },
+  {
+   "id": "newspaper",
+   "batch": "b-news",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "folded newspaper with a photo and wavy lines, no words"
+  },
+  {
+   "id": "thief",
+   "batch": "b-news",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure with a black eye mask and a striped sack, tiptoeing"
+  },
+  {
+   "id": "donation",
+   "batch": "b-people",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "hand dropping a coin into a box with a heart on it"
+  },
+  {
+   "id": "graduate",
+   "batch": "b-people",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure in a graduation gown and cap holding a rolled scroll"
+  },
+  {
+   "id": "relationship",
+   "batch": "b-people",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two linked hearts, one red and one orange"
+  },
+  {
+   "id": "exam",
+   "batch": "b-school",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "sheet of paper with a big red check mark and a pencil beside it"
+  },
+  {
+   "id": "app",
+   "batch": "b-tech",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "smartphone showing a grid of colorful rounded squares"
+  },
+  {
+   "id": "message",
+   "batch": "b-tech",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two stacked speech bubbles with dots"
+  },
+  {
+   "id": "password",
+   "batch": "b-tech",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "closed padlock with a key beside it"
+  },
+  {
+   "id": "screen",
+   "batch": "b-tech",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "computer monitor with a bright blank screen on a stand"
+  },
+  {
+   "id": "to-break-up",
+   "batch": "b-verbs",
+   "level": "B2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "red heart split by a crack with two halves"
+  },
+  {
+   "id": "to-build",
+   "batch": "b-verbs",
+   "level": "B2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure with a hard hat laying bricks in a wall"
+  },
+  {
+   "id": "to-marry",
+   "batch": "b-verbs",
+   "level": "B2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "two gold rings and a small bouquet of white flowers"
+  },
+  {
+   "id": "interview",
+   "batch": "b-work",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two figures facing each other across a small table with papers"
+  },
+  {
+   "id": "energy",
+   "batch": "b-world",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "wind turbine and a solar panel side by side"
+  },
+  {
+   "id": "planet",
+   "batch": "b-world",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "ringed planet with two small moons"
+  },
+  {
+   "id": "pollution",
+   "batch": "b-world",
+   "level": "B2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "factory with chimneys and gray smoke clouds"
+  },
+  {
+   "id": "to-recycle",
+   "batch": "b-world",
+   "level": "B2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "green bin with two chasing arrows on it"
+  },
+  {
+   "id": "falling",
+   "batch": "b-misc",
+   "level": "C1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "bar chart with three falling bars and a down arrow"
+  },
+  {
+   "id": "rising",
+   "batch": "b-misc",
+   "level": "C1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "bar chart with three rising bars and an up arrow"
+  },
+  {
+   "id": "to-sign",
+   "batch": "b-verbs",
+   "level": "C1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "hand signing a paper with a pen, a squiggle line"
+  },
+  {
+   "id": "watermelon",
+   "batch": "c-food",
+   "level": "C1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "slice of watermelon, red flesh, green rind and black seeds"
+  },
+  {
+   "id": "to-be-on-cloud-nine",
+   "batch": "c-idioms",
+   "level": "C1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "happy figure on a white cloud, arms up, hearts around"
+  },
+  {
+   "id": "bee",
+   "batch": "c-animals",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bee with a striped body, little wings and a stinger"
+  },
+  {
+   "id": "goat",
+   "batch": "c-animals",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "white goat with curved horns and a small beard"
+  },
+  {
+   "id": "horse",
+   "batch": "c-animals",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "brown horse standing, side view, dark mane and tail"
+  },
+  {
+   "id": "kitten",
+   "batch": "c-animals",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "small gray kitten with big eyes playing with a ball of yarn"
+  },
+  {
+   "id": "shrimp",
+   "batch": "c-animals",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pink shrimp curled up with a fan tail and long feelers"
+  },
+  {
+   "id": "bread-roll-bavaria-austria",
+   "batch": "c-food",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "round bread roll with a cut on top"
+  },
+  {
+   "id": "corn-on-the-cob-mexico",
+   "batch": "c-food",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "corn cob with green husks peeled back"
+  },
+  {
+   "id": "drinking-straw-mexico",
+   "batch": "c-food",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "glass of juice with a bendy straw"
+  },
+  {
+   "id": "peach",
+   "batch": "c-food",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "peach with a soft blush, a leaf and a small dimple"
+  },
+  {
+   "id": "bench",
+   "batch": "c-home",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "wooden park bench with a backrest and iron legs"
+  },
+  {
+   "id": "fridge-argentina",
+   "batch": "c-home",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "tall fridge with two doors and handles"
+  },
+  {
+   "id": "dusk",
+   "batch": "c-nature",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "red-orange sun setting behind dark hills and a purple sky"
+  },
+  {
+   "id": "trunk",
+   "batch": "c-nature",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "cut tree trunk with growth rings and bark"
+  },
+  {
+   "id": "applause",
+   "batch": "c-people",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two clapping hands with motion lines"
+  },
+  {
+   "id": "speech",
+   "batch": "c-people",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure at a lectern with a microphone and a spotlight"
+  },
+  {
+   "id": "wall",
+   "batch": "c-places",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "brick wall with a few bricks missing and a small crack"
+  },
+  {
+   "id": "anchor",
+   "batch": "c-travel",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "blue ship anchor with a rope"
+  },
+  {
+   "id": "car",
+   "batch": "c-travel",
+   "level": "C2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "red car seen from the side with round wheels"
+  },
+  {
+   "id": "to-dig",
+   "batch": "c-verbs",
+   "level": "C2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure digging a hole with a shovel, a pile of earth beside"
+  },
+  {
+   "id": "to-sew",
+   "batch": "c-verbs",
+   "level": "C2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "needle with a thread stitching a line across a red cloth"
+  },
+  {
+   "id": "to-whisper",
+   "batch": "c-verbs",
+   "level": "C2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure with a hand cupped beside its mouth, tiny wavy lines"
+  }
+ ],
+ "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Every object is one connected picture: rays, drops, steam and sparkles touch the object they belong to. A person is a simple friendly figure with a round head, short brown hair and two dot eyes, always wearing a plain orange t-shirt and dark navy trousers, never bare skin below the neck. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 7 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 66 objects are: 1) pot of bubbling water with steam rising; 2) figure chopping a carrot with a knife on a board; 3) frying pan with a sizzling sausage and oil splashes; 4) airplane touching down on a runway with a puff of smoke; 5) figure whisking a bowl; 6) peeler removing a long curl of skin from a carrot; 7) figure running with a sweat drop and speed lines; 8) coin dropping into a pink piggy bank; 9) airplane climbing off the runway at an angle; 10) paper form with a photo box, blank lines and a paperclip; 11) three connected office buildings with a flag on the tallest; 12) document with wavy lines, a signature squiggle and a pen; 13) globe on a stand with green continents and blue sea; 14) round green face with narrowed side-glancing eyes; 15) small house with a key hanging from a tag; 16) trash bin with an overflowing lid and a banana peel; 17) pile of gold coins and a gold crown; 18) gold trophy cup with two handles; 19) tree with its roots showing underground; 20) ballot box with a paper going into the slot; 21) parliament building with a dome and a flag; 22) scales of justice with a gavel; 23) folded newspaper with a photo and wavy lines, no words; 24) figure with a black eye mask and a striped sack, tiptoeing; 25) hand dropping a coin into a box with a heart on it; 26) figure in a graduation gown and cap holding a rolled scroll; 27) two linked hearts, one red and one orange; 28) sheet of paper with a big red check mark and a pencil beside it; 29) smartphone showing a grid of colorful rounded squares; 30) two stacked speech bubbles with dots; 31) closed padlock with a key beside it; 32) computer monitor with a bright blank screen on a stand; 33) red heart split by a crack with two halves; 34) figure with a hard hat laying bricks in a wall; 35) two gold rings and a small bouquet of white flowers; 36) two figures facing each other across a small table with papers; 37) wind turbine and a solar panel side by side; 38) ringed planet with two small moons; 39) factory with chimneys and gray smoke clouds; 40) green bin with two chasing arrows on it; 41) bar chart with three falling bars and a down arrow; 42) bar chart with three rising bars and an up arrow; 43) hand signing a paper with a pen, a squiggle line; 44) slice of watermelon, red flesh, green rind and black seeds; 45) happy figure on a white cloud, arms up, hearts around; 46) bee with a striped body, little wings and a stinger; 47) white goat with curved horns and a small beard; 48) brown horse standing, side view, dark mane and tail; 49) small gray kitten with big eyes playing with a ball of yarn; 50) pink shrimp curled up with a fan tail and long feelers; 51) round bread roll with a cut on top; 52) corn cob with green husks peeled back; 53) glass of juice with a bendy straw; 54) peach with a soft blush, a leaf and a small dimple; 55) wooden park bench with a backrest and iron legs; 56) tall fridge with two doors and handles; 57) red-orange sun setting behind dark hills and a purple sky; 58) cut tree trunk with growth rings and bark; 59) two clapping hands with motion lines; 60) figure at a lectern with a microphone and a spotlight; 61) brick wall with a few bricks missing and a small crack; 62) blue ship anchor with a rope; 63) red car seen from the side with round wheels; 64) figure digging a hole with a shovel, a pile of earth beside; 65) needle with a thread stitching a line across a red cloth; 66) figure with a hand cupped beside its mouth, tiny wavy lines."
+}

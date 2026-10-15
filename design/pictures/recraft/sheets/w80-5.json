@@ -1,130 +1,733 @@
 {
  "id": "w80-5",
- "per": 13,
+ "per": 80,
  "cols": 10,
- "rows": 2,
+ "rows": 8,
  "ratio": "5:4",
- "bytes": 1339,
+ "bytes": 5769,
  "ids": [
-  "to-sneeze",
-  "to-study",
-  "to-swim",
-  "to-try-on",
-  "to-wake-up",
-  "to-walk",
-  "to-wash",
-  "to-watch-tv",
-  "to-work",
-  "cold-illness",
-  "tin-can",
-  "to-recycle",
-  "to-be-on-cloud-nine"
+  "checked",
+  "to-wear",
+  "light-blue",
+  "cheese",
+  "food",
+  "big",
+  "small",
+  "teacher",
+  "tired",
+  "waiter",
+  "germany",
+  "italy",
+  "mexico",
+  "rome",
+  "united-states",
+  "behind",
+  "between",
+  "in-front-of",
+  "inside",
+  "next-to",
+  "birthday",
+  "spring",
+  "winter",
+  "to-drink",
+  "to-eat",
+  "to-give",
+  "to-help",
+  "to-leave",
+  "to-pay",
+  "to-see",
+  "to-write",
+  "cold",
+  "forecast",
+  "hot",
+  "rain",
+  "snow",
+  "wind",
+  "arm",
+  "leg",
+  "neck",
+  "nose",
+  "to-turn",
+  "antibiotic",
+  "cough",
+  "dizzy",
+  "fever",
+  "headache",
+  "ointment",
+  "prescription",
+  "sick",
+  "smoke",
+  "sore-throat",
+  "stomachache",
+  "bed",
+  "cozy",
+  "room",
+  "shower",
+  "invitation",
+  "child",
+  "colleague",
+  "eyes",
+  "family",
+  "pharmacist",
+  "queue",
+  "tall",
+  "bakery",
+  "butcher-s",
+  "cinema",
+  "corner",
+  "far",
+  "office",
+  "open",
+  "square",
+  "street",
+  "call",
+  "fitting-room",
+  "letter",
+  "plastic-bag",
+  "tip",
+  "platform"
  ],
  "items": [
   {
-   "id": "to-sneeze",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
+   "id": "checked",
+   "batch": "a-clothes",
+   "level": "A1",
+   "kind": "a",
    "quiz": 0,
-   "brief": "figure sneezing into a tissue with spray dots"
+   "brief": "square of red-and-white checked cloth with a folded corner"
   },
   {
-   "id": "to-study",
-   "batch": "a-verbs",
-   "level": "A2",
+   "id": "to-wear",
+   "batch": "a-clothes",
+   "level": "A1",
    "kind": "v",
+   "quiz": 0,
+   "brief": "figure pulling a jacket on, one arm in the sleeve"
+  },
+  {
+   "id": "light-blue",
+   "batch": "a-colors",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "paint daub in light sky blue with a brush"
+  },
+  {
+   "id": "cheese",
+   "batch": "a-food",
+   "level": "A1",
+   "kind": "n",
    "quiz": 1,
-   "brief": "figure at a desk with an open book and a pen, a stack of books beside"
+   "brief": "yellow wedge with three round holes"
   },
   {
-   "id": "to-swim",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 1,
-   "brief": "figure with a red cap in blue water, one arm lifted with splashes"
-  },
-  {
-   "id": "to-try-on",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 0,
-   "brief": "figure holding a shirt up in front of a mirror"
-  },
-  {
-   "id": "to-wake-up",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 1,
-   "brief": "alarm clock with two bells ringing, motion lines around it"
-  },
-  {
-   "id": "to-walk",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 0,
-   "brief": "figure walking along a path, one foot ahead, trees behind"
-  },
-  {
-   "id": "to-wash",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 0,
-   "brief": "figure washing hands under a tap, soap bubbles"
-  },
-  {
-   "id": "to-watch-tv",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 1,
-   "brief": "figure sitting on a sofa watching a TV with a glowing screen"
-  },
-  {
-   "id": "to-work",
-   "batch": "a-verbs",
-   "level": "A2",
-   "kind": "v",
-   "quiz": 0,
-   "brief": "figure at a desk typing on a laptop"
-  },
-  {
-   "id": "cold-illness",
-   "batch": "a-health",
-   "level": "B1",
+   "id": "food",
+   "batch": "a-food",
+   "level": "A1",
    "kind": "n",
    "quiz": 0,
-   "brief": "figure with a red nose blowing into a tissue, a tissue box beside"
+   "brief": "plate with a fork and knife and a little of everything on it"
   },
   {
-   "id": "tin-can",
+   "id": "big",
    "batch": "a-home",
-   "level": "B1",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "small",
+   "batch": "a-home",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "teacher",
+   "batch": "a-people",
+   "level": "A1",
    "kind": "n",
    "quiz": 1,
-   "brief": "silver tin can with a ring pull and a plain label band"
+   "brief": "figure beside a green chalkboard, holding a pointer"
   },
   {
-   "id": "to-recycle",
-   "batch": "b-world",
-   "level": "B2",
-   "kind": "v",
+   "id": "tired",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": ""
+  },
+  {
+   "id": "waiter",
+   "batch": "a-people",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure with a bow tie carrying a tray with a coffee"
+  },
+  {
+   "id": "germany",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "waving flag, three horizontal bands: black, red, gold"
+  },
+  {
+   "id": "italy",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "waving flag, three vertical bands: green, white, red"
+  },
+  {
+   "id": "mexico",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
    "quiz": 0,
-   "brief": "green bin with two chasing arrows on it"
+   "brief": "waving flag, vertical green, white, red with a small brown eagle blob in the middle"
   },
   {
-   "id": "to-be-on-cloud-nine",
-   "batch": "c-idioms",
-   "level": "C1",
+   "id": "rome",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "the Colosseum: a curved wall of stacked arches, a blue sky behind"
+  },
+  {
+   "id": "united-states",
+   "batch": "a-places",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "waving flag: red and white stripes, blue corner with white dots"
+  },
+  {
+   "id": "behind",
+   "batch": "a-position",
+   "level": "A1",
    "kind": "x",
    "quiz": 0,
-   "brief": "happy figure on a white cloud, arms up, hearts around"
+   "brief": "ball hidden partly behind a box, only half of the ball showing"
+  },
+  {
+   "id": "between",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "a red ball between two blue boxes"
+  },
+  {
+   "id": "in-front-of",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "red ball in front of a blue box, ball fully visible and overlapping the box"
+  },
+  {
+   "id": "inside",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "red ball inside an open box, only the top of the ball showing"
+  },
+  {
+   "id": "next-to",
+   "batch": "a-position",
+   "level": "A1",
+   "kind": "x",
+   "quiz": 0,
+   "brief": "red ball and blue box standing side by side, touching"
+  },
+  {
+   "id": "birthday",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bunch of three colorful balloons tied with strings, a little confetti"
+  },
+  {
+   "id": "spring",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "small tree in pink blossom, green grass, a tulip and a butterfly"
+  },
+  {
+   "id": "winter",
+   "batch": "a-time",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "snowman with a scarf and carrot nose under falling snow"
+  },
+  {
+   "id": "to-drink",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure tipping a glass up to the mouth"
+  },
+  {
+   "id": "to-eat",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure with a fork raised to the mouth, a plate in front"
+  },
+  {
+   "id": "to-give",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure handing a wrapped gift to another figure"
+  },
+  {
+   "id": "to-help",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure holding out a hand to help another figure climb a step"
+  },
+  {
+   "id": "to-leave",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "figure walking out through an open door pulling a suitcase"
+  },
+  {
+   "id": "to-pay",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "hand giving a coin to another hand over a counter"
+  },
+  {
+   "id": "to-see",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "large open eye with lashes and a bright pupil with a sparkle"
+  },
+  {
+   "id": "to-write",
+   "batch": "a-verbs",
+   "level": "A1",
+   "kind": "v",
+   "quiz": 1,
+   "brief": "figure writing in a notebook with a pen, wavy lines on the page"
+  },
+  {
+   "id": "cold",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "figure shivering with arms wrapped around itself, a scarf, snowflakes and icicles around, blue tint"
+  },
+  {
+   "id": "forecast",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "weather map panel with a sun, a cloud and a raindrop symbol"
+  },
+  {
+   "id": "hot",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "blazing sun with wavy heat lines over a figure fanning itself, sweat drops"
+  },
+  {
+   "id": "rain",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "gray cloud with slanting blue raindrops falling and a puddle below"
+  },
+  {
+   "id": "snow",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pale cloud with white snowflakes falling over a snowy ground"
+  },
+  {
+   "id": "wind",
+   "batch": "a-weather",
+   "level": "A1",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bent tree with leaves blowing sideways and curly white gust lines"
+  },
+  {
+   "id": "arm",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "bent arm with the muscle flexed, shown from the shoulder to the fist"
+  },
+  {
+   "id": "leg",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "single straight leg in trousers and a shoe"
+  },
+  {
+   "id": "neck",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "head and shoulders silhouette with the neck marked by a red band"
+  },
+  {
+   "id": "nose",
+   "batch": "a-body",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "nose seen from the front with two nostrils and a highlight"
+  },
+  {
+   "id": "to-turn",
+   "batch": "a-directions",
+   "level": "A2",
+   "kind": "v",
+   "quiz": 0,
+   "brief": "road with a sharp bend and a curved arrow turning along it"
+  },
+  {
+   "id": "antibiotic",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "blister pack of red-and-white capsules"
+  },
+  {
+   "id": "cough",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure coughing into a fist with small puff lines"
+  },
+  {
+   "id": "dizzy",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "figure with spiral eyes and stars circling around its head"
+  },
+  {
+   "id": "fever",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "thermometer with the red column right at the top and heat lines around it"
+  },
+  {
+   "id": "headache",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "figure holding its head with a red zigzag over the top"
+  },
+  {
+   "id": "ointment",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "white tube with a red cap and a dab of cream"
+  },
+  {
+   "id": "prescription",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "paper slip with wavy lines and a red cross"
+  },
+  {
+   "id": "sick",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 1,
+   "brief": "figure with a pale green face, a thermometer in the mouth and a blanket"
+  },
+  {
+   "id": "smoke",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "gray smoke plume curling up from a chimney"
+  },
+  {
+   "id": "sore-throat",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "open mouth with the throat glowing red"
+  },
+  {
+   "id": "stomachache",
+   "batch": "a-health",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure holding its belly with a red zigzag on it"
+  },
+  {
+   "id": "bed",
+   "batch": "a-home",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "single bed seen from the side with a pillow and a striped blanket"
+  },
+  {
+   "id": "cozy",
+   "batch": "a-home",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "armchair with a blanket and a steaming mug next to a small fire"
+  },
+  {
+   "id": "room",
+   "batch": "a-home",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "empty room interior with a door, a window and a round rug"
+  },
+  {
+   "id": "shower",
+   "batch": "a-home",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "shower head with water spraying and soap bubbles"
+  },
+  {
+   "id": "invitation",
+   "batch": "a-leisure",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "open envelope with a card tucked in and a heart sticker"
+  },
+  {
+   "id": "child",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "small figure with two pigtails holding a balloon"
+  },
+  {
+   "id": "colleague",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two figures side by side at a desk, each with a laptop"
+  },
+  {
+   "id": "eyes",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "pair of eyes with eyebrows and blue irises"
+  },
+  {
+   "id": "family",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "two tall figures and two small figures standing close together holding hands"
+  },
+  {
+   "id": "pharmacist",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "figure in a white coat holding a pill bottle behind a counter"
+  },
+  {
+   "id": "queue",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "line of four figures standing one behind another"
+  },
+  {
+   "id": "tall",
+   "batch": "a-people",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "tall figure standing beside a much shorter figure, the tall one highlighted"
+  },
+  {
+   "id": "bakery",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "shop front with a striped awning and a baguette and a croissant in the window"
+  },
+  {
+   "id": "butcher-s",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "shop front with sausages and a ham hanging in the window, striped awning"
+  },
+  {
+   "id": "cinema",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "cinema front with a marquee of round light bulbs and a clapperboard above the door"
+  },
+  {
+   "id": "corner",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "street corner where two building walls meet, with a lamp post"
+  },
+  {
+   "id": "far",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "long winding road shrinking to a tiny house on a distant hill"
+  },
+  {
+   "id": "office",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "desk with a computer monitor, a chair, a potted plant and a stack of papers"
+  },
+  {
+   "id": "open",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "a",
+   "quiz": 0,
+   "brief": "door wide open with warm light coming out"
+  },
+  {
+   "id": "square",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "open plaza with a fountain in the middle and buildings around it"
+  },
+  {
+   "id": "street",
+   "batch": "a-places",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "street with a pavement, a lamp post, a zebra crossing and houses"
+  },
+  {
+   "id": "call",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "old-style phone handset with curved sound waves"
+  },
+  {
+   "id": "fitting-room",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "curtained cubicle with a mirror and a hanger"
+  },
+  {
+   "id": "letter",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "white envelope with a red stamp and a seal"
+  },
+  {
+   "id": "plastic-bag",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 1,
+   "brief": "white plastic carrier bag with two handles and groceries inside"
+  },
+  {
+   "id": "tip",
+   "batch": "a-shopping",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "coin dropping into a small glass jar"
+  },
+  {
+   "id": "platform",
+   "batch": "a-travel",
+   "level": "A2",
+   "kind": "n",
+   "quiz": 0,
+   "brief": "railway platform with a yellow line, a train front and a clock"
   }
  ],
- "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 2 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 13 objects are: 1) figure sneezing into a tissue with spray dots; 2) figure at a desk with an open book and a pen, a stack of books beside; 3) figure with a red cap in blue water, one arm lifted with splashes; 4) figure holding a shirt up in front of a mirror; 5) alarm clock with two bells ringing, motion lines around it; 6) figure walking along a path, one foot ahead, trees behind; 7) figure washing hands under a tap, soap bubbles; 8) figure sitting on a sofa watching a TV with a glowing screen; 9) figure at a desk typing on a laptop; 10) figure with a red nose blowing into a tissue, a tissue box beside; 11) silver tin can with a ring pull and a plain label band; 12) green bin with two chasing arrows on it; 13) happy figure on a white cloud, arms up, hearts around."
+ "prompt": "Sticker sheet of flat vector illustrations in a friendly cartoon style: every object has a thick even dark green outline (#0B2A1E), simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Each object is a single, centered, fully visible item, never cropped. Every object is one connected picture: rays, drops, steam and sparkles touch the object they belong to. A person is a simple friendly figure with a round head, short brown hair and two dot eyes, always wearing a plain orange t-shirt and dark navy trousers, never bare skin below the neck. Plain transparent background, no text, no letters, no numbers, no borders, no cell lines. Strict grid of 10 columns by 8 rows, one object per cell, equal spacing, empty space between objects, nothing touching or overlapping. Reading left to right, top to bottom, the 80 objects are: 1) square of red-and-white checked cloth with a folded corner; 2) figure pulling a jacket on, one arm in the sleeve; 3) paint daub in light sky blue with a brush; 4) yellow wedge with three round holes; 5) plate with a fork and knife and a little of everything on it; 6) big; 7) small; 8) figure beside a green chalkboard, holding a pointer; 9) tired; 10) figure with a bow tie carrying a tray with a coffee; 11) waving flag, three horizontal bands: black, red, gold; 12) waving flag, three vertical bands: green, white, red; 13) waving flag, vertical green, white, red with a small brown eagle blob in the middle; 14) the Colosseum: a curved wall of stacked arches, a blue sky behind; 15) waving flag: red and white stripes, blue corner with white dots; 16) ball hidden partly behind a box, only half of the ball showing; 17) a red ball between two blue boxes; 18) red ball in front of a blue box, ball fully visible and overlapping the box; 19) red ball inside an open box, only the top of the ball showing; 20) red ball and blue box standing side by side, touching; 21) bunch of three colorful balloons tied with strings, a little confetti; 22) small tree in pink blossom, green grass, a tulip and a butterfly; 23) snowman with a scarf and carrot nose under falling snow; 24) figure tipping a glass up to the mouth; 25) figure with a fork raised to the mouth, a plate in front; 26) figure handing a wrapped gift to another figure; 27) figure holding out a hand to help another figure climb a step; 28) figure walking out through an open door pulling a suitcase; 29) hand giving a coin to another hand over a counter; 30) large open eye with lashes and a bright pupil with a sparkle; 31) figure writing in a notebook with a pen, wavy lines on the page; 32) figure shivering with arms wrapped around itself, a scarf, snowflakes and icicles around, blue tint; 33) weather map panel with a sun, a cloud and a raindrop symbol; 34) blazing sun with wavy heat lines over a figure fanning itself, sweat drops; 35) gray cloud with slanting blue raindrops falling and a puddle below; 36) pale cloud with white snowflakes falling over a snowy ground; 37) bent tree with leaves blowing sideways and curly white gust lines; 38) bent arm with the muscle flexed, shown from the shoulder to the fist; 39) single straight leg in trousers and a shoe; 40) head and shoulders silhouette with the neck marked by a red band; 41) nose seen from the front with two nostrils and a highlight; 42) road with a sharp bend and a curved arrow turning along it; 43) blister pack of red-and-white capsules; 44) figure coughing into a fist with small puff lines; 45) figure with spiral eyes and stars circling around its head; 46) thermometer with the red column right at the top and heat lines around it; 47) figure holding its head with a red zigzag over the top; 48) white tube with a red cap and a dab of cream; 49) paper slip with wavy lines and a red cross; 50) figure with a pale green face, a thermometer in the mouth and a blanket; 51) gray smoke plume curling up from a chimney; 52) open mouth with the throat glowing red; 53) figure holding its belly with a red zigzag on it; 54) single bed seen from the side with a pillow and a striped blanket; 55) armchair with a blanket and a steaming mug next to a small fire; 56) empty room interior with a door, a window and a round rug; 57) shower head with water spraying and soap bubbles; 58) open envelope with a card tucked in and a heart sticker; 59) small figure with two pigtails holding a balloon; 60) two figures side by side at a desk, each with a laptop; 61) pair of eyes with eyebrows and blue irises; 62) two tall figures and two small figures standing close together holding hands; 63) figure in a white coat holding a pill bottle behind a counter; 64) line of four figures standing one behind another; 65) tall figure standing beside a much shorter figure, the tall one highlighted; 66) shop front with a striped awning and a baguette and a croissant in the window; 67) shop front with sausages and a ham hanging in the window, striped awning; 68) cinema front with a marquee of round light bulbs and a clapperboard above the door; 69) street corner where two building walls meet, with a lamp post; 70) long winding road shrinking to a tiny house on a distant hill; 71) desk with a computer monitor, a chair, a potted plant and a stack of papers; 72) door wide open with warm light coming out; 73) open plaza with a fountain in the middle and buildings around it; 74) street with a pavement, a lamp post, a zebra crossing and houses; 75) old-style phone handset with curved sound waves; 76) curtained cubicle with a mirror and a hanger; 77) white envelope with a red stamp and a seal; 78) white plastic carrier bag with two handles and groceries inside; 79) coin dropping into a small glass jar; 80) railway platform with a yellow line, a train front and a clock."
 }

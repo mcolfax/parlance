@@ -213,7 +213,7 @@ n 0 a-health cold-illness {"de":["die Erkältung"],"es":["el resfriado"],"it":["
 a 1 a-weather hot | blazing sun with wavy heat lines over a figure fanning itself, sweat drops
 = it-is-cold cold
 = it-is-hot hot
-= it-is-raining rain
+- it-is-raining | same picture as the rain in its lesson
 = it-is-snowing snow
 = it-is-sunny sun
 = it-is-windy wind
@@ -234,7 +234,7 @@ n 1 a-time autumn | tree with orange and red leaves, leaves falling, a pile of l
 n 0 a-time spring | small tree in pink blossom, green grass, a tulip and a butterfly
 n 0 a-time summer | beach umbrella, a bright sun and a wave strip of blue water
 n 0 a-time winter | snowman with a scarf and carrot nose under falling snow
-n 1 a-time birthday | wrapped present with a big bow and a balloon on a string beside it
+n 1 a-time birthday | bunch of three colorful balloons tied with strings, a little confetti
 = month calendar
 n 1 a-time calendar | wall calendar page with a grid of small blank squares, one circled in red, two rings on top
 n 1 a-time christmas | decorated green fir tree with a gold star, red baubles and a wrapped present
@@ -282,7 +282,7 @@ n 0 a-weather forecast | weather map panel with a sun, a cloud and a raindrop sy
 = it-s-cloudy cloud
 = it-s-cold cold
 = it-s-hot hot
-= it-s-raining rain
+- it-s-raining | same picture as the rain in its lesson
 = it-s-snowing snow
 = overcast cloud
 n 0 a-weather temperature | glass thermometer with a red column halfway and tick marks
@@ -673,3 +673,1173 @@ n 1 a-leisure sport | tennis racket, a dumbbell and a running shoe in a small pi
 - to-stop | abstract
 = vegetable vegetables
 n 1 a-food vegetables | carrot, broccoli and a green pepper together
+# ---- chunk 659-828 (B1: past, feelings, work, opinions, future, sport) ----
+- bought | past form
+- called | past form
+- done | past form
+- drunk | past form
+- eaten | past form
+- i-ate | past form
+- i-bought | past form
+- i-lived | past form
+- i-slept | past form
+- i-worked | past form
+- seen | past form
+- worked | past form
+- came | past form
+- come | past form
+- driven | past form
+- flown | past form
+- gone | past form
+- got-up | past form
+- happened | past form
+- i-came | past form
+- i-could | past form
+- i-did | past form
+- i-had | past form
+- i-said | past form
+- i-saw | past form
+- i-took | past form
+- i-was | past form
+- i-went | past form
+- i-wrote | past form
+- put | past form
+- stayed | past form
+- could | past form
+- had | past form
+- had-to | past form
+- i-used-to-play | past form
+- lived | past form
+- played | past form
+- wanted-to | past form
+- was | past form
+- we-used-to-live | past form
+- went | past form
+- last-night | time word
+- last-week | time word
+- two-years-ago | time word
+- as-a-child | time word
+- back-then | time word
+- every-day | time word
+- once | time word
+- after-that | time word
+- at-one-point | time word
+- finally | time word
+- in-the-end | time word
+- suddenly | time word
+- next-year | time word
+- one-day | time word
+- someday | time word
+- when-i-grow-up | time word
+- future | time word
+- childhood | abstract
+- to-tell | abstract
+- when-one-time-in-the-past | abstract
+- when-repeated-or-present | abstract
+- while | abstract
+- belly | abstract
+- stomach | abstract
+- excited | abstract
+- fear | abstract
+- to-be-annoyed | abstract
+- to-be-happy-about | abstract
+- to-become | abstract
+- to-look-forward-to | abstract
+- advice | abstract
+- more | abstract
+- must | abstract
+- to-advise | abstract
+- unhealthy | abstract
+- you-should | abstract
+- anyway | abstract
+- because | abstract
+- best-wishes | abstract
+- excuse | abstract
+- explanation | abstract
+- i-hope | abstract
+- reason | abstract
+- that-s-why | abstract
+- to-be-well | abstract
+- to-get-better | abstract
+- to-hope | abstract
+- to-hope-that | abstract
+- to-want-someone-to | abstract
+- to-wish | abstract
+- too-bad-that | abstract
+- wish | abstract
+- with-me | abstract
+- boss | abstract
+- customer | abstract
+- deadline | abstract
+- project | abstract
+- report | abstract
+- to-deal-with | abstract
+- to-decide-to | abstract
+- to-hire | abstract
+- to-manage-to | abstract
+- to-quit | abstract
+- advantage | abstract
+- agreed | abstract
+- disadvantage | abstract
+- i-believe-that | abstract
+- i-think-that | abstract
+- important | abstract
+- in-agreement | abstract
+- in-my-opinion | abstract
+- it-depends | abstract
+- opinion | abstract
+- to-agree | abstract
+- to-be-right | abstract
+- to-be-wrong | abstract
+- to-believe | abstract
+- to-find | abstract
+- to-seem | abstract
+- as | abstract
+- as-as | abstract
+- best | abstract
+- better | abstract
+- cheaper | abstract
+- less | abstract
+- more-expensive | abstract
+- rather | abstract
+- than | abstract
+- worse | abstract
+- younger | abstract
+- club | abstract
+- fan | abstract
+- since | abstract
+- will | abstract
+- noise | abstract
+- grandfather | abstract
+= vacation holiday
+a 0 b-feelings shy | figure hiding half its face behind its hands with a blush
+n 0 b-leisure story | open storybook with a small castle and a star popping out of the pages
+= to-ring to-wake-up
+n 0 b-body back | figure seen from behind with the shoulder blades marked by a red patch
+= throat sore-throat
+a 1 b-feelings angry | round red face with furrowed eyebrows and steam from the ears
+a 1 b-feelings sad | round blue face with a tear and a downturned mouth
+a 0 b-feelings nervous | round pale face with sweat drops and a wavy mouth
+= worried nervous
+n 0 b-feelings hunger | empty bowl with a spoon beside it and a rumbling wavy line above
+= sleep to-sleep
+= to-relax to-rest
+- medicine | same picture as the pill in its lesson
+n 0 b-leisure dream | thought cloud with a crescent moon and stars above a pillow
+= to-dream dream
+n 0 b-nature luck | four-leaf clover
+n 0 b-work application | paper form with a photo box, blank lines and a paperclip
+n 0 b-work company | three connected office buildings with a flag on the tallest
+n 0 b-work contract | document with wavy lines, a signature squiggle and a pen
+= salary money
+n 0 b-misc idea | glowing lightbulb with small rays
+n 1 b-world world | globe on a stand with green continents and blue sea
+v 0 b-verbs to-save | coin dropping into a pink piggy bank
+= game soccer
+= match soccer
+n 1 b-leisure gym | barbell with round plates and a kettlebell beside it
+n 0 b-leisure team | three figures in matching shirts with arms over each other's shoulders
+v 1 b-verbs to-run | figure running with a sweat drop and speed lines
+= to-jog to-run
+= to-train sport
+# ---- chunk 829-1059 (B1 end and B2: culture, kitchen, travel, news, technology) ----
+n 0 b-leisure band | three figures playing a guitar, a drum kit and a keyboard
+n 1 b-leisure concert | microphone on a stand in a spotlight beam with music notes around
+= song music
+= novel book
+n 0 b-leisure seat | red plush cinema seat with a folding back
+n 0 b-leisure show | red theatre curtains pulled open on a stage with a spotlight
+n 1 b-leisure theatre | two theatre masks, one smiling, one sad
+n 0 b-leisure exhibition | three framed paintings on a gallery wall above a bench
+= festival party-fun
+n 1 b-culture fireworks | colorful fireworks bursting in a dark night sky
+n 1 b-culture present | wrapped gift box with a ribbon and a big bow
+= to-give-as-a-present present
+= to-celebrate fireworks
+n 0 b-culture carnival | feathered carnival mask with sequins and a stick
+n 0 b-culture easter | decorated eggs in a basket with a small bunny
+n 0 b-culture nativity-scene | small wooden stable with a manger and a bright star above
+= new-year fireworks
+= new-year-s-eve fireworks
+n 0 b-culture panettone | tall domed sweet bread with candied fruit, tied with a ribbon
+n 0 b-culture day-of-the-dead | decorated sugar skull with flowers and a bright pattern
+n 0 b-culture the-befana | old witch with a pointed hat on a broomstick with a sack of sweets
+n 0 b-kitchen flour | white paper sack of flour with a wooden scoop
+n 1 b-kitchen frying-pan | empty round frying pan with a long handle
+n 1 b-kitchen garlic | garlic bulb with a few loose cloves
+n 0 b-kitchen jar | glass jar with a screw lid and jam inside
+n 1 b-kitchen knife | kitchen knife with a wooden handle
+n 1 b-kitchen oil | bottle of golden olive oil with a cork and a green olive
+n 1 b-kitchen onion | brown-skinned onion with a green sprout
+n 1 b-kitchen oven | oven with a glass door showing a glowing tray and a row of round knobs
+= packet package
+n 1 b-kitchen pot | silver cooking pot with two handles and a lid
+n 1 b-kitchen salt | salt shaker with a few white crystals beside it
+n 1 b-kitchen spoon | big wooden spoon
+n 0 b-kitchen heat | gas burner with a blue flame under a pot
+n 0 b-kitchen recipe | open cookbook with a small picture of a dish and wavy lines
+v 0 b-verbs to-bake | figure sliding a tray of bread into an oven
+v 0 b-verbs to-boil | pot of bubbling water with steam rising
+v 0 b-verbs to-chop | figure chopping a carrot with a knife on a board
+= to-cut to-chop
+v 0 b-verbs to-fry | frying pan with a sizzling sausage and oil splashes
+v 0 b-verbs to-mix | figure whisking a bowl
+= to-stir to-mix
+v 0 b-verbs to-peel | peeler removing a long curl of skin from a carrot
+n 0 b-health allergy | face with red blotches sneezing next to a yellow flower
+= allergic allergy
+= allergic-to allergy
+n 0 b-food gluten | two ears of wheat
+n 1 b-food nut | walnut, one whole and one cracked open
+= nuts nut
+n 1 b-food aperitif | glass of orange spritz with an orange slice and an olive on a stick
+n 1 b-food lunch | lunch box with a sandwich, an apple and a small juice
+n 1 b-food risotto | shallow plate of creamy rice with green peas
+a 0 b-food spicy | red chili pepper with flames
+= accommodation hotel
+n 0 b-travel destination | round red map pin stuck in a folded map
+n 0 b-travel flight | airplane flying above clouds with a dotted trail behind
+= itinerary destination
+n 1 b-travel suitcase | brown suitcase with a handle, a belt and a couple of stickers
+= to-pack suitcase
+n 0 b-travel breakdown | small car with the hood raised and smoke coming out
+a 0 b-travel broken | white cup broken in two pieces with a crack
+= to-break-down breakdown
+= luggage suitcase
+= storm thunderstorm
+n 0 b-travel boarding-pass | boarding card with a plane silhouette and a stripe of vertical lines
+n 0 b-travel hand-luggage | small cabin bag with a pull handle and wheels
+v 0 b-verbs to-land | airplane touching down on a runway with a puff of smoke
+v 0 b-verbs to-take-off | airplane climbing off the runway at an angle
+n 0 b-travel adventure | compass with a red needle on top of a rolled map
+n 1 b-travel backpack | green hiking backpack with straps and pockets
+n 0 b-nature landscape | green hills, a winding river, a tree and a sun
+n 0 b-travel souvenir | small snow globe with a tower inside and a base
+n 0 b-news election | ballot box with a paper going into the slot
+= to-elect election
+n 0 b-news government | parliament building with a dome and a flag
+n 0 b-news law | scales of justice with a gavel
+n 1 b-news newspaper | folded newspaper with a photo and wavy lines, no words
+= news newspaper
+n 0 b-news thief | figure with a black eye mask and a striped sack, tiptoeing
+v 0 b-verbs to-build | figure with a hard hat laying bricks in a wall
+n 0 b-world energy | wind turbine and a solar panel side by side
+= environment world
+n 0 b-world planet | ringed planet with two small moons
+n 0 b-world pollution | factory with chimneys and gray smoke clouds
+= to-pollute pollution
+= to-open open
+n 1 b-home trash | trash bin with an overflowing lid and a banana peel
+= waste trash
+= cell-phone phone
+n 0 b-tech message | two stacked speech bubbles with dots
+n 0 b-tech password | closed padlock with a key beside it
+n 1 b-tech screen | computer monitor with a bright blank screen on a stand
+n 0 b-tech app | smartphone showing a grid of colorful rounded squares
+a 0 b-misc rich | pile of gold coins and a gold crown
+n 0 b-misc success | gold trophy cup with two handles
+= to-win success
+= to-travel suitcase
+- actor | abstract or grammar
+- author | abstract or grammar
+- boring | abstract or grammar
+- director | abstract or grammar
+- exciting | abstract or grammar
+- plot | abstract or grammar
+- to-recommend | abstract or grammar
+- deal | abstract or grammar
+- in-advance | abstract or grammar
+- program | abstract or grammar
+- sold-out | abstract or grammar
+- suggestion | abstract or grammar
+- to-begin | abstract or grammar
+- to-come-along | abstract or grammar
+- to-let-someone-know | abstract or grammar
+- holy-week | abstract or grammar
+- the-palio | abstract or grammar
+- tradition | abstract or grammar
+- half-a-kilo | abstract or grammar
+- ingredient | abstract or grammar
+- for-ten-minutes | abstract or grammar
+- to-add | abstract or grammar
+- to-drain | abstract or grammar
+- to-season | abstract or grammar
+- complaint | abstract or grammar
+- gluten-free | abstract or grammar
+- lactose-free | abstract or grammar
+- portion | abstract or grammar
+- separate-bill | abstract or grammar
+- to-contain | abstract or grammar
+- to-remove | abstract or grammar
+- to-take-back | abstract or grammar
+- to-take-long | abstract or grammar
+- too-salty | abstract or grammar
+- well-done | abstract or grammar
+- without | abstract or grammar
+- after-meal-conversation | abstract or grammar
+- afternoon-snack | abstract or grammar
+- habit | abstract or grammar
+- homemade | abstract or grammar
+- speciality | abstract or grammar
+- specialty | abstract or grammar
+- taste | abstract or grammar
+- tasty | abstract or grammar
+- to-prepare | abstract or grammar
+- to-taste | abstract or grammar
+- to-usually | abstract or grammar
+- typical | abstract or grammar
+- usual | abstract or grammar
+- budget | abstract or grammar
+- high-season | abstract or grammar
+- round-trip | abstract or grammar
+- to-intend-to | abstract or grammar
+- to-leave-for | abstract or grammar
+- tour | abstract or grammar
+- apology | abstract or grammar
+- cancelled | abstract or grammar
+- compensation | abstract or grammar
+- connection | abstract or grammar
+- delay | abstract or grammar
+- mistake | abstract or grammar
+- refund | abstract or grammar
+- strike | abstract or grammar
+- to-be-cancelled | abstract or grammar
+- to-complain | abstract or grammar
+- to-forget | abstract or grammar
+- to-miss | abstract or grammar
+- boarding-gate | abstract or grammar
+- check | abstract or grammar
+- check-in | abstract or grammar
+- counter | abstract or grammar
+- gate | abstract or grammar
+- layover | abstract or grammar
+- passenger | abstract or grammar
+- security-check | abstract or grammar
+- to-board | abstract or grammar
+- to-check-luggage | abstract or grammar
+- to-check-in | abstract or grammar
+- after-having | abstract or grammar
+- already | abstract or grammar
+- before | abstract or grammar
+- fortunately | abstract or grammar
+- just | abstract or grammar
+- luckily | abstract or grammar
+- memory | abstract or grammar
+- on-the-way | abstract or grammar
+- to-continue | abstract or grammar
+- to-experience | abstract or grammar
+- to-get-lost | abstract or grammar
+- to-realize | abstract or grammar
+- to-stay-overnight | abstract or grammar
+- accident | abstract or grammar
+- headline | abstract or grammar
+- to-announce | abstract or grammar
+- to-approve | abstract or grammar
+- to-arrest | abstract or grammar
+- to-report | abstract or grammar
+- climate-change | abstract or grammar
+- founded | abstract or grammar
+- injured | abstract or grammar
+- to-destroy | abstract or grammar
+- to-protect | abstract or grammar
+- to-reduce | abstract or grammar
+- to-waste | abstract or grammar
+- because-of | abstract or grammar
+- despite | abstract or grammar
+- network | abstract or grammar
+- online | abstract or grammar
+- social-network | abstract or grammar
+- to-browse | abstract or grammar
+- to-connect | abstract or grammar
+- to-download | abstract or grammar
+- to-share | abstract or grammar
+- as-long-as | abstract or grammar
+- as-soon-as | abstract or grammar
+- hurry | abstract or grammar
+- in-time | abstract or grammar
+- neighbor | abstract or grammar
+- so-that | abstract or grammar
+- to-act | abstract or grammar
+- too-late | abstract or grammar
+- unless | abstract or grammar
+- until | abstract or grammar
+- amazing | abstract or grammar
+- i-were | abstract or grammar
+- if-only | abstract or grammar
+- to-travel-around-the-world | abstract or grammar
+- trip-around-the-world | abstract or grammar
+- would | abstract or grammar
+- would-be | abstract or grammar
+- would-have | abstract or grammar
+- fluent | abstract or grammar
+- fluently | abstract or grammar
+# ---- chunk 1060-1460 (B2: abstract mostly; the few concrete ones) ----
+= to-close closed
+n 0 b-school exam | sheet of paper with a big red check mark and a pencil beside it
+= friend friends
+= to-dream-of dream
+= bright lamp
+n 0 b-home rent | small house with a key hanging from a tag
+= to-rent rent
+= two-room-flat apartment
+= to-move-in to-move
+a 0 b-feelings jealous | round green face with narrowed side-glancing eyes
+n 0 b-people relationship | two linked hearts, one red and one orange
+= to-fall-in-love relationship
+= to-love-each-other relationship
+v 0 b-verbs to-marry | two gold rings and a small bouquet of white flowers
+= to-get-married to-marry
+v 0 b-verbs to-break-up | red heart split by a crack with two halves
+n 0 b-people donation | hand dropping a coin into a box with a heart on it
+= to-donate donation
+n 0 b-work interview | two figures facing each other across a small table with papers
+= job-interview interview
+= cv application
+= cover-letter application
+= documents application
+= form application
+= to-fill-in application
+v 0 b-verbs to-sign | hand signing a paper with a pen, a squiggle line
+n 0 b-people graduate | figure in a graduation gown and cap holding a rolled scroll
+= illness sick
+= to-earn money
+= vote election
+= to-vote election
+= home house
+n 0 b-nature roots | tree with its roots showing underground
+= to-pour rain
+= to-be-in-a-good-mood happy
+= to-be-in-a-bad-mood angry
+= to-be-furious angry
+= to-feel-down sad
+= to-cry-one-s-eyes-out sad
+n 0 b-misc rising | bar chart with three rising bars and an up arrow
+n 0 b-misc falling | bar chart with three falling bars and a down arrow
+= growing rising
+- i-won | abstract or grammar
+- i-would-travel | abstract or grammar
+- if | abstract or grammar
+- if-i-were-you | abstract or grammar
+- immediately | abstract or grammar
+- in-your-place | abstract or grammar
+- lottery | abstract or grammar
+- possibility | abstract or grammar
+- a-moment | abstract or grammar
+- bother | abstract or grammar
+- briefly | abstract or grammar
+- could-you | abstract or grammar
+- favor | abstract or grammar
+- grateful | abstract or grammar
+- just-this-once | abstract or grammar
+- request | abstract or grammar
+- would-it-be-possible | abstract or grammar
+- would-mind | abstract or grammar
+- would-you-be-so-kind-as-to | abstract or grammar
+- would-you-mind | abstract or grammar
+- actually | abstract or grammar
+- chance | abstract or grammar
+- earlier | abstract or grammar
+- had-hypothetical | abstract or grammar
+- i-should-have | abstract or grammar
+- if-i-had-known | abstract or grammar
+- known | abstract or grammar
+- missed | abstract or grammar
+- opportunity | abstract or grammar
+- reached | abstract or grammar
+- regret | abstract or grammar
+- to-pass | abstract or grammar
+- to-regret | abstract or grammar
+- admittedly-but | abstract or grammar
+- argument | abstract or grammar
+- besides | abstract or grammar
+- decision | abstract or grammar
+- first-of-all | abstract or grammar
+- however | abstract or grammar
+- on-the-one-hand | abstract or grammar
+- on-the-other-hand | abstract or grammar
+- solution | abstract or grammar
+- the-fact-that | abstract or grammar
+- to-be-worth-it | abstract or grammar
+- to-convince | abstract or grammar
+- to-weigh-up | abstract or grammar
+- whereas | abstract or grammar
+- although | abstract or grammar
+- but | abstract or grammar
+- even | abstract or grammar
+- even-if | abstract or grammar
+- even-though | abstract or grammar
+- instead | abstract or grammar
+- nevertheless | abstract or grammar
+- to-be-interested-in | abstract or grammar
+- to-rely-on | abstract or grammar
+- to-remember | abstract or grammar
+- to-think-of | abstract or grammar
+- topic | abstract or grammar
+- without-a-doubt | abstract or grammar
+- as-a-result | abstract or grammar
+- due-to | abstract or grammar
+- in-case | abstract or grammar
+- so | abstract or grammar
+- thanks-to | abstract or grammar
+- therefore | abstract or grammar
+- both-and | abstract or grammar
+- but-rather | abstract or grammar
+- either-or | abstract or grammar
+- exception | abstract or grammar
+- for-cause-or-exchange | abstract or grammar
+- for-goal-or-purpose | abstract or grammar
+- for-example | abstract or grammar
+- forever | abstract or grammar
+- neither-nor | abstract or grammar
+- not-only-but-also | abstract or grammar
+- of-it | abstract or grammar
+- the-more-the-more | abstract or grammar
+- there | abstract or grammar
+- there-are-some | abstract or grammar
+- there-is-some | abstract or grammar
+- to-go-there | abstract or grammar
+- to-need-it | abstract or grammar
+- to-practice | abstract or grammar
+- to-talk-about-it | abstract or grammar
+- to-think-about-it | abstract or grammar
+- deposit | abstract or grammar
+- furnished | abstract or grammar
+- landlord | abstract or grammar
+- lease | abstract or grammar
+- to-view | abstract or grammar
+- utilities | abstract or grammar
+- account | abstract or grammar
+- bank-account | abstract or grammar
+- current-account | abstract or grammar
+- debts | abstract or grammar
+- loan | abstract or grammar
+- mortgage | abstract or grammar
+- taxes | abstract or grammar
+- to-afford | abstract or grammar
+- to-invest | abstract or grammar
+- to-lend | abstract or grammar
+- to-spend | abstract or grammar
+- to-transfer | abstract or grammar
+- what-for | abstract or grammar
+- boyfriend | abstract or grammar
+- to-argue | abstract or grammar
+- to-make-up | abstract or grammar
+- to-trust | abstract or grammar
+- trust | abstract or grammar
+- anyone | abstract or grammar
+- association | abstract or grammar
+- community | abstract or grammar
+- initiative | abstract or grammar
+- neighborhood | abstract or grammar
+- to-get-involved | abstract or grammar
+- to-raise-funds | abstract or grammar
+- to-support | abstract or grammar
+- to-take-part-in | abstract or grammar
+- voluntary | abstract or grammar
+- volunteer | abstract or grammar
+- volunteering | abstract or grammar
+- applicant | abstract or grammar
+- candidate | abstract or grammar
+- convinced | abstract or grammar
+- experience | abstract or grammar
+- position | abstract or grammar
+- role | abstract or grammar
+- skills | abstract or grammar
+- strength | abstract or grammar
+- strengths | abstract or grammar
+- to-apply | abstract or grammar
+- to-be-convinced-that | abstract or grammar
+- to-contribute | abstract or grammar
+- to-gain-experience | abstract or grammar
+- completed | abstract or grammar
+- knowledge | abstract or grammar
+- native-language | abstract or grammar
+- reference | abstract or grammar
+- to-apply-for | abstract or grammar
+- to-attach | abstract or grammar
+- to-authorize | abstract or grammar
+- to-enclose | abstract or grammar
+- to-have-at-one-s-disposal | abstract or grammar
+- vacancy | abstract or grammar
+- accusation | abstract or grammar
+- conflict | abstract or grammar
+- criticism | abstract or grammar
+- disagreement | abstract or grammar
+- fault | abstract or grammar
+- misunderstanding | abstract or grammar
+- to-apologize | abstract or grammar
+- to-collaborate | abstract or grammar
+- to-complain-about | abstract or grammar
+- to-find-a-compromise | abstract or grammar
+- to-get-along | abstract or grammar
+- to-meet-halfway | abstract or grammar
+- to-resolve | abstract or grammar
+- benefits | abstract or grammar
+- bonus | abstract or grammar
+- employment-contract | abstract or grammar
+- fixed-term | abstract or grammar
+- gross-salary | abstract or grammar
+- leave-entitlement | abstract or grammar
+- net-salary | abstract or grammar
+- overtime | abstract or grammar
+- paid-holidays | abstract or grammar
+- pay-rise | abstract or grammar
+- permanent | abstract or grammar
+- probation-period | abstract or grammar
+- raise | abstract or grammar
+- thirteenth-month-pay | abstract or grammar
+- to-give-notice | abstract or grammar
+- to-negotiate | abstract or grammar
+- to-offer | abstract or grammar
+- working-day | abstract or grammar
+- campaign | abstract or grammar
+- citizen | abstract or grammar
+- coalition | abstract or grammar
+- election-campaign | abstract or grammar
+- elections | abstract or grammar
+- majority | abstract or grammar
+- opposition | abstract or grammar
+- poll | abstract or grammar
+- to-claim | abstract or grammar
+- to-demand | abstract or grammar
+- to-govern | abstract or grammar
+- to-promise | abstract or grammar
+- turnout | abstract or grammar
+- voter | abstract or grammar
+- access | abstract or grammar
+- background | abstract or grammar
+- education | abstract or grammar
+- equal-opportunities | abstract or grammar
+- gap | abstract or grammar
+- income | abstract or grammar
+- inequality | abstract or grammar
+- public-school | abstract or grammar
+- quality | abstract or grammar
+- resources | abstract or grammar
+- scholarship | abstract or grammar
+- school-dropout | abstract or grammar
+- to-depend-on | abstract or grammar
+- to-disadvantage | abstract or grammar
+- to-drop-out | abstract or grammar
+- to-guarantee | abstract or grammar
+- tuition | abstract or grammar
+- ageing | abstract or grammar
+- care | abstract or grammar
+- co-payment | abstract or grammar
+- family-doctor | abstract or grammar
+- health-care | abstract or grammar
+- health-insurance | abstract or grammar
+- health-service | abstract or grammar
+- health-system | abstract or grammar
+- life-expectancy | abstract or grammar
+- nursing-home | abstract or grammar
+- older-adults | abstract or grammar
+- pension | abstract or grammar
+- retirement | abstract or grammar
+- the-elderly | abstract or grammar
+- to-care-for | abstract or grammar
+- to-prevent | abstract or grammar
+- to-retire | abstract or grammar
+- to-take-care-of | abstract or grammar
+- treatment | abstract or grammar
+- waiting-list | abstract or grammar
+- border | abstract or grammar
+- citizenship | abstract or grammar
+- foreigner | abstract or grammar
+- identity | abstract or grammar
+- immigrant | abstract or grammar
+- immigration | abstract or grammar
+- integration | abstract or grammar
+- prejudice | abstract or grammar
+- residence-permit | abstract or grammar
+- to-adapt | abstract or grammar
+- to-belong | abstract or grammar
+- to-grow-up | abstract or grammar
+- to-integrate | abstract or grammar
+- welcome | abstract or grammar
+- at-your-disposal | abstract or grammar
+- attached | abstract or grammar
+- attachment | abstract or grammar
+- awaiting | abstract or grammar
+- dear | abstract or grammar
+- dear-sir-or-madam | abstract or grammar
+- feedback | abstract or grammar
+- inquiry | abstract or grammar
+- kind-regards | abstract or grammar
+- regarding | abstract or grammar
+- sincerely | abstract or grammar
+- to-inform | abstract or grammar
+- by | abstract or grammar
+- measure | abstract or grammar
+- to-be-an-option | abstract or grammar
+- to-be-considerate-of | abstract or grammar
+- to-bring-up | abstract or grammar
+- to-carry-out | abstract or grammar
+- to-come-into-force | abstract or grammar
+- to-emphasize | abstract or grammar
+- to-launch | abstract or grammar
+- to-make-a-decision | abstract or grammar
+- to-provide | abstract or grammar
+- to-submit-an-application | abstract or grammar
+- to-take-into-account | abstract or grammar
+- according-to | abstract or grammar
+- allegedly | abstract or grammar
+- has-reported-speech | abstract or grammar
+- is-reported-speech | abstract or grammar
+- said-that | abstract or grammar
+- spokesperson | abstract or grammar
+- statement | abstract or grammar
+- the-day-before | abstract or grammar
+- the-next-day | abstract or grammar
+- to-admit | abstract or grammar
+- to-ask-someone-to | abstract or grammar
+- to-declare | abstract or grammar
+- to-deny | abstract or grammar
+- to-explain | abstract or grammar
+- to-maintain | abstract or grammar
+- to-state | abstract or grammar
+- agreement | abstract or grammar
+- as-if | abstract or grammar
+- be-that-as-it-may | abstract or grammar
+- it-is-likely-that | abstract or grammar
+- no-matter-how-much | abstract or grammar
+- planned | abstract or grammar
+- population | abstract or grammar
+- prices | abstract or grammar
+- probable | abstract or grammar
+- published | abstract or grammar
+- study | abstract or grammar
+- subjunctive | abstract or grammar
+- to-imagine | abstract or grammar
+- to-suppose | abstract or grammar
+- whatever-happens | abstract or grammar
+- whatever-it-takes | abstract or grammar
+- whatever-they-say | abstract or grammar
+- wherever | abstract or grammar
+- whoever | abstract or grammar
+- a-fortune | abstract or grammar
+- break-a-leg | abstract or grammar
+- good-luck | abstract or grammar
+- it-s-all-greek-to-me | abstract or grammar
+- thank-goodness | abstract or grammar
+- that-s-not-my-problem | abstract or grammar
+- to-be-a-piece-of-cake | abstract or grammar
+- to-be-broke | abstract or grammar
+- to-be-daydreaming | abstract or grammar
+- to-be-lucky | abstract or grammar
+- to-cost-an-arm-and-a-leg | abstract or grammar
+- to-hit-the-nail-on-the-head | abstract or grammar
+- to-keep-one-s-fingers-crossed | abstract or grammar
+- to-lend-a-hand | abstract or grammar
+- to-make-a-fool-of-oneself | abstract or grammar
+- to-not-mince-words | abstract or grammar
+- to-not-see-what-s-right-in-front-of-you | abstract or grammar
+- to-pull-someone-s-leg | abstract or grammar
+- to-put-one-s-foot-in-it | abstract or grammar
+- chin-up | abstract or grammar
+- to-be-fed-up | abstract or grammar
+- to-be-in-one-s-element | abstract or grammar
+- to-be-on-edge | abstract or grammar
+- to-be-over-the-moon | abstract or grammar
+- to-be-stunned | abstract or grammar
+- to-get-on-someone-s-nerves | abstract or grammar
+- to-get-one-s-act-together | abstract or grammar
+- to-get-up-on-the-wrong-side-of-the-bed | abstract or grammar
+- to-have-one-s-head-in-the-clouds | abstract or grammar
+- to-keep-calm | abstract or grammar
+- to-lose-one-s-patience | abstract or grammar
+- to-tear-one-s-hair-out | abstract or grammar
+- apparently | abstract or grammar
+- certainly | abstract or grammar
+- evidently | abstract or grammar
+- impression | abstract or grammar
+- is-likely-to | abstract or grammar
+- it-may-be-that | abstract or grammar
+- must-probably | abstract or grammar
+- perhaps | abstract or grammar
+- possibly | abstract or grammar
+- presumably | abstract or grammar
+- probably | abstract or grammar
+- supposedly | abstract or grammar
+- surely | abstract or grammar
+- to-doubt | abstract or grammar
+- undoubtedly | abstract or grammar
+- who-knows | abstract or grammar
+- accent | abstract or grammar
+- as-you-know | abstract or grammar
+- buddy-colombia | abstract or grammar
+- come-on-encouraging | abstract or grammar
+- cool-colombia-venezuela | abstract or grammar
+- cool-mexico | abstract or grammar
+- dialect | abstract or grammar
+- feel-free | abstract or grammar
+- hey-argentina | abstract or grammar
+# ---- chunk 1461-1825 (C1 and C2: abstract mostly; the few concrete ones) ----
+n 1 c-food watermelon | slice of watermelon, red flesh, green rind and black seeds
+= chart rising
+n 1 c-travel car | red car seen from the side with round wheels
+n 1 c-animals kitten | small gray kitten with big eyes playing with a ball of yarn
+= little-coffee coffee
+= little-house house
+n 1 c-animals bee | bee with a striped body, little wings and a stinger
+n 1 c-animals goat | white goat with curved horns and a small beard
+n 1 c-animals horse | brown horse standing, side view, dark mane and tail
+n 1 c-animals shrimp | pink shrimp curled up with a fan tail and long feelers
+n 1 c-food peach | peach with a soft blush, a leaf and a small dimple
+n 1 c-travel anchor | blue ship anchor with a rope
+n 1 c-home bench | wooden park bench with a backrest and iron legs
+v 0 c-verbs to-sew | needle with a thread stitching a line across a red cloth
+v 0 c-verbs to-dig | figure digging a hole with a shovel, a pile of earth beside
+n 0 c-nature trunk | cut tree trunk with growth rings and bark
+n 0 c-places wall | brick wall with a few bricks missing and a small crack
+n 0 c-people applause | two clapping hands with motion lines
+n 0 c-people speech | figure at a lectern with a microphone and a spotlight
+n 1 c-food corn-on-the-cob-mexico | corn cob with green husks peeled back
+n 0 c-food drinking-straw-mexico | glass of juice with a bendy straw
+n 1 c-home fridge-argentina | tall fridge with two doors and handles
+= bike-switzerland bike
+= bus-caribbean bus
+n 1 c-food bread-roll-bavaria-austria | round bread roll with a cut on top
+= tomato-austria tomato
+= kid-argentina child
+= money-mexico-informal money
+= money-much-of-latin-america money
+= cash-slang cash
+= pub beer
+n 0 c-nature dusk | red-orange sun setting behind dark hills and a purple sky
+v 0 c-verbs to-whisper | figure with a hand cupped beside its mouth, tiny wavy lines
+= awful-weather thunderstorm
+= unhappy sad
+- for-a-week | abstract or grammar
+- i-will-do | abstract or grammar
+- i-will-have | abstract or grammar
+- job-mexico | abstract or grammar
+- just-softens-a-request | abstract or grammar
+- just-that-s-how-it-is | abstract or grammar
+- region | abstract or grammar
+- the-north | abstract or grammar
+- the-south | abstract or grammar
+- what-s-up-mexico | abstract or grammar
+- you-argentina | abstract or grammar
+- agenda | abstract or grammar
+- all-in-all | abstract or grammar
+- as-for | abstract or grammar
+- contribution | abstract or grammar
+- minutes | abstract or grammar
+- objection | abstract or grammar
+- on-this-point | abstract or grammar
+- presentation | abstract or grammar
+- slide | abstract or grammar
+- to-highlight | abstract or grammar
+- to-move-on-to-the-next-point | abstract or grammar
+- to-present | abstract or grammar
+- to-resume | abstract or grammar
+- to-sum-up | abstract or grammar
+- to-summarize | abstract or grammar
+- to-take-the-floor | abstract or grammar
+- compromise | abstract or grammar
+- concession | abstract or grammar
+- counter-offer | abstract or grammar
+- counteroffer | abstract or grammar
+- demand | abstract or grammar
+- leeway | abstract or grammar
+- margin | abstract or grammar
+- negotiation | abstract or grammar
+- provided-that | abstract or grammar
+- to-be-willing-to | abstract or grammar
+- to-close-the-deal | abstract or grammar
+- to-give-in | abstract or grammar
+- to-go-further | abstract or grammar
+- to-grant | abstract or grammar
+- to-lower | abstract or grammar
+- to-reach-an-agreement | abstract or grammar
+- breach | abstract or grammar
+- clause | abstract or grammar
+- damages | abstract or grammar
+- liability | abstract or grammar
+- obliged | abstract or grammar
+- party-to-the-contract | abstract or grammar
+- penalty | abstract or grammar
+- responsibility | abstract or grammar
+- the-parties | abstract or grammar
+- to-bear-responsibility | abstract or grammar
+- to-breach | abstract or grammar
+- to-compensate | abstract or grammar
+- to-terminate | abstract or grammar
+- to-undertake-to | abstract or grammar
+- withdrawal | abstract or grammar
+- appeal | abstract or grammar
+- approach | abstract or grammar
+- consequently | abstract or grammar
+- emphatically | abstract or grammar
+- extension | abstract or grammar
+- improvement | abstract or grammar
+- introduction | abstract or grammar
+- it-is-no-coincidence-that | abstract or grammar
+- moreover | abstract or grammar
+- obvious | abstract or grammar
+- reader | abstract or grammar
+- reduction | abstract or grammar
+- rhetorical-question | abstract or grammar
+- that-is-why | abstract or grammar
+- that-said | abstract or grammar
+- to-prove | abstract or grammar
+- viewpoint | abstract or grammar
+- what-is-more | abstract or grammar
+- compared-with | abstract or grammar
+- decline | abstract or grammar
+- figure | abstract or grammar
+- growth | abstract or grammar
+- percentage | abstract or grammar
+- rate | abstract or grammar
+- share | abstract or grammar
+- stable | abstract or grammar
+- survey | abstract or grammar
+- to-amount-to | abstract or grammar
+- to-decrease | abstract or grammar
+- to-double | abstract or grammar
+- to-fall | abstract or grammar
+- to-increase | abstract or grammar
+- to-reach | abstract or grammar
+- to-rise | abstract or grammar
+- to-stagnate | abstract or grammar
+- trend | abstract or grammar
+- antithesis | abstract or grammar
+- conclusion | abstract or grammar
+- counterargument | abstract or grammar
+- essay | abstract or grammar
+- even-so | abstract or grammar
+- in-conclusion | abstract or grammar
+- in-sum | abstract or grammar
+- in-support-of | abstract or grammar
+- it-is-fair-to-ask | abstract or grammar
+- on-the-contrary | abstract or grammar
+- one-can-say-that | abstract or grammar
+- there-are-those-who-claim-that | abstract or grammar
+- thesis | abstract or grammar
+- thus | abstract or grammar
+- to-demonstrate | abstract or grammar
+- to-justify | abstract or grammar
+- to-refute | abstract or grammar
+- central-point | abstract or grammar
+- concise | abstract or grammar
+- in-broad-strokes | abstract or grammar
+- in-essence | abstract or grammar
+- in-other-words | abstract or grammar
+- main-idea | abstract or grammar
+- main-point | abstract or grammar
+- nominalization | abstract or grammar
+- passage | abstract or grammar
+- summary | abstract or grammar
+- that-is | abstract or grammar
+- to-condense | abstract or grammar
+- to-convey | abstract or grammar
+- to-paraphrase | abstract or grammar
+- to-point-out | abstract or grammar
+- to-refer-to | abstract or grammar
+- about | abstract or grammar
+- almost | abstract or grammar
+- as-a-tendency | abstract or grammar
+- assumption | abstract or grammar
+- broadly | abstract or grammar
+- comparatively | abstract or grammar
+- generally | abstract or grammar
+- in-a-way | abstract or grammar
+- it-seems-that | abstract or grammar
+- it-would-seem | abstract or grammar
+- largely | abstract or grammar
+- qualification | abstract or grammar
+- roughly | abstract or grammar
+- tends-to | abstract or grammar
+- there-is-a-chance-that | abstract or grammar
+- to-some-extent | abstract or grammar
+- to-tend-to | abstract or grammar
+- with-some-exceptions | abstract or grammar
+- as-soon-as-possible | abstract or grammar
+- buddy-mexico | abstract or grammar
+- employment | abstract or grammar
+- formal | abstract or grammar
+- guy | abstract or grammar
+- informal | abstract or grammar
+- to-chat | abstract or grammar
+- to-chat-colloquial | abstract or grammar
+- to-converse | abstract or grammar
+- to-get-colloquial | abstract or grammar
+- to-receive-formal | abstract or grammar
+- to-take-off-colloquial | abstract or grammar
+- to-talk | abstract or grammar
+- to-use-lei | abstract or grammar
+- to-use-tu | abstract or grammar
+- caught-sight-of | abstract or grammar
+- he | abstract or grammar
+- instant | abstract or grammar
+- moment | abstract or grammar
+- once-upon-a-time | abstract or grammar
+- said | abstract or grammar
+- saw | abstract or grammar
+- silence | abstract or grammar
+- simple-past | abstract or grammar
+- strange | abstract or grammar
+- to-be-silent | abstract or grammar
+- to-fall-silent | abstract or grammar
+- was-born | abstract or grammar
+- wise | abstract or grammar
+- wrote | abstract or grammar
+- booklet | abstract or grammar
+- challenge | abstract or grammar
+- composure | abstract or grammar
+- development | abstract or grammar
+- effect | abstract or grammar
+- essential | abstract or grammar
+- feasible | abstract or grammar
+- freedom | abstract or grammar
+- happiness | abstract or grammar
+- hopeless | abstract or grammar
+- impossible | abstract or grammar
+- inconsiderate | abstract or grammar
+- to-redo | abstract or grammar
+- to-undo | abstract or grammar
+- unavoidable | abstract or grammar
+- unforgettable | abstract or grammar
+- very-beautiful | abstract or grammar
+- admittedly | abstract or grammar
+- at-the-end-of-the-day | abstract or grammar
+- by-contrast | abstract or grammar
+- counter-argument | abstract or grammar
+- in-my-view | abstract or grammar
+- in-short | abstract or grammar
+- it-follows | abstract or grammar
+- it-is-undeniable-that | abstract or grammar
+- it-should-be-noted | abstract or grammar
+- last-but-not-least | abstract or grammar
+- there-is-no-doubt | abstract or grammar
+- to-concede | abstract or grammar
+- to-retort | abstract or grammar
+- ultimately | abstract or grammar
+- big-deal | abstract or grammar
+- dig | abstract or grammar
+- hint | abstract or grammar
+- irony | abstract or grammar
+- it-is-not-exactly-cheap | abstract or grammar
+- mocking | abstract or grammar
+- not-bad-at-all | abstract or grammar
+- not-exactly | abstract or grammar
+- of-all-things | abstract or grammar
+- precisely | abstract or grammar
+- punchline | abstract or grammar
+- sarcastic | abstract or grammar
+- to-mock | abstract or grammar
+- to-pretend | abstract or grammar
+- to-tease | abstract or grammar
+- to-understate | abstract or grammar
+- tone | abstract or grammar
+- understatement | abstract or grammar
+- witty | abstract or grammar
+- ambiguous | abstract or grammar
+- comfort-eating-weight | abstract or grammar
+- double-meaning | abstract or grammar
+- earworm | abstract or grammar
+- harebrained-idea | abstract or grammar
+- joke | abstract or grammar
+- last-straw | abstract or grammar
+- literal | abstract or grammar
+- pun | abstract or grammar
+- rhyme | abstract or grammar
+- to-see-through | abstract or grammar
+- tongue-twister | abstract or grammar
+- a-barking-dog-never-bites | abstract or grammar
+- all-that-glitters-is-not-gold | abstract or grammar
+- better-late-than-never | abstract or grammar
+- current | abstract or grammar
+- easier-said-than-done | abstract or grammar
+- fang | abstract or grammar
+- given-as-a-gift | abstract or grammar
+- harm | abstract or grammar
+- he-who-sleeps-catches-no-fish | abstract or grammar
+- proverb | abstract or grammar
+- saying | abstract or grammar
+- shaving | abstract or grammar
+- slow-and-steady-wins-the-race | abstract or grammar
+- stretch | abstract or grammar
+- to-get-up-early | abstract or grammar
+- to-glitter | abstract or grammar
+- to-plane | abstract or grammar
+- to-rust | abstract or grammar
+- blind | abstract or grammar
+- deaf | abstract or grammar
+- deceased | abstract or grammar
+- diplomatic | abstract or grammar
+- euphemism | abstract or grammar
+- it-is-not-great | abstract or grammar
+- old-age | abstract or grammar
+- passed-away | abstract or grammar
+- price-adjustment | abstract or grammar
+- redundancies | abstract or grammar
+- sugarcoating | abstract or grammar
+- tact | abstract or grammar
+- to-be-advisable | abstract or grammar
+- to-do-without | abstract or grammar
+- to-hint | abstract or grammar
+- to-lay-off | abstract or grammar
+- to-pass-away | abstract or grammar
+- to-request | abstract or grammar
+- with-all-due-respect | abstract or grammar
+- bilingual | abstract or grammar
+- friulian | abstract or grammar
+- hello-northern-germany | abstract or grammar
+- hello-southern-germany-austria | abstract or grammar
+- hello-switzerland | abstract or grammar
+- hi-or-bye-bavaria-austria | abstract or grammar
+- in-a-bit-mexico | abstract or grammar
+- in-dialect | abstract or grammar
+- january-austria | abstract or grammar
+- ladin | abstract or grammar
+- linguistic-minority | abstract or grammar
+- mother-tongue | abstract or grammar
+- sardinian | abstract or grammar
+- to-work-argentina | abstract or grammar
+- voseo | abstract or grammar
+- anglicism | abstract or grammar
+- controversial | abstract or grammar
+- gender | abstract or grammar
+- gender-asterisk | abstract or grammar
+- inclusive | abstract or grammar
+- invariable | abstract or grammar
+- loanword | abstract or grammar
+- neologism | abstract or grammar
+- speaker | abstract or grammar
+- student-body | abstract or grammar
+- students-gender-neutral | abstract or grammar
+- the-accademia-della-crusca | abstract or grammar
+- to-chat-online | abstract or grammar
+- to-come-into-use | abstract or grammar
+- to-google | abstract or grammar
+- to-scan | abstract or grammar
+- to-use-gender-inclusive-language | abstract or grammar
+- conquest | abstract or grammar
+- empire | abstract or grammar
+- event | abstract or grammar
+- eyewitness | abstract or grammar
+- historian | abstract or grammar
+- liberation | abstract or grammar
+- remembrance | abstract or grammar
+- reunification | abstract or grammar
+- source | abstract or grammar
+- the-fallen | abstract or grammar
+- the-republic | abstract or grammar
+- the-resistance | abstract or grammar
+- the-risorgimento | abstract or grammar
+- to-abdicate | abstract or grammar
+- to-commemorate | abstract or grammar
+- to-found | abstract or grammar
+- to-rise-up | abstract or grammar
+- uprising | abstract or grammar
+- anaphora | abstract or grammar
+- audience | abstract or grammar
+- dear-fellow-citizens | abstract or grammar
+- dignity | abstract or grammar
+- i-ask-you-to | abstract or grammar
+- parallelism | abstract or grammar
+- to-carry-away | abstract or grammar
+- to-give-up | abstract or grammar
+- to-unite | abstract or grammar
