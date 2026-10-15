@@ -6,6 +6,7 @@
      words            writes content/pictures.js (PIC_WORDS: which word gets which picture) from briefs.json and js/core/pics.js
      check            checks every picture against the drawing rules, the mapping against the course, and prints the coverage table
      svg [folder]     checks, cleans and places Recraft SVGs from design/pictures/recraft/incoming/ into media/cast/ and media/scenes/ (needs Playwright)
+     split <sheet-id>  cuts recraft/candidates/<sheet-id>-1.svg (a sticker sheet of many words) into media/pics/<word>.svg, in the order of recraft/sheets/<sheet-id>.json (needs Playwright)
      shots <batch|id,id…> [--out dir]   contact sheets (20 pictures each, 44 and 112 px, light and dark) as PNGs; needs Playwright:
                       NODE_PATH="$(npm root -g)" node design/pictures/tools.js shots a-food --out /some/folder
    Ends with "ok", or lists FAIL lines and exits 1. */
@@ -253,10 +254,10 @@ function svgProblems(text, DOMParser){
   else if (doc.documentElement.tagName !== 'svg') bad.push('isn’t an <svg>');
   return bad;
 }
-/* drop the provenance metadata (most of a Recraft file's weight), the fixed size, unused namespaces and noisy decimals */
+/* drop the provenance metadata (most of a Recraft file's weight), the fixed size, preserveAspectRatio="none" (it makes a browser ignore the picture's shape), inline style, unused namespaces and noisy decimals */
 function cleanSvg(text){
   let t = text.replace(/<\?xml[^>]*\?>\s*/g, '').replace(/<metadata[\s\S]*?<\/metadata>/g, '').replace(/<!--[\s\S]*?-->/g, '');
-  t = t.replace(/<svg\b([^>]*)>/, (m, a) => '<svg' + a.replace(/\s(?:width|height)="[^"]*"/g, '').replace(/\sxmlns:xlink="[^"]*"/g, t.includes('xlink:href') ? ' xmlns:xlink="http://www.w3.org/1999/xlink"' : '') + '>');
+  t = t.replace(/<svg\b([^>]*)>/, (m, a) => '<svg' + a.replace(/\s(?:width|height|preserveAspectRatio|style)="[^"]*"/g, '').replace(/\sxmlns:c2pa="[^"]*"/g, '').replace(/\sversion="[^"]*"/g, '').replace(/\sxmlns:xlink="[^"]*"/g, t.includes('xlink:href') ? ' xmlns:xlink="http://www.w3.org/1999/xlink"' : '') + '>');
   t = t.replace(/\sd="([^"]*)"/g, (m, d) => ' d="' + d.replace(/-?\d+\.\d{2,}/g, n => String(+(+n).toFixed(1))) + '"');
   return t.trim() + '\n';
 }
@@ -294,7 +295,69 @@ async function svgIngest(dir){
   return fails;
 }
 
-module.exports = { loadApp, inventory, chunk, compileBriefs, buildPicWords, picProblems, check, svgIngest, svgProblems, cleanSvg, meaningKey, slug, LEVELS, ROOT, HERE };
+/* ---------- sticker sheets: cut one Recraft image of many word pictures into a file per word ---------- */
+const PIC_FILE_BUDGET = 40 * 1024;
+function clusterBoxes(boxes, gap){
+  const parent = boxes.map((_, i) => i), find = i => parent[i] === i ? i : (parent[i] = find(parent[i]));
+  const hit = (a, b) => a.x0 - gap < b.x1 + gap && b.x0 - gap < a.x1 + gap && a.y0 - gap < b.y1 + gap && b.y0 - gap < a.y1 + gap;
+  for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) if (hit(boxes[i], boxes[j])) parent[find(i)] = find(j);
+  const groups = new Map(); boxes.forEach((b, i) => { const r = find(i); (groups.get(r) || groups.set(r, []).get(r)).push(i); });
+  return [...groups.values()];
+}
+const unionBox = (boxes, idxs) => idxs.reduce((u, i) => ({ x0: Math.min(u.x0, boxes[i].x0), y0: Math.min(u.y0, boxes[i].y0), x1: Math.max(u.x1, boxes[i].x1), y1: Math.max(u.y1, boxes[i].y1) }), { x0: 1e9, y0: 1e9, x1: -1e9, y1: -1e9 });
+async function splitSheet(o){
+  let chromium; try { ({ chromium } = require('playwright')); } catch (e) { throw new Error('split needs Playwright: NODE_PATH="$(npm root -g)" node design/pictures/tools.js split <sheet-id>'); }
+  const sheet = JSON.parse(fs.readFileSync(o.sheet, 'utf8')), raw = fs.readFileSync(o.file, 'utf8'), { window } = new JSDOM('');
+  const probs = svgProblems(raw, window.DOMParser); if (probs.length) throw new Error(path.basename(o.file) + ' ' + probs.join('; '));
+  const text = cleanSvg(raw), N = sheet.ids.length;
+  const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {}), page = await browser.newPage({ viewport: { width: 1400, height: 1100 } });
+  const vb = (/viewBox="([^"]+)"/.exec(text) || [])[1]; if (!vb) throw new Error('The sheet has no viewBox.');
+  const [vx, vy, W, H] = vb.split(/[\s,]+/).map(Number);
+  await page.setContent('<body style="margin:0">' + text.replace(/<svg\b/, '<svg width="' + W + '" height="' + H + '" style="display:block"') + '</body>');
+  const parts = await page.evaluate(([vx, vy]) => {
+    const svg = document.querySelector('svg'), out = [];
+    const walk = el => { for (const c of el.children){
+      const t = c.tagName.toLowerCase(); if (['defs', 'metadata', 'title', 'desc', 'style', 'lineargradient', 'radialgradient', 'clippath', 'mask', 'pattern'].includes(t)) continue;
+      if (t === 'g' && !c.getAttribute('transform') && !c.getAttribute('clip-path') && c.children.length > 1){ walk(c); continue; }
+      const r = c.getBoundingClientRect(); if (r.width || r.height) out.push({ x0: r.left + vx, y0: r.top + vy, x1: r.right + vx, y1: r.bottom + vy, html: c.outerHTML });
+    } };
+    walk(svg); return out;
+  }, [vx, vy]);
+  const defs = (/<defs[\s\S]*?<\/defs>/.exec(text) || [''])[0];
+  // a shape covering nearly the whole sheet is a background
+  const kept = parts.filter(b => !((b.x1 - b.x0) > W * .9 && (b.y1 - b.y0) > H * .9));
+  const note = []; if (kept.length < parts.length) note.push((parts.length - kept.length) + ' background shape(s) dropped');
+  // the smallest gap that merges the pieces of each object but not neighbours: try gaps until the count is N or less
+  let groups = null, gap = 0;
+  for (const g of [1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 24, 28, 32, 40, 48]){ gap = g * W / 1024; const cl = clusterBoxes(kept, gap); groups = cl; if (cl.length <= N) break; }
+  const boxes = groups.map(g => ({ ...unionBox(kept, g), idx: g }));
+  const report = [kept.length + ' shapes in ' + boxes.length + ' group(s), expected ' + N + ' (merge gap ' + gap.toFixed(0) + ' px)'].concat(note);
+  let ok = boxes.length === N;
+  if (!ok) report.push(boxes.length < N ? 'Some objects touch or overlap, so they merged.' : 'Some objects came apart into pieces.');
+  // reading order: rows by height, then left to right
+  const byY = boxes.map((b, i) => ({ ...b, i, cy: (b.y0 + b.y1) / 2, cx: (b.x0 + b.x1) / 2 })).sort((a, b) => a.cy - b.cy), ordered = [];
+  for (let r = 0; r < sheet.rows; r++) ordered.push(...byY.slice(r * sheet.cols, (r + 1) * sheet.cols).sort((a, b) => a.cx - b.cx));
+  if (o.debug){
+    await page.evaluate(([cells, ids]) => { const svg = document.querySelector('svg'); svg.style.position = 'relative'; cells.forEach((c, k) => { const d = document.createElement('div'); d.style.cssText = 'position:absolute;border:2px solid #E5483A;left:' + c.l + 'px;top:' + c.t + 'px;width:' + c.w + 'px;height:' + c.h + 'px;font:700 13px sans-serif;color:#E5483A;pointer-events:none'; d.textContent = (k + 1) + ' ' + (ids[k] || '?'); document.body.append(d); }); },
+      [ordered.map(b => ({ l: b.x0 - vx, t: b.y0 - vy, w: b.x1 - b.x0, h: b.y1 - b.y0 })), sheet.ids]);
+    fs.mkdirSync(o.debug, { recursive: true }); await page.screenshot({ path: path.join(o.debug, path.basename(o.file, '.svg') + '-split.png'), fullPage: true });
+  }
+  await browser.close();
+  const written = [], big = [];
+  if (ok || o.partial) ordered.forEach((b, k) => {
+    const id = sheet.ids[k]; if (!id) return;
+    const dest = path.join(o.out, id + '.svg'); if (fs.existsSync(dest) && !o.force){ report.push(id + ' exists, kept (use --force)'); return; }
+    const w = b.x1 - b.x0, h = b.y1 - b.y0, side = Math.ceil(Math.max(w, h) * 1.1), x = Math.floor((b.x0 + b.x1) / 2 - side / 2), y = Math.floor((b.y0 + b.y1) / 2 - side / 2);
+    const body = b.idx.sort((p, q) => p - q).map(i => kept[i].html).join('');
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [x, y, side, side].join(' ') + '">' + (/url\(#/.test(body) ? defs : '') + body + '</svg>\n';
+    if (svg.length > PIC_FILE_BUDGET) big.push(id + ' (' + Math.round(svg.length / 1024) + ' KB)');
+    fs.mkdirSync(o.out, { recursive: true }); fs.writeFileSync(dest, svg); written.push(id);
+  });
+  report.push(written.length + ' file(s) written to ' + path.relative(ROOT, o.out)); if (big.length) report.push('Over ' + Math.round(PIC_FILE_BUDGET / 1024) + ' KB: ' + big.join(', '));
+  return { ok, written, report, expected: N, found: boxes.length };
+}
+
+module.exports = { loadApp, inventory, chunk, compileBriefs, buildPicWords, picProblems, check, svgIngest, splitSheet, svgProblems, cleanSvg, meaningKey, slug, LEVELS, ROOT, HERE };
 if (require.main === module){
   const [cmd, ...rest] = process.argv.slice(2);
   const outAt = rest.indexOf('--out');
@@ -305,8 +368,12 @@ if (require.main === module){
     words: () => { const { errs, text, count } = buildPicWords(); if (errs.length) throw new Error(errs.join('\n')); fs.writeFileSync(path.join(ROOT, 'content', 'pictures.js'), text); console.log(count + ' words get a picture'); },
     check: async () => { const fails = await check(); if (fails.length) throw new Error(fails.join('\n')); },
     svg: async () => { const fails = await svgIngest(rest[0] || path.join(HERE, 'recraft', 'incoming')); if (fails.length) throw new Error(fails.join('\n')); },
+    split: async () => { const id = rest[0]; if (!id) throw new Error('Usage: split <sheet-id> [--k 1] [--force] [--partial] [--debug dir]   (or --sheet f.json --file f.svg --out dir)');
+      const g = n => { const i = rest.indexOf(n); return i >= 0 ? rest[i + 1] : null; }, R = path.join(HERE, 'recraft');
+      const r = await splitSheet({ sheet: g('--sheet') || path.join(R, 'sheets', id + '.json'), file: g('--file') || path.join(R, 'candidates', id + '-' + (g('--k') || 1) + '.svg'), out: g('--out') || path.join(ROOT, 'media', 'pics'), debug: g('--debug'), force: rest.includes('--force'), partial: rest.includes('--partial') });
+      console.log(r.report.join('\n')); if (!r.ok && !rest.includes('--partial')) throw new Error('The sheet didn’t split into ' + r.expected + ' objects (found ' + r.found + '). Look at the --debug picture; re-roll the sheet, or use --partial.'); },
     shots: () => shots(rest[0] || 'all', outAt >= 0 ? rest[outAt + 1] : path.join(os.tmpdir(), 'pic-shots'))
   }[cmd];
-  if (!run){ console.log('Usage: node design/pictures/tools.js inventory | chunk [from] [n] | briefs | words | check | shots <batch|id,id> [--out dir] | svg [folder]'); process.exit(cmd ? 1 : 0); }
+  if (!run){ console.log('Usage: node design/pictures/tools.js inventory | chunk [from] [n] | briefs | words | check | shots <batch|id,id> [--out dir] | svg [folder] | split <sheet-id>'); process.exit(cmd ? 1 : 0); }
   Promise.resolve().then(run).then(() => console.log('ok'), e => { console.log(String(e && e.message || e).split('\n').map(l => l.startsWith('FAIL') ? l : 'FAIL ' + l).join('\n')); process.exit(1); });
 }

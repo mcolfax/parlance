@@ -19,7 +19,8 @@ Outline `#0B2A1E`, Red `#E5483A`, Orange `#FF8A1F`, Yellow `#FFC93C`, Green `#3D
 
 - **A background appears.** Add: isolated on a plain transparent background, no ground, no shadow.
 - **The outline is thin or uneven.** Add: extra thick, even outline, the same weight on every shape.
-- **The proportions look off.** Add: the same stylized proportions as the first character: head about one fifth of the body height, relaxed arms, simple hands.
+- **The proportions look off.** Add: the same stylized proportions as the first character: big head, about one quarter of the body height, relaxed arms, simple hands.
+- **The head faces straight on or the wrong way.** Add: head turned three quarters to the viewer's left, like the reference, body facing the viewer.
 - **The character is cropped.** Add: the whole body is visible from the top of the head to the soles of the shoes.
 - **A scene has people or writing in it.** Add: no people, no signs with writing, no letters, no numbers.
 - **The colors are muted or gradient.** Add: flat solid fills, bright saturated colors, no gradients.
@@ -30,126 +31,126 @@ Outline `#0B2A1E`, Red `#E5483A`, Orange `#FF8A1F`, Yellow `#FFC93C`, Green `#3D
 *Runs a tiny café in Berlin*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a slim woman in her early 30s, standing relaxed, arms slightly away from the body, both shoes visible. Light peach skin (#F2C6A8), copper-red chin-length bob with a side fringe (#B5562B), freckles on the cheeks. Wearing a sweater (#2F7F86), dark plum trousers, white sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a slim woman in her early 30s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Light peach skin (#F2C6A8), copper-red chin-length bob with a side fringe (#B5562B), freckles on the cheeks. Wearing a sweater (#2F7F86), dark plum trousers, white sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
 ### Jonas (de): `jonas.svg` (received)
 *Student, night shifts at a hotel desk*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a slim man in his mid 20s, standing relaxed, arms slightly away from the body, both shoes visible. Light tan skin (#EBC2A0), dark blond short messy tousled hair (#8A6A3C), round glasses. Wearing a sweatshirt (#E0A53A), navy jeans, grey sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a slim man in his mid 20s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Light tan skin (#EBC2A0), dark blond short messy tousled hair (#8A6A3C), round glasses. Wearing a sweatshirt (#E0A53A), navy jeans, grey sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Frau Weber (de): `weber.svg`
+### Frau Weber (de): `weber.svg` (received)
 *Retired doctor, lives next door*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a slim woman in her late 60s, standing relaxed, arms slightly away from the body, both shoes visible. Very light skin (#F1D2BE), silver-white short fluffy curly hair (#C9CED3), round glasses, small gold earrings. Wearing a cardigan (#7847B3), dark grey slacks, comfortable beige shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a slim woman in her late 60s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Very light skin (#F1D2BE), silver-white short fluffy curly hair (#C9CED3), round glasses, small gold earrings. Wearing a cardigan (#7847B3), dark grey slacks, comfortable beige shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Emre (de): `emre.svg`
+### Emre (de): `emre.svg` (received)
 *Owns the corner shop*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a sturdy man in his mid 40s, standing relaxed, arms slightly away from the body, both shoes visible. Medium tan skin (#C98E64), black short neat hair (#1E1B1A), a short full beard. Wearing a shirt (#C22E29), dark jeans, brown boots. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a sturdy man in his mid 40s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Medium tan skin (#C98E64), black short neat hair (#1E1B1A), a short full beard. Wearing a shirt (#C22E29), dark jeans, brown boots. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Leyla (de): `leyla.svg`
+### Leyla (de): `leyla.svg` (received)
 *Pharmacist, Emre’s cousin*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a slim woman in her early 30s, standing relaxed, arms slightly away from the body, both shoes visible. Warm tan skin (#D6A07A), a raspberry pink headscarf (#B83A68) covering hair and neck, face fully visible. Wearing a blouse (#F7F5EF), wide charcoal trousers, flat shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a slim woman in her early 30s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Warm tan skin (#D6A07A), a raspberry pink headscarf (#B83A68) covering hair and neck, face fully visible. Wearing a blouse (#F7F5EF), wide charcoal trousers, flat shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Herr Brandt (de): `brandt.svg`
+### Herr Brandt (de): `brandt.svg` (received)
 *Lena’s landlord, strict but fair*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a man in his early 60s, standing relaxed, arms slightly away from the body, both shoes visible. Light peach skin (#F0C9AE), bald on top with short grey hair above the ears (#9A9087), round glasses. Wearing a shirt (#3D5A80) with an amber tie (#E9A23B), dark grey trousers, polished black shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a man in his early 60s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Light peach skin (#F0C9AE), bald on top with short grey hair above the ears (#9A9087), round glasses. Wearing a shirt (#3D5A80) with an amber tie (#E9A23B), dark grey trousers, polished black shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
 ### Sofía (es): `sofia.svg` (received)
 *Doctor in Mexico City*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a slim woman in her mid 30s, standing relaxed, arms slightly away from the body, both shoes visible. Warm tan skin (#D9A27A), very dark brown long straight hair past the shoulders (#2B1D18), small gold earrings. Wearing a blouse (#1A8448), light denim jeans, tan flats. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a slim woman in her mid 30s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Warm tan skin (#D9A27A), very dark brown long straight hair past the shoulders (#2B1D18), small gold earrings. Wearing a blouse (#1A8448), light denim jeans, tan flats. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Diego (es): `diego.svg`
+### Diego (es): `diego.svg` (received)
 *Chef, Sofía’s brother*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a sturdy man in his early 40s, standing relaxed, arms slightly away from the body, both shoes visible. Medium brown skin (#C68A5E), dark brown big voluminous curly hair (#3A2A20), a short full beard. Wearing a shirt with rolled sleeves (#F4F1EA), dark olive trousers, white sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a sturdy man in his early 40s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Medium brown skin (#C68A5E), dark brown big voluminous curly hair (#3A2A20), a short full beard. Wearing a shirt with rolled sleeves (#F4F1EA), dark olive trousers, white sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Doña Carmen (es): `carmen.svg`
+### Doña Carmen (es): `carmen.svg` (received)
 *Their grandmother, sells fruit at the market*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a round woman about 70 years old, standing relaxed, arms slightly away from the body, both shoes visible. Brown skin (#B97E58), light grey hair tied up in a bun on top of the head (#BDBDBD), small gold earrings. Wearing a blouse (#C22E29), long dark skirt, sensible brown shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a round woman about 70 years old, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Brown skin (#B97E58), light grey hair tied up in a bun on top of the head (#BDBDBD), small gold earrings. Wearing a blouse (#C22E29), long dark skirt, sensible brown shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Mateo (es): `mateo.svg`
+### Mateo (es): `mateo.svg` (received)
 *Musician, makes the coffee*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a slim man in his late 20s, standing relaxed, arms slightly away from the body, both shoes visible. Deep brown skin (#A86B48), a red baseball cap (#E4572E) over short black hair. Wearing a t-shirt (#2360C6), khaki trousers, white sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a slim man in his late 20s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Deep brown skin (#A86B48), a red baseball cap (#E4572E) over short black hair. Wearing a t-shirt (#2360C6), khaki trousers, white sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Valentina (es): `valentina.svg`
+### Valentina (es): `valentina.svg` (received)
 *Taxi driver who knows every street*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a athletic woman in her late 30s, standing relaxed, arms slightly away from the body, both shoes visible. Dark brown skin (#8A5A3C), two long black braids with yellow ribbon ties (#FFD23F), small gold earrings. Wearing a shirt (#00737D), black jeans, dark boots. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a athletic woman in her late 30s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Dark brown skin (#8A5A3C), two long black braids with yellow ribbon ties (#FFD23F), small gold earrings. Wearing a shirt (#00737D), black jeans, dark boots. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Andrés (es): `andres.svg`
+### Andrés (es): `andres.svg` (received)
 *Runs a family hotel downtown*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a man in his mid 50s, standing relaxed, arms slightly away from the body, both shoes visible. Medium brown skin (#B07A52), very dark brown side-swept hair (#2B1D18), a mustache. Wearing a shirt (#8E3B46), grey trousers, brown shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a man in his mid 50s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Medium brown skin (#B07A52), very dark brown side-swept hair (#2B1D18), a mustache. Wearing a shirt (#8E3B46), grey trousers, brown shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Giulia (it): `giulia.svg`
+### Giulia (it): `giulia.svg` (received)
 *Runs a tiny café-bar in Rome*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a slim woman in her early 30s, standing relaxed, arms slightly away from the body, both shoes visible. Light olive skin (#EBC09A), dark brown long straight hair past the shoulders (#4A2C20), small gold earrings. Wearing a blouse (#E0A53A), dark blue jeans, tan sandals. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a slim woman in her early 30s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Light olive skin (#EBC09A), dark brown long straight hair past the shoulders (#4A2C20), small gold earrings. Wearing a blouse (#E0A53A), dark blue jeans, tan sandals. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
-### Luca (it): `luca.svg`
+### Luca (it): `luca.svg` (received)
 *Student, delivers by scooter at night*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a slim man in his early 20s, standing relaxed, arms slightly away from the body, both shoes visible. Light olive skin (#E3B48E), very dark brown short messy tousled hair (#2B1D18), freckles on the cheeks. Wearing a t-shirt (#3D7D4F), black jeans, white sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a slim man in his early 20s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Light olive skin (#E3B48E), very dark brown short messy tousled hair (#2B1D18), freckles on the cheeks. Wearing a t-shirt (#3D7D4F), black jeans, white sneakers. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
 ### Nonna Rosa (it): `nonna.svg`
 *Retired teacher, everyone’s nonna*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a round woman about 70 years old, standing relaxed, arms slightly away from the body, both shoes visible. Light skin (#EBC9AE), white-grey hair tied up in a bun on top of the head (#D4D4D4), round glasses, small gold earrings. Wearing a cardigan (#7847B3), long dark skirt, comfortable shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a round woman about 70 years old, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Light skin (#EBC9AE), white-grey hair tied up in a bun on top of the head (#D4D4D4), round glasses, small gold earrings. Wearing a cardigan (#7847B3), long dark skirt, comfortable shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
 ### Marco (it): `marco.svg`
 *Runs the deli and a market stall*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a sturdy man in his mid 50s, standing relaxed, arms slightly away from the body, both shoes visible. Warm tan skin (#D9A27A), dark brown short neat hair (#3A2A20), a mustache. Wearing a shirt with rolled sleeves (#F4F1EA), brown trousers, brown shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a sturdy man in his mid 50s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Warm tan skin (#D9A27A), dark brown short neat hair (#3A2A20), a mustache. Wearing a shirt with rolled sleeves (#F4F1EA), brown trousers, brown shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
 ### Dottoressa Conti (it): `conti.svg`
 *Doctor, lives upstairs*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a woman in her mid 40s, standing relaxed, arms slightly away from the body, both shoes visible. Light peach skin (#F0C9AE), brown chin-length bob with a side fringe (#5A3A2A), round glasses. Wearing a blouse (#4A7FB5), dark trousers, flat shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a woman in her mid 40s, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Light peach skin (#F0C9AE), brown chin-length bob with a side fringe (#5A3A2A), round glasses. Wearing a blouse (#4A7FB5), dark trousers, flat shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
 ### Signor Bianchi (it): `bianchi.svg`
 *Runs a family pensione near the station*
 
 ```
-Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background. Full-length front view of a man about 65 years old, standing relaxed, arms slightly away from the body, both shoes visible. Light olive skin (#E9BE9C), light grey side-swept hair (#C4C4C4), a mustache. Wearing a collared shirt (#5B4A7A) with an amber tie (#E9A23B), dark trousers, polished shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
+Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background. Full-length view of a man about 65 years old, standing relaxed, body facing the viewer, head turned three quarters toward the viewer's left, arms slightly away from the body, both shoes visible. Light olive skin (#E9BE9C), light grey side-swept hair (#C4C4C4), a mustache. Wearing a collared shirt (#5B4A7A) with an amber tie (#E9A23B), dark trousers, polished shoes. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.
 ```
 
 ## Scenes (27)

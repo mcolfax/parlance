@@ -1,6 +1,6 @@
 {
  "note": "API units spent on Recraft, counted from the credits each call returns (1 USD = 1,000 units). Commit this with the pictures.",
- "units": 85,
+ "units": 1045,
  "calls": [
   {
    "at": "2026-10-15T16:45",
@@ -11,6 +11,90 @@
   },
   {
    "at": "2026-10-15T16:45",
+   "kind": "cast",
+   "id": "sofia",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:50",
+   "kind": "cast",
+   "id": "weber",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:50",
+   "kind": "cast",
+   "id": "emre",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:51",
+   "kind": "cast",
+   "id": "leyla",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:51",
+   "kind": "cast",
+   "id": "brandt",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:51",
+   "kind": "cast",
+   "id": "diego",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:51",
+   "kind": "cast",
+   "id": "carmen",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:52",
+   "kind": "cast",
+   "id": "mateo",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:52",
+   "kind": "cast",
+   "id": "valentina",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:54",
+   "kind": "cast",
+   "id": "andres",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:54",
+   "kind": "cast",
+   "id": "giulia",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:55",
+   "kind": "cast",
+   "id": "luca",
+   "n": 1,
+   "units": 80
+  },
+  {
+   "at": "2026-10-15T16:58",
    "kind": "cast",
    "id": "sofia",
    "n": 1,

@@ -10,7 +10,7 @@ const { loadApp } = require('../tools.js');
 const MAX_BYTES = 950;
 
 /* ---------- the shared look: the Sticker style Matt chose on the board ---------- */
-const STYLE_CAST = 'Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background.';
+const STYLE_CAST = 'Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylized proportions with a big head, about one quarter of the body height, a slightly short body and simple outlined hands. No text, no white border, no shadow, no background.';
 const STYLE_SCENE = 'Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered.';
 
 /* ---------- the cast: what the data does not say (age, build, trousers, shoes) ---------- */
@@ -53,7 +53,7 @@ function castPrompt(id, c){
   if (L.freckles) feats.push('freckles on the cheeks');
   if (L.earrings) feats.push('small gold earrings');
   const tie = L.tie ? ' with an amber tie (' + L.tie + ')' : '';
-  const text = STYLE_CAST + ' Full-length front view of ' + (p.build ? 'a ' + p.build + ' ' : 'a ') + p.who + ' ' + (/^about/.test(p.age) ? p.age + ' years old' : 'in ' + (p.who === 'woman' ? 'her ' : 'his ') + p.age) + ', standing relaxed, arms slightly away from the body, both shoes visible. ' +
+  const text = STYLE_CAST + ' Full-length view of ' + (p.build ? 'a ' + p.build + ' ' : 'a ') + p.who + ' ' + (/^about/.test(p.age) ? p.age + ' years old' : 'in ' + (p.who === 'woman' ? 'her ' : 'his ') + p.age) + ', standing relaxed, body facing the viewer, head turned three quarters toward the viewer\'s left, arms slightly away from the body, both shoes visible. ' +
     cap(p.skin) + ' skin (' + L.skin + '), ' + hair + (feats.length ? ', ' + feats.join(', ') : '') + '. Wearing a ' + p.top + ' (' + L.shirt + ')' + tie + ', ' + p.legs + ', ' + p.shoes + '. Friendly smile, simple dot eyes. One character, centered, fills the frame, transparent background.';
   return text.replace(/\s+/g, ' ');
 }
@@ -108,7 +108,8 @@ const PALETTE = [['Outline', '#0B2A1E'], ['Red', '#E5483A'], ['Orange', '#FF8A1F
 const FIXES = [
   ['A background appears', 'Add: isolated on a plain transparent background, no ground, no shadow.'],
   ['The outline is thin or uneven', 'Add: extra thick, even outline, the same weight on every shape.'],
-  ['The proportions look off', 'Add: the same stylized proportions as the first character: head about one fifth of the body height, relaxed arms, simple hands.'],
+  ['The proportions look off', 'Add: the same stylized proportions as the first character: big head, about one quarter of the body height, relaxed arms, simple hands.'],
+  ['The head faces straight on or the wrong way', 'Add: head turned three quarters to the viewer\'s left, like the reference, body facing the viewer.'],
   ['The character is cropped', 'Add: the whole body is visible from the top of the head to the soles of the shoes.'],
   ['A scene has people or writing in it', 'Add: no people, no signs with writing, no letters, no numbers.'],
   ['The colors are muted or gradient', 'Add: flat solid fills, bright saturated colors, no gradients.']
