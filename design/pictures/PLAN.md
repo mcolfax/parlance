@@ -23,6 +23,31 @@ He wants to sign off on the style before anything is drawn at scale.
 - My estimate: 700–900 pictures in total. Many B and C words are abstract and get no picture.
 - The vocab shape is `{ t, alt, e[], g }`, built by `L()` in `js/core/content.js:21`. Review card keys don't change, and saved state doesn't change either, so there's no `SCHEMA_VERSION` bump.
 
+## Direction change (Oct 15, later): everything from Recraft
+
+Matt paused the pictures drawn in code and wants **all** illustrations regenerated in Recraft so they match. Read this section first; where it conflicts with the phases below, it wins.
+
+**State when the change was made**
+- Done and kept: the inventory (`words.json`), `briefs-src.txt`/`briefs.json` for the first 170 concepts, `tools.js` (briefs, words, check, shots, svg), the `--pic-*` tokens and Sticker CSS, `js/core/pics.js` with 58 hand-drawn pictures (a-food, a-home and the board samples), `PIC_WORDS`, the helpers in `art.js`, the optional picture field on vocab, the style board, the prompts page, and Lena and Jonas from Recraft (`media/cast/`). The hand-drawn pictures stay as placeholders and as a quality reference; **no more are drawn in code.**
+- Not started: the picture questions in lessons (Phase 4), the new-word card pictures, and putting the cast and scenes in the app (Phase 6).
+- The full test suite was not yet green-checked after the kit went in (it ran for 8 minutes without finishing on this machine; the untouched HEAD was being timed for comparison). Run `npm test` before any release.
+
+**Getting connected (the blocker)**
+- Matt gave an API token (rotate it after the work; it is in the chat). The environment's network policy denies `external.api.recraft.ai` (CONNECT answers 403), and WebFetch can't reach `recraft.ai`. Matt has to add `external.api.recraft.ai` (and `img.recraft.ai`, where files are usually hosted) under Network access, Allowed domains, in the cloud environment's settings; a new session may be needed for it to apply. Better: put the token in the environment as a secret so a session never has to be handed it.
+- The Recraft MCP server (`https://mcp.recraft.ai/mcp`) is a second way in: connected as a claude.ai connector, calls go through Anthropic's connector path instead of the egress policy. It bills Matt's Recraft plan credits, not API units, and may not hand back SVG text, so try the API first.
+- `design/pictures/recraft/generate.js` is written and was tested against a local mock of the API (style, candidates, pick, spending cap, bad or missing token). Facts from Recraft's agent docs: base `https://external.api.recraft.ai/v1`; `Authorization: Bearer $RECRAFT_API_TOKEN`; model `recraftv4_1_vector` (SVG, 0.08 USD an image, prompt limit 10,000); `size` for vector models is a ratio (`1:2` for figures, `2:1` for scenes, `1:1` for objects); `POST /v1/styles` (0.005 USD, 1 to 10 reference PNGs as data URLs, `model` must match) then `style_id` on each generation; image URLs expire in about 24 hours; rate limit 100 images a minute; `GET /v1/users/me` returns `credits` (1 USD = 1,000 units).
+
+**What to do once the API answers (in order)**
+1. `export RECRAFT_API_TOKEN=…` (or `RECRAFT_API_TOKEN_FILE`), then `node design/pictures/recraft/generate.js balance`.
+2. `NODE_PATH="$(npm root -g)" node design/pictures/recraft/generate.js style` (Lena and Jonas as the reference), then `gen sofia --n 2` and look at the two candidates before spending more. If the likeness or style is off, change the prompt block (`prompts.js`) or the references and try again.
+3. `gen cast --n 2` (16 left, about 2.6 USD), pick the best of each (`pick <id> <k>`), `node design/pictures/tools.js svg`, show Matt a contact sheet, fix the misses.
+4. Scenes: `gen scenes --n 2` (27, about 4.3 USD). A second style made from the first scenes Matt likes keeps the rest consistent.
+5. **Word pictures through Recraft: pilot first.** Generate the a-food batch (about 30 concepts, 1:1) with a style made from the approved cast plus a few of the best hand-drawn pictures; compare with the hand-drawn set at 44 px in a contact sheet; Matt decides. Prompt shape: the `STYLE_CAST` look block, then "a single {brief}, centered, no text, no people unless the brief says so, transparent background".
+6. **Delivery changes for Recraft pictures.** A Recraft SVG is 15 to 40 KB with literal colors, so about 900 pictures (20 MB or more) can't live inline in `pics.js` (900 KB cap). They become files, `media/pics/<concept-id>.svg`, loaded as `<img loading="lazy">` only when a lesson needs them; `wordPic()` returns that (the sticker border is the same CSS filter on the `img`); `PIC_WORDS` and `briefs.json` stay as they are; `tools.js check` swaps its drawing rules for the same safety and budget checks `tools.js svg` already does (no scripts or external references, at most 40 KB each, file exists). Inline `PICS` stays as a fallback while any are missing.
+7. Other illustrations in scope if Matt wants them all: the 19 unit signs, the 18 badge icons, the daily chest (about 40 images). Pip and the other birds stay on the rig.
+
+**Cost** (0.08 USD an image; plan for one re-roll in three): cast 16 x 2 candidates = 2.6 USD; scenes 27 x 2 = 4.3 USD; word pictures about 700 to 900 concepts = 56 to 72 USD, about 75 to 100 USD with re-rolls; unit signs, badges and chest about 4 USD. Everything: roughly 85 to 115 USD. `generate.js` stops before a run would take the total past `--max-usd` (default 8), so a big run needs Matt's go-ahead and a higher cap on purpose. Every call is logged in `recraft-usage.json`.
+
 ## How to run this plan (read first)
 
 1. **Save the plan first.** Copy this file to `design/pictures/PLAN.md` and commit it, so every later session can find it.

@@ -4,6 +4,8 @@
 
    1. Built-in content lives in /content/*.js and is registered with the helpers below:
         COURSE_SRC.de.push(U(title, level, [L(id, title, T(...), vocab, sentences, blanks), ...]))
+        (a vocab item is [text, meaning, gender?, picture?]: the picture is a key of PICS, js/core/pics.js, and is only needed to override
+         PIC_WORDS, content/pictures.js, which gives each course word its picture)
         STORIES.push(ST(id, level, title, english, scene, items))
    2. Remote content packs (written to the shared database under content/<packId>) are validated
       and merged in at runtime by assembleCourse(), so new lessons and stories reach every learner
@@ -20,7 +22,7 @@ function T(title, body, ex, tables){ return { title, body, examples: (ex || []).
 function L(id, title, tip, vocab, sents, blanks){
   return {
     id, title, tip,
-    vocab: vocab.map(([t, e, g]) => { const ts = String(t).split('|'); return { t: ts[0], alt: ts.slice(1), e: String(e).split('|'), g: g || null }; }),
+    vocab: vocab.map(([t, e, g, pic]) => { const ts = String(t).split('|'); return { t: ts[0], alt: ts.slice(1), e: String(e).split('|'), g: g || null, p: typeof pic === 'string' && pic ? pic.slice(0, 40) : null }; }),
     sentences: sents.map(([t, e]) => { const ts = String(t).split('|'); return { t: ts[0], alt: ts.slice(1), e: String(e).split('|') }; }),
     blanks: blanks.map(([t, o, e]) => { const os = String(o).split('|'); return { t, a: os[0], o: os, e }; })
   };

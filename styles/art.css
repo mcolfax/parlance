@@ -125,3 +125,15 @@ li.just .station{animation:flashbg 1.6s ease both}
 .sc-onair{animation:onair 1.8s ease-in-out infinite}
 @keyframes onair{50%{opacity:.35}}
 
+
+/* word pictures: the Sticker style (js/core/pics.js, drawn on a 64 x 64 grid with role classes). Every filled shape gets an
+   ink outline; the white sticker border and the soft shadow are one filter on the svg, so every picture gets them the same way. */
+.pic{display:inline-block;width:var(--pic);height:var(--pic);border-radius:calc(var(--pic) * .24);background:var(--pic-tile);flex:none;line-height:0}
+.pic svg{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(calc(var(--pic) * .03) 0 0 var(--pic-border)) drop-shadow(calc(var(--pic) * -.03) 0 0 var(--pic-border)) drop-shadow(0 calc(var(--pic) * .03) 0 var(--pic-border)) drop-shadow(0 calc(var(--pic) * -.03) 0 var(--pic-border)) drop-shadow(0 calc(var(--pic) * .035) calc(var(--pic) * .04) var(--pic-drop))}
+.pk-red{fill:var(--pic-red)}.pk-orange{fill:var(--pic-orange)}.pk-yellow{fill:var(--pic-yellow)}.pk-green{fill:var(--pic-green)}.pk-teal{fill:var(--pic-teal)}.pk-blue{fill:var(--pic-blue)}
+.pk-sky{fill:var(--pic-sky)}.pk-purple{fill:var(--pic-purple)}.pk-pink{fill:var(--pic-pink)}.pk-brown{fill:var(--pic-brown)}.pk-tan{fill:var(--pic-tan)}.pk-grey{fill:var(--pic-grey)}
+.pk-cream{fill:var(--pic-cream)}.pk-paper{fill:var(--pic-paper)}.pk-figure{fill:var(--pic-figure)}.pk-ink{fill:var(--pic-ink)}.pk-shade{fill:var(--pic-shade)}.pk-blush{fill:var(--pic-pink);opacity:.6}
+.pk-line,.pk-line3,.pk-linew,.pk-hi{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.pk-line{stroke:var(--pic-ink);stroke-width:2}.pk-line3{stroke:var(--pic-ink);stroke-width:3.2}.pk-linew{stroke:var(--pic-paper);stroke-width:3}.pk-linew.hd{fill:var(--pic-paper);stroke-width:1.6}
+.pk-hi{stroke:var(--pic-glint);stroke-opacity:.75;stroke-width:2.2}
+.pic [class*="pk-"]:not([class*="line"]):not(.pk-hi):not(.pk-shade):not(.pk-ink):not(.pk-blush){stroke:var(--pic-ink);stroke-width:2.3;stroke-linejoin:round}

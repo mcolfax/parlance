@@ -10,7 +10,7 @@ const { loadApp } = require('../tools.js');
 const MAX_BYTES = 950;
 
 /* ---------- the shared look: the Sticker style Matt chose on the board ---------- */
-const STYLE_CAST = 'Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Cute chibi proportions, head about one third of the body height. No text, no white border, no shadow, no background.';
+const STYLE_CAST = 'Flat vector sticker illustration, friendly cartoon style: thick even dark green outline (#0B2A1E) around every shape, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Stylish adult proportions, head about one fifth of the body height, simple outlined hands. No text, no white border, no shadow, no background.';
 const STYLE_SCENE = 'Flat vector illustration of a cozy scene, friendly cartoon style: thick even dark green outline (#0B2A1E) around every object, simple flat fills with one soft shade shape, no gradients, no texture, warm saturated colors. Wide 2:1 composition, eye level, floor line about three quarters down. No people, no animals, no text, no letters. Keep the lower middle floor area open and uncluttered.';
 
 /* ---------- the cast: what the data does not say (age, build, trousers, shoes) ---------- */
@@ -98,7 +98,7 @@ const sceneForPrompt = (id, lang) => (STYLE_SCENE + ' ' + SCENES[id] + ' ' + CIT
 
 const STEPS = [
   'Pick Recraft\'s vector illustration style and the newest vector model. If Recraft lets you set colors, enter the Selva palette below.',
-  'Generate Lena first. Make four versions, keep the best, and ask for changes until you like it. Then save her (and two more you approve) as a custom style in Recraft, so the other 17 come out in the same hand.',
+  'Lena and Jonas are done and set the look. In Recraft, save the two of them as a custom style (or use them as style references), so the other 16 come out in the same hand. Make four versions of each, keep the best, and ask for changes until you like it.',
   'Generate the rest of the cast. Use the same canvas shape for all of them (tall, 1:2 or the closest), so one crop works for every face.',
   'Generate the 27 scenes in the widest shape Recraft offers (2:1 or 16:9). The app crops it to 320 by 140, so keep nothing important in the top or bottom tenth.',
   'Export every file as SVG, not PNG. Name the cast files like lena.svg and the scenes like de-s1.svg.',
@@ -108,7 +108,7 @@ const PALETTE = [['Outline', '#0B2A1E'], ['Red', '#E5483A'], ['Orange', '#FF8A1F
 const FIXES = [
   ['A background appears', 'Add: isolated on a plain transparent background, no ground, no shadow.'],
   ['The outline is thin or uneven', 'Add: extra thick, even outline, the same weight on every shape.'],
-  ['The proportions look realistic', 'Add: chibi proportions, very big head, short body, simple hands.'],
+  ['The proportions look off', 'Add: the same stylized proportions as the first character: head about one fifth of the body height, relaxed arms, simple hands.'],
   ['The character is cropped', 'Add: the whole body is visible from the top of the head to the soles of the shoes.'],
   ['A scene has people or writing in it', 'Add: no people, no signs with writing, no letters, no numbers.'],
   ['The colors are muted or gradient', 'Add: flat solid fills, bright saturated colors, no gradients.']
@@ -117,15 +117,16 @@ const FIXES = [
 (async () => {
   const app = await loadApp(P => JSON.parse(JSON.stringify({ CAST: P.CAST, STORIES: P.STORIES.map(s => ({ id: s.id, lang: s.lang, level: s.level, title: s.title, en: s.en, scene: s.scene, cast: s.cast })) })));
   const bad = [];
+  const got = new Set((fs.existsSync(path.join(__dirname, 'incoming')) ? fs.readdirSync(path.join(__dirname, 'incoming')) : []).filter(f => f.endsWith('.svg')).map(f => f.replace(/\.svg$/, '')));
   const cast = Object.entries(app.CAST).filter(([id, c]) => c.look).map(([id, c]) => {
     if (!PEOPLE[id]) { bad.push('No PEOPLE entry for ' + id); return null; }
     const prompt = castPrompt(id, c);
-    return { id, file: id + '.svg', name: c.name, lang: c.lang, role: c.role, prompt, bytes: Buffer.byteLength(prompt) };
+    return { id, file: id + '.svg', name: c.name, lang: c.lang, role: c.role, prompt, bytes: Buffer.byteLength(prompt), received: got.has(id) };
   }).filter(Boolean);
   const scenes = app.STORIES.map(s => {
     if (!SCENES[s.id]) { bad.push('No scene text for ' + s.id); return null; }
     const prompt = sceneForPrompt(s.id, s.lang);
-    return { id: s.id, file: s.id + '.svg', lang: s.lang, level: s.level, title: s.title, en: s.en, cast: s.cast.map(id => app.CAST[id].name), prompt, bytes: Buffer.byteLength(prompt) };
+    return { id: s.id, file: s.id + '.svg', lang: s.lang, level: s.level, title: s.title, en: s.en, cast: s.cast.map(id => app.CAST[id].name), prompt, bytes: Buffer.byteLength(prompt), received: got.has(s.id) };
   }).filter(Boolean);
   for (const x of [...cast, ...scenes]){
     if (x.bytes > MAX_BYTES) bad.push(x.id + ' is ' + x.bytes + ' bytes (max ' + MAX_BYTES + ')');
@@ -136,8 +137,8 @@ const FIXES = [
   const md = ['# Recraft prompts', '', 'Generated by `node design/pictures/recraft/prompts.js`. Each prompt is under ' + MAX_BYTES + ' bytes and stands alone.', '',
     '## How to use these', '', ...STEPS.map((s, i) => (i + 1) + '. ' + s), '', '## Colors', '', PALETTE.map(([n, h]) => n + ' `' + h + '`').join(', '), '',
     '## If it goes wrong', '', ...FIXES.map(([a, b]) => '- **' + a + '.** ' + b), '',
-    '## Cast (' + cast.length + ')', '', ...cast.flatMap(c => ['### ' + c.name + ' (' + c.lang + '): `' + c.file + '`', '*' + c.role + '*', '', '```', c.prompt, '```', '']),
-    '## Scenes (' + scenes.length + ')', '', ...scenes.flatMap(s => ['### ' + s.id + ' ' + s.title + ' (' + s.level + '): `' + s.file + '`', '*' + s.en + '. In the story: ' + s.cast.join(', ') + '.*', '', '```', s.prompt, '```', ''])].join('\n');
+    '## Cast (' + cast.length + ')', '', ...cast.flatMap(c => ['### ' + c.name + ' (' + c.lang + '): `' + c.file + '`' + (c.received ? ' (received)' : ''), '*' + c.role + '*', '', '```', c.prompt, '```', '']),
+    '## Scenes (' + scenes.length + ')', '', ...scenes.flatMap(s => ['### ' + s.id + ' ' + s.title + ' (' + s.level + '): `' + s.file + '`' + (s.received ? ' (received)' : ''), '*' + s.en + '. In the story: ' + s.cast.join(', ') + '.*', '', '```', s.prompt, '```', ''])].join('\n');
   fs.writeFileSync(path.join(__dirname, 'PROMPTS.md'), md);
   console.log(cast.length + ' cast prompts (max ' + Math.max(...cast.map(c => c.bytes)) + ' bytes), ' + scenes.length + ' scene prompts (max ' + Math.max(...scenes.map(s => s.bytes)) + ' bytes)');
   if (bad.length){ console.log(bad.map(b => 'FAIL ' + b).join('\n')); process.exit(1); }

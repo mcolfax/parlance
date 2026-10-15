@@ -2,9 +2,16 @@
    Usage: node design/pictures/tools.js <command>
      inventory        writes design/pictures/words.json: every built-in vocab item, grouped by its first English meaning
      chunk [from] [n] prints n concepts (default 150) from words.json, one per line, for writing briefs.json
-   More commands (check, words, shots) arrive with the picture kit. Ends with "ok", or lists FAIL lines and exits 1. */
+     briefs           compiles briefs-src.txt (one line per concept) and words.json into briefs.json
+     words            writes content/pictures.js (PIC_WORDS: which word gets which picture) from briefs.json and js/core/pics.js
+     check            checks every picture against the drawing rules, the mapping against the course, and prints the coverage table
+     svg [folder]     checks, cleans and places Recraft SVGs from design/pictures/recraft/incoming/ into media/cast/ and media/scenes/ (needs Playwright)
+     shots <batch|id,id…> [--out dir]   contact sheets (20 pictures each, 44 and 112 px, light and dark) as PNGs; needs Playwright:
+                      NODE_PATH="$(npm root -g)" node design/pictures/tools.js shots a-food --out /some/folder
+   Ends with "ok", or lists FAIL lines and exits 1. */
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { JSDOM, ResourceLoader, VirtualConsole } = require('jsdom');
 const ROOT = path.join(__dirname, '..', '..'), HERE = __dirname, BASE = 'https://parlance.test/';
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -64,10 +71,242 @@ function chunk(from = 0, n = 150){
   console.log('-- ' + Math.min(from + n, list.length) + ' of ' + list.length);
 }
 
-module.exports = { loadApp, inventory, chunk, meaningKey, slug, LEVELS, ROOT, HERE };
+/* ---------- briefs.json, from briefs-src.txt ---------- */
+const readJSON = f => JSON.parse(fs.readFileSync(path.join(HERE, f), 'utf8'));
+const LANG_LIST = ['de', 'es', 'it'];
+function parseBriefs(text){
+  const out = [], errs = [];
+  text.split('\n').forEach((raw, i) => {
+    const ln = raw.trim(); if (!ln || ln[0] === '#') return;
+    let m;
+    if ((m = /^-\s+(\S+)\s*\|\s*(.+)$/.exec(ln))) out.push({ type: 'none', id: m[1], reason: m[2], line: i + 1 });
+    else if ((m = /^=\s+(\S+)\s+(\S+)\s*$/.exec(ln))) out.push({ type: 'alias', id: m[1], pic: m[2], line: i + 1 });
+    else if ((m = /^([nvax])\s+([01])\s+(\S+)\s+(\S+)(?:\s+(\{.*?\}))?\s*(?:\|\s*(.*))?$/.exec(ln))){
+      let words = null; if (m[5]){ try { words = JSON.parse(m[5]); } catch (e) { errs.push('line ' + (i + 1) + ': bad JSON'); } }
+      out.push({ type: 'pic', kind: m[1], quiz: +m[2], batch: m[3], id: m[4], words, brief: (m[6] || '').trim(), line: i + 1 });
+    } else errs.push('line ' + (i + 1) + ': can’t read “' + ln.slice(0, 50) + '”');
+  });
+  return { lines: out, errs };
+}
+function compileBriefs(){
+  const inv = readJSON('words.json').list, byId = new Map(inv.map(c => [c.id, c]));
+  const { lines, errs } = parseBriefs(fs.readFileSync(path.join(HERE, 'briefs-src.txt'), 'utf8'));
+  const claimed = new Map();   // lang|t -> the split-off concept that owns it
+  for (const l of lines) if (l.type === 'pic' && l.words) for (const [lang, ts] of Object.entries(l.words)) for (const t of ts){
+    if (!inv.some(c => c.words.some(w => w.lang === lang && w.t === t))) errs.push('line ' + l.line + ': ' + lang + ' “' + t + '” isn’t in the course');
+    claimed.set(lang + '|' + t, l.id);
+  }
+  const wordsOf = (id, own) => {
+    const c = byId.get(id), out = { de: [], es: [], it: [] }, lv = [];
+    for (const w of c.words){ const k = w.lang + '|' + w.t, o = claimed.get(k); if (o && o !== own) continue; if (!out[w.lang].includes(w.t)) out[w.lang].push(w.t); lv.push(LEVELS.indexOf(w.level)); }
+    return { words: out, level: LEVELS[Math.min(...lv)] };
+  };
+  const concepts = {}, none = {}, seen = new Set();
+  for (const l of lines){
+    if (seen.has(l.id)) errs.push('line ' + l.line + ': ' + l.id + ' appears twice'); seen.add(l.id);
+    if (l.type === 'none'){ if (!byId.has(l.id)) errs.push('line ' + l.line + ': no concept ' + l.id); none[l.id] = l.reason; continue; }
+    if (l.type === 'pic' && l.words){
+      const out = { de: [], es: [], it: [] }, lv = [];
+      for (const [lang, ts] of Object.entries(l.words)) for (const t of ts){ out[lang].push(t); for (const c of inv) for (const w of c.words) if (w.lang === lang && w.t === t) lv.push(LEVELS.indexOf(w.level)); }
+      concepts[l.id] = { kind: l.kind, quiz: l.quiz, level: LEVELS[Math.min(...lv)], batch: l.batch, brief: l.brief, pic: l.id, words: out }; continue;
+    }
+    if (!byId.has(l.id)){ errs.push('line ' + l.line + ': no concept ' + l.id); continue; }
+    const w = wordsOf(l.id, l.id);
+    if (l.type === 'alias') concepts[l.id] = { alias: l.pic, level: w.level, pic: l.pic, words: w.words };
+    else concepts[l.id] = { kind: l.kind, quiz: l.quiz, level: w.level, batch: l.batch, brief: l.brief, pic: l.id, words: w.words };
+  }
+  for (const [id, c] of Object.entries(concepts)) if (c.alias){
+    const t = concepts[c.alias]; if (!t || t.alias) errs.push(id + ': alias target ' + c.alias + ' isn’t a pictured concept'); else Object.assign(c, { kind: t.kind, quiz: t.quiz, batch: t.batch });
+  }
+  const undecided = inv.filter(c => !seen.has(c.id)).length;
+  const counts = { concepts: inv.length, pictured: Object.values(concepts).filter(c => !c.alias).length, aliases: Object.values(concepts).filter(c => c.alias).length, none: Object.keys(none).length, undecided };
+  return { errs, out: { note: 'Generated by node design/pictures/tools.js briefs from briefs-src.txt and words.json. Do not edit by hand.', counts, concepts, none } };
+}
+
+/* ---------- content/pictures.js (PIC_WORDS) ---------- */
+function buildPicWords(){
+  const PICS = require(path.join(ROOT, 'js', 'core', 'pics.js')), briefs = readJSON('briefs.json'), errs = [];
+  const map = { de: {}, es: {}, it: {} };
+  for (const [id, c] of Object.entries(briefs.concepts)){
+    if (!PICS[c.pic]) continue;
+    for (const lang of LANG_LIST) for (const t of c.words[lang] || []){
+      if (map[lang][t] && map[lang][t] !== c.pic) errs.push(lang + ' “' + t + '” would get two pictures: ' + map[lang][t] + ' and ' + c.pic + ' (' + id + ')');
+      map[lang][t] = c.pic;
+    }
+  }
+  const body = LANG_LIST.map(lang => '  ' + lang + ': {\n' + Object.keys(map[lang]).sort((a, b) => a.localeCompare(b)).reduce((rows, t) => { const e = JSON.stringify(t) + ': ' + JSON.stringify(map[lang][t]); const last = rows[rows.length - 1]; if (last && last.length + e.length < 108) rows[rows.length - 1] = last + ', ' + e; else rows.push('    ' + e); return rows; }, []).join(',\n') + '\n  }').join(',\n');
+  const text = '"use strict";\n/* Generated by node design/pictures/tools.js words, from design/pictures/briefs.json and js/core/pics.js. Do not edit by hand.\n   For each language, a lesson word\'s main text and the picture it gets (a key of PICS). */\nconst PIC_WORDS = {\n' + body + '\n};\nif (typeof module !== \'undefined\') module.exports = PIC_WORDS;\n';
+  return { errs, text, count: LANG_LIST.reduce((n, l) => n + Object.keys(map[l]).length, 0) };
+}
+
+/* ---------- the drawing rules ---------- */
+const PIC_TAGS = new Set(['path', 'circle', 'ellipse', 'rect', 'line', 'polyline', 'polygon', 'g']);
+const PIC_ATTRS = new Set(['d', 'cx', 'cy', 'r', 'rx', 'ry', 'x', 'y', 'width', 'height', 'x1', 'y1', 'x2', 'y2', 'points', 'class', 'transform', 'opacity', 'fill-rule']);
+const PIC_CLASSES = new Set(['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'sky', 'purple', 'pink', 'brown', 'tan', 'grey', 'cream', 'paper', 'figure', 'ink', 'shade', 'blush', 'line', 'line3', 'linew', 'hi'].map(c => 'pk-' + c).concat(['hd']));
+const COORD_ATTRS = new Set(['cx', 'cy', 'x', 'y', 'x1', 'y1', 'x2', 'y2']);
+/* absolute path coordinates must sit on the grid (-2 to 66); relative moves only have to be sensible */
+function pathProblems(d){
+  const bad = [], re = /([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)/g; let m;
+  while ((m = re.exec(d))){
+    const cmd = m[1], nums = (m[2].match(/-?\d*\.?\d+(?:e-?\d+)?/g) || []).map(Number), abs = cmd === cmd.toUpperCase();
+    nums.forEach((n, i) => {
+      if (!abs){ if (Math.abs(n) > 70 && !(cmd === 'a' && i % 7 < 3)) bad.push('path has the relative number ' + n); return; }
+      if (cmd === 'A' && i % 7 < 5) return;   // radii, rotation and flags
+      if (n < -2 || n > 66) bad.push('path has the absolute number ' + n);
+    });
+  }
+  return bad;
+}
+function picProblems(id, p, DOMParser){
+  const bad = [];
+  if (!['n', 'v', 'a', 'x'].includes(p.k)) bad.push('k must be n, v, a or x');
+  if (![0, 1].includes(p.quiz)) bad.push('quiz must be 0 or 1');
+  if (typeof p.svg !== 'string') return [id + ': svg is not a string'];
+  if (p.svg.length > 1600) bad.push('is ' + p.svg.length + ' characters (max 1600)');
+  if (/#[0-9a-f]{3,8}\b/i.test(p.svg)) bad.push('has a hex color');
+  const doc = new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' + p.svg + '</svg>', 'image/svg+xml');
+  if (doc.getElementsByTagName('parsererror').length) return [id + ': doesn’t parse as SVG'].concat(bad.map(b => id + ' ' + b));
+  for (const e of doc.documentElement.querySelectorAll('*')){
+    const tag = e.tagName;
+    if (!PIC_TAGS.has(tag)) bad.push('uses <' + tag + '>');
+    for (const a of Array.from(e.attributes)){
+      if (!PIC_ATTRS.has(a.name)){ bad.push('uses the attribute ' + a.name); continue; }
+      if (a.name === 'class') for (const c of a.value.split(/\s+/).filter(Boolean)) if (!PIC_CLASSES.has(c)) bad.push('uses the class ' + c);
+      const local = !!e.closest('[transform]');   // inside a transformed group the numbers are in its own frame; shots checks the real bounds
+      if (a.name === 'd'){ if (!local) bad.push(...pathProblems(a.value)); }
+      else if (a.name === 'points'){ if (!local) for (const n of a.value.match(/-?\d*\.?\d+/g) || []) if (+n < -2 || +n > 66) bad.push('points has the number ' + n); }
+      else if (!local && COORD_ATTRS.has(a.name) && (+a.value < -2 || +a.value > 66)) bad.push(a.name + '=' + a.value + ' is off the grid');
+    }
+  }
+  return bad.map(b => id + ' ' + b);
+}
+async function check(){
+  const fails = [], PICS = require(path.join(ROOT, 'js', 'core', 'pics.js')), briefs = readJSON('briefs.json');
+  const { window } = new JSDOM('');
+  for (const [id, p] of Object.entries(PICS)) fails.push(...picProblems(id, p, window.DOMParser));
+  const size = fs.statSync(path.join(ROOT, 'js', 'core', 'pics.js')).size; if (size > 900 * 1024) fails.push('js/core/pics.js is ' + Math.round(size / 1024) + ' KB (max 900)');
+  const drawn = new Set(Object.keys(PICS));
+  for (const id of drawn) if (!Object.values(briefs.concepts).some(c => c.pic === id)) fails.push(id + ' is drawn but no brief uses it');
+  for (const [id, c] of Object.entries(briefs.concepts)) if (!c.alias && c.quiz === 1 && PICS[c.pic] && PICS[c.pic].quiz !== 1) fails.push(id + ': the brief says quiz 1 but PICS says ' + PICS[c.pic].quiz);
+  const PW = require(path.join(ROOT, 'content', 'pictures.js'));
+  const course = await loadApp(P => { const out = []; for (const lang of Object.keys(P.COURSE)) for (const u of P.COURSE[lang].units) for (const l of u.lessons) out.push({ lang, lesson: l.id, level: l.level, vocab: l.vocab.map(v => ({ t: v.t, e: v.e[0] })) }); return JSON.stringify(out); });
+  const lessons = JSON.parse(course), texts = { de: new Set(), es: new Set(), it: new Set() };
+  for (const l of lessons) for (const v of l.vocab) texts[l.lang].add(v.t);
+  for (const lang of LANG_LIST) for (const [t, id] of Object.entries(PW[lang])){ if (!texts[lang].has(t)) fails.push('PIC_WORDS.' + lang + ' has “' + t + '”, which no lesson teaches'); if (!PICS[id]) fails.push('PIC_WORDS.' + lang + ' “' + t + '” points at missing picture ' + id); }
+  for (const l of lessons){ const seen = new Map(); for (const v of l.vocab){ const id = PW[l.lang][v.t]; if (!id) continue; if (seen.has(id) && seen.get(id) !== v.t) fails.push(l.lesson + ': “' + seen.get(id) + '” and “' + v.t + '” share the picture ' + id); seen.set(id, v.t); } }
+  /* coverage: every vocab item, by language and level */
+  const idByKey = new Map(readJSON('words.json').list.map(c => [c.key, c.id]));
+  console.log('coverage (vocab items): pictured (of those, asked in questions) | no picture by decision | briefed, not drawn | undecided');
+  for (const lang of LANG_LIST){
+    for (const L of LEVELS){
+      const c = { n: 0, pic: 0, quiz: 0, none: 0, briefed: 0, undecided: 0 };
+      for (const l of lessons) if (l.lang === lang && l.level === L) for (const v of l.vocab){
+        c.n++; const pid = PW[lang][v.t], cid = idByKey.get(meaningKey(v.e));
+        if (pid){ c.pic++; if (PICS[pid].quiz) c.quiz++; } else if (briefs.none[cid]) c.none++; else if (Object.values(briefs.concepts).some(x => x.words[lang] && x.words[lang].includes(v.t))) c.briefed++; else c.undecided++;
+      }
+      if (c.n) console.log('  ' + lang + ' ' + L + ': ' + String(c.n).padStart(3) + ' words | ' + String(c.pic).padStart(3) + ' pictured (' + String(c.quiz).padStart(3) + ' asked) | ' + String(c.none).padStart(3) + ' none | ' + String(c.briefed).padStart(3) + ' briefed | ' + String(c.undecided).padStart(3) + ' undecided');
+    }
+  }
+  console.log(drawn.size + ' pictures drawn, ' + Object.keys(briefs.concepts).length + ' concepts briefed');
+  return fails;
+}
+
+/* ---------- contact sheets ---------- */
+async function shots(sel, outDir){
+  let chromium; try { ({ chromium } = require('playwright')); } catch (e) { throw new Error('shots needs Playwright: NODE_PATH="$(npm root -g)" node design/pictures/tools.js shots …'); }
+  const PICS = require(path.join(ROOT, 'js', 'core', 'pics.js')), briefs = readJSON('briefs.json');
+  const ids = Object.keys(PICS).filter(id => sel.split(',').includes(id) || (briefs.concepts[id] && briefs.concepts[id].batch === sel) || sel === 'all');
+  if (!ids.length) throw new Error('No drawn pictures match “' + sel + '”.');
+  fs.mkdirSync(outDir, { recursive: true });
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pics-')), esc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {}), spills = [];
+  for (let n = 0; n * 20 < ids.length; n++){
+    const part = ids.slice(n * 20, n * 20 + 20);
+    const cells = part.map(id => { const c = briefs.concepts[id] || {}, w = c.words ? [c.words.de[0], c.words.es[0], c.words.it[0]].filter(Boolean).join(' / ') : '';
+      const svg = '<svg viewBox="0 0 64 64" aria-hidden="true">' + PICS[id].svg + '</svg>';
+      return '<div class="cell" data-id="' + esc(id) + '"><b>' + esc(id) + (PICS[id].quiz ? '' : ' (not asked)') + '</b><small>' + esc(w) + '</small><div class="row"><span class="pic" style="--pic:112px">' + svg + '</span><span class="pic" style="--pic:44px">' + svg + '</span></div><small>' + esc((c.brief || '').slice(0, 90)) + '</small></div>'; }).join('');
+    const html = '<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="file://' + ROOT + '/styles/tokens.css"><link rel="stylesheet" href="file://' + ROOT + '/styles/art.css"><style>body{margin:0;padding:14px;background:var(--bg);color:var(--ink);font:13px/1.3 system-ui,sans-serif}.g{display:grid;grid-template-columns:repeat(5,190px);gap:12px}.cell{display:flex;flex-direction:column;gap:4px;padding:8px;border:1px solid var(--hair);border-radius:10px;background:var(--surface)}.cell.bad{outline:3px solid #E5483A}.row{display:flex;gap:10px;align-items:flex-end;padding:6px 0}small{color:var(--muted)}</style><div class="g">' + cells + '</div>';
+    const file = path.join(tmp, 'sheet.html'); fs.writeFileSync(file, html);
+    for (const scheme of ['light', 'dark']){
+      const page = await browser.newPage({ viewport: { width: 1030, height: 400 }, colorScheme: scheme });
+      await page.route(/^https?:/, r => r.abort()); await page.goto('file://' + file);
+      const found = await page.evaluate(() => [...document.querySelectorAll('.cell')].map(c => { const b = c.querySelector('svg').getBBox(), r = { id: c.dataset.id, x0: b.x, y0: b.y, x1: b.x + b.width, y1: b.y + b.height }; if (r.x0 < 3 || r.y0 < 3 || r.x1 > 61 || r.y1 > 61) c.classList.add('bad'); return r; }));
+      if (scheme === 'light') for (const r of found) if (r.x0 < 3 || r.y0 < 3 || r.x1 > 61 || r.y1 > 61) spills.push(r.id + ' reaches ' + [r.x0, r.y0, r.x1, r.y1].map(v => v.toFixed(1)).join(', ') + ' (keep it inside 3 to 61)');
+      await page.screenshot({ path: path.join(outDir, sel.replace(/[^\w-]+/g, '_') + '-' + (n + 1) + '-' + scheme + '.png'), fullPage: true }); await page.close();
+    }
+  }
+  await browser.close(); fs.rmSync(tmp, { recursive: true, force: true });
+  console.log(ids.length + ' pictures in ' + Math.ceil(ids.length / 20) + ' sheet(s), in ' + outDir);
+  if (spills.length) console.log('Outlined in red (check them):\n  ' + spills.join('\n  '));
+}
+
+/* ---------- Recraft SVGs: check, clean and place (Phase 6) ---------- */
+const SVG_BUDGET = { cast: 150 * 1024, scenes: 300 * 1024 };
+/* untrusted input: refuse anything that could run code or fetch something. url(#id) and #id references inside the file are fine. */
+function svgProblems(text, DOMParser){
+  const bad = [];
+  if (/<script|<foreignObject|<image\b|<iframe|<use\b[^>]*href="(?!#)|javascript:|\son\w+\s*=|@import/i.test(text)) bad.push('has a script, foreignObject, image, iframe, event handler, @import or external <use>');
+  for (const m of text.matchAll(/(?:xlink:)?href\s*=\s*"([^"]*)"/g)) if (!m[1].startsWith('#')) bad.push('has an external href: ' + m[1].slice(0, 40));
+  for (const m of text.matchAll(/url\(\s*['"]?([^)'"]*)/g)) if (!m[1].startsWith('#')) bad.push('has an external url(): ' + m[1].slice(0, 40));
+  const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+  if (doc.getElementsByTagName('parsererror').length) bad.push('doesn’t parse as SVG');
+  else if (doc.documentElement.tagName !== 'svg') bad.push('isn’t an <svg>');
+  return bad;
+}
+/* drop the provenance metadata (most of a Recraft file's weight), the fixed size, unused namespaces and noisy decimals */
+function cleanSvg(text){
+  let t = text.replace(/<\?xml[^>]*\?>\s*/g, '').replace(/<metadata[\s\S]*?<\/metadata>/g, '').replace(/<!--[\s\S]*?-->/g, '');
+  t = t.replace(/<svg\b([^>]*)>/, (m, a) => '<svg' + a.replace(/\s(?:width|height)="[^"]*"/g, '').replace(/\sxmlns:xlink="[^"]*"/g, t.includes('xlink:href') ? ' xmlns:xlink="http://www.w3.org/1999/xlink"' : '') + '>');
+  t = t.replace(/\sd="([^"]*)"/g, (m, d) => ' d="' + d.replace(/-?\d+\.\d{2,}/g, n => String(+(+n).toFixed(1))) + '"');
+  return t.trim() + '\n';
+}
+async function svgIngest(dir){
+  let chromium; try { ({ chromium } = require('playwright')); } catch (e) { throw new Error('svg needs Playwright: NODE_PATH="$(npm root -g)" node design/pictures/tools.js svg <folder>'); }
+  const known = JSON.parse(await loadApp(P => JSON.stringify({ cast: Object.keys(P.CAST).filter(id => P.CAST[id].look), stories: P.STORIES.map(s => s.id) })));
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.svg')).sort();
+  if (!files.length) throw new Error('No .svg files in ' + dir);
+  const { window } = new JSDOM(''), fails = [], rows = [], browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
+  let total = 0;
+  for (const f of files){
+    const id = f.replace(/\.svg$/, ''), kind = known.cast.includes(id) ? 'cast' : known.stories.includes(id) ? 'scenes' : null;
+    if (!kind){ fails.push(f + ': not a cast id or a story id'); continue; }
+    const raw = fs.readFileSync(path.join(dir, f), 'utf8'), probs = svgProblems(raw, window.DOMParser);
+    if (probs.length){ fails.push(...probs.map(p => f + ' ' + p)); continue; }
+    let out = cleanSvg(raw);
+    const page = await browser.newPage({ viewport: { width: 1200, height: 1200 } });
+    await page.setContent('<body style="margin:0">' + out.replace(/<svg\b/, '<svg width="1024" height="1024"') + '</body>');
+    const m = await page.evaluate(() => { const svg = document.querySelector('svg'), vb = svg.viewBox.baseVal, b = svg.getBBox(), W = vb.width, H = vb.height;
+      return { vb: [vb.x, vb.y, W, H], bb: [b.x, b.y, b.width, b.height], big: [...svg.children].filter(c => c.getBBox && (() => { const x = c.getBBox(); return x.width > W * .97 && x.height > H * .97; })()).length, nodes: svg.querySelectorAll('*').length }; });
+    await page.close();
+    let vb = m.vb;
+    if (kind === 'cast'){   // a figure sits in a square canvas with empty margin: tighten the box around it
+      const pad = Math.max(m.bb[2], m.bb[3]) * 0.02, x = Math.floor(m.bb[0] - pad), y = Math.floor(m.bb[1] - pad);
+      vb = [x, y, Math.ceil(m.bb[0] + m.bb[2] + pad) - x, Math.ceil(m.bb[1] + m.bb[3] + pad) - y];
+      out = out.replace(/viewBox="[^"]*"/, 'viewBox="' + vb.join(' ') + '"');
+      if (m.big) fails.push(f + ' has ' + m.big + ' shape(s) covering the whole canvas: a background? (cast figures should have none)');
+    }
+    const budget = SVG_BUDGET[kind]; if (out.length > budget) fails.push(f + ' is ' + Math.round(out.length / 1024) + ' KB after cleaning (budget ' + Math.round(budget / 1024) + ' KB)');
+    const dest = path.join(ROOT, 'media', kind, f); fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.writeFileSync(dest, out); total += out.length;
+    rows.push(f.padEnd(14) + ' ' + String(Math.round(raw.length / 1024)).padStart(4) + ' KB -> ' + String(Math.round(out.length / 1024)).padStart(4) + ' KB, ' + String(m.nodes).padStart(4) + ' nodes, viewBox ' + vb.join(' ') + ' (' + (vb[2] / vb[3]).toFixed(2) + ':1)');
+  }
+  await browser.close();
+  console.log(rows.join('\n') + '\n' + rows.length + ' file(s) written under media/, ' + Math.round(total / 1024) + ' KB');
+  return fails;
+}
+
+module.exports = { loadApp, inventory, chunk, compileBriefs, buildPicWords, picProblems, check, svgIngest, svgProblems, cleanSvg, meaningKey, slug, LEVELS, ROOT, HERE };
 if (require.main === module){
   const [cmd, ...rest] = process.argv.slice(2);
-  const run = { inventory: () => inventory(), chunk: () => chunk(+rest[0] || 0, +rest[1] || 150) }[cmd];
-  if (!run){ console.log('Usage: node design/pictures/tools.js inventory | chunk [from] [n]'); process.exit(cmd ? 1 : 0); }
-  Promise.resolve().then(run).then(() => console.log('ok'), e => { console.log('FAIL ' + (e && e.message || e)); process.exit(1); });
+  const outAt = rest.indexOf('--out');
+  const run = {
+    inventory: () => inventory(),
+    chunk: () => chunk(+rest[0] || 0, +rest[1] || 150),
+    briefs: () => { const { errs, out } = compileBriefs(); if (errs.length) throw new Error(errs.join('\n')); fs.writeFileSync(path.join(HERE, 'briefs.json'), JSON.stringify(out, null, 1) + '\n'); console.log(JSON.stringify(out.counts)); },
+    words: () => { const { errs, text, count } = buildPicWords(); if (errs.length) throw new Error(errs.join('\n')); fs.writeFileSync(path.join(ROOT, 'content', 'pictures.js'), text); console.log(count + ' words get a picture'); },
+    check: async () => { const fails = await check(); if (fails.length) throw new Error(fails.join('\n')); },
+    svg: async () => { const fails = await svgIngest(rest[0] || path.join(HERE, 'recraft', 'incoming')); if (fails.length) throw new Error(fails.join('\n')); },
+    shots: () => shots(rest[0] || 'all', outAt >= 0 ? rest[outAt + 1] : path.join(os.tmpdir(), 'pic-shots'))
+  }[cmd];
+  if (!run){ console.log('Usage: node design/pictures/tools.js inventory | chunk [from] [n] | briefs | words | check | shots <batch|id,id> [--out dir] | svg [folder]'); process.exit(cmd ? 1 : 0); }
+  Promise.resolve().then(run).then(() => console.log('ok'), e => { console.log(String(e && e.message || e).split('\n').map(l => l.startsWith('FAIL') ? l : 'FAIL ' + l).join('\n')); process.exit(1); });
 }

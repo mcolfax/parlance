@@ -252,6 +252,22 @@ function unitSign(title, size){
   return h('span', { class: 'unit-sign', style: '--us:' + (size || 46) + 'px', 'aria-hidden': 'true', html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>' });
 }
 
+/* ----- word pictures (js/core/pics.js; the Sticker style is in styles/art.css) ----- */
+const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);   // a live pack names pictures, so never trust a key
+const hasPic = id => typeof PICS !== 'undefined' && typeof id === 'string' && hasOwn(PICS, id);
+/* the picture for a lesson word: the one a live pack named, else the one PIC_WORDS (content/pictures.js) gives its main text; null if none */
+function picFor(item, lang){
+  if (!item) return null;
+  if (hasPic(item.p)) return item.p;
+  const id = typeof PIC_WORDS !== 'undefined' && PIC_WORDS[lang] && hasOwn(PIC_WORDS[lang], item.t) ? PIC_WORDS[lang][item.t] : null;
+  return hasPic(id) ? id : null;
+}
+/* the same, but only if the picture may be asked about (quiz: 1 in pics.js) */
+function picQuiz(item, lang){ const id = picFor(item, lang); return id && PICS[id].quiz === 1 ? id : null; }
+function picSVG(id){ return hasPic(id) ? '<svg viewBox="0 0 64 64" aria-hidden="true">' + PICS[id].svg + '</svg>' : ''; }
+/* wordPic(id, size, cls) -> a picture tile of size px (the white sticker border and shadow come from styles/art.css) */
+function wordPic(id, size, cls){ return h('span', { class: 'pic' + (cls ? ' ' + cls : ''), style: '--pic:' + (size || 44) + 'px', 'aria-hidden': 'true', html: picSVG(id) }); }
+
 /* ----- story scenes (320 x 140) ----- */
 const SCENES = {
   cafe: '<rect class="sc-sky" width="320" height="140"/><rect class="sc-paper" x="26" y="20" width="96" height="62" rx="8"/><circle class="sc-warm" cx="96" cy="44" r="13"/><path class="sc-line" d="M74 20v62M26 51h96"/>' +

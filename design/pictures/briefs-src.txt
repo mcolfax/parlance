@@ -1,0 +1,187 @@
+# Briefs for the word pictures: one line per concept, in the order of words.json (see PLAN.md, Phase 0).
+# Pictured:  <kind n|v|a|x> <quiz 0|1> <batch> <concept id> [{"es":["word"]}] | <brief>
+#            quiz 1 only if someone who knows the word would pick this picture over every other picture at that level.
+#            A {json} after the id lists the exact words that belong to a split-off meaning (they leave the concept they came from).
+# Alias:     = <concept id> <picture id>      this concept shares another concept's picture
+# No picture: - <concept id> | <reason>
+# ---- chunk 0-169 (A1: greetings to home) ----
+- bye | greeting
+- good-afternoon | greeting
+- good-day | greeting
+- good-evening | greeting
+- good-morning | greeting
+- good-night | greeting
+- goodbye | greeting
+- hello | greeting
+- please | politeness word
+- see-you-later | greeting
+- see-you-soon | greeting
+- thank-you | politeness word
+- i | pronoun
+- name | abstract
+- nice-to-meet-you | greeting
+- no | function word
+- to-be-called | abstract
+- yes | function word
+- you | pronoun
+- you-formal | pronoun
+n 1 a-places austria | waving flag, three horizontal bands: red, white, red
+n 1 a-places city | row of tall and short buildings with lit windows, a tower, a sun behind
+n 1 a-places colombia | waving flag, three horizontal bands: yellow (double height), blue, red
+- from | function word
+n 1 a-places germany | waving flag, three horizontal bands: black, red, gold
+n 1 a-places italy | waving flag, three vertical bands: green, white, red
+n 0 a-places mexico | waving flag, vertical green, white, red with a small brown eagle blob in the middle
+n 1 a-places rome | the Colosseum: a curved wall of stacked arches, a blue sky behind
+- to-be | grammar verb
+- to-come | abstract motion, ambiguous with to go
+- to-live | abstract
+n 1 a-places united-states | waving flag: red and white stripes, blue corner with white dots
+- where | question word
+- where-from | question word
+- also | function word
+- badly | abstract adverb
+n 1 a-people doctor | figure in a white coat with a stethoscope and a red cross badge
+= glad happy
+a 0 a-people good | big thumbs-up hand
+a 1 a-people happy | round face, big open smile, closed happy eyes, two sparkles
+- how | question word
+n 1 a-people teacher | figure beside a green chalkboard, holding a pointer
+a 1 a-people tired
+- very | function word
+= well good
+n 0 a-numbers eight | eight orange dots in two rows of four
+n 1 a-numbers five | five orange dots like a die
+n 1 a-numbers four | four orange dots in a square
+n 0 a-numbers nine | nine orange dots in three rows of three
+n 1 a-numbers one | one big orange dot
+n 0 a-numbers seven | seven orange dots, four above three
+n 0 a-numbers six | six orange dots in two columns of three
+n 0 a-numbers ten | ten orange dots in two rows of five
+n 1 a-numbers three | three orange dots in a row
+n 1 a-numbers two | two orange dots side by side
+- zero | no objects to show
+- eleven | number above ten
+- fifty | number above ten
+- forty | number above ten
+- hundred | number above ten
+a 0 a-people old | elderly figure with white hair, glasses and a cane
+- thirty | number above ten
+- to-have | grammar verb
+- twelve | number above ten
+- twenty | number above ten
+- twenty-one | number above ten
+- year | abstract time
+n 1 a-home clock | round wall clock, hands at three, tick marks and no numerals
+- early | abstract time
+- half | abstract
+- half-past | time expression
+- hour | abstract time
+- late | abstract time
+- minute | abstract time
+- now | abstract time
+- quarter | abstract
+- quarter-past | time expression
+- quarter-to | time expression
+- friday | day of the week
+- monday | day of the week
+- saturday | day of the week
+- sunday | day of the week
+- thursday | day of the week
+- today | abstract time
+- tomorrow | abstract time
+- tuesday | day of the week
+- wednesday | day of the week
+- week | abstract time
+n 1 a-food apple
+n 1 a-food bread
+n 1 a-food cheese | yellow wedge with three round holes
+n 1 a-food coffee
+n 1 a-food egg | fried egg: white wobbly blob, round yolk, a little shine
+n 1 a-food fish | whole fish seen from the side, scales, a tail and a round eye
+n 0 a-food meat | steak on a bone with grill marks
+n 1 a-food milk | carton with a pointed top and a glass of milk beside it, no writing
+n 1 a-food pasta | bowl of spaghetti with a fork twirling it, tomato sauce on top
+v 1 a-verbs to-drink | figure tipping a glass up to the mouth
+v 1 a-verbs to-eat | figure with a fork raised to the mouth, a plate in front
+n 1 a-food water | tall glass of water with a droplet and a highlight
+n 1 a-food beer | glass mug with a handle, golden beer and white foam
+n 0 a-food bill | paper receipt with wavy lines and a coin beside it
+n 1 a-food cake | slice of layered cake with cream and a cherry on top
+n 0 a-food cappuccino | cup with foam and a heart drawn in the foam
+n 0 a-food cup | empty teal cup with a handle, no saucer
+n 1 a-food glass | empty clear drinking glass with a highlight
+- how-much-is-it | phrase
+- i-would-like | phrase
+n 1 a-food tea | cup with a teabag string and a leaf beside it
+v 0 a-verbs to-pay | hand giving a coin to another hand over a counter
+- delicious | abstract
+n 0 a-food dessert | scoop of ice cream in a cone beside a small cake
+- first-course | menu term
+n 0 a-food food | plate with a fork and knife and a little of everything on it
+n 0 a-food menu | folded menu card standing up, wavy lines for the list
+n 1 a-food pizza | round pizza with a slice pulled away, cheese and red tomato circles
+n 1 a-food salad | bowl of leaves with tomato and cucumber slices
+- second-course | menu term
+n 1 a-food soup | bowl of soup with steam and a spoon
+- starter | menu term
+n 1 a-home table | wooden table seen from the side, four legs, a checked cloth
+- there-is | grammar
+- to-order | abstract
+- vegetarian | abstract
+n 1 a-people waiter | figure with a bow tie carrying a tray with a coffee
+- 100-grams | measure word
+- cheap | abstract
+- expensive | abstract
+- fresh | abstract
+- here-is | phrase
+- kilo | measure word
+n 1 a-places market | open-air stall with a striped awning and crates of fruit
+n 1 a-food orange | round orange with a green leaf and a small shine
+n 1 a-colors orange-color {"es":["naranja"],"it":["arancione"]} | paint daub in orange with a brush
+n 1 a-food pear | green pear with a short stem and a leaf
+n 1 a-food potato | brown potato with eyes and a bit of dirt
+v 0 a-verbs to-buy | figure carrying a shopping bag and holding out a coin
+- to-cost | abstract
+n 1 a-food tomato | round red tomato with a green star-shaped top
+a 1 a-colors black | paint daub in black with a brush
+a 1 a-colors blue
+a 1 a-colors brown | paint daub in brown with a brush
+n 1 a-colors color | painter's palette with five paint blobs and a thumb hole
+a 1 a-colors gray | paint daub in gray with a brush
+a 1 a-colors green | paint daub in green with a brush
+a 1 a-colors pink | paint daub in pink with a brush
+a 1 a-colors purple | paint daub in purple with a brush
+a 1 a-colors red | paint daub in red with a brush
+a 1 a-colors white | paint daub in white with a brush
+a 1 a-colors yellow | paint daub in yellow with a brush
+n 1 a-home apartment | block of flats seen from the front, rows of windows, a balcony, a door
+n 0 a-home balcony | balcony with a railing and a potted plant, a sliver of sky
+n 1 a-home bathroom | bathtub with taps and soap bubbles, a towel on a hook
+n 0 a-home bedroom | bed with a pillow and blanket, a lamp on a bedside table
+a 1 a-home big
+n 0 a-home dining-room | table laid for two with chairs and a hanging lamp
+n 0 a-home entrance | front door with a doormat, a coat hook and a shoe
+n 1 a-home garage | garage with a roll-up door half open and a car's nose inside
+n 1 a-home garden | flower bed with three flowers, a small tree and a fence
+- hallway | indistinct from entrance
+n 1 a-home kitchen | cooker with two pots, a hanging pan and a kettle
+n 1 a-home living-room | sofa with cushions, a lamp and a plant
+- patio | indistinct from garden
+a 1 a-home small
+n 1 a-home stairs | flight of steps with a handrail, seen from the side
+n 1 a-home bag | handbag with a strap and a clasp
+n 1 a-home book | closed book with a ribbon bookmark, no writing
+n 1 a-home chair | wooden chair seen from the side with a round cushion
+n 1 a-home door | closed wooden door with a round handle and a small window
+n 1 a-home glasses
+n 1 a-home key
+# ---- drawn early: the style board's samples from later chunks ----
+n 1 a-animals dog | dog's face, floppy brown ears, black nose, pink tongue
+n 1 a-travel train | side view of a steam train: blue boiler, red cab, black chimney, wheels on a rail
+v 1 a-verbs to-read | figure holding an open orange book, eyes looking down
+v 1 a-verbs to-sleep | figure asleep in a bed under a purple blanket, a moon and a star above
+v 1 a-verbs to-swim | figure with a red cap in blue water, one arm lifted with splashes
+v 1 a-verbs to-cook | figure with a chef's hat stirring a red pot, steam rising
+v 0 b-world to-recycle | green bin with two chasing arrows on it
+x 0 c-idioms to-be-on-cloud-nine | happy figure on a white cloud, arms up, hearts around

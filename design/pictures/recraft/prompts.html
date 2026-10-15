@@ -78,17 +78,17 @@ document.write('<script src="prompts-data.js"><\/script>');
     return { box: box, btn: btn };
   }
   var P = PROMPTS, total = P.cast.length + P.scenes.length, bar, count;
-  function progress(){ var n = Object.keys(done).filter(function(k){ return done[k]; }).length; count.textContent = n + ' of ' + total + ' done'; bar.style.width = Math.round(n / total * 100) + '%'; }
+  function progress(){ var n = document.querySelectorAll('.r-card input:checked').length; count.textContent = n + ' of ' + total + ' done'; bar.style.width = Math.round(n / total * 100) + '%'; }
   function card(item, kind){
     var pb = promptBox(item.prompt), id = kind + ':' + item.id;
     var cb = el('input', { type: 'checkbox', 'aria-label': 'Mark ' + (item.name || item.id) + ' done' });
-    cb.checked = !!done[id];
+    cb.checked = done[id] !== undefined ? !!done[id] : !!item.received;
     var c = el('div', { class: 'r-box r-card' + (cb.checked ? ' is-done' : ''), 'data-lang': item.lang },
       el('div', { class: 'r-row' }, el('h3', { text: kind === 'cast' ? item.name : item.title }), el('span', { class: 'r-file', text: item.file })),
       el('p', { class: 'r-meta', text: kind === 'cast' ? item.role + ' (' + LANGS[item.lang] + ')' : item.en + ' (' + item.level + '). In the story: ' + item.cast.join(', ') + '.' }),
       pb.box,
-      el('div', { class: 'r-row' }, pb.btn, el('span', { class: 'r-meta', text: item.bytes + ' bytes' }), el('label', { class: 'r-done' }, cb, 'Done')));
-    cb.addEventListener('change', function(){ done[id] = cb.checked; if (!cb.checked) delete done[id]; c.classList.toggle('is-done', cb.checked); save(); progress(); });
+      el('div', { class: 'r-row' }, pb.btn, el('span', { class: 'r-meta', text: item.bytes + ' bytes' }), el('label', { class: 'r-done' }, cb, item.received ? 'Received' : 'Done')));
+    cb.addEventListener('change', function(){ done[id] = cb.checked; c.classList.toggle('is-done', cb.checked); save(); progress(); });
     return c;
   }
   function filtered(title, note, items, kind){

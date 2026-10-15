@@ -87,6 +87,11 @@
   --chest-ink:var(--pip-ink); --chest-wood:#C97B36; --chest-wood2:#A35F27; --chest-wood3:#6F3A15; --chest-inside:#3A1E0B;
   --chest-metal:#F7BD45; --chest-metal2:#CF8A1E; --chest-gloss:#FFF6DE; --chest-coin:#FFD447; --chest-coin2:#DE9E1A;
   --chest-gem:#25B8B0; --chest-gem2:#13837D; --chest-glow:#FFD86B; --chest-shadow:var(--pip-shadow);
+  /* word pictures (js/core/pics.js, styles/art.css): the Sticker style, inked like Pip. Hues are the Selva palette; the outline is the same dark green in both themes. */
+  --pic-tile:#EAF3E2; --pic-ink:#0B2A1E; --pic-paper:#FFFFFF; --pic-shade:rgb(21 48 31 / .16); --pic-figure:#CBB8F0;
+  --pic-border:#FFFFFF; --pic-glint:#FFFFFF; --pic-drop:rgb(11 42 30 / .3);
+  --pic-red:#E5483A; --pic-orange:#FF8A1F; --pic-yellow:#FFC93C; --pic-green:#3DAA5C; --pic-teal:#1FA3A0; --pic-blue:#2F7BE0;
+  --pic-sky:#9ED3F2; --pic-purple:#8B5CC6; --pic-pink:#F27BA4; --pic-brown:#9A6234; --pic-tan:#E6A957; --pic-grey:#A9B5AC; --pic-cream:#FFF1D6;
   /* intro film (always dark, like a cinema) */
   --film-bg:#10241A; --film-ink:#F3FAF0; --film-muted:#A3BFA9; --film-card:#1A3A28; --film-line:#43BF73;
   --film-bg2:#0A1A12; --film-mid:#1B4A31; --film-frond:#14301F; --film-frond2:#1C4029;
@@ -111,6 +116,9 @@
     --der:#7BA8FF; --die:#FF7C75; --das:#4FD1D9; --pl:#C49CFF; --gold:#E8B84A;
     --ice:#1D3A52; --pip-shadow:rgb(0 0 0 / .32);
     --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
+    --pic-tile:#1F3326; --pic-paper:#F4F8EE; --pic-shade:rgb(0 0 0 / .26); --pic-figure:#B9A4EA;
+    --pic-red:#F0624F; --pic-orange:#FF9D45; --pic-yellow:#FFD255; --pic-green:#4CC27E; --pic-teal:#2BBDB8; --pic-blue:#5A9BF2;
+    --pic-sky:#7EBFE6; --pic-purple:#A683DD; --pic-pink:#FF8FB5; --pic-brown:#B27A48; --pic-tan:#EDB668; --pic-grey:#8FA096; --pic-cream:#F7E6C4;
     --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(0 0 0 / .3);
     --shadow-lg:0 2px 6px rgb(0 0 0 / .4), 0 24px 60px rgb(0 0 0 / .45);
     color-scheme:dark;
@@ -126,6 +134,9 @@
   --der:#7BA8FF; --die:#FF7C75; --das:#4FD1D9; --pl:#C49CFF; --gold:#E8B84A;
   --ice:#1D3A52; --pip-shadow:rgb(0 0 0 / .32);
   --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
+  --pic-tile:#1F3326; --pic-paper:#F4F8EE; --pic-shade:rgb(0 0 0 / .26); --pic-figure:#B9A4EA;
+  --pic-red:#F0624F; --pic-orange:#FF9D45; --pic-yellow:#FFD255; --pic-green:#4CC27E; --pic-teal:#2BBDB8; --pic-blue:#5A9BF2;
+  --pic-sky:#7EBFE6; --pic-purple:#A683DD; --pic-pink:#FF8FB5; --pic-brown:#B27A48; --pic-tan:#EDB668; --pic-grey:#8FA096; --pic-cream:#F7E6C4;
   --shadow:0 2px 0 var(--hair), 0 12px 28px rgb(0 0 0 / .3);
   --shadow-lg:0 2px 6px rgb(0 0 0 / .4), 0 24px 60px rgb(0 0 0 / .45);
   color-scheme:dark;
