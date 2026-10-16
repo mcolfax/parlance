@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.21.0';
+const APP_VERSION = '4.21.1';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,8 @@ const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.21.1', date: '2026-10-16', title: 'Wrong forms, explained', notes: [
+    'Picking the wrong form in a “Choose the form” question now shows the Not quite message and the right answer, instead of leaving you stuck on the question.'] },
   { v: '4.21.0', date: '2026-10-15', title: 'Pictures and new faces', notes: [
     'New words now come with a picture when there is a clear one to show, like food, clothes, colors and places.',
     'Some lessons ask you to match a word with its picture, and the questions get harder as you move up the levels.',
