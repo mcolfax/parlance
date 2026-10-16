@@ -257,7 +257,7 @@ async function shots(sel, outDir){
       await page.route(/^https?:/, r => r.abort()); await page.goto('file://' + file);
       const found = await page.evaluate(() => [...document.querySelectorAll('.cell')].map(c => { const sv = c.querySelector('svg'); if (!sv) return { id: c.dataset.id, x0: 5, y0: 5, x1: 59, y1: 59 }; const b = sv.getBBox(), r = { id: c.dataset.id, x0: b.x, y0: b.y, x1: b.x + b.width, y1: b.y + b.height }; if (r.x0 < 3 || r.y0 < 3 || r.x1 > 61 || r.y1 > 61) c.classList.add('bad'); return r; }));
       if (scheme === 'light') for (const r of found) if (r.x0 < 3 || r.y0 < 3 || r.x1 > 61 || r.y1 > 61) spills.push(r.id + ' reaches ' + [r.x0, r.y0, r.x1, r.y1].map(v => v.toFixed(1)).join(', ') + ' (keep it inside 3 to 61)');
-      await page.screenshot({ path: path.join(outDir, sel.replace(/[^\w-]+/g, '_') + '-' + (n + 1) + '-' + scheme + '.png'), fullPage: true }); await page.close();
+      await page.screenshot({ path: path.join(outDir, (sel.length > 60 ? 'list-' + require('crypto').createHash('md5').update(sel).digest('hex').slice(0, 8) : sel.replace(/[^\w-]+/g, '_')) + '-' + (n + 1) + '-' + scheme + '.png'), fullPage: true }); await page.close();
     }
   }
   await browser.close(); fs.rmSync(tmp, { recursive: true, force: true });
