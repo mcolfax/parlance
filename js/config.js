@@ -18,6 +18,8 @@ const RELEASES = [
   { v: '4.22.0', date: '2026-10-16', title: 'Pick up where you left off', notes: [
     'If you leave a lesson halfway, or the page reloads, you can jump straight back in. Look for the new card at the top of Learn.',
     'It remembers your place and your score so far on this device, for a week.'] },
+  { v: '4.21.2', date: '2026-10-16', title: 'Pronouns are optional', notes: [
+    'In Spanish and Italian you can now start an answer with or without the pronoun: “yo dije” and “dije” both count.'] },
   { v: '4.21.1', date: '2026-10-16', title: 'Wrong forms, explained', notes: [
     'Picking the wrong form in a “Choose the form” question now shows the Not quite message and the right answer, instead of leaving you stuck on the question.'] },
   { v: '4.21.0', date: '2026-10-15', title: 'Pictures and new faces', notes: [
