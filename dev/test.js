@@ -304,6 +304,16 @@ async function main(){
     ok(/water/.test(g('dell’acqua', 'it').val) && g('l’amico', 'it').val === 'friend' && g('comprato', 'it').base === 'comprare' && g('venduto', 'it').base === 'vendere' && g('Perché', 'it').val, 'Italian words find their meaning: elisions and verb forms ' + JSON.stringify([g('dell’acqua', 'it'), g('l’amico', 'it'), g('comprato', 'it')]));
     ok(/Giulia/.test(g('Giulia', 'it').val) && /landlord|pension/i.test(g('Bianchi', 'it').val || '') , 'the Italian cast’s names have meanings ' + JSON.stringify(g('Bianchi', 'it')));
     ok(A.E('lexToks("l’acqua e un’amica", "it")').join() === 'l,acqua,e,un,amica' && A.E('articlesFor("it").has("gli")') && !A.E('articlesFor("es").has("gli")'), 'Italian elisions split into article and word'); }
+  /* the opening subject pronoun is optional in Spanish and Italian, but never swapped for another */
+  {
+    T('yo dije', ['dije'], 'es', true, 'exact');
+    T('dije', ['yo dije'], 'es', true, 'exact');
+    T('Tú dijiste la verdad.', ['Dijiste la verdad.'], 'es', true, 'exact');
+    T('él dijo', ['ella dijo'], 'es', false);
+    T('es para', ['es para ella'], 'es', false);
+    T('io parlo', ['parlo'], 'it', true, 'exact');
+    T('yo', ['yo'], 'es', true, 'exact');
+  }
   /* answers that count without matching exactly say why, and what differs */
   {
     ok(/^Only the ß differs \(heiße\), so it counts\.$/.test(P.check('Ich heisse Matt', ['Ich heiße Matt.'], 'de').note), 'accent note says why it counts');
@@ -368,7 +378,7 @@ async function main(){
   {
     const H = await makeDom(); H.P.S.settings.onboarded = true;
     const hd = H.w.document, ov = () => hd.querySelector('.overlay:not(.out)');
-    const open = id => { H.E('endRun(); startLesson(' + JSON.stringify(id) + ')'); [...ov().querySelectorAll('.ov-foot button')].find(b => b.textContent === 'Start lesson').click(); };
+    const open = id => { H.E('endRun(); startLesson(' + JSON.stringify(id) + ')'); [...ov().querySelectorAll('.ov-foot button')].find(b => b.textContent === 'Start lesson' || b.textContent === 'Start over').click(); };
     const show = type => { const i = H.E('Run.queue.findIndex(e => e.type === ' + JSON.stringify(type) + ')'); ok(i >= 0, 'hint test finds a ' + type); H.E('Run.pos = ' + i + '; nextEx()'); };
     const firstLesson = lv => H.P.COURSE.es.units.flatMap(u => u.lessons).find(l => l.level === lv).id;
     H.E('S.settings.lang = "es"');
@@ -995,6 +1005,54 @@ async function main(){
     ok([...V.w.document.querySelectorAll('.sheet button')].some(b => b.textContent === 'Copy note'), 'fallback offers copy');
     console.log('page errors (V):', V.errors.length ? V.errors.slice(0, 5) : 'none'); ok(!V.errors.length, 'no page errors V');
     V.dom.window.close();
+  }
+  /* ---------- resuming a lesson ---------- */
+  {
+    const seed = { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } };
+    const A = await makeDom({ seed });
+    const btn = (D, t) => [...D.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent.startsWith(t));
+    ok(!A.w.document.querySelector('.card.resume'), 'no resume card before a lesson is started');
+    A.E('startLesson("de-1-2")'); btn(A, 'Start lesson').click();
+    ok(!A.w.localStorage.getItem('parlance.resume') === false, 'the lesson is saved as soon as it starts');
+    A.E('Run.pos = 6; Run.xp = 10; Run.combo = 2; Run.first.set(Run.queue[2].id, "exact"); nextEx()');
+    const raw = A.w.localStorage.getItem('parlance.resume'), saved = JSON.parse(raw);
+    ok(saved.id === 'de-1-2' && saved.pos === 6 && saved.xp === 10, 'position and score are saved');
+    const total = A.E('Run.queue.length'), exId = A.E('Run.queue[6].id');
+    A.E('endRun()');   // Leave
+    ok(A.w.localStorage.getItem('parlance.resume'), 'leaving keeps the saved lesson');
+    A.dom.window.close();
+    // a reload: the card on Learn brings the lesson back as it was
+    const B = await makeDom({ seed, storage: { 'parlance.resume': raw } });
+    const card = B.w.document.querySelector('.card.resume');
+    ok(card && card.textContent.includes(B.E('getLesson("de-1-2").title')), 'resume card on Learn');
+    [...card.querySelectorAll('button')].find(b => b.textContent === 'Resume lesson').click();
+    ok(B.E('Run.started && Run.pos === 6 && Run.xp === 10 && Run.combo === 2 && Run.queue.length === ' + total + ' && Run.cur.id === ' + exId), 'resume restores the place and the score');
+    ok(B.E('Run.queue.every(ex => ex.lesson === Run.lesson && (ex.kind !== "v" && ex.kind !== "s" || (ex.kind === "v" ? Run.lesson.vocab : Run.lesson.sentences).includes(ex.item)))'), 'restored exercises point at the lesson’s own items');
+    ok(B.E('Run.first.size') === 1 && B.E('Run.taught.size') > 0, 'answers so far and words taught come back');
+    ok(B.E('buildLesson(getLesson("de-1-2")).every(ex => ex.id > ' + exId + ')'), 'new exercise ids never reuse the saved ones');
+    B.E('Run.pos = Run.queue.length; nextEx()');
+    ok(!B.w.localStorage.getItem('parlance.resume'), 'finishing the lesson clears it');
+    B.E('endRun()');
+    ok(!B.w.document.querySelector('.card.resume'), 'no card once the lesson is done');
+    B.dom.window.close();
+    // from the lesson's own intro: pick up, or start over
+    const C = await makeDom({ seed, storage: { 'parlance.resume': raw } });
+    C.E('startLesson("de-1-2")');
+    ok(btn(C, 'Pick up where you left off') && !btn(C, 'Start lesson'), 'the intro offers to pick up');
+    btn(C, 'Start over').click();
+    ok(C.E('Run.pos') === 0 && C.E('Run.started') && C.E('Run.xp') === 0, 'start over begins again');
+    ok(JSON.parse(C.w.localStorage.getItem('parlance.resume')).pos === 0, 'start over replaces the saved lesson');
+    C.E('endRun()');
+    // too old, another account, or a lesson that changed: nothing is offered
+    const old = JSON.stringify({ ...saved, at: Date.now() - 8 * 86400000 }), other = JSON.stringify({ ...saved, owner: 'someone-else' });
+    const changed = JSON.stringify({ ...saved, sig: [saved.sig[0] + 1, saved.sig[1], saved.sig[2]] });
+    for (const [name, s] of [['older than a week', old], ['from another account', other], ['for a changed lesson', changed]]){
+      const D = await makeDom({ seed: { 'parlance.v2': { owner: 'me', settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } }, storage: { 'parlance.resume': s } });
+      ok(!D.w.document.querySelector('.card.resume'), 'no resume card when it is ' + name);
+      D.dom.window.close();
+    }
+    console.log('page errors (resume):', C.errors.length || B.errors.length ? [...C.errors, ...B.errors].slice(0, 5) : 'none'); ok(!C.errors.length && !B.errors.length, 'no page errors resuming');
+    C.dom.window.close();
   }
   /* ---------- 9. film, sounds, parrot ---------- */
   {

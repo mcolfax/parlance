@@ -28,14 +28,62 @@ function glossOn(ex){ return !!ex.lesson && hintMode(ex.lesson.level) !== 'off';
 function setProgress(){ if (OV.prog && Run.queue){ const p = Run.queue.length ? Run.pos / Run.queue.length : 0; OV.prog.style.width = (p * 100).toFixed(1) + '%'; } }
 function askLeave(){
   if (!Run.active || !Run.started || Run.finished){ endRun(); return; }
-  sheet('Leave this ' + (Run.mode === 'lesson' ? 'lesson' : 'session') + '?', h('p', null, Run.mode === 'lesson' ? 'Your answers in this lesson won’t be saved.' : 'Items you’ve already reviewed keep their new schedule.'),
+  sheet('Leave this ' + (Run.mode === 'lesson' ? 'lesson' : 'session') + '?', h('p', null, Run.mode === 'lesson' ? 'You can pick this lesson up where you left off. It waits on the Learn tab.' : 'Items you’ve already reviewed keep their new schedule.'),
     [{ label: 'Keep going', primary: true }, { label: 'Leave', run: () => { endRun(); } }]);
 }
+
+/* ----- resuming a lesson -----
+   The lesson in progress is saved on this device after every step, outside the synced state (it is only worth having
+   where you left off). A reload, a closed tab or Leave all keep it; finishing the lesson, Start over or RESUME.maxAgeDays clear it. */
+const RESUME_KEY = 'parlance.resume';
+function resumeSave(){
+  const l = Run.lesson;
+  if (!Run.active || !Run.started || Run.finished || Run.mode !== 'lesson' || !l || !Run.queue || !Run.queue.length) return;
+  const queue = [];
+  for (const ex of Run.queue){
+    const o = { ...ex }; delete o.lesson;
+    if (ex.kind === 'v' || ex.kind === 's'){ o.item = (ex.kind === 'v' ? l.vocab : l.sentences).indexOf(ex.item); if (o.item < 0) return; }
+    if (ex.blank){ o.blank = l.blanks.indexOf(ex.blank); if (o.blank < 0) return; }
+    if (ex.items){ o.items = ex.items.map(it => l.vocab.indexOf(it)); if (o.items.some(i => i < 0)) return; }
+    queue.push(o);
+  }
+  writeJSON(RESUME_KEY, { v: 1, id: l.id, lang: Run.lang, owner: S.owner || null, at: Date.now(), sig: [l.vocab.length, l.sentences.length, l.blanks.length],
+    pos: Run.pos, queue, taught: [...Run.taught], first: [...Run.first], tries: [...Run.tries], xp: Run.xp, skipped: Run.skipped, combo: Run.combo, bestCombo: Run.bestCombo });
+}
+function resumeClear(){ try { localStorage.removeItem(RESUME_KEY); } catch (e) {} }
+/* the saved run for this lesson, rebuilt against the lesson as it is now; null when there is none, it is too old, or the lesson changed under it */
+function resumeFind(id){
+  const r = readJSON(RESUME_KEY);
+  if (!r || r.v !== 1 || (id && r.id !== id) || !Array.isArray(r.queue) || !(r.pos >= 0)) return null;
+  if (Date.now() - (+r.at || 0) > RESUME.maxAgeDays * 86400000) return null;
+  if (r.owner && S.owner && r.owner !== S.owner) return null;
+  const l = getLesson(r.id);
+  if (!l || !Array.isArray(r.sig) || r.sig[0] !== l.vocab.length || r.sig[1] !== l.sentences.length || r.sig[2] !== l.blanks.length) return null;
+  const queue = [];
+  for (const o of r.queue){
+    const ex = { ...o, lesson: l };
+    if (o.kind === 'v' || o.kind === 's'){ ex.item = (o.kind === 'v' ? l.vocab : l.sentences)[o.item]; if (!ex.item) return null; }
+    if (typeof o.blank === 'number'){ ex.blank = l.blanks[o.blank]; if (!ex.blank) return null; }
+    if (Array.isArray(o.items)){ ex.items = o.items.map(i => l.vocab[i]); if (ex.items.some(x => !x)) return null; }
+    queue.push(ex);
+  }
+  if (r.pos > queue.length) return null;
+  return { lesson: l, queue, pos: r.pos, at: r.at, r };
+}
+function resumePercent(rs){ return Math.max(1, Math.min(99, Math.round(100 * rs.pos / Math.max(1, rs.queue.length)))); }
+/* put the saved run back where it was */
+function resumeApply(rs){
+  const r = rs.r;
+  EXID = Math.max(EXID, ...rs.queue.map(ex => +ex.id || 0));   // new exercises never reuse an id from the saved queue
+  Object.assign(Run, { started: true, queue: rs.queue, pos: rs.pos, taught: new Set(r.taught || []), first: new Map(r.first || []), tries: new Map(r.tries || []), xp: +r.xp || 0, skipped: +r.skipped || 0, combo: +r.combo || 0, bestCombo: +r.bestCombo || 0 });
+  runHead(); nextEx();
+}
 function endRun(){ clearTimeout(Run.sayTimer); speakStop(); if (Run.finished && Run.mode === 'lesson' && Run.lesson) UI.justDone = Run.lesson.id; Run.active = false; closeOverlay(); UI.animate = true; render(); }
-function startLesson(id){
+function startLesson(id, resume){
   const lesson = getLesson(id); if (!lesson) return;
-  Object.assign(Run, { active: true, started: false, finished: false, mode: 'lesson', lang: lesson.lang, lesson, taught: new Set(), queue: [], pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 });
-  openOverlay('run'); sfx('open'); recWarm(lesson.lang, lessonSaid(lesson)); showIntro();
+  Object.assign(Run, { active: true, started: false, finished: false, mode: 'lesson', lang: lesson.lang, lesson, taught: new Set(), queue: [], pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0, resume: resumeFind(id) });
+  openOverlay('run'); sfx('open'); recWarm(lesson.lang, lessonSaid(lesson));
+  if (resume && Run.resume) resumeApply(Run.resume); else showIntro();
 }
 function showIntro(){
   const l = Run.lesson, lang = Run.lang;
@@ -50,7 +98,12 @@ function showIntro(){
   OV.foot.className = 'ov-foot';
   const share = !l.core && !l.custom && studioAvailable() ? h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: async e => { const b = e.currentTarget; b.disabled = true; b.textContent = 'Sharing…'; const ok = await shareLessonToAll(l); if (ok){ sfx('badge'); toast('Shared. Every learner now has “' + l.title + '”.'); endRun(); } else { b.disabled = false; b.textContent = 'Share with all learners'; } } }, ic('wand'), 'Share with all learners') : null;
   OV.footIn.replaceChildren(...[share].filter(Boolean));
-  OV.footIn.append(h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => { Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx(); } }, 'Start lesson'));
+  const rs = Run.resume;
+  const begin = () => { Run.resume = null; Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx(); };
+  if (rs) OV.footIn.append(
+    h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => resumeApply(rs) }, 'Pick up where you left off · ' + resumePercent(rs) + '%'),
+    h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => { resumeClear(); begin(); } }, 'Start over'));
+  else OV.footIn.append(h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: begin }, 'Start lesson'));
 }
 function startReview(practice){
   const lang = S.settings.lang;
@@ -106,7 +159,7 @@ function nextEx(){
   const ex = Run.queue[Run.pos];
   Run.cur = ex; Run.value = null; Run.checking = false;
   if (ex.type === 'teach' && ex.mode === 'words' && Run.taught){ const n = Run.taught.size; ex.idxs.forEach(i => Run.taught.add(i)); if (!n) runHead(); }
-  setProgress();
+  setProgress(); resumeSave();
   const api = {
     ready: ok => { Run.canCheck = !!ok; if (OV.checkBtn) OV.checkBtn.disabled = !ok; },
     set: v => { Run.value = v; },
@@ -179,6 +232,7 @@ function showFeedback(ex, res){
     if (tries <= 3 && Run.mode !== 'checkpoint' && Run.mode !== 'placement'){ const again = { ...ex, peeked: false }; if (again.options) again.options = shuffle(again.options); if (again.tiles) again.tiles = shuffle(again.tiles); Run.queue.push(again); }
   }
   setProgress();
+  Run.pos++; resumeSave(); Run.pos--;   // answered: a lesson picked up from here starts at the next card
   const ans = feedbackAnswer(ex);
   const lang = ex.lang;
   const glossOpts = a => S.settings.hints === 'off' ? {} : { gloss: true, en: a.en };
@@ -506,7 +560,7 @@ function questStrip(ids){
 
 /* ----- finish ----- */
 function finishRun(){
-  Run.finished = true;
+  Run.finished = true; resumeClear();
   if (Run.mode === 'placement') return finishPlacement();
   const lang = Run.lang;
   const uniq = [...Run.first.values()];

@@ -209,6 +209,14 @@ A lesson opens with a short overview (`showIntro()` in `runner.js`: the idea's t
 - Every word and phrase is shown before it is asked, and every example and table is shown; `dev/test.js` checks this for every lesson. Authors change nothing: tips are still `T(title, body, examples, tables)` and live packs use the same shape. Write a tip as short sentences, with each bold phrase near the example or table it belongs to.
 - The Words button in the header lists the words met so far (`Run.taught`).
 
+## Resuming a lesson
+
+A lesson left half-done (Leave, a closed tab, a reload) can be picked up where it stopped. `resumeSave()` in `js/ui/runner.js` writes the run to `localStorage` under `parlance.resume` after every card and every answer: the lesson id, the queue (each exercise with its lesson and items replaced by indexes), the position, the words taught, the answers so far, XP and combo. One lesson is held at a time.
+
+- **Device-local on purpose.** It is not in `parlance.v2`, the synced slices or the database, so there is no schema change and nothing to migrate.
+- **Offered** by a "Pick up where you left off" card at the top of Learn (current language only) and by the lesson's own intro, which then also offers Start over. `resumeFind()` rebuilds the queue against the lesson as it is now and returns nothing if it is older than `RESUME.maxAgeDays` (`config.js`), belongs to another account, or the lesson's word, phrase or blank counts changed.
+- **Cleared** when the lesson finishes, on Start over, or from the card's "Forget it". Only lessons resume; reviews, practice sessions and checkpoints do not.
+
 ## Practice beyond lessons
 
 - **Word hints** (`HINTS` in `config.js`, `hintMode()` in `engine.js`): sentence prompts, blanks and answers can be tapped for a word's meaning; the help fades by level (A: full, B: tap only, C: off) and `settings.hints` overrides it. `lessonForms()` lists the forms and extra words a lesson's sentences use that earlier lessons haven't shown.
