@@ -397,7 +397,7 @@ n 1 a-places meeting | four figures sitting around a table with papers and a scr
 n 1 a-places office | desk with a computer monitor, a chair, a potted plant and a stack of papers
 n 1 a-places school | school building with a small bell tower, a flag and double doors
 = to-finish finished
-= to-learn to-study
+v 0 a-verbs to-learn | open book on the ground with a curved arrow going from it into a head
 v 1 a-verbs to-study | figure at a desk with an open book and a pen, a stack of books beside
 - to-start | abstract
 n 0 a-places university | graduation cap on top of a stack of books beside a rolled diploma with a ribbon
@@ -854,8 +854,8 @@ n 0 b-leisure exhibition | three framed paintings on a gallery wall above a benc
 = festival party-fun
 n 1 b-culture fireworks | colorful fireworks bursting in a dark night sky
 n 1 b-culture present | wrapped gift box with a ribbon and a big bow
-= to-give-as-a-present present
-= to-celebrate fireworks
+= to-give-as-a-present to-give
+v 0 b-society to-celebrate | two glasses clinking with confetti and a star
 n 0 b-culture carnival | feathered carnival mask with sequins and a stick
 n 0 b-culture easter | decorated eggs in a basket with a small bunny
 n 0 b-culture nativity-scene | small wooden stable with a manger and a bright star above
@@ -920,7 +920,7 @@ n 0 b-news election | ballot box with a paper going into the slot
 n 0 b-news government | parliament building with a dome and a flag
 n 0 b-news law | scales of justice with a gavel
 n 1 b-news newspaper | folded newspaper with a photo and wavy lines, no words
-= news newspaper
+n 0 b-society news | tv set showing a presenter with a red news bar
 n 0 b-news thief | figure with a black eye mask and a striped sack, tiptoeing
 v 0 b-verbs to-build | figure with a hard hat laying bricks in a wall
 n 0 b-world energy | wind turbine and a solar panel side by side
