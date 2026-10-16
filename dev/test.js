@@ -935,8 +935,56 @@ async function main(){
     for (let i = 0; i < 30 && !(store.get('feedback/u_test').items.some(x => x.type === 'rating')); i++) await sleep(30);
     ok(store.get('feedback/u_test').items.some(x => x.type === 'rating' && x.rating === 1 && x.ctx.lessonId === 'de-1-2'), 'rating stored');
     F.E('endRun()');
+    // close the loop: ship the approved proposal, and the learner's note is stamped resolved with the version and message
+    await F.E('openStudio()');
+    F.E('Studio.tab="proposals"; Studio.filter="approved"; drawStudio()');
+    const thanksTa = [...F.w.document.querySelectorAll('.overlay.studio .proposal textarea')].find(t => /people? who asked|person who asked/.test(t.placeholder)); ok(!!thanksTa, 'thanks box on an approved proposal');
+    thanksTa.value = 'Hi now counts for Hallo.';
+    [...F.w.document.querySelectorAll('.overlay.studio .proposal button')].find(b => /Mark shipped/.test(b.textContent)).click();
+    for (let i = 0; i < 40 && store.get(props[0]).status !== 'shipped'; i++) await sleep(30);
+    const rf = store.get('feedback/u_learner').items.find(x => x.id === 'f1');
+    ok(store.get(props[0]).status === 'shipped' && store.get(props[0]).version === F.E('APP_VERSION'), 'proposal marked shipped with the version');
+    ok(rf.resolved && rf.resolved.note === 'Hi now counts for Hallo.' && rf.resolved.proposal === props[0] && rf.resolved.version === F.E('APP_VERSION'), 'the note behind it is closed with the message');
+    ok(!store.get('feedback/u_learner').items.find(x => x.id === 'f2').resolved, 'other notes stay open');
+    F.E('Studio.tab="feedback"; Studio.fbShow="closed"; drawStudio()');
+    ok(F.w.document.querySelectorAll('.overlay.studio .fb-item').length === 1, 'closed notes are listed under Closed');
+    // a note straight to the build queue, and a quiet close
+    F.E('Studio.fbShow="open"; drawStudio()');
+    await F.E('buildFromNote(Studio.fb.find(f => f.text === "Add more food words please"))');
+    ok([...store.keys()].some(k => k.startsWith('proposals/p') && store.get(k).source === 'note' && store.get(k).status === 'approved' && store.get(k).evidence.length === 1), 'Build this queues an approved proposal citing the note');
+    await F.E('dismissNote(Studio.fb.find(f => f.text === "Add more food words please"))');
+    ok(store.get('feedback/u_test').items.find(x => x.text === 'Add more food words please').resolved.quiet === true, 'close without building is quiet');
+    F.E('closeStudio()');
     console.log('page errors (F):', F.errors.length ? F.errors.slice(0, 5) : 'none'); ok(!F.errors.length, 'no page errors F');
     F.dom.window.close();
+    // the learner opens Parlance after the fix: thanked once, then it never repeats
+    {
+      const st = new Map(); st.set('feedback/u_learner', { items: [{ id: 'f1', at: 1, type: 'content', text: 'Hi should count', resolved: { at: 5, version: '9.9.9', proposal: 'p1', note: 'Hi now counts for Hallo.' } }, { id: 'f3', at: 2, type: 'idea', text: 'Dark mode', resolved: { at: 5, version: '9.9.9', proposal: 'p2', quiet: true } }, { id: 'f4', at: 3, type: 'idea', text: 'Still open' }] });
+      const L = await makeDom({ claude: fakeClaude(st, { uid: 'u_learner' }), seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+      L.E('S.settings.seenVersion = APP_VERSION');
+      for (let i = 0; i < 60 && !L.w.document.querySelector('.heard'); i++) await sleep(60);
+      const heard = L.w.document.querySelector('.heard');
+      ok(heard && heard.textContent.includes('Hi should count') && heard.textContent.includes('9.9.9') && heard.textContent.includes('Hi now counts for Hallo.'), 'learner is thanked with their note and the message');
+      ok(!heard.textContent.includes('Dark mode') && !heard.textContent.includes('Still open'), 'quiet and open notes get no thanks');
+      for (let i = 0; i < 40 && !st.get('feedback/u_learner').items.find(x => x.id === 'f1').heardAt; i++) await sleep(30);
+      ok(st.get('feedback/u_learner').items.find(x => x.id === 'f1').heardAt && st.get('feedback/u_learner').items.find(x => x.id === 'f1').resolved.version === '9.9.9', 'thanks is stamped heard and keeps what the owner wrote');
+      L.w.document.querySelectorAll('.sheet-back').forEach(e => e.remove());
+      ok((await L.E('maybeThanks()')) === false && !L.w.document.querySelector('.heard'), 'the thanks does not come back');
+      console.log('page errors (L):', L.errors.length ? L.errors.slice(0, 5) : 'none'); ok(!L.errors.length, 'no page errors L');
+      L.dom.window.close();
+    }
+    // inside someone else's Claude, feedback goes to the web version instead
+    {
+      const st = new Map();
+      const N = await makeDom({ claude: fakeClaude(st, { uid: 'u_other' }), seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+      await sleep(300);
+      ok(N.E('feedbackWebOnly()') === true && N.E('quickRating({})') === null, 'non-owner in Claude: no rating chips');
+      N.E('UI.tab="me"; render()');
+      [...N.w.document.querySelectorAll('button')].find(b => b.textContent.includes('Send feedback')).click();
+      const link = N.w.document.querySelector('.sheet a.btn');
+      ok(link && /parlance-iota\.vercel\.app/.test(link.href) && !N.w.document.querySelector('.sheet textarea'), 'Send feedback points to the web version');
+      N.dom.window.close();
+    }
     // a view-only shared viewer: feedback can't be written, so the fallback appears and the note stays queued
     const store2 = new Map();
     const V = await makeDom({ claude: fakeClaude(store2, { readOnly: true }), seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });

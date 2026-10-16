@@ -80,8 +80,11 @@ The preview runs without the artifact runtime, so there is no account sync, data
   - `status` is `pending`, `approved`, `rejected` or `shipped`.
   - `proposals/_meta.lastSynthAt` marks the newest feedback already turned into proposals.
   - See `synthesize()` in `js/ui/studio.js`.
+- Feedback is collected on the **web version only** (Claude copies send people there). `node dev/feedback.js open` prints SQL for the open notes and approved proposals; run it with Supabase `execute_sql` on project `ibrweunxigetiazzuwiz`.
 - **Only build proposals with `status: "approved"`.** Matt approves them in the app (Me → Studio). Follow his `note`.
-- After shipping, set each built proposal's `status` to `shipped`, with `version` and `shippedAt`.
+- After shipping, close the loop for each built proposal: `node dev/feedback.js close <version> "<one warm sentence on what changed>" --proposal <id>`, then run the SQL it prints. That sets the proposal to `shipped` with `version` and `shippedAt`, and marks the learners' notes resolved, so each of them gets a thank-you with your sentence the next time they open Parlance. Write the sentence for the learner, in plain, warm English. Studio → Proposals → Mark shipped does the same.
+  - Notes with no proposal: `... close <version> "<message>" --notes <id,id>`.
+  - If the proposal lives in the Claude artifact's database, use ArtifactData to set the `shipped` fields instead, and Studio there for the notes.
 
 ## Database rules (declared at publish; keep them)
 

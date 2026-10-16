@@ -7,9 +7,11 @@
      4. Build     : the weekly build task (or any Claude session) implements approved proposals,
                     republishes, and marks them 'shipped' with the version.
    Content: switch remote content packs on/off, broadcast an announcement, or tell open apps to refresh.
+   Closing the loop: marking a proposal shipped (here, or dev/feedback.js from Claude Code) stamps every note behind it
+   with `resolved: { at, version, proposal, note }` in that learner's feedback doc; their app says thanks once (maybeThanks).
    Database rules keep feedback/ and proposals/ readable by the owner only.
    ================================================================ */
-const Studio = { tab: 'feedback', fb: [], props: [], meta: {}, names: {}, filter: 'pending', busy: false, status: '', loaded: false };
+const Studio = { tab: 'feedback', fb: [], props: [], meta: {}, names: {}, filter: 'pending', fbShow: 'open', busy: false, status: '', loaded: false };
 const PROPOSAL_STATES = [['pending', 'To review'], ['approved', 'Approved'], ['shipped', 'Shipped'], ['rejected', 'Rejected']];
 
 function withoutId(o){ const c = { ...o }; delete c.id; for (const k of Object.keys(c)) if (c[k] === undefined) delete c[k]; return c; }
@@ -43,7 +45,10 @@ function drawStudio(){
   const body = Studio.tab === 'feedback' ? studioFeedback() : Studio.tab === 'proposals' ? studioProposals() : Studio.tab === 'content' ? studioContent() : studioReleases();
   OV.bodyIn.replaceChildren(...[tabs, Studio.status ? h('p', { class: 'status' }, Studio.status) : null, body].filter(Boolean));
 }
-function fbNew(){ const since = Studio.meta.lastSynthAt || 0; return Studio.fb.filter(f => f.at > since && f.type !== 'rating'); }
+function fbNew(){ const since = Studio.meta.lastSynthAt || 0; return Studio.fb.filter(f => f.at > since && f.type !== 'rating' && !f.resolved); }
+function fbOpen(){ return Studio.fb.filter(f => f.type !== 'rating' && !f.resolved); }
+/* every proposal that already cites a note, so a note can show where it is going */
+function fbProposal(f){ return Studio.props.find(p => (p.evidence || []).includes(f.id)); }
 function studioFeedback(){
   const fresh = fbNew(); const ratings = Studio.fb.filter(f => f.type === 'rating');
   const wrap = h('div', { class: 'studio-sec' });
@@ -60,16 +65,71 @@ function studioFeedback(){
     wrap.append(h('section', { class: 'card' }, h('h3', null, 'Difficulty ratings'), h('div', { class: 'rating-table' }, h('span', { class: 'rt-h' }, 'Lesson'), h('span', { class: 'rt-h' }, 'Easy'), h('span', { class: 'rt-h' }, 'Right'), h('span', { class: 'rt-h' }, 'Hard'),
       rows.flatMap(([k, x]) => { const l = getLesson(k) || storyById(k); return [h('span', null, l ? l.title : k), h('span', null, x.easy), h('span', null, x.right), h('span', { class: x.hard > x.right ? 'bad-t' : '' }, x.hard)]; }))));
   }
-  const notes = Studio.fb.filter(f => f.type !== 'rating');
-  if (!notes.length) wrap.append(h('div', { class: 'empty' }, pip('sleep', 64, { tap: false })), h('p', { class: 'muted center' }, Studio.loaded ? 'No feedback yet. Learners can send it from Me, from any finished lesson, or with Report on an exercise.' : ''));
+  const open = fbOpen(), closed = Studio.fb.filter(f => f.type !== 'rating' && f.resolved);
+  wrap.append(h('div', { class: 'chips' }, [['open', 'Open · ' + open.length], ['closed', 'Closed · ' + closed.length]].map(([k, l]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(Studio.fbShow === k), onclick: () => { Studio.fbShow = k; drawStudio(); } }, l))),
+    open.length ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => copyFeedbackBrief(open) }, ic('copy'), 'Copy open notes for Claude Code') : null);
+  const notes = Studio.fbShow === 'closed' ? closed : open;
+  if (!notes.length) wrap.append(h('div', { class: 'empty' }, pip('sleep', 64, { tap: false })), h('p', { class: 'muted center' }, !Studio.loaded ? '' : Studio.fbShow === 'closed' ? 'Nothing closed yet. When you ship a proposal, the notes behind it close here.' : 'No open feedback. Learners send it from the web version: Me, any finished lesson, or Report on an exercise.'));
   for (const f of notes.slice(0, 120)){
     const isNew = f.at > (Studio.meta.lastSynthAt || 0);
     wrap.append(h('div', { class: 'fb-item' + (isNew ? ' new' : '') },
       h('div', { class: 'row' }, h('span', { class: 'chip static fb-type t-' + f.type }, (FB_TYPES.find(t => t[0] === f.type) || [0, f.type])[1]), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, (Studio.names[f.uid] || 'A learner') + ' · ' + new Date(f.at).toLocaleDateString())),
       f.text ? h('p', null, f.text) : null,
-      f.ctx ? h('p', { class: 'small muted' }, [f.ctx.lang && LANGS[f.ctx.lang] ? LANGS[f.ctx.lang].name : '', f.ctx.level, f.ctx.lessonId || f.ctx.storyId || f.ctx.screen, f.ctx.exType, f.ctx.expected ? 'expected “' + f.ctx.expected + '”' : '', f.ctx.answer ? 'answered “' + f.ctx.answer + '”' : '', f.ctx.app ? 'v' + f.ctx.app : ''].filter(Boolean).join(' · ')) : null));
+      f.resolved ? h('p', { class: 'small good' }, ic('check'), ' Closed in ' + (f.resolved.version || '?') + (f.heardAt ? ' · they’ve seen your thanks' : ' · they’ll see your thanks next time they open Parlance')) : null,
+      f.ctx ? h('p', { class: 'small muted' }, [f.ctx.lang && LANGS[f.ctx.lang] ? LANGS[f.ctx.lang].name : '', f.ctx.level, f.ctx.lessonId || f.ctx.storyId || f.ctx.screen, f.ctx.exType, f.ctx.expected ? 'expected “' + f.ctx.expected + '”' : '', f.ctx.answer ? 'answered “' + f.ctx.answer + '”' : '', f.ctx.app ? 'v' + f.ctx.app : ''].filter(Boolean).join(' · ')) : null,
+      f.resolved ? null : fbActions(f)));
   }
   return wrap;
+}
+function fbActions(f){
+  const p = fbProposal(f);
+  if (p) return h('p', { class: 'small muted' }, 'In the proposal “' + p.title + '” (' + p.status + ')');
+  return h('div', { class: 'row fb-actions' },
+    h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => buildFromNote(f) }, ic('wand'), 'Build this'),
+    h('button', { class: 'linkish small', type: 'button', onclick: () => dismissNote(f) }, 'Close without building'));
+}
+/* a note you want built, straight to the build queue: no synthesis needed (works on the web too) */
+async function buildFromNote(f){
+  const now = Date.now();
+  const text = (f.text || '').trim() || (FB_TYPES.find(t => t[0] === f.type) || [0, f.type])[1];
+  const where = f.ctx ? [f.ctx.lessonId || f.ctx.storyId || f.ctx.screen, f.ctx.exType, f.ctx.expected ? 'expected “' + f.ctx.expected + '”' : '', f.ctx.answer ? 'answered “' + f.ctx.answer + '”' : ''].filter(Boolean).join(', ') : '';
+  const kind = f.type === 'content' ? 'content' : 'code';
+  try {
+    await Live.db.doc('proposals/p' + now.toString(36) + 'n').set({ title: text.slice(0, 60), kind, summary: text.slice(0, 400), problem: 'A learner wrote: “' + text.slice(0, 600) + '”', change: text + (where ? '\nWhere: ' + where : ''),
+      evidence: [f.id], impact: 2, effort: 2, areas: [], status: 'approved', createdAt: now, updatedAt: now, decidedAt: now, source: 'note' });
+    sfx('quest'); toast('In the build queue'); Studio.tab = 'proposals'; Studio.filter = 'approved'; await loadStudio(); drawStudio();
+  } catch (e) { toast('Couldn’t add it. Try again.'); }
+}
+async function dismissNote(f){
+  const doc = Live.db.doc('feedback/' + f.uid);
+  try {
+    const snap = await doc.get(); const cur = snap.exists ? JSON.parse(JSON.stringify(snap.data())) : null; if (!cur) return;
+    // closed quietly: resolved with no message, so the learner isn't thanked for something we didn't build
+    cur.items = (cur.items || []).map(x => x.id === f.id ? { ...x, resolved: { at: Date.now(), version: '', quiet: true }, heardAt: Date.now() } : x);
+    await doc.set(cur); toast('Closed'); await loadStudio(); drawStudio();
+  } catch (e) { toast('Couldn’t close it. Try again.'); }
+}
+/* Stamp every note behind a shipped proposal as resolved, so each learner is thanked the next time they open Parlance. */
+async function closeNotes(ids, info){
+  const want = new Set(ids), byUid = new Map();
+  for (const f of Studio.fb){ if (want.has(f.id)) byUid.set(f.uid, (byUid.get(f.uid) || 0) + 1); }
+  let closed = 0;
+  for (const uid of byUid.keys()){
+    const ref = Live.db.doc('feedback/' + uid);
+    const snap = await ref.get(); if (!snap.exists) continue;
+    const cur = JSON.parse(JSON.stringify(snap.data()));
+    cur.items = (cur.items || []).map(x => { if (!want.has(x.id) || x.resolved) return x; closed++; return { ...x, resolved: { at: Date.now(), ...info } }; });
+    await ref.set(cur);
+  }
+  return closed;
+}
+async function shipProposal(p, version, thanks){
+  const now = Date.now(), v = (version || '').trim() || APP_VERSION;
+  try {
+    const n = await closeNotes(p.evidence || [], { version: v, proposal: p.id, note: (thanks || '').trim().slice(0, 500) });
+    await Live.db.doc('proposals/' + p.id).set(withoutId({ ...p, status: 'shipped', version: v, shippedAt: now, thanks: (thanks || '').trim().slice(0, 500), updatedAt: now }));
+    sfx('badge'); toast(n ? 'Shipped. ' + n + ' ' + plural(n, 'person', 'people') + ' will be thanked.' : 'Marked shipped'); await loadStudio(); drawStudio();
+  } catch (e) { toast('Couldn’t finish. Try again.'); }
 }
 async function synthesize(all){
   if (Studio.busy || !aiOn()) return;
@@ -125,6 +185,8 @@ function proposalCard(p){
   const dots = n => h('span', { class: 'dots3' }, [1, 2, 3].map(i => h('i', { class: i <= n ? 'on' : '' })));
   const note = h('textarea', { class: 'input', rows: '2', placeholder: 'Notes for the builder (optional)' }, p.note || '');
   const ev = (p.evidence || []).map(id => Studio.fb.find(f => f.id === id)).filter(Boolean);
+  const thanksBox = h('textarea', { class: 'input', rows: '2', maxlength: '500', placeholder: 'What you tell the ' + (ev.length ? new Set(ev.map(f => f.uid)).size + ' ' + plural(new Set(ev.map(f => f.uid)).size, 'person who asked', 'people who asked') : 'people who asked') + ', e.g. “You can now swipe between cards.”' }, p.thanks || '');
+  const ver = h('input', { class: 'input', value: APP_VERSION, maxlength: '20', 'aria-label': 'Version it shipped in', style: 'max-width:96px' });
   const set = async (status) => {
     const now = Date.now();
     await Live.db.doc('proposals/' + p.id).set(withoutId({ ...p, status, note: note.value.trim(), decidedAt: now, updatedAt: now }));
@@ -137,16 +199,28 @@ function proposalCard(p){
     p.problem ? h('details', null, h('summary', null, 'The problem'), h('p', { class: 'small' }, p.problem)) : null,
     h('details', { open: p.status === 'pending' }, h('summary', null, 'What would change'), h('p', { class: 'small' }, p.change)),
     ev.length ? h('details', null, h('summary', null, ev.length + ' ' + plural(ev.length, 'note') + ' behind this'), h('ul', { class: 'ev-list' }, ev.slice(0, 8).map(f => h('li', null, '“' + (f.text || f.type) + '”')))) : null,
-    p.status === 'shipped' ? h('p', { class: 'small good' }, ic('check'), ' Shipped' + (p.version ? ' in ' + p.version : '')) : null,
+    p.status === 'shipped' ? h('p', { class: 'small good' }, ic('check'), ' Shipped' + (p.version ? ' in ' + p.version : '') + (ev.length ? ' · ' + ev.length + ' ' + plural(ev.length, 'note') + ' closed' : '')) : null,
     p.status !== 'shipped' ? note : null,
+    p.status === 'approved' ? h('div', { class: 'field' }, thanksBox, h('div', { class: 'row' }, ver, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => shipProposal(p, ver.value, thanksBox.value) }, ic('check'), 'Mark shipped and thank them'))) : null,
     p.status === 'pending' ? h('div', { class: 'sheet-actions' }, h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => set('rejected') }, 'Reject'), h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => set('approved') }, 'Approve'))
       : p.status !== 'shipped' ? h('button', { class: 'linkish small', type: 'button', onclick: () => set('pending') }, 'Move back to review') : null);
 }
+function briefNote(f){
+  return '   - [' + f.id + '] ' + (FB_TYPES.find(t => t[0] === f.type) || [0, f.type])[1] + (f.ctx ? ' (' + [f.ctx.lang, f.ctx.lessonId || f.ctx.storyId || f.ctx.screen, f.ctx.exType, f.ctx.expected ? 'expected “' + f.ctx.expected + '”' : '', f.ctx.answer ? 'answered “' + f.ctx.answer + '”' : '', f.ctx.app ? 'v' + f.ctx.app : ''].filter(Boolean).join(', ') + ')' : '') + ': “' + (f.text || '').replace(/\s+/g, ' ') + '”';
+}
+function showCopy(title, text){
+  try { navigator.clipboard.writeText(text).then(() => toast('Copied'), () => sheet(title, h('textarea', { class: 'input code', rows: '10', readonly: true }, text), [{ label: 'Close' }])); }
+  catch (e){ sheet(title, h('textarea', { class: 'input code', rows: '10', readonly: true }, text), [{ label: 'Close' }]); }
+}
 function copyBrief(list){
-  const brief = 'Parlance build brief (' + today() + ')\nCode: github.com/mcolfax/parlance (read CLAUDE.md, then docs/ARCHITECTURE.md). Artifact: this Parlance app.\nImplement only these approved proposals, run npm test (FAIL 0), bump APP_VERSION and RELEASES in js/config.js, commit to main, republish to the same artifact, set content/config.latest, then set each proposal to status "shipped" with "version".\n\n' +
-    list.map((p, i) => (i + 1) + '. [' + p.kind + '] ' + p.title + ' (id ' + p.id + ')\n   Change: ' + p.change + (p.note ? '\n   Owner note: ' + p.note : '')).join('\n\n');
-  try { navigator.clipboard.writeText(brief).then(() => toast('Build brief copied'), () => sheet('Build brief', h('textarea', { class: 'input code', rows: '10', readonly: true }, brief), [{ label: 'Close' }])); }
-  catch (e){ sheet('Build brief', h('textarea', { class: 'input code', rows: '10', readonly: true }, brief), [{ label: 'Close' }]); }
+  const brief = 'Parlance build brief (' + today() + ')\nCode: github.com/mcolfax/parlance (read CLAUDE.md, then docs/ARCHITECTURE.md).\nImplement only these approved proposals, run npm test (FAIL 0), bump APP_VERSION and RELEASES in js/config.js, commit to main, republish, set content/config.latest in both homes.\nThen close the loop for each proposal so the people who asked are thanked: node dev/feedback.js close <proposal id> <version> "<one warm sentence on what changed>" and run the SQL it prints on the Parlance Supabase project (or use Studio → Proposals → Mark shipped).\n\n' +
+    list.map((p, i) => (i + 1) + '. [' + p.kind + '] ' + p.title + ' (id ' + p.id + ')\n   Change: ' + p.change + (p.note ? '\n   Owner note: ' + p.note : '') + (p.evidence && p.evidence.length ? '\n   Notes behind it:\n' + p.evidence.map(id => Studio.fb.find(f => f.id === id)).filter(Boolean).map(briefNote).join('\n') : '')).join('\n\n');
+  showCopy('Build brief', brief);
+}
+/* the open notes as a brief to paste into Claude Code: it can propose, build, and close them out with dev/feedback.js */
+function copyFeedbackBrief(list){
+  const brief = 'Parlance learner feedback (' + today() + '): ' + list.length + ' open ' + plural(list.length, 'note') + '.\nCode: github.com/mcolfax/parlance (read CLAUDE.md, then docs/ARCHITECTURE.md). Group these, tell me what you would build, and build what I approve. Each note id below is what you pass to the close-out step: node dev/feedback.js close <version> "<one warm sentence on what changed>" --notes <ids>.\n\n' + list.slice(0, 80).map(briefNote).join('\n');
+  showCopy('Open notes', brief);
 }
 function studioContent(){
   const wrap = h('div', { class: 'studio-sec' });

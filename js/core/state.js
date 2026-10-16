@@ -270,6 +270,7 @@ async function initRemote(){
     await syncNow(true);
     flushOutbox();
     Remote.ready = true;
+    if (typeof maybeThanks === 'function') maybeThanks();
     if (typeof socialStart === 'function') socialStart();
   } catch (e) { setSync('error'); }
   Remote.ready = true;
