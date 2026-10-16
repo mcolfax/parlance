@@ -304,6 +304,16 @@ async function main(){
     ok(/water/.test(g('dell’acqua', 'it').val) && g('l’amico', 'it').val === 'friend' && g('comprato', 'it').base === 'comprare' && g('venduto', 'it').base === 'vendere' && g('Perché', 'it').val, 'Italian words find their meaning: elisions and verb forms ' + JSON.stringify([g('dell’acqua', 'it'), g('l’amico', 'it'), g('comprato', 'it')]));
     ok(/Giulia/.test(g('Giulia', 'it').val) && /landlord|pension/i.test(g('Bianchi', 'it').val || '') , 'the Italian cast’s names have meanings ' + JSON.stringify(g('Bianchi', 'it')));
     ok(A.E('lexToks("l’acqua e un’amica", "it")').join() === 'l,acqua,e,un,amica' && A.E('articlesFor("it").has("gli")') && !A.E('articlesFor("es").has("gli")'), 'Italian elisions split into article and word'); }
+  /* the opening subject pronoun is optional in Spanish and Italian, but never swapped for another */
+  {
+    T('yo dije', ['dije'], 'es', true, 'exact');
+    T('dije', ['yo dije'], 'es', true, 'exact');
+    T('Tú dijiste la verdad.', ['Dijiste la verdad.'], 'es', true, 'exact');
+    T('él dijo', ['ella dijo'], 'es', false);
+    T('es para', ['es para ella'], 'es', false);
+    T('io parlo', ['parlo'], 'it', true, 'exact');
+    T('yo', ['yo'], 'es', true, 'exact');
+  }
   /* answers that count without matching exactly say why, and what differs */
   {
     ok(/^Only the ß differs \(heiße\), so it counts\.$/.test(P.check('Ich heisse Matt', ['Ich heiße Matt.'], 'de').note), 'accent note says why it counts');
