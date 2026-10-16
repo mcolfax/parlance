@@ -70,6 +70,16 @@ function heroCard(){
       pip(mood, 80, { cls: 'hero-pip', say, mouth: arriving && mood !== 'sleep', wave: arriving && mood === 'happy' })),
     h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => startLesson(nx.id) }, started ? 'Continue' : 'Start your first lesson'));
 }
+/* a lesson left half-done on this device: one tap puts you back where you were (runner.js keeps the record) */
+function resumeCard(){
+  const rs = resumeFind(); if (!rs || rs.lesson.lang !== S.settings.lang) return null;
+  return h('section', { class: 'card resume' },
+    h('span', { class: 'eyebrow' }, 'Pick up where you left off'),
+    h('h3', null, rs.lesson.title),
+    h('p', { class: 'small muted' }, 'About ' + resumePercent(rs) + '% done'),
+    h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => startLesson(rs.lesson.id, true) }, 'Resume lesson'),
+    h('button', { class: 'linkish small', type: 'button', onclick: () => { resumeClear(); UI.animate = false; render(); } }, 'Forget it'));
+}
 function questCard(){
   const ids = questIds(); const done = ids.filter(questDone).length; const d = dayRec();
   const ready = done === 3 && !d.chest;
@@ -172,7 +182,7 @@ function levelSection(lang, lv){
 }
 function viewLearn(){
   const lang = S.settings.lang;
-  const v = h('div', { class: 'view' }, topBar(), greetBlock(), heroCard(), questCard(), wordOfDay(), routeStrip());
+  const v = h('div', { class: 'view' }, topBar(), greetBlock(), resumeCard(), heroCard(), questCard(), wordOfDay(), routeStrip());
   for (const lv of LEVELS){ const s = levelSection(lang, lv); if (s) v.append(s); }
   v.append(genSection());
   if (UI.justDone){ const id = UI.justDone; setTimeout(() => { if (UI.justDone === id) UI.justDone = null; }, 1600); }
