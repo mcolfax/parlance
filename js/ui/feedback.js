@@ -92,7 +92,7 @@ function quickRating(ctx){
 }
 /* small "report" link for an exercise you think was marked wrong */
 function reportLink(ex){
-  const ctx = { lessonId: ex.lesson && ex.lesson.id, itemKey: ex.srs || (ex.item && ex.lesson ? itemKey(ex.lesson, ex.kind, ex.lesson[ex.kind === 'v' ? 'vocab' : 'sentences'].indexOf(ex.item)) : null), exType: ex.type,
+  const ctx = { lessonId: ex.lesson && ex.lesson.id, itemKey: ex.srs || (ex.item && ex.lesson && (ex.kind === 'v' || ex.kind === 's') ? itemKey(ex.lesson, ex.kind, ex.lesson[ex.kind === 'v' ? 'vocab' : 'sentences'].indexOf(ex.item)) : null), exType: ex.type,
     prompt: ex.item ? ex.item.t : ex.blank ? ex.blank.t : '', expected: ex.item ? (ex.ansLang === 'en' ? ex.item.e[0] : ex.item.t) : ex.correct || '', answer: typeof Run.value === 'string' ? Run.value.slice(0, 200) : '' };
   return h('button', { class: 'linkish small fb-report', type: 'button', onclick: e => { e.stopPropagation(); openFeedback({ type: 'content', ctx, title: 'Report this exercise', placeholder: 'What’s wrong? For example: my answer should count, or the translation has a typo.' }); } }, ic('flag'), 'Report');
 }

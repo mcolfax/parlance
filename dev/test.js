@@ -503,7 +503,7 @@ async function main(){
     }
     ok(lessonsWithDrills >= 40, 'many lessons have form drills: ' + lessonsWithDrills);
     const sein = Q.E('getLesson')('es-1-3'), dr = Q.E('formDrills')(sein);
-    if (dr.length){ const ex = Q.E('formEx')(sein, dr[0]); const wrong = ex.options.find(o => o !== ex.correct); const r = Q.P.evaluate(ex, wrong); ok(!r.ok, 'wrong form option never counts'); }
+    if (dr.length){ const ex = Q.E('formEx')(sein, dr[0]); const wrong = ex.options.find(o => o !== ex.correct); const r = Q.P.evaluate(ex, wrong); ok(!r.ok, 'wrong form option never counts'); let rl = null; try { rl = Q.E('reportLink')(ex); } catch (e) {} ok(rl && rl.tagName === 'BUTTON', 'a missed form question can still build its Report link'); }
     // a lesson ends with the form drills
     ok(Q.E('buildLesson')(Q.E('getLesson')('es-1-3')).some(e => e.type === 'form'), 'lessons include form drills');
     // mistakes are noted, listed and cleared
