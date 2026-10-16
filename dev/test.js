@@ -821,7 +821,7 @@ async function main(){
     ok(q('.fb-cmp') && q('.fb-cmp').textContent.includes('You wrote') && q('.fb-cmp').textContent.includes('Expected'), 'answers side by side');
     ok(qa('.fb-yours mark.dif').map(m => m.textContent).includes('Hey,') && qa('.fb-yours mark.dif').map(m => m.textContent).includes('heute?'), 'your extra words are marked ' + qa('.fb-yours mark.dif').map(m => m.textContent));
     ok(qa('.fb-diffs li').length === 1 && /Hey → Hallo · more casual/.test(q('.fb-diffs li').textContent), 'tutor’s differences listed, junk dropped ' + qa('.fb-diffs li').map(x => x.textContent));
-    ok(q('.fb-report'), 'report link stays for tutor-accepted answers');
+    ok(!q('.fb-report'), 'no report link inside a non-owner’s Claude: feedback is web-only');
     cont();
     // an umlaut typed as ue counts, says why, and marks the word
     const vi = l.vocab.findIndex(v => v.t === 'Tschüss');
@@ -944,7 +944,7 @@ async function main(){
     for (let i = 0; i < 40 && store.get(props[0]).status !== 'shipped'; i++) await sleep(30);
     const rf = store.get('feedback/u_learner').items.find(x => x.id === 'f1');
     ok(store.get(props[0]).status === 'shipped' && store.get(props[0]).version === F.E('APP_VERSION'), 'proposal marked shipped with the version');
-    ok(rf.resolved && rf.resolved.note === 'Hi now counts for Hallo.' && rf.resolved.proposal === props[0] && rf.resolved.version === F.E('APP_VERSION'), 'the note behind it is closed with the message');
+    ok(rf.resolved && rf.resolved.note === 'Hi now counts for Hallo.' && rf.resolved.proposal === props[0].replace('proposals/', '') && rf.resolved.version === F.E('APP_VERSION'), 'the note behind it is closed with the message');
     ok(!store.get('feedback/u_learner').items.find(x => x.id === 'f2').resolved, 'other notes stay open');
     F.E('Studio.tab="feedback"; Studio.fbShow="closed"; drawStudio()');
     ok(F.w.document.querySelectorAll('.overlay.studio .fb-item').length === 1, 'closed notes are listed under Closed');
