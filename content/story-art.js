@@ -3,5 +3,21 @@
    STORY_ART[storyId]: the scene file's width to height, and who stands in it as [castId, x, bottom, height, flip] in percent of the scene.
    storyArt() in js/core/art.js draws it; a story with no entry keeps its drawn scene (SCENES). */
 const STORY_ART = {
-
+  'de-s1': { ar: 1.66, who: [["lena",30,3,52,1],["jonas",70,3,52,0]] },
+  'de-s2': { ar: 1.86, who: [["weber",30,3,52,1],["lena",70,3,52,0]] },
+  'de-s3': { ar: 1.21, who: [["jonas",30,3,52,1],["lena",70,3,52,0]] },
+  'de-s4': { ar: 1.93, who: [["weber",30,3,52,1],["emre",70,3,52,0]] },
+  'de-s5': { ar: 1.63, who: [["lena",30,3,52,1],["jonas",70,3,52,0]] },
+  'de-s6': { ar: 1.93, who: [["emre",30,3,52,1],["lena",70,3,52,0]] },
+  'de-s7': { ar: 1.64, who: [["emre",30,3,52,1],["jonas",70,3,52,0]] },
+  'es-s1': { ar: 1.42, who: [["mateo",30,3,52,1],["sofia",70,3,52,0]] },
+  'es-s2': { ar: 1.56, who: [["mateo",30,3,52,1],["diego",70,3,52,0]] },
+  'es-s3': { ar: 1.89, who: [["carmen",30,3,52,1],["diego",70,3,52,0]] },
+  'es-s4': { ar: 1.8, who: [["sofia",30,3,52,1],["mateo",70,3,52,0]] },
+  'es-s5': { ar: 1.75, who: [["sofia",30,3,52,1],["diego",70,3,52,0]] },
+  'it-s1': { ar: 1.46, who: [["giulia",30,3,52,1],["luca",70,3,52,0]] },
+  'it-s2': { ar: 1.84, who: [["luca",30,3,52,1],["giulia",70,3,52,0]] },
+  'it-s3': { ar: 1.93, who: [["nonna",30,3,52,1],["marco",70,3,52,0]] },
+  'it-s4': { ar: 1.93, who: [["luca",30,3,52,1],["giulia",70,3,52,0]] },
+  'it-s5': { ar: 1.42, who: [["conti",30,3,52,1],["bianchi",70,3,52,0]] }
 };
