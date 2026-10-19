@@ -25,7 +25,8 @@ fs.writeFileSync(path.join(OUT, 'manifest.webmanifest'), JSON.stringify({
     { src: 'media/icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
   ]
 }, null, 2) + '\n');
-const install = '<link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="media/icons/icon-192.png"><link rel="apple-touch-icon" href="media/icons/icon-180.png">' +
+const install = '<meta name="google-site-verification" content="FJY_qrIKoddmgzrMgvWSJ6QmUpQPdsfurvgYhT-jLK4">' +
+  '<link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="media/icons/icon-192.png"><link rel="apple-touch-icon" href="media/icons/icon-180.png">' +
   '<meta name="apple-mobile-web-app-title" content="Parlance"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">' +
   '<meta name="theme-color" media="(prefers-color-scheme: light)" content="' + bgLight + '"><meta name="theme-color" media="(prefers-color-scheme: dark)" content="' + bgDark + '">';
 /* the same page skeleton the artifact host wraps around index.html (see dev/preview.py), with the title in the head */
