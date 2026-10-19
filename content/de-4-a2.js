@@ -34,7 +34,7 @@ U('Body & health basics', 'A2', [
       [['Instructions with Sie: verb first', ['Infinitive', 'Command', 'Meaning'], [['nehmen', '**Nehmen Sie**', 'take'], ['kommen', '**Kommen Sie**', 'come'], ['warten', '**Warten Sie**', 'wait'], ['fragen', '**Fragen Sie**', 'ask']]],
       ['brauchen, möchten, können', ['', 'brauchen', 'möchten', 'können'], [['ich', '**brauche**', '**möchte**', '**kann**'], ['du', 'brauchst', 'möchtest', 'kannst'], ['er / sie / es', 'braucht', '**möchte**', '**kann**'], ['wir / sie / Sie', 'brauchen', 'möchten', '**können**']]],
       ['What you ask for (accusative)', ['Noun', 'Article', 'Example'], [['der', '**einen**', 'einen Hustensaft'], ['die', 'eine', 'eine Salbe, eine Tablette'], ['das', 'ein', 'ein Pflaster, ein Rezept'], ['plural', 'no article', 'Tabletten']]]]),
-    [['die Tablette', 'tablet|pill', 'f'], ['die Salbe', 'ointment|cream|salve', 'f'], ['das Rezept', 'prescription', 'n'], ['das Pflaster', 'band-aid|plaster', 'n'],
+    [['die Tablette', 'tablet|pill', 'f'], ['die Salbe', 'ointment|cream|salve', 'f'], ['das Rezept', 'prescription', 'n', 'prescription'], ['das Pflaster', 'band-aid|plaster', 'n'],
      ['der Hustensaft', 'cough syrup', 'm'], ['der Apotheker', 'pharmacist|chemist', 'm'], ['brauchen', 'to need'], ['gegen', 'against|for (a problem)']],
     [['Ich brauche etwas gegen Husten.', 'I need something for a cough.|I need something against a cough.|I need something for my cough.|I need something to treat a cough.'],
      ['Haben Sie etwas gegen Kopfschmerzen?', 'Do you have something for a headache?|Do you have anything for a headache?|Do you have something for headaches?|Do you have anything for headaches?|Have you got something for a headache?|Have you got anything for a headache?'],

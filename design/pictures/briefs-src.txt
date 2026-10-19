@@ -256,7 +256,7 @@ n 1 a-clothes jacket | blue zip-up jacket with two pockets
 n 1 a-clothes raincoat | yellow hooded raincoat with a few raindrops
 n 1 a-clothes scarf | long striped red-and-cream scarf with a loose knot and fringe
 n 1 a-clothes sunglasses | black sunglasses with dark round lenses and a small glint
-= to-put-on to-wear
+v 0 a-clothes to-put-on | figure with one arm already in a jacket sleeve, the other sleeve held out behind
 v 0 a-clothes to-wear | figure pulling a jacket on, one arm in the sleeve
 n 1 a-clothes umbrella | open red umbrella with a curved handle
 a 0 a-clothes checked | square of red-and-white checked cloth with a folded corner
@@ -365,7 +365,7 @@ a 0 a-people funny | laughing round face with a wide open mouth and tears of joy
 - pretty | subjective
 a 0 a-people serious | round face with a flat straight mouth and level eyebrows
 = short small
-a 0 a-people tall | tall figure standing beside a much shorter figure, the tall one highlighted
+a 0 a-people tall {"es":["alto"],"it":["alto"]} | tall figure standing beside a much shorter figure, the tall one highlighted
 = young child
 a 0 a-people blond | long wavy lock of yellow-blond hair tied with a blue ribbon
 n 1 a-people eyes | pair of eyes with eyebrows and blue irises
@@ -397,7 +397,7 @@ n 1 a-places meeting | four figures sitting around a table with papers and a scr
 n 1 a-places office | desk with a computer monitor, a chair, a potted plant and a stack of papers
 n 1 a-places school | school building with a small bell tower, a flag and double doors
 = to-finish finished
-= to-learn to-study
+v 0 a-verbs to-learn | open book on the ground with a curved arrow going from it into a head
 v 1 a-verbs to-study | figure at a desk with an open book and a pen, a stack of books beside
 - to-start | abstract
 n 0 a-places university | graduation cap on top of a stack of books beside a rolled diploma with a ribbon
@@ -648,7 +648,7 @@ n 0 a-health ointment | white tube with a red cap and a dab of cream
 n 0 a-people pharmacist | figure in a white coat holding a pill bottle behind a counter
 n 1 a-health pill | white round pill and a red-and-white capsule
 = plaster band-aid
-n 0 a-health prescription | paper slip with wavy lines and a red cross
+n 0 a-health prescription {"es":["la receta"],"it":["la ricetta"]} | paper slip with wavy lines and a red cross
 = syrup cough-syrup
 = tablet pill
 = thermometer temperature
@@ -820,7 +820,7 @@ n 0 b-body back | figure seen from behind with the shoulder blades marked by a r
 a 1 b-feelings angry | round red face with furrowed eyebrows and steam from the ears
 a 1 b-feelings sad | round blue face with a tear and a downturned mouth
 a 0 b-feelings nervous | round pale face with sweat drops and a wavy mouth
-= worried nervous
+a 0 b-feelings worried | round face with brows raised in the middle, a small wobbly mouth and one sweat drop
 n 0 b-feelings hunger | empty bowl with a spoon beside it and a rumbling wavy line above
 = sleep to-sleep
 = to-relax to-rest
@@ -854,8 +854,8 @@ n 0 b-leisure exhibition | three framed paintings on a gallery wall above a benc
 = festival party-fun
 n 1 b-culture fireworks | colorful fireworks bursting in a dark night sky
 n 1 b-culture present | wrapped gift box with a ribbon and a big bow
-= to-give-as-a-present present
-= to-celebrate fireworks
+= to-give-as-a-present to-give
+v 0 b-society to-celebrate | two glasses clinking with confetti and a star
 n 0 b-culture carnival | feathered carnival mask with sequins and a stick
 n 0 b-culture easter | decorated eggs in a basket with a small bunny
 n 0 b-culture nativity-scene | small wooden stable with a manger and a bright star above
@@ -867,7 +867,7 @@ n 0 b-culture the-befana | old witch with a pointed hat on a broomstick with a s
 n 0 b-kitchen flour | white paper sack of flour with a wooden scoop
 n 1 b-kitchen frying-pan | empty round frying pan with a long handle
 n 1 b-kitchen garlic | garlic bulb with a few loose cloves
-n 0 b-kitchen jar | glass jar with a screw lid and jam inside
+n 0 b-kitchen jar {"es":["el frasco"]} | glass jar with a screw lid and jam inside
 n 1 b-kitchen knife | kitchen knife with a wooden handle
 n 1 b-kitchen oil | bottle of golden olive oil with a cork and a green olive
 n 1 b-kitchen onion | brown-skinned onion with a green sprout
@@ -881,7 +881,7 @@ n 0 b-kitchen recipe | open cookbook with a small picture of a dish and wavy lin
 v 0 b-verbs to-bake | figure sliding a tray of bread into an oven
 v 0 b-verbs to-boil | pot of bubbling water with steam rising
 v 0 b-verbs to-chop | figure chopping a carrot with a knife on a board
-= to-cut to-chop
+v 0 b-kitchen to-cut | kitchen knife slicing a tomato in two
 v 0 b-verbs to-fry | frying pan with a sizzling sausage and oil splashes
 v 0 b-verbs to-mix | figure whisking a bowl
 = to-stir to-mix
@@ -899,9 +899,9 @@ a 0 b-food spicy | red chili pepper with flames
 = accommodation hotel
 n 0 b-travel destination | round red map pin stuck in a folded map
 n 0 b-travel flight | airplane flying above clouds with a dotted trail behind
-= itinerary destination
+n 0 b-travel itinerary | winding dotted route across a map from a start dot to a flag
 n 1 b-travel suitcase | brown suitcase with a handle, a belt and a couple of stickers
-= to-pack suitcase
+v 0 b-travel to-pack | open suitcase with folded clothes sticking out
 n 0 b-travel breakdown | small car with the hood raised and smoke coming out
 a 0 b-travel broken | white cup broken in two pieces with a crack
 = to-break-down breakdown
@@ -920,7 +920,7 @@ n 0 b-news election | ballot box with a paper going into the slot
 n 0 b-news government | parliament building with a dome and a flag
 n 0 b-news law | scales of justice with a gavel
 n 1 b-news newspaper | folded newspaper with a photo and wavy lines, no words
-= news newspaper
+n 0 b-society news | tv set showing a presenter with a red news bar
 n 0 b-news thief | figure with a black eye mask and a striped sack, tiptoeing
 v 0 b-verbs to-build | figure with a hard hat laying bricks in a wall
 n 0 b-world energy | wind turbine and a solar panel side by side
@@ -1080,7 +1080,7 @@ n 0 b-school exam | sheet of paper with a big red check mark and a pencil beside
 = to-dream-of dream
 = bright lamp
 n 0 b-home rent | small house with a key hanging from a tag
-= to-rent rent
+v 0 b-home to-rent | figure handing a key to another figure
 = two-room-flat apartment
 = to-move-in to-move
 a 0 b-feelings jealous | round green face with narrowed side-glancing eyes
@@ -1095,21 +1095,21 @@ n 0 b-people donation | hand dropping a coin into a box with a heart on it
 n 0 b-work interview | two figures facing each other across a small table with papers
 = job-interview interview
 = cv application
-= cover-letter application
-= documents application
-= form application
-= to-fill-in application
+n 0 b-work cover-letter | white letter sheet with greeting lines and a signature, a sealed envelope in front
+n 0 b-work documents | yellow folder with a stack of papers sticking out
+n 0 b-work form | paper form with a blue header, three tick boxes and blank lines
+v 0 b-work to-fill-in | form with a pen ticking a box
 v 0 b-verbs to-sign | hand signing a paper with a pen, a squiggle line
 n 0 b-people graduate | figure in a graduation gown and cap holding a rolled scroll
 = illness sick
 = to-earn money
 = vote election
-= to-vote election
+v 0 b-society to-vote | figure dropping a ballot paper into a ballot box
 = home house
 n 0 b-nature roots | tree with its roots showing underground
 = to-pour rain
 = to-be-in-a-good-mood happy
-= to-be-in-a-bad-mood angry
+x 0 b-feelings to-be-in-a-bad-mood | grumpy round face with a small storm cloud and lightning above it
 = to-be-furious angry
 = to-feel-down sad
 = to-cry-one-s-eyes-out sad
