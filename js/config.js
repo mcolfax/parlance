@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.24.2';
+const APP_VERSION = '4.25.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,8 @@ const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.25.0', date: '2026-10-19', title: 'New story scenes', notes: [
+    'Seventeen stories now open with a drawn scene of the place, with the people in the story standing in it.'] },
   { v: '4.24.2', date: '2026-10-19', title: 'Clearer doctor’s visit', notes: [
     'In the Spanish lesson “At the doctor’s”, “Tiene que quedarse en cama” now shows “He has to stay in bed”, so it is clear it isn’t about you.',
     'The “tener” table now lists just the verb forms, so the form questions no longer ask for “fiebre” along with the verb.'] },
