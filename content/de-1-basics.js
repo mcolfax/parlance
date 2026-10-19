@@ -179,7 +179,7 @@ U('Family & descriptions', 'A2', [
     T('Adjective endings', 'After **sein**, adjectives never change: Er ist nett. Before a noun, they take an ending. After **ein** the ending shows the gender: ein nett**er** Mann (der), eine nett**e** Frau (die), ein nett**es** Kind (das). With **eine** the ending is always -e: eine schön**e** Stadt. Before plural nouns the ending is -e too (nette Kinder). Words with a capital: **Mann** (man) and **Frau** (woman) are nouns, not “one” or “Mrs.” here.',
       [['Sie ist jung und nett.', 'She is young and nice.'], ['Das ist eine schöne Stadt.', 'That is a beautiful city.'], ['Die Kinder sind sehr lustig.', 'The children are very funny.']],
       [['Adjective ending after **ein** / **eine**', ['', 'Ending', 'Example'], [['der (masc.)', '**-er**', 'ein nett**er** Mann'], ['die (fem.)', '**-e**', 'eine nett**e** Frau'], ['das (neut.)', '**-es**', 'ein nett**es** Kind']]]]),
-    [['groß', 'tall|big'], ['klein', 'short|small|little'], ['jung', 'young'], ['alt', 'old'], ['nett', 'nice|kind'],
+    [['groß', 'tall|big', '', 'tall'], ['klein', 'short|small|little'], ['jung', 'young'], ['alt', 'old'], ['nett', 'nice|kind'],
      ['lustig', 'funny'], ['freundlich', 'friendly'], ['schön', 'beautiful|nice|pretty']],
     [['Mein Vater ist groß.', 'My father is tall.|My dad is tall.'],
      ['Die Kinder sind sehr lustig.', 'The children are very funny.|The kids are very funny.'],
