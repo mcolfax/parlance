@@ -131,6 +131,15 @@ function baseForms(k, lang){
   }
   return out;
 }
+/* Spanish and Italian drop the subject pronoun ("yo dije" = "dije"), so a sentence-opening pronoun is optional.
+   Only the first word counts, so "para ella" never turns into "para". */
+const SUBJ = { es: new Set(['yo', 'tú', 'él', 'ella', 'usted', 'nosotros', 'nosotras', 'ellos', 'ellas', 'ustedes']), it: new Set(['io', 'tu', 'lui', 'lei', 'noi', 'voi', 'loro']) };
+function dropSubj(n, lang){
+  const S = SUBJ[lang]; if (!S) return n;
+  const i = n.indexOf(' ');
+  return i > 0 && S.has(n.slice(0, i)) ? n.slice(i + 1) : n;
+}
+const SUBJ_NOTE = 'In Spanish and Italian you can leave out the pronoun, so both count.';
 function check(input, accepted, lang, opt = {}){
   const typo = opt.typo !== false;
   const ua = norm(input, lang);
@@ -139,6 +148,17 @@ function check(input, accepted, lang, opt = {}){
   for (const [a, na] of nas) if (na === ua) return { ok: true, level: 'exact', match: a };
   const fu = fold(ua);
   for (const [a, na] of nas) if (fold(na) === fu || fold2(na) === fu) return { ok: true, level: 'accent', match: a, note: accentNote(input, a, lang) };
+  if (SUBJ[lang]){   // one side may add or drop the opening pronoun, never both (él dijo is not ella dijo)
+    const su = dropSubj(ua, lang);
+    for (const [a, na] of nas){
+      const sa = dropSubj(na, lang);
+      for (const [x, y] of [[su, na], [ua, sa]]){
+        if (x === ua && y === na) continue;
+        if (x === y) return { ok: true, level: 'exact', match: a, note: SUBJ_NOTE };
+        if (fold(y) === fold(x) || fold2(y) === fold(x)) return { ok: true, level: 'accent', match: a, note: accentNote(input, a, lang) };
+      }
+    }
+  }
   if (typo) for (const [a, na] of nas){
     const t = typoMatch(fu, fold(na), lang);
     if (t) return { ok: true, level: 'typo', match: a, note: typoNote(a, t, lang) };

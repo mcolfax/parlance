@@ -304,6 +304,16 @@ async function main(){
     ok(/water/.test(g('dell’acqua', 'it').val) && g('l’amico', 'it').val === 'friend' && g('comprato', 'it').base === 'comprare' && g('venduto', 'it').base === 'vendere' && g('Perché', 'it').val, 'Italian words find their meaning: elisions and verb forms ' + JSON.stringify([g('dell’acqua', 'it'), g('l’amico', 'it'), g('comprato', 'it')]));
     ok(/Giulia/.test(g('Giulia', 'it').val) && /landlord|pension/i.test(g('Bianchi', 'it').val || '') , 'the Italian cast’s names have meanings ' + JSON.stringify(g('Bianchi', 'it')));
     ok(A.E('lexToks("l’acqua e un’amica", "it")').join() === 'l,acqua,e,un,amica' && A.E('articlesFor("it").has("gli")') && !A.E('articlesFor("es").has("gli")'), 'Italian elisions split into article and word'); }
+  /* the opening subject pronoun is optional in Spanish and Italian, but never swapped for another */
+  {
+    T('yo dije', ['dije'], 'es', true, 'exact');
+    T('dije', ['yo dije'], 'es', true, 'exact');
+    T('Tú dijiste la verdad.', ['Dijiste la verdad.'], 'es', true, 'exact');
+    T('él dijo', ['ella dijo'], 'es', false);
+    T('es para', ['es para ella'], 'es', false);
+    T('io parlo', ['parlo'], 'it', true, 'exact');
+    T('yo', ['yo'], 'es', true, 'exact');
+  }
   /* answers that count without matching exactly say why, and what differs */
   {
     ok(/^Only the ß differs \(heiße\), so it counts\.$/.test(P.check('Ich heisse Matt', ['Ich heiße Matt.'], 'de').note), 'accent note says why it counts');
@@ -368,7 +378,7 @@ async function main(){
   {
     const H = await makeDom(); H.P.S.settings.onboarded = true;
     const hd = H.w.document, ov = () => hd.querySelector('.overlay:not(.out)');
-    const open = id => { H.E('endRun(); startLesson(' + JSON.stringify(id) + ')'); [...ov().querySelectorAll('.ov-foot button')].find(b => b.textContent === 'Start lesson').click(); };
+    const open = id => { H.E('endRun(); startLesson(' + JSON.stringify(id) + ')'); [...ov().querySelectorAll('.ov-foot button')].find(b => b.textContent === 'Start lesson' || b.textContent === 'Start over').click(); };
     const show = type => { const i = H.E('Run.queue.findIndex(e => e.type === ' + JSON.stringify(type) + ')'); ok(i >= 0, 'hint test finds a ' + type); H.E('Run.pos = ' + i + '; nextEx()'); };
     const firstLesson = lv => H.P.COURSE.es.units.flatMap(u => u.lessons).find(l => l.level === lv).id;
     H.E('S.settings.lang = "es"');
@@ -821,7 +831,7 @@ async function main(){
     ok(q('.fb-cmp') && q('.fb-cmp').textContent.includes('You wrote') && q('.fb-cmp').textContent.includes('Expected'), 'answers side by side');
     ok(qa('.fb-yours mark.dif').map(m => m.textContent).includes('Hey,') && qa('.fb-yours mark.dif').map(m => m.textContent).includes('heute?'), 'your extra words are marked ' + qa('.fb-yours mark.dif').map(m => m.textContent));
     ok(qa('.fb-diffs li').length === 1 && /Hey → Hallo · more casual/.test(q('.fb-diffs li').textContent), 'tutor’s differences listed, junk dropped ' + qa('.fb-diffs li').map(x => x.textContent));
-    ok(q('.fb-report'), 'report link stays for tutor-accepted answers');
+    ok(!q('.fb-report'), 'no report link inside a non-owner’s Claude: feedback is web-only');
     cont();
     // an umlaut typed as ue counts, says why, and marks the word
     const vi = l.vocab.findIndex(v => v.t === 'Tschüss');
@@ -935,8 +945,56 @@ async function main(){
     for (let i = 0; i < 30 && !(store.get('feedback/u_test').items.some(x => x.type === 'rating')); i++) await sleep(30);
     ok(store.get('feedback/u_test').items.some(x => x.type === 'rating' && x.rating === 1 && x.ctx.lessonId === 'de-1-2'), 'rating stored');
     F.E('endRun()');
+    // close the loop: ship the approved proposal, and the learner's note is stamped resolved with the version and message
+    await F.E('openStudio()');
+    F.E('Studio.tab="proposals"; Studio.filter="approved"; drawStudio()');
+    const thanksTa = [...F.w.document.querySelectorAll('.overlay.studio .proposal textarea')].find(t => /people? who asked|person who asked/.test(t.placeholder)); ok(!!thanksTa, 'thanks box on an approved proposal');
+    thanksTa.value = 'Hi now counts for Hallo.';
+    [...F.w.document.querySelectorAll('.overlay.studio .proposal button')].find(b => /Mark shipped/.test(b.textContent)).click();
+    for (let i = 0; i < 40 && store.get(props[0]).status !== 'shipped'; i++) await sleep(30);
+    const rf = store.get('feedback/u_learner').items.find(x => x.id === 'f1');
+    ok(store.get(props[0]).status === 'shipped' && store.get(props[0]).version === F.E('APP_VERSION'), 'proposal marked shipped with the version');
+    ok(rf.resolved && rf.resolved.note === 'Hi now counts for Hallo.' && rf.resolved.proposal === props[0].replace('proposals/', '') && rf.resolved.version === F.E('APP_VERSION'), 'the note behind it is closed with the message');
+    ok(!store.get('feedback/u_learner').items.find(x => x.id === 'f2').resolved, 'other notes stay open');
+    F.E('Studio.tab="feedback"; Studio.fbShow="closed"; drawStudio()');
+    ok(F.w.document.querySelectorAll('.overlay.studio .fb-item').length === 1, 'closed notes are listed under Closed');
+    // a note straight to the build queue, and a quiet close
+    F.E('Studio.fbShow="open"; drawStudio()');
+    await F.E('buildFromNote(Studio.fb.find(f => f.text === "Add more food words please"))');
+    ok([...store.keys()].some(k => k.startsWith('proposals/p') && store.get(k).source === 'note' && store.get(k).status === 'approved' && store.get(k).evidence.length === 1), 'Build this queues an approved proposal citing the note');
+    await F.E('dismissNote(Studio.fb.find(f => f.text === "Add more food words please"))');
+    ok(store.get('feedback/u_test').items.find(x => x.text === 'Add more food words please').resolved.quiet === true, 'close without building is quiet');
+    F.E('closeStudio()');
     console.log('page errors (F):', F.errors.length ? F.errors.slice(0, 5) : 'none'); ok(!F.errors.length, 'no page errors F');
     F.dom.window.close();
+    // the learner opens Parlance after the fix: thanked once, then it never repeats
+    {
+      const st = new Map(); st.set('feedback/u_learner', { items: [{ id: 'f1', at: 1, type: 'content', text: 'Hi should count', resolved: { at: 5, version: '9.9.9', proposal: 'p1', note: 'Hi now counts for Hallo.' } }, { id: 'f3', at: 2, type: 'idea', text: 'Dark mode', resolved: { at: 5, version: '9.9.9', proposal: 'p2', quiet: true } }, { id: 'f4', at: 3, type: 'idea', text: 'Still open' }] });
+      const L = await makeDom({ claude: fakeClaude(st, { uid: 'u_learner' }), seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+      L.E('S.settings.seenVersion = APP_VERSION');
+      for (let i = 0; i < 60 && !L.w.document.querySelector('.heard'); i++) await sleep(60);
+      const heard = L.w.document.querySelector('.heard');
+      ok(heard && heard.textContent.includes('Hi should count') && heard.textContent.includes('9.9.9') && heard.textContent.includes('Hi now counts for Hallo.'), 'learner is thanked with their note and the message');
+      ok(!heard.textContent.includes('Dark mode') && !heard.textContent.includes('Still open'), 'quiet and open notes get no thanks');
+      for (let i = 0; i < 40 && !st.get('feedback/u_learner').items.find(x => x.id === 'f1').heardAt; i++) await sleep(30);
+      ok(st.get('feedback/u_learner').items.find(x => x.id === 'f1').heardAt && st.get('feedback/u_learner').items.find(x => x.id === 'f1').resolved.version === '9.9.9', 'thanks is stamped heard and keeps what the owner wrote');
+      L.w.document.querySelectorAll('.sheet-back').forEach(e => e.remove());
+      ok((await L.E('maybeThanks()')) === false && !L.w.document.querySelector('.heard'), 'the thanks does not come back');
+      console.log('page errors (L):', L.errors.length ? L.errors.slice(0, 5) : 'none'); ok(!L.errors.length, 'no page errors L');
+      L.dom.window.close();
+    }
+    // inside someone else's Claude, feedback goes to the web version instead
+    {
+      const st = new Map();
+      const N = await makeDom({ claude: fakeClaude(st, { uid: 'u_other' }), seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+      await sleep(300);
+      ok(N.E('feedbackWebOnly()') === true && N.E('quickRating({})') === null, 'non-owner in Claude: no rating chips');
+      N.E('UI.tab="me"; render()');
+      [...N.w.document.querySelectorAll('button')].find(b => b.textContent.includes('Send feedback')).click();
+      const link = N.w.document.querySelector('.sheet a.btn');
+      ok(link && /parlance-iota\.vercel\.app/.test(link.href) && !N.w.document.querySelector('.sheet textarea'), 'Send feedback points to the web version');
+      N.dom.window.close();
+    }
     // a view-only shared viewer: feedback can't be written, so the fallback appears and the note stays queued
     const store2 = new Map();
     const V = await makeDom({ claude: fakeClaude(store2, { readOnly: true }), seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
@@ -947,6 +1005,54 @@ async function main(){
     ok([...V.w.document.querySelectorAll('.sheet button')].some(b => b.textContent === 'Copy note'), 'fallback offers copy');
     console.log('page errors (V):', V.errors.length ? V.errors.slice(0, 5) : 'none'); ok(!V.errors.length, 'no page errors V');
     V.dom.window.close();
+  }
+  /* ---------- resuming a lesson ---------- */
+  {
+    const seed = { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } };
+    const A = await makeDom({ seed });
+    const btn = (D, t) => [...D.w.document.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent.startsWith(t));
+    ok(!A.w.document.querySelector('.card.resume'), 'no resume card before a lesson is started');
+    A.E('startLesson("de-1-2")'); btn(A, 'Start lesson').click();
+    ok(!A.w.localStorage.getItem('parlance.resume') === false, 'the lesson is saved as soon as it starts');
+    A.E('Run.pos = 6; Run.xp = 10; Run.combo = 2; Run.first.set(Run.queue[2].id, "exact"); nextEx()');
+    const raw = A.w.localStorage.getItem('parlance.resume'), saved = JSON.parse(raw);
+    ok(saved.id === 'de-1-2' && saved.pos === 6 && saved.xp === 10, 'position and score are saved');
+    const total = A.E('Run.queue.length'), exId = A.E('Run.queue[6].id');
+    A.E('endRun()');   // Leave
+    ok(A.w.localStorage.getItem('parlance.resume'), 'leaving keeps the saved lesson');
+    A.dom.window.close();
+    // a reload: the card on Learn brings the lesson back as it was
+    const B = await makeDom({ seed, storage: { 'parlance.resume': raw } });
+    const card = B.w.document.querySelector('.card.resume');
+    ok(card && card.textContent.includes(B.E('getLesson("de-1-2").title')), 'resume card on Learn');
+    [...card.querySelectorAll('button')].find(b => b.textContent === 'Resume lesson').click();
+    ok(B.E('Run.started && Run.pos === 6 && Run.xp === 10 && Run.combo === 2 && Run.queue.length === ' + total + ' && Run.cur.id === ' + exId), 'resume restores the place and the score');
+    ok(B.E('Run.queue.every(ex => ex.lesson === Run.lesson && (ex.kind !== "v" && ex.kind !== "s" || (ex.kind === "v" ? Run.lesson.vocab : Run.lesson.sentences).includes(ex.item)))'), 'restored exercises point at the lesson’s own items');
+    ok(B.E('Run.first.size') === 1 && B.E('Run.taught.size') > 0, 'answers so far and words taught come back');
+    ok(B.E('buildLesson(getLesson("de-1-2")).every(ex => ex.id > ' + exId + ')'), 'new exercise ids never reuse the saved ones');
+    B.E('Run.pos = Run.queue.length; nextEx()');
+    ok(!B.w.localStorage.getItem('parlance.resume'), 'finishing the lesson clears it');
+    B.E('endRun()');
+    ok(!B.w.document.querySelector('.card.resume'), 'no card once the lesson is done');
+    B.dom.window.close();
+    // from the lesson's own intro: pick up, or start over
+    const C = await makeDom({ seed, storage: { 'parlance.resume': raw } });
+    C.E('startLesson("de-1-2")');
+    ok(btn(C, 'Pick up where you left off') && !btn(C, 'Start lesson'), 'the intro offers to pick up');
+    btn(C, 'Start over').click();
+    ok(C.E('Run.pos') === 0 && C.E('Run.started') && C.E('Run.xp') === 0, 'start over begins again');
+    ok(JSON.parse(C.w.localStorage.getItem('parlance.resume')).pos === 0, 'start over replaces the saved lesson');
+    C.E('endRun()');
+    // too old, another account, or a lesson that changed: nothing is offered
+    const old = JSON.stringify({ ...saved, at: Date.now() - 8 * 86400000 }), other = JSON.stringify({ ...saved, owner: 'someone-else' });
+    const changed = JSON.stringify({ ...saved, sig: [saved.sig[0] + 1, saved.sig[1], saved.sig[2]] });
+    for (const [name, s] of [['older than a week', old], ['from another account', other], ['for a changed lesson', changed]]){
+      const D = await makeDom({ seed: { 'parlance.v2': { owner: 'me', settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } }, storage: { 'parlance.resume': s } });
+      ok(!D.w.document.querySelector('.card.resume'), 'no resume card when it is ' + name);
+      D.dom.window.close();
+    }
+    console.log('page errors (resume):', C.errors.length || B.errors.length ? [...C.errors, ...B.errors].slice(0, 5) : 'none'); ok(!C.errors.length && !B.errors.length, 'no page errors resuming');
+    C.dom.window.close();
   }
   /* ---------- 9. film, sounds, parrot ---------- */
   {

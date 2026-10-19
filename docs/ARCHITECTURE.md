@@ -169,12 +169,14 @@ The Friends tab (`js/ui/friends.js`, data side in `js/core/social.js`) has a wee
 - **Duels** sit on both cards. The challenger lists it, the friend who accepts sets the dates, and both sides score the week from the days on both cards. A duel settles a day or two after it ends, once both cards cover the last day.
 - Friends' cards are other people's input: `cleanCard()` keeps only the expected fields and sizes, and everything is drawn as text.
 
-## Feedback → proposals → approval → build
+## Feedback → proposals → approval → build → thanks
 
-1. Learners send notes from Me, from Report on any exercise, and with the one-tap "Too easy / Just right / Too hard" on every finish screen. Notes go to `feedback/<their id>` (only the owner can read them). Viewers who can't write keep notes in a browser outbox, and can leave a page comment or copy the note instead.
-2. In **Studio** (Me → Studio, owner only), **Turn new feedback into proposals** asks Claude to group the notes into proposals at `proposals/<id>` with `status: "pending"`.
+1. **Feedback is collected on the web version only.** A note left in someone's own Claude would never reach the owner, so in a Claude copy that isn't the owner's, Send feedback shows a sheet that links to the web version, and the Report link and the one-tap rating are hidden (`feedbackWebOnly()` in `js/ui/feedback.js`). Learners send notes from Me, from Report on any exercise, and with the one-tap "Too easy / Just right / Too hard" on every finish screen. Notes go to `feedback/<their id>` (only the owner can read them). Viewers who can't write keep notes in a browser outbox, and can leave a page comment or copy the note instead.
+2. **Bring it into Claude Code.** In **Studio** (Me → Studio, owner only, web or Claude), Feedback lists open notes. **Copy open notes for Claude Code** gives a brief with every note id. **Build this** on a note puts it straight in the build queue as an approved proposal citing that note (no synthesis needed, so it works on the web). **Close without building** closes it quietly, with no thanks. **Turn new feedback into proposals** asks Claude to group notes into `proposals/<id>` with `status: "pending"` (Claude only). From Claude Code, `node dev/feedback.js open` prints the SQL that lists open notes and approved proposals; run it with the Supabase `execute_sql` tool.
 3. The owner approves or rejects each proposal and can add notes for the builder. Nothing is built without approval.
-4. The weekly build task (or any Claude session given the build brief) implements only `approved` proposals, runs the tests, bumps the version, republishes, marks the version latest, and sets each proposal to `status: "shipped"` with `version`.
+4. The build (a Claude Code session, or the weekly task) implements only `approved` proposals, runs the tests, bumps the version, publishes, marks the version latest.
+5. **Close the loop.** Studio → Proposals → **Mark shipped and thank them** (with the version and a sentence for the people who asked), or from Claude Code `node dev/feedback.js close <version> "<message>" --proposal <id>` and run the SQL. Both set the proposal to `status: "shipped"` with `version`, and stamp every note it cites with `resolved: { at, version, proposal, note }` in that learner's `feedback/<uid>`. Notes already closed are never touched. The artifact's own database can't be reached with SQL, so there only Studio does this.
+6. **They hear about it.** `maybeThanks()` runs when a signed-in learner opens Parlance (and again when a sheet that was in the way closes): it reads their own `feedback/<uid>`, and for notes with `resolved` and no `heardAt` shows one "you were heard" sheet (their words, the version, your message), then sets `heardAt` on those notes and remembers them in `parlance.heard` so it never repeats. Quietly closed notes (`resolved.quiet`) get no sheet. A learner's later sends keep these fields, because the outbox only adds new items.
 
 Database rules declared at publish:
 
@@ -206,6 +208,14 @@ A lesson opens with a short overview (`showIntro()` in `runner.js`: the idea's t
 - **Phrases**: a sentence or blank is never asked cold. Before its first question a `phrases` card shows it with its meaning and audio, plus the meaning of any form or extra word in it that `lessonForms()` found and no idea card has covered. A phrase also waits until every lesson word it uses has been taught (`ready()` in `buildLesson`), so a concept bite can move later in the lesson. The harder practice (typing, listening, speaking, form drills) closes the lesson.
 - Every word and phrase is shown before it is asked, and every example and table is shown; `dev/test.js` checks this for every lesson. Authors change nothing: tips are still `T(title, body, examples, tables)` and live packs use the same shape. Write a tip as short sentences, with each bold phrase near the example or table it belongs to.
 - The Words button in the header lists the words met so far (`Run.taught`).
+
+## Resuming a lesson
+
+A lesson left half-done (Leave, a closed tab, a reload) can be picked up where it stopped. `resumeSave()` in `js/ui/runner.js` writes the run to `localStorage` under `parlance.resume` after every card and every answer: the lesson id, the queue (each exercise with its lesson and items replaced by indexes), the position, the words taught, the answers so far, XP and combo. One lesson is held at a time.
+
+- **Device-local on purpose.** It is not in `parlance.v2`, the synced slices or the database, so there is no schema change and nothing to migrate.
+- **Offered** by a "Pick up where you left off" card at the top of Learn (current language only) and by the lesson's own intro, which then also offers Start over. `resumeFind()` rebuilds the queue against the lesson as it is now and returns nothing if it is older than `RESUME.maxAgeDays` (`config.js`), belongs to another account, or the lesson's word, phrase or blank counts changed.
+- **Cleared** when the lesson finishes, on Start over, or from the card's "Forget it". Only lessons resume; reviews, practice sessions and checkpoints do not.
 
 ## Practice beyond lessons
 

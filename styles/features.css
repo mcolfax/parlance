@@ -185,3 +185,7 @@
 .fr-duel.waiting{background:transparent;box-shadow:inset 0 0 0 2px var(--hair-2)}
 .ai-options{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
 .ai-picker{display:flex;gap:8px;flex-wrap:wrap}
+.heard{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.heard-item{display:flex;flex-direction:column;gap:6px;width:100%;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);text-align:left}
+.heard-quote{margin:0;padding-left:10px;border-left:3px solid var(--line);font-style:italic}
+.fb-actions{align-items:center;gap:12px}

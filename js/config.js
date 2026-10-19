@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.21.1';
+const APP_VERSION = '4.23.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,14 @@ const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.23.0', date: '2026-10-16', title: 'You’ll hear back', notes: [
+    'When something you suggested gets built, Parlance now tells you the next time you open it, with a note about what changed.',
+    'Feedback is sent from the web version. If you open Parlance inside Claude, Send feedback now points you there.'] },
+  { v: '4.22.0', date: '2026-10-16', title: 'Pick up where you left off', notes: [
+    'If you leave a lesson halfway, or the page reloads, you can jump straight back in. Look for the new card at the top of Learn.',
+    'It remembers your place and your score so far on this device, for a week.'] },
+  { v: '4.21.2', date: '2026-10-16', title: 'Pronouns are optional', notes: [
+    'In Spanish and Italian you can now start an answer with or without the pronoun: “yo dije” and “dije” both count.'] },
   { v: '4.21.1', date: '2026-10-16', title: 'Wrong forms, explained', notes: [
     'Picking the wrong form in a “Choose the form” question now shows the Not quite message and the right answer, instead of leaving you stuck on the question.'] },
   { v: '4.21.0', date: '2026-10-15', title: 'Pictures and new faces', notes: [
@@ -189,6 +197,7 @@ const MASCOTS = {
 /* XP economy */
 const XP = { perAnswer: 1, lesson: 5, perfectBonus: 5, review: 3, story: 8, storyPerfect: 4, chest: 15, talkPerMsg: 2, talkMax: 20, duelWin: 20, checkpoint: 25 };
 /* Unit checkpoints (a short test once a unit's lessons are done) and the placement test (Me → Starting level). */
+const RESUME = { maxAgeDays: 7 };   // how long a lesson left half-done can be picked up again
 const CHECKPOINT = { questions: 12, pass: 0.8 };
 const PLACEMENT = { perLevel: 5, pass: 3 };
 /* Friends (js/core/social.js, js/ui/friends.js). Friends must use the same home: the Claude artifact and the web version
