@@ -31,7 +31,7 @@ Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and exp
   - A lesson needs 4+ vocab, 3+ sentences, and blanks with exactly one `___` and 2+ distinct options.
   - Spanish is Latin American: *ustedes*, never *vosotros*.
   - Italian is standard Italian: *tu* with friends and *Lei* when formal. Write elisions with the typographic apostrophe (*l’acqua*, *un’amica*) and keep the sentence-ending period outside a bold example in a tip body (`**Mi chiamo Matt**.`), or the tip can't be cut into bites there.
-  - Every language has the same shape: 33 units and 132 lessons (A1 to C2) and 9 stories. A new language starts with `LANG_IDS` in `js/config.js`; see "Adding a language" in `docs/ARCHITECTURE.md`.
+  - Every language has the same shape: 39 units and 156 lessons (A1 to C2) and 9 stories. A new language starts with `LANG_IDS` in `js/config.js`; see "Adding a language" in `docs/ARCHITECTURE.md`.
 - **Copy** is plain, warm English in sentence case.
 - **Scripts** are classic (not modules) and load in the order `index.html` lists them. A later file can use anything an earlier one defined. An event handler that can fire before the UI scripts have loaded must guard with `typeof`.
 - **Check the design** in `styleguide.html`, a living style guide rendered from the tokens and art functions.

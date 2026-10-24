@@ -253,7 +253,13 @@ const UNIT_ART = {
   'Colors, clothes & weather': '<path d="M3 12.5a9 9 0 0 1 18 0z"/><path d="M12 12.5v6a2 2 0 0 1-4 0M12 3v.6"/>',
   'Around town': '<path d="M3 20h18M5 20V9.5l5-3V20M10 20V4h9v16"/><path d="M13 8h3M13 11.5h3M13 15h3M7 12.5h1M7 15.5h1"/>',
   'Culture & free time': '<path d="M9 18V6.5l10-2.2V16"/><circle cx="6.6" cy="18" r="2.4"/><circle cx="16.6" cy="16" r="2.4"/><path d="M9 10l10-2.2"/>',
-  'Life & society': '<path d="M4 11.5 12 5l8 6.5M6 10v10h12V10"/><path d="M12 17.6s-3-1.8-3-3.8a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 2-3 3.8-3 3.8z"/>'
+  'Life & society': '<path d="M4 11.5 12 5l8 6.5M6 10v10h12V10"/><path d="M12 17.6s-3-1.8-3-3.8a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 2-3 3.8-3 3.8z"/>',
+  'Animals & nature': '<circle cx="6.6" cy="10" r="1.9"/><circle cx="10" cy="6" r="1.9"/><circle cx="14" cy="6" r="1.9"/><circle cx="17.4" cy="10" r="1.9"/><path d="M12 11.5c-3 0-5.5 3.4-5.5 5.9 0 1.6 1.3 2.4 2.8 2.4 1 0 1.8-.6 2.7-.6s1.7.6 2.7.6c1.5 0 2.8-.8 2.8-2.4 0-2.5-2.5-5.9-5.5-5.9z"/>',
+  'Home life': '<path d="M3.5 11.5 12 4.5l8.5 7M5.5 10v10h13V10"/><path d="M15.5 7.4V4h2.2v5.2M10 20v-5.2h4V20"/>',
+  'Phones & messages': '<rect x="6.5" y="3" width="11" height="18" rx="2.2"/><path d="M10.6 18.2h2.8M9.4 7.8h5.2M9.4 10.8h3.6"/>',
+  'Emergencies & help': '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.6"/><path d="M6 6l3.4 3.4M14.6 14.6 18 18M18 6l-3.4 3.4M9.4 14.6 6 18"/>',
+  'The great outdoors': '<path d="M2.5 19.5 9 9.5l3.6 5.6 2.6-3.6 6.3 8z"/><circle cx="17" cy="6" r="2.2"/>',
+  'Science & technology': '<circle cx="12" cy="12" r="1.4"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/>'
 };
 function unitSign(title, size){
   const p = UNIT_ART[title] || UNIT_ART['Telling stories'];

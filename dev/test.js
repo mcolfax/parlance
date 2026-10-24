@@ -209,7 +209,7 @@ async function main(){
       }
     }
   }
-  ok(lessonCount === 396, 'lesson count ' + lessonCount);
+  ok(lessonCount === 468, 'lesson count ' + lessonCount);
   /* word pictures: the mapping and the files follow the rules, and enough lessons ask about them (floors: the shipped numbers, rounded down) */
   { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
     let fails; try { fails = await T.check(); } finally { console.log = log; }
