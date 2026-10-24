@@ -1,6 +1,6 @@
 {
   "note": "Characters recorded with Google Cloud Text-to-Speech per billing month (Pacific time), counted by dev/voices.js. The first 1,000,000 a month are free; the script stops at 900,000.",
   "months": {
-    "2026-10": 185926
+    "2026-10": 215738
   }
 }
