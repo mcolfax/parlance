@@ -65,7 +65,7 @@ The same files run in two places.
 
 1. Make the change in the relevant file(s).
 2. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once.
-3. If lesson or story text changed, run `node dev/voices.js` to record the new lines (see Recorded voices).
+3. If lessons or stories were added or their text changed, draw word pictures for their new concepts (see Word pictures) and run `node dev/voices.js` to record the new lines (see Recorded voices). Both ship in the same release as the content.
 4. Run `npm ci && npm test`. It must report `FAIL 0`.
 5. Commit to `main` in GitHub (`mcolfax/parlance`); Vercel deploys the web version from it. Then republish the same artifact URL with `index.html` as the page and the files `node dev/files.js` lists. Unchanged files are kept.
 6. In Studio → Content, tap **Mark <version> as latest**, in each version. Anyone with Parlance open gets a Refresh banner. Their progress stays.

@@ -40,7 +40,7 @@ Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and exp
 ## Commands
 
 ```sh
-npm ci && npm test   # jsdom end-to-end suite (~2 min). Must end with "FAIL 0".
+npm ci && npm test   # jsdom end-to-end suite (~2 min). Must end with "FAIL 0". Out of memory? NODE_OPTIONS=--max-old-space-size=6144 npm test
 npm run preview      # http://127.0.0.1:8765/_preview.html
 node design/pictures/tools.js check   # word pictures: drawing rules, the word mapping, coverage (must end with ok)
 npm run files        # JSON map of the files to publish next to index.html
@@ -56,7 +56,9 @@ The preview runs without the artifact runtime, so there is no account sync, data
 ## Shipping a release
 
 1. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once.
-2. If lesson or story text changed, run `node dev/voices.js` so the new lines are recorded, and commit `media/voice/` with `dev/voice-usage.json`. Recording must never cost Matt anything: the script stops at 900,000 characters a month, under Google's free million. Never raise that cap or get around it. If the script stops or Google turns the key down, say so: those lines use the device's voice until they are recorded.
+2. New or changed content ships with its pictures and voices. Whenever lessons or stories are added or their text changes:
+   - **Word pictures.** Run `node design/pictures/tools.js inventory && node design/pictures/tools.js briefs && node design/pictures/tools.js check` and find the new concepts the coverage table counts as undecided. Give each one a line in `design/pictures/briefs-src.txt`: draw the concrete, drawable ones into `PICS` (`js/core/pics.js`, rules in `design/pictures/PLAN.md`) and mark the rest `-` with a reason. Then run `words`, `check` (must end with `ok`) and `shots`, and look at the contact sheets. If a new word picks up an existing drawing in the wrong sense (a piggy bank for saving a file), give it a more precise first meaning instead. The drawing can go to a background agent while the rest of the release is built.
+   - **Recorded voices.** Run `node dev/voices.js` so the new lines are recorded, and commit `media/voice/` with `dev/voice-usage.json`. It routes itself through the proxy that adds the network secret. Recording must never cost Matt anything: the script stops at 900,000 characters a month, under Google's free million. Never raise that cap or get around it. If the script stops or Google turns the key down, don't let it pass quietly: hand the recording to a session whose key works (send it the branch and the `--dry` counts), and tell Matt that those lines use the device's voice until they are recorded.
 3. Run `npm test`. It must end with `FAIL 0`.
 4. Commit to `main` and push. Vercel deploys the web version from `main` on its own.
 5. Publish with the Artifact tool:

@@ -17,6 +17,12 @@
    it. Characters are counted as UTF-8 bytes (an accented letter counts twice), never fewer than Google counts, and the
    total is saved as the run goes, so a run that fails partway still counts. Commit dev/voice-usage.json with the
    recordings so the next session sees it. Learners never call Google: the app only plays these files. */
+/* Node's fetch only goes through the environment's proxy (the one that adds the network secret) when NODE_USE_ENV_PROXY is
+   set, so with no key of our own, run again with it; otherwise the request reaches Google with no key and gets a 403. */
+if (process.env.HTTPS_PROXY && !process.env.NODE_USE_ENV_PROXY && !process.env.GOOGLE_TTS_KEY){
+  const r = require('child_process').spawnSync(process.execPath, ['--no-warnings', ...process.argv.slice(1)], { stdio: 'inherit', env: { ...process.env, NODE_USE_ENV_PROXY: '1' } });
+  process.exit(r.status == null ? 1 : r.status);
+}
 const fs = require('fs');
 const path = require('path');
 const { JSDOM, ResourceLoader, VirtualConsole } = require('jsdom');
@@ -61,7 +67,7 @@ async function google(url, body){
     const r = await fetch(API + url, { method: body ? 'POST' : 'GET', headers, body: body ? JSON.stringify(body) : undefined });
     if (r.ok) return r.json();
     const msg = (await r.text()).slice(0, 400);
-    if ((r.status === 401 || r.status === 403) && /API key|unregistered callers|PERMISSION_DENIED|API_KEY/i.test(msg)) throw new Error('Google turned the key down (' + r.status + '). Check the network secret for texttospeech.googleapis.com (header X-Goog-Api-Key, no prefix) or GOOGLE_TTS_KEY, and that the key may use the Text-to-Speech API: ' + msg);
+    if ((r.status === 400 || r.status === 401 || r.status === 403) && /API key|unregistered callers|PERMISSION_DENIED|API_KEY/i.test(msg)) throw new Error('Google turned the key down (' + r.status + '). Check the network secret for texttospeech.googleapis.com (header X-Goog-Api-Key, no prefix) or GOOGLE_TTS_KEY, and that the key may use the Text-to-Speech API: ' + msg);
     if ((r.status === 429 || r.status >= 500) && i < 6){ await sleep(1500 * 2 ** i); continue; }
     throw new Error('Google answered ' + r.status + ' to ' + url + ': ' + msg);
   }
