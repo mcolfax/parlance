@@ -136,9 +136,15 @@ function mergeSocial(a, b){
   const k = a.since >= b.since ? a : b; out.secret = k.secret; out.since = k.since; out.home = k.home;   // a changed secret wins
   out.friends = { ...b.friends };
   for (const [id, f] of Object.entries(a.friends)){ if (!f || typeof f !== 'object') continue; const x = out.friends[id]; out.friends[id] = x && typeof x === 'object' ? mergeFriend(f, x) : f; }
+  out.past = { ...b.past, ...a.past };
   out.duels = { ...b.duels };
   for (const [id, d] of Object.entries(a.duels)){ const x = out.duels[id]; if (!x || (+(d && d.u) || 0) >= (+x.u || 0)) out.duels[id] = d; }
-  out.past = { ...b.past, ...a.past };
+  // a settled duel (in past) is over on every device, and a finished one past its keep goes (duelGone, social.js),
+  // so the account's old copy of a duel can't come back as on and pay out again
+  for (const [id, d] of Object.entries(out.duels)){
+    if (d && typeof d === 'object' && d.state === 'on' && out.past[id]) out.duels[id] = { ...d, state: 'done' };
+    if (typeof duelGone === 'function' && duelGone(out.duels[id])) delete out.duels[id];
+  }
   for (const f of ['cheers', 'seen']){ out[f] = { ...b[f] }; for (const [id, v] of Object.entries(a[f])) if (!out[f][id] || String(v) > String(out[f][id])) out[f][id] = v; }
   return out;
 }

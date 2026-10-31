@@ -76,6 +76,8 @@ function duelLive(d){
   if (d.state === 'on' || d.state === 'done') return !d.end || addDays(d.end, FRIENDS.keep) >= today();
   return (+d.u || +d.at || 0) > Date.now() - (FRIENDS.answer + FRIENDS.keep) * DAY_MS;
 }
+/* finished and past its keep (a duel still on waits to be settled) */
+function duelGone(d){ return !d || typeof d !== 'object' || (!duelLive(d) && d.state !== 'on'); }
 function buildCard(){
   const so = S.social; const langs = {};
   for (const l of LANG_IDS){ const L = S.langs[l]; const lessons = Object.keys(L.done).length; if (lessons || L.xp) langs[l] = { level: currentLevel(l), xp: L.xp || 0, lessons, words: wordCount(l) }; }
@@ -149,7 +151,8 @@ function socialReconcile(){
     if (d.state === 'pending' && d.a === me && x && x.state === 'on' && x.start && x.end){ Object.assign(d, { state: 'on', start: x.start, end: x.end, u: now }); changed = true; news.push(friendName(other) + ' accepted your challenge. The duel is on!'); }
     else if (d.state === 'pending' && d.a === me && x && x.state === 'declined'){ d.state = 'declined'; d.u = now; changed = true; }
     else if (d.state === 'on' && d.b === me && x && x.state === 'cancelled'){ d.state = 'cancelled'; d.u = now; changed = true; }
-    if (d.state === 'on' && d.end && t > d.end){
+    if (d.state === 'on' && d.end && t > d.end && S.social.past[d.id]){ d.state = 'done'; d.u = now; changed = true; }   // settled already, here or on another device: a duel pays once
+    else if (d.state === 'on' && d.end && t > d.end){
       const ready = c ? (c.today > d.end || t > addDays(d.end, 2)) : t > addDays(d.end, FRIENDS.keep);
       if (ready){
         const sc = duelScores(d);
@@ -160,8 +163,8 @@ function socialReconcile(){
       }
     }
   }
-  // tidy: the same rule on every device, so merges don't bring old duels back
-  for (const [id, d] of Object.entries(S.social.duels)) if (!d || typeof d !== 'object' || (!duelLive(d) && d.state !== 'on')){ delete S.social.duels[id]; changed = true; }
+  // tidy: the same rule on every device and in every merge (mergeSocial), so an account's old copy can't bring a duel back
+  for (const [id, d] of Object.entries(S.social.duels)) if (duelGone(d)){ delete S.social.duels[id]; changed = true; }
   const past = Object.entries(S.social.past).sort((a, b) => String(b[1] && b[1].end).localeCompare(String(a[1] && a[1].end)));
   for (const [id] of past.slice(100)){ delete S.social.past[id]; changed = true; }
   if (changed){ touch('social'); socialTouch(); }

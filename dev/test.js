@@ -1829,6 +1829,18 @@ async function main(){
     ok(M.P.S.langs.de.xp === xpBefore + M.E('XP.duelWin'), 'the bonus is paid once');
     await A.E('socialRefresh(true)');
     ok(A.P.S.social.past[did] && A.P.S.social.past[did].me === 1 && A.P.S.social.past[did].them === 4, 'Ana sees the same result from her side');
+    // a duel settled more than a week after it ended: the account still holds it as "on", and it must not pay again
+    M.E('S.social.duels.dLate = { id: "dLate", a: Remote.uid, b: "u_ana", metric: "xp", at: Date.now() - 20 * DAY_MS, u: Date.now() - 18 * DAY_MS, state: "on", start: addDays(today(), -18), end: addDays(today(), -12) }');
+    M.E('S.days[addDays(today(), -14)] = { xp: 50, met: true, q: { lessons: 2 } }');
+    await M.E('syncNow(true)');
+    ok(JSON.parse(store.get('data/users/u_matt/social').blob).duels.dLate.state === 'on', 'the account holds the late duel as on');
+    const lateXP = M.P.S.langs.de.xp, lateDay = M.E('todayXP()');
+    for (let i = 0; i < 3; i++){ await M.E('socialRefresh(true)'); await sleep(30); await M.E('syncNow(true)'); await sleep(30); }
+    ok(M.P.S.social.past.dLate && M.P.S.social.past.dLate.me === 50, 'the late duel is settled: ' + JSON.stringify(M.P.S.social.past.dLate));
+    ok(M.P.S.langs.de.xp === lateXP + M.E('XP.duelWin') && M.E('todayXP()') === lateDay + M.E('XP.duelWin'), 'a late duel pays once, not on every refresh: ' + (M.P.S.langs.de.xp - lateXP) + ' XP');
+    const lateSrv = JSON.parse(store.get('data/users/u_matt/social').blob).duels.dLate;
+    ok(!M.P.S.social.duels.dLate && !(lateSrv && lateSrv.state === 'on'), 'the finished duel leaves the account too: ' + JSON.stringify(lateSrv));
+    ok(M.E('mergeSocial({ past: { dX: { me: 1 } }, duels: {} }, { duels: { dX: { id: "dX", a: "u_matt", b: "u_ana", metric: "xp", state: "on", end: addDays(today(), -1) } } }).duels.dX.state') === 'done', 'a merge never brings a settled duel back as on');
     // cheers
     await M.E('socialCheer("u_ana")');
     await A.E('socialRefresh(true)'); A.E('UI.tab="friends"; render()');
