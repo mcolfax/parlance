@@ -71,7 +71,7 @@ function viewMe(){
   v.append(streakCalendar(st));
   v.append(badgesCard());
   const t = today(); const days = [...Array(7)].map((_, i) => addDays(t, i - 6));
-  const vals = days.map(k => (S.days[k] || {}).xp || 0); const goal = S.settings.goal; const max = Math.max(goal * 1.25, ...vals, 1);
+  const vals = days.map(k => goalXP(S.days[k])); const goal = S.settings.goal; const max = Math.max(goal * 1.25, ...vals, 1);
   const names = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   v.append(h('section', { class: 'card' }, h('div', { class: 'row' }, h('h3', null, 'Last 7 days'), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, 'XP, both languages')),
     h('div', { class: 'bars', role: 'img', 'aria-label': 'XP per day for the last 7 days: ' + vals.join(', ') },
@@ -111,7 +111,7 @@ function viewMe(){
     h('div', { class: 'row' }, h('div', { class: 'grow' }, h('h3', null, 'Studio'), h('p', { class: 'small muted' }, 'Only you see this. Review learner feedback, approve improvements, and manage live content.')), ic('wand')),
     h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => openStudio() }, 'Open Studio')));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Practice'),
-    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Daily goal'), h('div', { class: 'chips' }, [[10, 'Casual'], [20, 'Regular'], [30, 'Serious']].map(([g, n]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(S.settings.goal === g), onclick: () => { S.settings.goal = g; const d = S.days[today()]; if (d && d.xp >= g) d.met = true; touchSettings(); render(); } }, n + ' · ' + g + ' XP')))),
+    h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Daily goal'), h('div', { class: 'chips' }, [[10, 'Casual'], [20, 'Regular'], [30, 'Serious']].map(([g, n]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(S.settings.goal === g), onclick: () => { S.settings.goal = g; const d = S.days[today()]; if (d && goalXP(d) >= g) d.met = true; touchSettings(); render(); } }, n + ' · ' + g + ' XP')))),
     h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Starting level for ' + LANGS[lang].name), h('div', { class: 'chips' }, LEVELS.map(lv => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(L.start === lv), onclick: () => { L.start = lv; L.startTs = Date.now(); touch(lang); UI.openLang = null; render(); toast('Route starts at ' + lv + ' now'); } }, lv)))),
     h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Word hints'),
       h('div', { class: 'chips' }, [['auto', 'Fade as I level up'], ['always', 'Always'], ['off', 'Off']].map(([k, n]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(S.settings.hints === k), onclick: () => { S.settings.hints = k; touchSettings(); render(); } }, n))),
@@ -155,7 +155,7 @@ function streakCalendar(st){
   let metN = 0;
   for (let d = 1; d <= days; d++){
     const k = dayKey(new Date(y, m, d)); const rec = S.days[k] || {};
-    const cls = rec.met ? 'met' : st.frozen.has(k) ? 'ice' : rec.xp > 0 ? 'some' : k > t ? 'future' : '';
+    const cls = rec.met ? 'met' : st.frozen.has(k) ? 'ice' : goalXP(rec) > 0 ? 'some' : k > t ? 'future' : '';
     if (rec.met) metN++;
     cells.push(h('span', { class: 'cal-d ' + cls + (k === t ? ' today' : ''), style: '--d:' + d, title: k + (rec.xp ? ' · ' + rec.xp + ' XP' : '') }, rec.met && rec.chest ? h('i', { class: 'cal-chest', 'aria-hidden': 'true' }) : null, h('span', null, d)));
   }

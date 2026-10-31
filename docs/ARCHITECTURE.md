@@ -163,6 +163,8 @@ The shared database collection `content/` is readable by everyone and writable o
 
 The Friends tab (`js/ui/friends.js`, data side in `js/core/social.js`) has a weekly league (XP, goal days or streak, Monday to Sunday), week-long duels between two friends (most XP, goal days or lessons; the winner gets `XP.duelWin`), and cheers. The numbers live in `FRIENDS` and `XP` in `config.js`.
 
+- **Duel bonus.** The win is paid once, when the duel is settled: a duel already in `past` never pays again, and `mergeSocial` drops finished duels by the same rule as the tidy (`duelGone`), so an account's old copy can't bring one back. The bonus is also kept in that day's `bonus` field. It counts toward totals and the week (the league, duel scores, your card's XP) but not the day: the daily goal, the streak, the XP quest, the calendar and Last 7 days all read `goalXP()` (`engine.js`).
+
 - **Your card** is a small public summary at `cards/<your id>/<secret>/card`: the name and picture you chose, streak, levels, badge count and your last `FRIENDS.history` days of XP, lessons and goal days, plus your duels and cheers. It updates a few seconds after you make progress.
 - **The secret** is the hidden part of your path and of your invite code (`Pc1.<secret>.<your id>`). Nobody can list cards or inboxes, so only people you invite can find yours.
 - **Inviting.** When a friend adds your code, Parlance adds you to their list and leaves their own code at `inbox/<your id>/<secret>/<their id>`. Your app reads the inbox, adds them back and deletes the note. On the web, the invite is also a link (`?friend=<code>`) that waits in the browser through sign-in.

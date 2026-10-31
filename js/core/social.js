@@ -158,7 +158,7 @@ function socialReconcile(){
         const sc = duelScores(d);
         S.social.past[d.id] = { with: other, metric: d.metric, end: d.end, me: sc.me, them: c ? sc.them : 0, none: !c };
         d.state = 'done'; d.u = now; changed = true;
-        if (c && sc.me > sc.them){ addXP(XP.duelWin, S.settings.lang); checkBadges({}); news.push('You won your duel with ' + friendName(other) + '! +' + XP.duelWin + ' XP'); }
+        if (c && sc.me > sc.them){ addXP(XP.duelWin, S.settings.lang, true); checkBadges({}); news.push('You won your duel with ' + friendName(other) + '! +' + XP.duelWin + ' XP'); }
         else if (c) news.push(sc.me === sc.them ? 'Your duel with ' + friendName(other) + ' ended in a tie.' : friendName(other) + ' won your duel this time.');
       }
     }

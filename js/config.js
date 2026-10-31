@@ -3,11 +3,11 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.28.1';
+const APP_VERSION = '4.28.2';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
-const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+const SCHEMA_VERSION = 10;         // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
    functions that apply the same access rules as the artifact (dev/supabase.sql).
@@ -15,6 +15,9 @@ const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.28.2', date: '2026-11-05', title: 'Fair duels', notes: [
+    'A duel win now pays its bonus once. A duel settled more than a week after it ended could pay again each time you came back to Parlance.',
+    'The duel bonus counts toward your total XP and the weekly league, but not your daily goal. A goal day on your calendar always means you practiced.'] },
   { v: '4.28.1', date: '2026-11-04', title: 'Seen once', notes: [
     'What’s new, announcements and thank-you notes show once. If you’ve seen one on your phone, your laptop won’t show it again.',
     'A note you send always reaches us, even if a thank-you arrives at the same moment.'] },
