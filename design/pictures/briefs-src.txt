@@ -921,7 +921,7 @@ n 0 b-news government | parliament building with a dome and a flag
 n 0 b-news law | scales of justice with a gavel
 n 1 b-news newspaper | folded newspaper with a photo and wavy lines, no words
 n 0 b-society news | tv set showing a presenter with a red news bar
-n 0 b-news thief | figure with a black eye mask and a striped sack, tiptoeing
+n 0 b-emergencies thief | figure with a black eye mask and a striped sack, tiptoeing
 v 0 b-verbs to-build | figure with a hard hat laying bricks in a wall
 n 0 b-world energy | wind turbine and a solar panel side by side
 = environment world
@@ -955,6 +955,7 @@ n 0 b-misc success | gold trophy cup with two handles
 - to-begin | abstract or grammar
 - to-come-along | abstract or grammar
 - to-let-someone-know | abstract or grammar
+- to-let-someone-know-2 | abstract or grammar
 - holy-week | abstract or grammar
 - the-palio | abstract or grammar
 - tradition | abstract or grammar
@@ -1487,11 +1488,11 @@ n 1 c-animals horse | brown horse standing, side view, dark mane and tail
 n 1 c-animals shrimp | pink shrimp curled up with a fan tail and long feelers
 n 1 c-food peach | peach with a soft blush, a leaf and a small dimple
 n 1 c-travel anchor | blue ship anchor with a rope
-n 1 c-home bench | wooden park bench with a backrest and iron legs
+n 1 a-animals bench | wooden park bench with a backrest and iron legs
 v 0 c-verbs to-sew | needle with a thread stitching a line across a red cloth
 v 0 c-verbs to-dig | figure digging a hole with a shovel, a pile of earth beside
 n 0 c-nature trunk | cut tree trunk with growth rings and bark
-n 0 c-places wall | brick wall with a few bricks missing and a small crack
+n 0 a-home-life wall | red brick wall with white mortar, one brick tumbling off the top and a small crack
 n 0 c-people applause | two clapping hands with motion lines
 n 0 c-people speech | figure at a lectern with a microphone and a spotlight
 n 1 c-food corn-on-the-cob-mexico | corn cob with green husks peeled back
@@ -1843,3 +1844,205 @@ v 0 c-verbs to-whisper | figure with a hand cupped beside its mouth, tiny wavy l
 - to-carry-away | abstract or grammar
 - to-give-up | abstract or grammar
 - to-unite | abstract or grammar
+# ---- units 24–29 (release 4.26.0: animals and nature, home life, phones and messages, emergencies, the great outdoors, science) ----
+n 0 a-animals bird | small round sky-blue songbird with a yellow beak, perched on a twig with two leaves
+= fish-alive fish
+n 1 a-animals mouse | small grey mouse from the side, big round pink ears, a long curly tail
+- pet | category
+n 1 a-animals rabbit | white rabbit sitting up, two long ears with pink insides, a pink nose
+= chicken hen
+n 1 a-animals cow | black-and-white spotted cow from the side, pink muzzle, small horns
+n 1 a-animals farm | red barn with a white cross-braced door, a round silo and green grass
+n 1 a-animals grass | tuft of tall green grass blades on a little mound of earth
+n 1 a-animals hen | brown hen with a red comb and wattle, yellow beak and legs
+n 1 a-animals pig | round pink pig from the side with a flat snout, a floppy ear and a curly tail
+n 1 a-animals sheep | fluffy white woolly sheep with a dark face, ears and legs
+- to-eat-of-animals | an animal eating; the eating picture shows a person
+n 1 a-animals elephant | grey elephant from the side with a big ear, a long curled trunk and a small tusk
+n 1 a-animals lion | lion face with a big orange mane
+n 1 a-animals monkey | brown monkey face with a tan face, big round ears, a small body and a curled tail
+n 1 a-animals parrot | red parrot with blue and yellow wings and a hooked beak, on a perch
+n 1 a-animals penguin | black and white penguin with an orange beak and feet
+v 1 a-animals to-climb | figure climbing a rock wall, reaching up for colored holds, a rope below
+v 0 a-animals to-fly | small bird with its wings raised, flying past a cloud, motion lines behind
+n 1 a-animals duck | yellow duck with an orange bill floating on blue water
+n 0 a-animals lake | calm blue lake ringed by green banks with reeds, a pine tree and hills behind
+n 0 a-animals meadow | open grass with many small wild flowers on stems, a butterfly and a cloud
+n 1 a-animals squirrel | orange squirrel sitting up with a big bushy curled tail, holding an acorn
+= to-look to-see
+= to-look-at to-see
+n 1 a-animals tree | single leafy tree with a round green crown and a brown trunk
+= dirty-laundry laundry
+n 0 a-home-life dishes | stack of plates with a bowl on top
+n 0 a-home-life laundry | wicker laundry basket heaped with clothes, a sock hanging over the edge
+- still | function word
+v 0 a-home-life to-clean | spray bottle spraying mist, a yellow cloth and sparkles
+v 0 a-home-life to-do-the-dishes | hand scrubbing a plate with a sponge over a sink full of bubbles
+- to-have-just | grammar
+- to-make-the-bed | would look like the bed picture
+v 1 a-home-life to-sweep | figure sweeping with a broom, a little pile of dust
+= to-take-out to-take-out-the-trash
+v 0 a-home-life to-take-out-the-trash | figure walking out of an open door carrying a full black trash bag
+- to-tidy-up | abstract
+n 0 a-home-life homework | open exercise book with lines and green ticks, and a pencil
+- right-now | time word
+= to-be-on-the-phone to-call
+v 1 a-home-life to-iron | iron pressing a shirt on an ironing board, steam rising
+= to-talk-on-the-phone to-call
+v 1 a-home-life to-vacuum | figure pushing a vacuum cleaner nozzle, the hose running to a red canister
+= bookshelf shelf
+= closet wardrobe
+= cupboard wardrobe
+n 1 a-home-life drawer | chest of drawers with the top drawer pulled open, socks inside
+n 0 a-home-life shelf | wall shelf on two brackets holding books and a potted plant
+- to-hang | placing verb: a picture would show the thing, not the action
+- to-lay | placing verb: the difference from the others is grammar
+- to-leave-something | abstract
+- to-lie | placing verb: the difference from the others is grammar
+- to-put-upright | placing verb: the difference from the others is grammar
+- to-put-away | abstract
+- to-stand | placing verb: the difference from the others is grammar
+= broken-down broken
+- by-myself | abstract
+n 0 a-home-life faucet | chrome faucet on a wall plate with a red handle and a falling water drop
+n 0 a-home-life handyman | figure in a red cap holding a hammer, a red toolbox beside
+n 0 a-home-life heating | white radiator with fins, a red valve and wavy heat lines rising
+n 0 a-home-life plumber | figure in blue overalls with a big red pipe wrench beside a bent grey pipe
+- to-break | would look like broken
+= to-fix to-repair
+- to-have-something-done | abstract
+v 0 a-home-life to-repair | wrench and screwdriver crossed
+- to-work-of-a-machine | abstract
+n 1 a-home-life washing-machine | front-loading washing machine with a round glass door, clothes and suds inside
+- yourself | pronoun
+- busy-of-a-phone-line | a phone state, not a thing
+- hello-on-the-phone | greeting
+- to-answer | abstract
+v 0 a-phones to-call | figure holding a phone to its ear, ring arcs beside it
+- to-dial | would look like phone
+- to-hang-up | would look like call
+- wrong | abstract
+- about-to | time word
+- in-a-moment | time word
+- to-be-about-to | time word
+- to-be-late | abstract time
+n 0 a-phones voice-message | green chat bubble with a play button and sound-wave bars, a small microphone
+n 0 a-phones email | laptop whose screen shows a closed envelope
+- to-delete | screen action
+- to-enter | screen action
+v 0 a-phones to-save-a-file | blue floppy disk with a metal shutter and a blank label
+- to-sign-in | screen action
+n 0 a-phones answering-machine | answering machine with a red handset on top, two tape reels and a red blinking light
+- last-name | abstract
+= message-for-someone message
+- reachable | abstract
+- to-do-again | grammar
+- to-leave-a-message | abstract
+- to-pass-on-a-message | abstract
+- to-spell | would need letters
+- to-try-again | abstract
+- urgent | abstract
+= voicemail answering-machine
+n 1 b-emergencies ambulance | white ambulance van with a red cross, a red stripe and a blue light on the roof
+a 0 b-emergencies calm | figure sitting cross-legged with eyes closed and a gentle smile, hands on knees
+n 0 b-emergencies emergency | red emergency beacon light flashing, with bright rays
+n 1 b-emergencies fire | house with orange and yellow flames pouring from the roof and window, smoke above
+= fire-department firefighters
+n 1 b-emergencies firefighters | figure in a yellow helmet and red jacket aiming a hose that sprays water
+= help-2 help
+- to-bring | abstract motion
+= to-burn fire
+- to-get | abstract motion
+- police-report | paperwork that would look like the form picture
+n 0 b-emergencies police-station | building with a blue lamp over the door, a blue band and a gold star badge
+- to-notice | abstract
+- to-run-away | would look like to run
+- to-steal | would look like thief, which shares its lessons
+- witness | a role that looks like any person
+n 1 b-emergencies beard | figure head with a big bushy brown beard and mustache
+a 0 b-emergencies dark-haired | long wavy lock of dark, nearly black hair tied with a yellow ribbon (like hair and blond)
+n 0 b-emergencies scar | face with a stitched scar across one cheek
+= slim thin
+n 0 b-emergencies tattoo | bent arm with a red heart tattoo and a blue banner on it
+a 0 b-emergencies thin | two figures side by side: a slim one in color and a wide one in grey
+- to-look-like | abstract
+- deep | abstract
+- deeply | abstract
+= emergency-doctor paramedic
+n 0 b-emergencies paramedic | figure in a green jacket with reflective stripes carrying a red first-aid bag with a white cross
+- to-be-afraid | a feeling, like fear
+v 0 b-emergencies to-bleed | raised finger with a small cut and red drops falling
+- to-breathe | an action you can't see
+= to-calm-down calm
+v 0 b-emergencies to-cry | face with closed eyes, an open wailing mouth and two streams of tears
+- to-move-your-body | would look like to dance
+= to-worry worried
+- about-before-a-number | function word
+- approximately | function word
+- hike | would look like to hike or path, which share its lessons
+n 0 b-outdoors hut | small log cabin with a steep roof and a smoking chimney in front of a snowy mountain
+- it-takes | abstract time
+= mountain-hut hut
+n 0 b-outdoors path | dirt path winding through green grass toward hills
+= shelter hut
+a 0 b-outdoors steep | two hills side by side: a steep one in green and a gentle one in grey
+n 0 b-outdoors summit | single mountain peak with snow and a red flag planted on the top, clouds below
+- to-be-left | abstract
+- to-take-time | abstract time
+= trail path
+n 1 b-outdoors campfire | crossed logs with orange and yellow flames inside a ring of stones
+- campsite | would look like tent, which shares its lessons
+n 1 b-outdoors flashlight | flashlight with a bright yellow beam of light
+- instead-of | function word
+n 1 b-outdoors sleeping-bag | blue mummy sleeping bag with a quilted body and a zip, a sleeping face in the hood
+n 1 b-outdoors tent | orange triangular tent with an open door flap, guy ropes and pegs
+- to-camp | would look like tent, which shares its lessons
+- to-put-up | would look like tent, which shares its lessons
+- enough | function word
+n 0 b-outdoors sand | sandcastle with a little flag on a sandy mound, a bucket and spade beside
+n 0 b-outdoors shade | tree casting a dark pool of shadow on the grass under a bright sun
+n 0 b-outdoors sunburn | figure with red sore shoulders and face and a pale strap line, under a hot sun
+n 1 b-outdoors sunscreen | squeeze bottle of sun cream with a sun on it and a dollop of white cream
+= to-get-sunburned sunburn
+n 1 b-outdoors wave | big curling blue wave with white foam
+n 0 b-outdoors hail | grey cloud dropping round white hailstones that bounce on the ground
+n 0 b-outdoors hiker | figure with a big backpack, a sun hat and a walking stick
+n 0 b-outdoors lightning | big yellow zigzag lightning bolt striking the ground
+= mountains mountain
+n 0 b-outdoors storm-strong-wind | figure holding an umbrella blown inside out by strong wind, a leaf flying
+- thunder | a sound; would look like lightning or thunderstorm, which share its lessons
+= to-get-wet wet
+- to-hail | would look like hail, which shares its lessons
+= to-rain rain
+a 0 b-outdoors wet | figure dripping with water, a puddle below
+- by-chance | abstract
+n 0 b-science device | small grey gadget with a screen, two knobs, buttons and an antenna
+- discovery | abstract
+n 0 b-science invention | lit lightbulb on top of two meshing gears
+n 0 b-science inventor | figure in goggles holding up a big gear, a small lit lightbulb beside
+n 0 b-science printing-press | old wooden printing press with a big screw and handle, a printed sheet coming out
+= printing printing-press
+- to-develop | abstract
+- to-invent | would look like invention or inventor, which share its lessons
+- to-use | abstract
+n 0 b-science ai | pink brain with circuit lines and glowing nodes
+- by-then | time word
+n 0 b-science data | stack of blue database disks beside a small bar chart
+= job work
+n 1 b-science robot | friendly grey robot with a square head, round eyes, an antenna and claw hands
+- to-disappear | abstract
+v 0 b-science to-program | laptop screen with colored, indented lines of code
+- to-replace | abstract
+= drug pill
+- effective | abstract
+n 0 b-science research | microscope with a slide under the lens, a flask beside
+n 0 b-science researcher | figure in goggles and a white coat holding up a green bubbling flask
+- side-effect | abstract
+- to-be-effective | abstract
+n 1 b-science moon | big full moon with craters in a dark blue sky
+n 1 b-science rocket | white rocket with a red nose and fins, a round window and flames below
+n 0 b-science space | astronaut in a white suit and helmet floating in a dark blue sky with tiny stars
+n 1 b-science star | bright yellow five-pointed star with a little sparkle
+n 1 b-science telescope | telescope on a tripod pointing up at the sky
+- to-discover | abstract
+- to-explore | abstract
