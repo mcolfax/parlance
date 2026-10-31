@@ -118,7 +118,7 @@ U('Society', 'B2', [
         ['perder', '**pierde**', 'e to ie'],
         ['prometer', 'prometió / prometieron', 'preterite'],
         ['publicar', 'se **publicó**', 'preterite']]]]),
-    [['el voto', 'vote', 'm'], ['el partido', 'party|political party', 'm'], ['la campaña', 'campaign', 'f'], ['la encuesta', 'poll|survey', 'f'],
+    [['el voto', 'vote', 'm'], ['el partido', 'party|political party', 'm', '-'], ['la campaña', 'campaign', 'f'], ['la encuesta', 'poll|survey', 'f'],
      ['votar', 'to vote'], ['gobernar', 'to govern|to rule'], ['el ciudadano|la ciudadana', 'citizen', 'm'], ['prometer', 'to promise']],
     [['Los votos fueron contados el domingo por la noche.', 'The votes were counted on Sunday night.|The votes were counted on Sunday evening.|The votes were counted Sunday night.|The votes were counted late on Sunday.|The votes were counted on Sunday at night.'],
      ['La encuesta se publicó el lunes.', 'The poll was published on Monday.|The survey was published on Monday.|The poll was published Monday.|The survey was published Monday.|The poll came out on Monday.|The survey came out on Monday.|The poll was released on Monday.|The survey was released on Monday.'],

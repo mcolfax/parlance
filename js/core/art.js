@@ -274,7 +274,7 @@ const hasPic = id => hasFile(id) || hasDrawn(id);
 /* the picture for a lesson word: the one a live pack named, else the one PIC_WORDS (content/pictures.js) gives its main text; null if none.
    A picture is a file (media/pics/<id>.svg, PIC_FILES) or a drawing (PICS, js/core/pics.js); a file wins. */
 function picFor(item, lang){
-  if (!item) return null;
+  if (!item || item.p === '-') return null;   // '-': this lesson's word means something its text's picture doesn't show (weit = loose, not far)
   if (hasPic(item.p)) return item.p;
   const id = typeof PIC_WORDS !== 'undefined' && PIC_WORDS[lang] && hasOwn(PIC_WORDS[lang], item.t) ? PIC_WORDS[lang][item.t] : null;
   return hasPic(id) ? id : null;

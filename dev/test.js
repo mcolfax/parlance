@@ -214,7 +214,10 @@ async function main(){
   { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
     let fails; try { fails = await T.check(); } finally { console.log = log; }
     ok(!fails.length, 'word pictures check: ' + fails.slice(0, 3).join(' | '));
-    ok(picLessons >= 60, 'lessons that ask a picture question: ' + picLessons); }
+    ok(picLessons >= 60, 'lessons that ask a picture question: ' + picLessons);
+    // a lesson word whose text means something else elsewhere opts out with '-' (el partido: a party in es-35-1, a match in es-18-1)
+    const word = (id, t) => P.COURSE[id.slice(0, 2)].units.flatMap(u => u.lessons).find(l => l.id === id).vocab.find(v => v.t === t);
+    ok(P.picFor(word('es-35-1', 'el partido'), 'es') === null && P.picFor(word('es-18-1', 'el partido'), 'es') === 'soccer' && P.picFor(word('de-22-3', 'weit'), 'de') === null && P.picFor(word('de-6-2', 'weit'), 'de') === 'far', 'a word opts out of its text’s picture only in its own lesson'); }
   // units sorted by level, ids unique
   for (const lang of LANG_IDS){ const lv = P.COURSE[lang].units.map(u => ['A1','A2','B1','B2','C1','C2'].indexOf(u.level)); ok(lv.every((x, i) => i === 0 || x >= lv[i - 1]), lang + ' units sorted'); }
   { const ids = new Set(); for (const lang of LANG_IDS) for (const u of P.COURSE[lang].units) for (const l of u.lessons){ ok(!ids.has(l.id), 'unique id ' + l.id); ids.add(l.id); ok(l.vocab.length >= 6 && l.sentences.length >= 4 && l.blanks.length === 3, 'shape ' + l.id); for (const b of l.blanks){ ok(b.t.split('___').length === 2, 'blank ' + b.t); ok(new Set(b.o).size === b.o.length, 'blank opts unique ' + b.t); } } }

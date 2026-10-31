@@ -313,7 +313,7 @@ U('Daily routine', 'A2', [
         ['uscire (irregular): to go out', null, [['io', '**esco**'], ['tu', '**esci**'], ['lui/lei/Lei', '**esce**'], ['noi', 'usciamo'], ['voi', 'uscite'], ['loro', '**escono**']]],
         ['Free-time phrases', ['say', 'meaning'], [['**fare** una passeggiata', 'go for a walk'], ['**giocare a** calcio', 'play soccer'], ['**ascoltare** la musica', 'listen to music']]]]),
     [['il fine settimana', 'weekend', 'm'], ['il tempo libero', 'free time|spare time', 'm'], ['il calcio', 'soccer|football', 'm'], ['la musica', 'music', 'f'], ['la passeggiata', 'walk|stroll', 'f'],
-     ['gli amici', 'friends', 'pl'], ['uscire', 'to go out|to leave'], ['ascoltare', 'to listen|to listen to']],
+     ['gli amici', 'friends', 'pl'], ['uscire', 'to go out|to leave', '', '-'], ['ascoltare', 'to listen|to listen to']],
     [['Nel tempo libero ascolto la musica.', 'In my free time I listen to music.|In my spare time I listen to music.|I listen to music in my free time.|I listen to music in my spare time.'],
      ['Il sabato esco con gli amici.', 'On Saturdays I go out with friends.|On Saturdays I go out with my friends.|I go out with friends on Saturdays.|I go out with my friends on Saturdays.'],
      ['Giochiamo a calcio la domenica.', 'We play soccer on Sundays.|We play football on Sundays.|On Sundays we play soccer.|On Sundays we play football.'],

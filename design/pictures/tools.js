@@ -200,11 +200,14 @@ async function check(){
   const { PIC_WORDS: PW, PIC_FILES: PF } = require(path.join(ROOT, 'content', 'pictures.js'));
   const dirFiles = path.join(ROOT, 'media', 'pics'), fileIds = fs.existsSync(dirFiles) ? fs.readdirSync(dirFiles).filter(f => f.endsWith('.svg')).map(f => f.replace(/\.svg$/, '')) : [];
   for (const id of fileIds){ const t = fs.readFileSync(path.join(dirFiles, id + '.svg'), 'utf8'); for (const b of svgProblems(t, window.DOMParser)) fails.push('media/pics/' + id + '.svg ' + b); if (!/viewBox=/.test(t)) fails.push('media/pics/' + id + '.svg has no viewBox'); if (/preserveAspectRatio="none"/.test(t)) fails.push('media/pics/' + id + '.svg has preserveAspectRatio=none'); if (t.length > PIC_FILE_BUDGET) fails.push('media/pics/' + id + '.svg is ' + Math.round(t.length / 1024) + ' KB (max ' + Math.round(PIC_FILE_BUDGET / 1024) + ')'); }
-  const course = await loadApp(P => { const out = []; for (const lang of Object.keys(P.COURSE)) for (const u of P.COURSE[lang].units) for (const l of u.lessons) out.push({ lang, lesson: l.id, level: l.level, vocab: l.vocab.map(v => ({ t: v.t, e: v.e[0] })) }); return JSON.stringify(out); });
+  const course = await loadApp(P => { const out = []; for (const lang of Object.keys(P.COURSE)) for (const u of P.COURSE[lang].units) for (const l of u.lessons) out.push({ lang, lesson: l.id, level: l.level, vocab: l.vocab.map(v => ({ t: v.t, e: v.e[0], p: v.p || null })) }); return JSON.stringify(out); });
   const lessons = JSON.parse(course), texts = { de: new Set(), es: new Set(), it: new Set() };
   for (const l of lessons) for (const v of l.vocab) texts[l.lang].add(v.t);
   for (const lang of LANG_LIST) for (const [t, id] of Object.entries(PW[lang])){ if (!texts[lang].has(t)) fails.push('PIC_WORDS.' + lang + ' has “' + t + '”, which no lesson teaches'); if (!PICS[id] && !(id in PF)) fails.push('PIC_WORDS.' + lang + ' “' + t + '” points at missing picture ' + id); }
-  for (const l of lessons){ const seen = new Map(); for (const v of l.vocab){ const id = PW[l.lang][v.t]; if (!id) continue; if (seen.has(id) && seen.get(id) !== v.t) fails.push(l.lesson + ': “' + seen.get(id) + '” and “' + v.t + '” share the picture ' + id); seen.set(id, v.t); } }
+  /* what a lesson word shows: its own picture (a 4th vocab field), none for '-', otherwise its text's picture */
+  const shown = (v, lang) => v.p === '-' ? null : v.p && (PICS[v.p] || v.p in PF) ? v.p : PW[lang][v.t] || null;
+  for (const l of lessons) for (const v of l.vocab) if (v.p && v.p !== '-' && !PICS[v.p] && !(v.p in PF)) fails.push(l.lesson + ': “' + v.t + '” names missing picture ' + v.p);
+  for (const l of lessons){ const seen = new Map(); for (const v of l.vocab){ const id = shown(v, l.lang); if (!id) continue; if (seen.has(id) && seen.get(id) !== v.t) fails.push(l.lesson + ': “' + seen.get(id) + '” and “' + v.t + '” share the picture ' + id); seen.set(id, v.t); } }
   /* coverage: every vocab item, by language and level */
   const idByKey = new Map(readJSON('words.json').list.map(c => [c.key, c.id]));
   console.log('coverage (vocab items): pictured (of those, asked in questions) | no picture by decision | briefed, not drawn | undecided');
@@ -212,8 +215,8 @@ async function check(){
     for (const L of LEVELS){
       const c = { n: 0, pic: 0, quiz: 0, none: 0, briefed: 0, undecided: 0 };
       for (const l of lessons) if (l.lang === lang && l.level === L) for (const v of l.vocab){
-        c.n++; const pid = PW[lang][v.t], cid = idByKey.get(meaningKey(v.e));
-        if (pid){ c.pic++; if ((pid in PF) ? PF[pid] : PICS[pid].quiz) c.quiz++; } else if (briefs.none[cid]) c.none++; else if (Object.values(briefs.concepts).some(x => x.words[lang] && x.words[lang].includes(v.t))) c.briefed++; else c.undecided++;
+        c.n++; const pid = shown(v, lang), cid = idByKey.get(meaningKey(v.e));
+        if (pid){ c.pic++; if ((pid in PF) ? PF[pid] : PICS[pid].quiz) c.quiz++; } else if (v.p === '-' || briefs.none[cid]) c.none++; else if (Object.values(briefs.concepts).some(x => x.words[lang] && x.words[lang].includes(v.t))) c.briefed++; else c.undecided++;
       }
       if (c.n) console.log('  ' + lang + ' ' + L + ': ' + String(c.n).padStart(3) + ' words | ' + String(c.pic).padStart(3) + ' pictured (' + String(c.quiz).padStart(3) + ' asked) | ' + String(c.none).padStart(3) + ' none | ' + String(c.briefed).padStart(3) + ' briefed | ' + String(c.undecided).padStart(3) + ' undecided');
     }

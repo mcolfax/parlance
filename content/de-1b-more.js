@@ -136,7 +136,7 @@ U('Shopping & clothes', 'A2', [
       [['Ich probiere die Hose an.', 'I’m trying on the pants.'], ['Kann ich das anprobieren?', 'Can I try this on?'], ['Die Hose passt mir nicht.', 'The pants don’t fit me.']],
       [['Present of **können**', null, [['ich', '**kann**'], ['du', 'kannst'], ['er/sie/es', 'kann'], ['wir', 'können'], ['Sie', 'können']]],
        ['Fits whom? (dative)', ['Who', 'Form'], [['ich', '**mir**'], ['du', '**dir**'], ['er', 'ihm'], ['sie (she)', 'ihr']]]]),
-    [['anprobieren', 'to try on'], ['die Größe', 'size', 'f'], ['passen', 'to fit|to suit'], ['groß', 'big|large'], ['klein', 'small|little'], ['eng', 'tight|narrow'], ['weit', 'loose|wide'], ['die Umkleidekabine', 'fitting room|changing room', 'f']],
+    [['anprobieren', 'to try on'], ['die Größe', 'size', 'f'], ['passen', 'to fit|to suit'], ['groß', 'big|large'], ['klein', 'small|little'], ['eng', 'tight|narrow'], ['weit', 'loose|wide', '', '-'], ['die Umkleidekabine', 'fitting room|changing room', 'f']],
     [['Kann ich das anprobieren?', 'Can I try this on?|Can I try that on?|May I try this on?|May I try that on?|Can I try it on?|May I try it on?'],
      ['Wo ist die Umkleidekabine?', 'Where is the fitting room?|Where’s the fitting room?|Where is the changing room?|Where’s the changing room?'],
      ['Welche Größe haben Sie?', 'What size do you have?|What size are you?|Which size do you have?|What size do you wear?|What size do you take?'],
