@@ -171,7 +171,7 @@ U('Emergencies & help', 'B1', [
       [['Chiamate un’ambulanza!', 'Call an ambulance!'], ['Chiami la polizia!', 'Call the police!'], ['Aiuto! C’è un incendio!', 'Help! There’s a fire!']],
       [['Commands: **chiama**, **chiamate**, **chiami**', ['Infinitive', 'tu', 'voi', 'Lei'], [['chiamare', '**chiama**', '**chiamate**', '**chiami**'], ['portare', '**porta**', '**portate**', '**porti**'], ['aspettare', '**aspetta**', '**aspettate**', '**aspetti**'], ['stare', '**stai** calmo', '**state** calmi', '**stia** calmo']]]]),
     [['l’emergenza', 'emergency', 'f'], ['l’ambulanza', 'ambulance', 'f'], ['i vigili del fuoco', 'firefighters|fire department', 'pl'], ['l’incendio', 'fire', 'm'],
-     ['ferito', 'injured|hurt|wounded'], ['portare', 'to bring|to carry'], ['Aiuto!', 'help!'], ['calmo', 'calm']],
+     ['ferito', 'injured|hurt|wounded'], ['portare', 'to bring|to carry', '', 'to-bring'], ['Aiuto!', 'help!'], ['calmo', 'calm']],
     [['Chiamate un’ambulanza, presto!', 'Call an ambulance, quick!|Call an ambulance, quickly!|Quick, call an ambulance!|Call an ambulance fast!'],
      ['Chiami i vigili del fuoco, c’è un incendio!', 'Call the fire department, there’s a fire!|Call the firefighters, there’s a fire!|Call the fire department, there is a fire!|Call the fire brigade, there’s a fire!'],
      ['Aiuto! C’è un uomo ferito.', 'Help! There’s an injured man.|Help! There is an injured man.|Help! A man is injured.|Help! A man is hurt.|Help! There’s a man hurt.|Help! There’s a wounded man.'],

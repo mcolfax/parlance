@@ -824,7 +824,7 @@ a 0 b-feelings worried | round face with brows raised in the middle, a small wob
 n 0 b-feelings hunger | empty bowl with a spoon beside it and a rumbling wavy line above
 = sleep to-sleep
 = to-relax to-rest
-- medicine | same picture as the pill in its lesson
+= medicine drug
 n 0 b-leisure dream | thought cloud with a crescent moon and stars above a pillow
 = to-dream dream
 n 0 b-nature luck | four-leaf clover
@@ -1209,7 +1209,7 @@ n 0 b-misc falling | bar chart with three falling bars and a down arrow
 - lease | abstract or grammar
 - to-view | abstract or grammar
 - utilities | abstract or grammar
-- account | abstract or grammar
+n 0 a-phones account {"it":["l’account"]} | round profile picture: a figure's head and shoulders in a circle, a small green tick (das Konto in de-26-3 and la cuenta in es-26-3 name it themselves: their text means something else elsewhere)
 - bank-account | abstract or grammar
 - current-account | abstract or grammar
 - debts | abstract or grammar
@@ -1658,7 +1658,7 @@ v 0 c-verbs to-whisper | figure with a hand cupped beside its mouth, tiny wavy l
 - with-some-exceptions | abstract or grammar
 - as-soon-as-possible | abstract or grammar
 - buddy-mexico | abstract or grammar
-- employment | abstract or grammar
+= employment work
 - formal | abstract or grammar
 - guy | abstract or grammar
 - informal | abstract or grammar
@@ -1927,7 +1927,7 @@ v 0 a-phones to-call | figure holding a phone to its ear, ring arcs beside it
 - to-be-about-to | time word
 - to-be-late | abstract time
 n 0 a-phones voice-message | green chat bubble with a play button and sound-wave bars, a small microphone
-n 0 a-phones email | laptop whose screen shows a closed envelope
+n 0 a-phones email {"es":[]} | laptop whose screen shows a closed envelope (es-26-3 names it: el correo is also the post office)
 - to-delete | screen action
 - to-enter | screen action
 v 0 a-phones to-save-a-file | blue floppy disk with a metal shutter and a blank label
@@ -1944,13 +1944,13 @@ n 0 a-phones answering-machine | answering machine with a red handset on top, tw
 - urgent | abstract
 = voicemail answering-machine
 n 1 b-emergencies ambulance | white ambulance van with a red cross, a red stripe and a blue light on the roof
-a 0 b-emergencies calm | figure sitting cross-legged with eyes closed and a gentle smile, hands on knees
+a 0 b-emergencies calm {"es":["tranquilo"],"it":["calmo"]} | figure sitting cross-legged with eyes closed and a gentle smile, hands on knees (de-27-1 names it: ruhig is also feel free)
 n 0 b-emergencies emergency | red emergency beacon light flashing, with bright rays
 n 1 b-emergencies fire | house with orange and yellow flames pouring from the roof and window, smoke above
 = fire-department firefighters
 n 1 b-emergencies firefighters | figure in a yellow helmet and red jacket aiming a hose that sprays water
 = help-2 help
-- to-bring | abstract motion
+v 0 b-emergencies to-bring {"es":["traer"]} | figure walking forward carrying a box held out in front, motion lines behind (it-27-1 names it: portare is also to wear)
 = to-burn fire
 - to-get | abstract motion
 - police-report | paperwork that would look like the form picture
@@ -2008,7 +2008,7 @@ n 1 b-outdoors wave | big curling blue wave with white foam
 n 0 b-outdoors hail | grey cloud dropping round white hailstones that bounce on the ground
 n 0 b-outdoors hiker | figure with a big backpack, a sun hat and a walking stick
 n 0 b-outdoors lightning | big yellow zigzag lightning bolt striking the ground
-= mountains mountain
+- mountains | la sierra is also a saw (es-38-2), and a word's text carries one picture
 n 0 b-outdoors storm-strong-wind | figure holding an umbrella blown inside out by strong wind, a leaf flying
 - thunder | a sound; would look like lightning or thunderstorm, which share its lessons
 = to-get-wet wet
@@ -2033,7 +2033,7 @@ n 1 b-science robot | friendly grey robot with a square head, round eyes, an ant
 - to-disappear | abstract
 v 0 b-science to-program | laptop screen with colored, indented lines of code
 - to-replace | abstract
-= drug pill
+n 0 b-science drug | orange medicine bottle with a white cap and a white label with a red cross
 - effective | abstract
 n 0 b-science research | microscope with a slide under the lens, a flask beside
 n 0 b-science researcher | figure in goggles and a white coat holding up a green bubbling flask

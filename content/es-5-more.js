@@ -142,7 +142,7 @@ U('Phones & messages', 'A2', [
       [['Ingrese su contraseña.', 'Enter your password.'], ['Descargue la aplicación.', 'Download the app.'], ['Inicie sesión con su correo.', 'Sign in with your email.']],
       [['usted commands: **Ingrese**, **Escriba**, **Descargue**', ['Infinitive', 'yo', 'usted command'], [['ingresar', 'ingres**o**', '**Ingrese**'], ['escribir', 'escrib**o**', '**Escriba**'], ['descargar', 'descarg**o**', '**Descargue**'], ['iniciar', 'inici**o**', '**Inicie**'], ['borrar', 'borr**o**', '**Borre**']]]]),
     [['la contraseña', 'password', 'f'], ['la aplicación', 'app|application', 'f'], ['ingresar', 'to enter|to type in'], ['descargar', 'to download'],
-     ['iniciar sesión', 'to sign in|to log in'], ['la cuenta', 'account|bill|check', 'f'], ['borrar', 'to delete|to erase'], ['el correo', 'email|mail', 'm']],
+     ['iniciar sesión', 'to sign in|to log in'], ['la cuenta', 'account|bill|check', 'f', 'account'], ['borrar', 'to delete|to erase'], ['el correo', 'email|mail', 'm', 'email']],
     [['Ingrese su contraseña.', 'Enter your password.|Type in your password.|Please enter your password.|Type your password.'],
      ['Descargue la aplicación.', 'Download the app.|Download the application.|Please download the app.'],
      ['Inicie sesión con su correo.', 'Sign in with your email.|Log in with your email.|Sign in with your e-mail.|Log in with your e-mail.'],
