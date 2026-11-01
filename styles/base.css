@@ -26,6 +26,7 @@ p{margin:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ic{display:inline-flex;align-items:center;justify-content:center;flex:none}
 .ic svg{display:block}
+.btn .ic svg:not([width]){width:20px;height:20px}
 
 /* Buttons */
 .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:var(--r-md);min-height:54px;padding:12px 18px;font:var(--type-button);text-decoration:none;transition:transform .12s var(--ease),filter .2s,box-shadow .2s,background-color .2s}
