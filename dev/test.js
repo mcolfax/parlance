@@ -688,6 +688,35 @@ async function main(){
       E('startReview(false)'); await finishCurrent(); ok(Run().finished, 'review finished'); footBtn('Continue').click();
     }
     ok(Object.values(P.S.langs[lang].cards).filter(c => c.n >= 1).length >= 60, lang + ' reviewed');
+    { /* review and practice ask a few picture questions, the same kinds lessons ask */
+      const n = E('(() => { const es = learnedEntries(S.settings.lang, "v").slice(0, 60), q = reviewQueue(es); window.__rq = { es, q }; return q.length; })()');
+      const rq = E('window.__rq'), pics = rq.q.filter(x => x.type.startsWith('pic-')), perReview = E('PIC_EX.perReview');
+      const evaluate = E('evaluate'), picQuiz = E('picQuiz'), picEx = E('PIC_EX');
+      ok(n === 60 && rq.q.every((x, k) => x.srs === rq.es[k].key), lang + ' review: at most three picture questions, in order, each on its own card (' + n + ' questions)');
+      ok(pics.length >= 1 && pics.length <= perReview, lang + ' review: at most three picture questions, in order, each on its own card (got ' + pics.length + ')');
+      let good = pics.length > 0;
+      for (const ex of pics){
+        good = good && ex.type === picEx[ex.lesson.level] && !!picQuiz(ex.item, ex.lang);
+        if (ex.type === 'pic-type') good = good && evaluate(ex, ex.accepted[0]).ok === true && evaluate(ex, 'zzzz').ok === false;
+        else good = good && ex.options.every(o => !!ex.pics[o]) && ex.pics[ex.correct] === picQuiz(ex.item, ex.lang) && evaluate(ex, ex.correct).ok === true && evaluate(ex, ex.options.find(o => o !== ex.correct)).ok === false;
+      }
+      ok(good, lang + ' review picture questions are the level\'s kind, with a safe picture, graded like lessons');
+      const noPic = E('(() => { const es = window.__rq.es.filter(e => !picQuiz(e.item, e.lesson.lang)); return reviewQueue(es).some(x => x.type.startsWith("pic-")); })()');
+      const zero = E('(() => { PIC_EX.perReview = 0; const r = reviewQueue(window.__rq.es).some(x => x.type.startsWith("pic-")); PIC_EX.perReview = 3; return r; })()');
+      ok(noPic === false && zero === false && E('PIC_EX.perReview') === 3, lang + ' review: no picture questions for words without one, or when perReview is 0');
+      const cards = P.S.langs[lang].cards, dues = {};
+      for (const [k, c] of Object.entries(cards)){ dues[k] = c.due; c.due = '2999-01-01'; }
+      const six = E('learnedEntries(S.settings.lang, "v").filter(e => (e.lesson.level === "A1" || e.lesson.level === "A2") && picQuiz(e.item, e.lesson.lang)).slice(0, 6).map(e => e.key)');
+      for (const k of six) cards[k].due = '2000-01-01';
+      E('startReview(false)');
+      ok(six.length === 6 && Run().queue.length === 6 && Run().queue.some(x => x.type === 'pic-pick'), lang + ' a review session with pictures runs to the end (queue ' + Run().queue.length + ')');
+      await finishCurrent();
+      ok(Run().finished, lang + ' a review session with pictures finishes');
+      footBtn('Continue').click();
+      for (const [k, d] of Object.entries(dues)) if (cards[k]) cards[k].due = d;
+      if (E('mistakeEntries(S.settings.lang).length')){ E('startMistakes()'); ok(!Run().queue.some(x => x.type.startsWith('pic-')), 'mistake sessions ask no picture questions'); E('endRun()'); }
+      else ok(true, 'mistake sessions ask no picture questions (no mistakes to practise)');
+    }
     for (const tab of ['learn', 'stories', 'review', 'talk', 'friends', 'me']){ E('UI.tab=' + JSON.stringify(tab) + '; render()'); ok(w.document.querySelector('#app').children.length > 0, 'tab ' + tab); }
     E('UI.tab="me"; render()');
     ok(![...w.document.querySelectorAll('#app button')].some(b => b.textContent.includes('Go to Talk')), 'the Claude version\'s Me has no Go to Talk pointer');
