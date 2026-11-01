@@ -1,7 +1,7 @@
 # One idea per card, pictures in review, a top bar that fits
 
 - **Cycle:** 2026-11-01
-- **Status:** approved
+- **Status:** building
 - **Release:** 4.27.0 (minor: a lesson feature and a review feature, plus content and UX fixes)
 - **Base:** `main` at bf7f0e0
 - **Proposals built:** web `pmvxw6o4w0` (pending, Green: the gate approves it, scoped to unit 2, see below); web `pmvxw6o4w1` (pending, option (a) only, Green copy: the gate approves it for (a); option (b) is not built and not escalated, see Gate)

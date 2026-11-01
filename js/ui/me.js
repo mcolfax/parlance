@@ -122,7 +122,9 @@ function viewMe(){
   v.append(h('section', { class: 'card' }, h('h3', null, 'Tutor access'),
     h('p', { class: 'small muted' }, !AI.ready ? 'Checking…' : aiOn() ? 'Claude is available for conversations, new lessons and grading. Each use counts toward your own Claude usage.' : AI.denied ? 'Claude access is turned off for this page.' : Web.on ? 'The tutor isn’t part of the web version.' : 'Claude isn’t available here. Open Parlance in the Claude app or on claude.ai while signed in.'),
     AI.denied ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: manageAccess }, 'Manage permissions') : null,
-    Web.on ? tutorOptions('Conversations, new lessons and grading need the tutor.', null) : null));
+    Web.on ? tutorOptions('Conversations, new lessons and grading need the tutor.', null) : null,
+    Web.on ? h('p', { class: 'small muted' }, 'You can also practice any Talk scene in Claude, ChatGPT or Gemini: open Talk, pick a scene and choose your app.') : null,
+    Web.on ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => { UI.tab = 'talk'; UI.animate = true; render(); window.scrollTo(0, 0); } }, ic('talk'), 'Go to Talk') : null));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Your progress is saved'),
     Web.on ? webAccountRow() : null,
     h('p', { class: 'sync-line small', id: 'sync-status' }, ...syncLine()),

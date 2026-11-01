@@ -105,28 +105,37 @@ function lessonForms(l){
   }
   return FORMS.by[lang][l.id] || [];
 }
-/* a lesson's tip cut into small bites that arrive between the exercises instead of one wall of text up front.
-   The body is split at sentence ends into 1–3 bites; each example and table goes with the bite that talks about it (otherwise the last one) */
+/* A tip is taught in one to three bites (the concept cards between word groups).
+   An author can cut it by hand with blank lines: one bite per paragraph, at most three (later paragraphs join the third),
+   and each table goes to the paragraph whose bold words its caption or cells show. Without blank lines it is cut at
+   sentence ends by length, and a table follows its caption. Examples always go to the bite whose bold words they use. */
 function tipBites(tip){
   if (!tip || !tip.body) return [];
   const plain = s => String(s).replace(/\*\*/g, '').toLowerCase();
-  const sents = String(tip.body).split(/(?<=[.!?)])\s+(?=[A-ZÄÖÜÁÉÍÓÚÑ¿¡*])/).map(x => x.trim()).filter(Boolean);
-  const n = Math.max(1, Math.min(3, sents.length, Math.round(String(tip.body).length / 200)));
-  const total = sents.reduce((a, x) => a + x.length, 0), bites = [];
-  let cur = [], len = 0;
-  for (const x of sents){
-    cur.push(x); len += x.length;
-    if (bites.length < n - 1 && len >= total / n * (bites.length + 1)){ bites.push({ body: cur.join(' '), examples: [], tables: [] }); cur = []; }
+  const paras = String(tip.body).split(/\n\s*\n/).map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const byPara = paras.length > 1;
+  let bites = [];
+  if (byPara) bites = [paras[0], paras[1], paras.slice(2).join(' ')].filter(Boolean).map(body => ({ body, examples: [], tables: [] }));
+  else {
+    const sents = String(tip.body).split(/(?<=[.!?)])\s+(?=[A-ZÄÖÜÁÉÍÓÚÑ¿¡*])/).map(x => x.trim()).filter(Boolean);
+    const n = Math.max(1, Math.min(3, sents.length, Math.round(String(tip.body).length / 200)));
+    const total = sents.reduce((a, x) => a + x.length, 0);
+    let cur = [], len = 0;
+    for (const x of sents){
+      cur.push(x); len += x.length;
+      if (bites.length < n - 1 && len >= total / n * (bites.length + 1)){ bites.push({ body: cur.join(' '), examples: [], tables: [] }); cur = []; }
+    }
+    if (cur.length) bites.push({ body: cur.join(' '), examples: [], tables: [] });
   }
-  if (cur.length) bites.push({ body: cur.join(' '), examples: [], tables: [] });
   const bolds = b => [...b.body.matchAll(/\*\*(.+?)\*\*/g)].map(m => m[1].toLowerCase());
   const home = key => {
     let best = -1, at = bites.length - 1;
     bites.forEach((b, i) => { const hit = bolds(b).filter(w => w.length > 2 && key.includes(w)).length; if (hit > best && hit > 0){ best = hit; at = i; } });
     return bites[at];
   };
+  const tableKey = t => plain(byPara ? [t.cap, ...(t.head || []), ...t.rows.flat()].join(' ') : t.cap);
   for (const e of tip.examples || []) home(plain(e.t)).examples.push(e);
-  for (const t of tip.tables || []) home(plain(t.cap)).tables.push(t);
+  for (const t of tip.tables || []) home(tableKey(t)).tables.push(t);
   return bites.map((b, i) => ({ ...b, title: tip.title, i, of: bites.length }));
 }
 function allLessons(lang){ return coreOrder(lang).concat(genLessons(lang)); }

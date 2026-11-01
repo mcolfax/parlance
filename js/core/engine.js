@@ -309,6 +309,17 @@ function reviewEx(entry){
   ex.srs = entry.key;
   return ex;
 }
+/* A review or practice session asks up to PIC_EX.perReview picture questions: words with a safe picture, chosen at random,
+   get their level's picture question (the same kinds lessons ask); everything else is asked as reviewEx() would.
+   A word whose picture question can't be built (too few other pictures) gets its plain question. Order is kept. */
+function reviewQueue(entries){
+  const can = entries.map((e, n) => n).filter(n => { const e = entries[n]; return e.kind === 'v' && e.lesson && PIC_EX[e.lesson.level] && picQuiz(e.item, e.lesson.lang); });
+  const pick = new Set(shuffle(can).slice(0, PIC_EX.perReview || 0));
+  return entries.map((e, n) => {
+    if (pick.has(n)){ const t = PIC_EX[e.lesson.level], ex = makeEx(t, e.lesson, 'v', e.i); if (ex.type === t){ ex.srs = e.key; return ex; } }
+    return reviewEx(e);
+  });
+}
 
 /* ===================== MISTAKES, FORM DRILLS, CHECKPOINTS, PLACEMENT ===================== */
 /* a wrong answer (or a form that only counted at an early level) puts the item on the "Fix my mistakes" list until you get it right */

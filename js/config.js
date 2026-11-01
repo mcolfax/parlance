@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.26.2';
+const APP_VERSION = '4.27.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,10 @@ const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.27.0', date: '2026-11-01', title: 'Smaller steps', notes: [
+    'The lessons on numbers, time and days in unit 2 now explain one idea per card, each with its own example, in German, Spanish and Italian.',
+    'Reviews now ask up to three picture questions, the same kind your lessons ask at that level.',
+    'The top bar fits on phones again, and on the web version Me shows where to practice Talk scenes in Claude, ChatGPT or Gemini.'] },
   { v: '4.26.2', date: '2026-10-31', title: 'Right pictures', notes: [
     'A few words no longer show a picture of a different meaning. “El partido” in politics isn’t a soccer match, “weit” for clothes means loose rather than far, “salir” and “uscire” for a night out don’t pack a suitcase, and “enfrente de” for directions means across the street.'] },
   { v: '4.26.1', date: '2026-10-31', title: 'Pictures and voices for the new lessons', notes: [
@@ -258,7 +262,7 @@ const HINTS = { A1: 'full', A2: 'full', B1: 'tap', B2: 'tap', C1: 'off', C2: 'of
 /* Picture questions: the kind a lesson asks by level, and how many (at most one per group of new words, in place of a plain recognition question).
    pic-pick: hear and read the word, tap its picture. pic-name: see the picture, choose the word. pic-type: see the picture, type the word.
    Only words whose picture is safe to ask about are used (design/pictures/briefs-src.txt, quiz 1); see "Word pictures" in docs/ARCHITECTURE.md. */
-const PIC_EX = { A1: 'pic-pick', A2: 'pic-pick', B1: 'pic-name', B2: 'pic-name', C1: 'pic-type', C2: 'pic-type', perLesson: 2 };
+const PIC_EX = { A1: 'pic-pick', A2: 'pic-pick', B1: 'pic-name', B2: 'pic-name', C1: 'pic-type', C2: 'pic-type', perLesson: 2, perReview: 3 };
 /* Wrong form of the right word (a wrong ending, person or tense): in the early levels the answer still counts and says what was off;
    from B1 on it does not count, and says why. */
 const FORM_PASS = { A1: true, A2: true, B1: false, B2: false, C1: false, C2: false };

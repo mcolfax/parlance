@@ -26,6 +26,7 @@ p{margin:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ic{display:inline-flex;align-items:center;justify-content:center;flex:none}
 .ic svg{display:block}
+.btn .ic svg:not([width]){width:20px;height:20px}
 
 /* Buttons */
 .btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:var(--r-md);min-height:54px;padding:12px 18px;font:var(--type-button);text-decoration:none;transition:transform .12s var(--ease),filter .2s,box-shadow .2s,background-color .2s}
@@ -61,7 +62,7 @@ p{margin:0}
 
 /* Top bar */
 .top{display:flex;align-items:center;gap:12px;padding-top:4px;min-width:0}
-.brand{display:flex;align-items:center;gap:8px;font:700 24px/1 var(--display);min-width:0;overflow:hidden}
+.brand{display:flex;flex-wrap:wrap;align-items:center;gap:40px 8px;height:26px;font:700 24px/1 var(--display);min-width:0;overflow:hidden}
 .brand-name{white-space:nowrap}
 .brand .mark{position:relative;width:26px;height:22px;flex:none}
 .brand .mark i{position:absolute;width:17px;height:17px;top:2px}
@@ -76,17 +77,13 @@ p{margin:0}
 .top .music-btn + .seg{margin-left:0}
 .top .music-btn.on svg{animation:notebob 2.4s var(--ease) infinite}
 .top .music-btn{flex:none}
-/* Phones: the logo, the music button and the language switch share one row. Under 420px they tighten up;
-   under 400px (three languages need the room) the wordmark steps aside (screen readers still hear it) and the two-leaf mark stays. */
+/* Phones: the logo, the music button and the language switch share one row. Under 420px they tighten up. If the wordmark still doesn't fit, it wraps out of the 26px brand box (screen readers still hear it) and the two-leaf mark stays. */
 @media (max-width:420px){
-  .top{gap:8px}
-  .brand{font-size:17px;gap:6px}
+  .top{gap:6px}
+  .brand{font-size:17px;gap:40px 6px}
   .top .music-btn{width:40px;height:40px}
-  .top .seg button{padding:7px 8px;font-size:15px}
+  .top .seg button{padding:7px 7px;font-size:14px}
   .top .seg{padding:3px}
-}
-@media (max-width:400px){
-  .brand-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 }
 @keyframes notebob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-1.5px) rotate(-6deg)}}
 
