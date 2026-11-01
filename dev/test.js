@@ -246,7 +246,8 @@ async function main(){
       if (!/\n\s*\n/.test(A.E('getLesson(' + JSON.stringify(id) + ').tip.body'))) continue;
       const got = A.E('tipBites(getLesson(' + JSON.stringify(id) + ').tip)').map(b => [...b.examples.map(e => e.t), ...b.tables.map(t => t.cap)]);
       ok(JSON.stringify(got) === JSON.stringify(TIP_PLACES[id]), id + ' tip cards hold what the plan says: ' + JSON.stringify(got));
-    } }
+    }
+    ok(Object.keys(TIP_PLACES).length === 12 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all twelve unit 2 tips are cut into three paragraphs'); }
   /* the top bar lets the wordmark wrap away instead of being cut mid-word (layout itself is checked in a browser) */
   { const css = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8'), brand = (css.match(/\n\.brand\{[^}]*\}/) || [''])[0];
     ok(brand.includes('flex-wrap:wrap') && brand.includes('height:26px') && !css.includes('@media (max-width:400px){\n  .brand-name'), 'the top bar lets the wordmark wrap instead of cutting it'); }
