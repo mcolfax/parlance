@@ -210,6 +210,46 @@ async function main(){
     }
   }
   ok(lessonCount === 468, 'lesson count ' + lessonCount);
+  /* tips: a hand-cut tip (blank lines) gives one bite per paragraph, and a tip without them is cut as it always was */
+  { const bodyA = 'One **alpha** idea.\n\nTwo **bravo** idea.\n\nThree **charlie** idea.\n\nFour.';
+    const bs = A.E('tipBites(T("t", ' + JSON.stringify(bodyA) + ', [["alpha one", "a"], ["charlie two", "c"]], [["Plain caption", null, [["x", "**bravo**"]]]]))');
+    ok(bs.length === 3 && bs[0].body === 'One **alpha** idea.' && bs[1].body === 'Two **bravo** idea.' && bs[2].body === 'Three **charlie** idea. Four.', 'tipBites: blank lines make one bite per paragraph: ' + JSON.stringify(bs.map(b => b.body)));
+    ok(bs[0].examples.length === 1 && bs[0].examples[0].t === 'alpha one' && bs[2].examples.length === 1 && bs[2].examples[0].t === 'charlie two' && bs[1].tables.length === 1 && bs[1].tables[0].cap === 'Plain caption' && bs[0].tables.length === 0 && bs[2].tables.length === 0, 'tipBites: blank lines make one bite per paragraph, each example and table with the paragraph that names it');
+    const es11 = A.E('tipBites(getLesson("es-1-1").tip)');
+    ok(es11.length === 3 && es11[0].body.startsWith('Greet by the time of day') && es11[1].body.startsWith('**¿Cómo estás?**') && es11[2].body.startsWith('Put **señor**') && es11[2].tables.length === 2 && es11[0].tables.length === 0 && es11[1].tables.length === 0, 'tipBites: a tip without blank lines is cut as before'); }
+  { const TIP_PLACES = {
+      'es-2-1': [['Dos más tres son cinco.'], ['Tengo dos hermanos.', 'Mi hijo tiene siete años.', 'tener (irregular): to have', 'Plurals'], ['Cuesta cinco dólares.', 'costar (o→ue): to cost']],
+      'de-2-1': [['Zwei plus drei ist fünf.', 'Numbers 0–10 (and 10 is **zehn**)'], ['Ich habe zwei Brüder.', 'Present of **haben** (to have)', 'Plurals you meet here'], ['Das kostet fünf Euro.', 'Mein Sohn ist sieben Jahre alt.']],
+      'it-2-1': [['Due più tre fa cinque.'], ['Ho due fratelli.', 'Mio figlio ha sette anni.', 'avere (irregular): to have'], ['Costa cinque euro.', 'costare: to cost', 'Plurals']],
+      'es-2-2': [['Cuesta doce dólares.', 'Numbers'], ['Cuesta cuarenta y cinco dólares.'], ['Tengo treinta años.', '¿Cuántos años tienes?', 'La casa tiene cincuenta años.', 'tener (irregular): to have']],
+      'de-2-2': [['Das kostet zwölf Euro.', 'The tens'], ['Das kostet einundzwanzig Euro.', 'Ones first, then **und**, then the tens'], ['Ich bin dreißig Jahre alt.', 'Wie alt bist du?', 'Das Haus ist fünfzig Jahre alt.']],
+      'it-2-2': [['Costa dodici euro.'], ['Mia sorella ha ventuno anni.', 'Numbers'], ['Ho trentacinque anni.', 'Quanti anni hai?', 'avere (irregular): to have']],
+      'es-2-3': [['Es la una.'], ['Son las tres y media.', 'Saying the time'], ['Voy a llegar tarde.', 'ir (irregular): to go']],
+      'de-2-3': [['Es ist drei Uhr.'], ['Es ist halb acht.', 'Es ist Viertel nach zwei.', 'Telling the time'], ['Ich komme zu spät.']],
+      'it-2-3': [['È l’una.'], ['Sono le tre e mezza.', 'Saying the time'], ['Arrivo tardi.', 'arrivare (regular -are): to arrive']],
+      'es-2-4': [['Los sábados juego tenis.', 'Days with “on”'], ['Hoy es lunes.'], ['El viernes no trabajo.', 'Jugamos tenis el sábado.', 'Two present-tense verbs']],
+      'de-2-4': [['Die Woche hat sieben Tage.', 'Which word?'], ['Am Freitag arbeite ich nicht.'], ['Wir spielen am Samstag Tennis.', 'Present of **arbeiten** and **spielen**']],
+      'it-2-4': [['Io lavoro il lunedì.', 'Days with “on”'], ['Oggi è lunedì.'], ['Venerdì non lavoro.', 'Sabato giochiamo a tennis.', 'Two present-tense verbs']]
+    };
+    const plainT = s => String(s).replace(/\*\*/g, '').toLowerCase();
+    for (const lang of LANG_IDS) for (const u of P.COURSE[lang].units) for (const l of u.lessons){
+      if (!/\n\s*\n/.test(l.tip.body)) continue;
+      const bs = A.E('tipBites(getLesson(' + JSON.stringify(l.id) + ').tip)'), paras = l.tip.body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length;
+      ok(bs.length === Math.min(3, paras), l.id + ' a hand-cut tip has one bite per paragraph, at most three');
+      bs.forEach((b, i) => {
+        const bolds = [...b.body.matchAll(/\*\*(.+?)\*\*/g)].map(m => plainT(m[1])).filter(w => w.length > 2);
+        for (const e of b.examples) ok(bolds.some(w => plainT(e.t).includes(w)), l.id + ' each example and table sits with the paragraph that names it: example ' + e.t + ' in bite ' + i);
+        for (const t of b.tables) ok(bolds.some(w => plainT([t.cap, ...(t.head || []), ...t.rows.flat()].join(' ')).includes(w)), l.id + ' each example and table sits with the paragraph that names it: table ' + t.cap + ' in bite ' + i);
+      });
+    }
+    for (const id of Object.keys(TIP_PLACES)){
+      if (!/\n\s*\n/.test(A.E('getLesson(' + JSON.stringify(id) + ').tip.body'))) continue;
+      const got = A.E('tipBites(getLesson(' + JSON.stringify(id) + ').tip)').map(b => [...b.examples.map(e => e.t), ...b.tables.map(t => t.cap)]);
+      ok(JSON.stringify(got) === JSON.stringify(TIP_PLACES[id]), id + ' tip cards hold what the plan says: ' + JSON.stringify(got));
+    } }
+  /* the top bar lets the wordmark wrap away instead of being cut mid-word (layout itself is checked in a browser) */
+  { const css = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8'), brand = (css.match(/\n\.brand\{[^}]*\}/) || [''])[0];
+    ok(brand.includes('flex-wrap:wrap') && brand.includes('height:26px') && !css.includes('@media (max-width:400px){\n  .brand-name'), 'the top bar lets the wordmark wrap instead of cutting it'); }
   /* word pictures: the mapping and the files follow the rules, and enough lessons ask about them (floors: the shipped numbers, rounded down) */
   { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
     let fails; try { fails = await T.check(); } finally { console.log = log; }
@@ -649,6 +689,8 @@ async function main(){
     }
     ok(Object.values(P.S.langs[lang].cards).filter(c => c.n >= 1).length >= 60, lang + ' reviewed');
     for (const tab of ['learn', 'stories', 'review', 'talk', 'friends', 'me']){ E('UI.tab=' + JSON.stringify(tab) + '; render()'); ok(w.document.querySelector('#app').children.length > 0, 'tab ' + tab); }
+    E('UI.tab="me"; render()');
+    ok(![...w.document.querySelectorAll('#app button')].some(b => b.textContent.includes('Go to Talk')), 'the Claude version\'s Me has no Go to Talk pointer');
     { /* every level on Learn opens and closes, the last open one too */
       E('UI.tab="learn"; UI.openLang=null; render()');
       const openHeads = () => [...w.document.querySelectorAll('.lvl-head[aria-expanded="true"]')];
@@ -1393,6 +1435,10 @@ async function main(){
     [...W1.w.document.querySelectorAll('.sheet button')].find(b => b.textContent === 'Close').click(); await sleep(200);
     W1.E('UI.tab="learn"; render()');
     ok(W1.w.document.querySelectorAll('.gen .ai-picker a').length === 3, 'lessons on demand can be handed to a chat app on the web');
+    W1.E('UI.tab="me"; render()');
+    ok([...W1.w.document.querySelectorAll('#app p')].some(p => p.textContent.includes('practice any Talk scene in Claude, ChatGPT or Gemini')) && [...W1.w.document.querySelectorAll('#app button')].some(b => b.textContent.trim() === 'Go to Talk'), 'Me on the web points to Talk scenes in chat apps');
+    [...W1.w.document.querySelectorAll('#app button')].find(b => b.textContent.trim() === 'Go to Talk').click();
+    ok(W1.E('UI.tab') === 'talk', 'Go to Talk opens Talk');
     W1.E('UI.tab="me"; render()');
     W1.P.S.langs.de.done['de-1-1'] = { at: '2026-10-11', acc: 1, times: 1 }; W1.E('touch("de")');
     W1.E('UI.tab="me"; render()');
