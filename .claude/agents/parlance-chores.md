@@ -21,7 +21,7 @@ Matt must never pay for recordings. `dev/voices.js` keeps a monthly total in `de
 
 - **Word mapping:** `node design/pictures/tools.js words && node design/pictures/tools.js check`, and report the last 30 lines.
 - **Counts:** update the numbers the plan gives you (for example the lesson count in `dev/test.js`, or "39 units and 156 lessons" in `CLAUDE.md` and `docs/ARCHITECTURE.md`). Change only those numbers, and show each edit's before and after.
-- **Test failures:** run `npm test 2>&1 | grep -E "^FAIL|FAIL [0-9]"` and group the FAIL lines by lesson id or file.
+- **Test failures:** run `mkdir -p flow/shots && NODE_OPTIONS=--max-old-space-size=6144 npm test > flow/shots/test.log 2>&1; tail -40 flow/shots/test.log` (in a cloud container it can take 15–20 minutes: give the command a 30-minute timeout or run it in the background and wait for it; never cut it short), then `grep -E "^FAIL|FAIL [0-9]" flow/shots/test.log` and group the FAIL lines by lesson id or file.
 - **Snapshot or guard:** `node dev/flow.js snapshot` or `node dev/flow.js guard --base <ref>`, and paste the output.
 
 Never edit content, code or pictures beyond what the job says. Never commit or push unless told to.

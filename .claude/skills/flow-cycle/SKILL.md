@@ -15,6 +15,8 @@ Read these before anything else, and follow them throughout: `CLAUDE.md`, `docs/
 
 **Pushing.** This flow ships by committing to `main` and pushing (CLAUDE.md, "Shipping a release"); the scheduled task that runs it says so. On a network failure retry the push up to four times (2s, 4s, 8s, 16s). End every commit message with the attribution lines your session's instructions give.
 
+**The test suite** (`npm test`) takes 15–20 minutes in a cloud container. Run it with a 30-minute timeout or in the background, writing to `flow/shots/test.log` (not committed), and tell every agent the same. Run it where it matters (each package's agent, the verifier, and once before shipping), not after every small edit.
+
 Use the task list to track the stages below. Name the cycle `<YYYY-MM-DD>` (add `-2` if one already ran today).
 
 ## 0. Preflight

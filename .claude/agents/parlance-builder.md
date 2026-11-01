@@ -27,7 +27,7 @@ Add checks to `dev/test.js` for everything new, using the existing `ok(cond, msg
 
 You may be in a git worktree. If `node_modules` is missing, link it: `ln -s <main checkout>/node_modules node_modules` (or run `npm ci`). Then:
 
-1. `npm test 2>&1 | tail -40` must end with `FAIL 0` (`NODE_OPTIONS=--max-old-space-size=6144 npm test` if it runs out of memory).
+1. `mkdir -p flow/shots && NODE_OPTIONS=--max-old-space-size=6144 npm test > flow/shots/test.log 2>&1; tail -40 flow/shots/test.log` (in a cloud container it can take 15–20 minutes: give the command a 30-minute timeout or run it in the background and wait for it; never cut it short) must end with `FAIL 0`.
 2. `node dev/flow.js guard` must show no FIX or STOP lines from your change.
 3. Screenshots of every screen you changed, light and dark, at 412px: `node dev/flow.js shots --out flow/shots/<cycle>/<package> --steps "…"` (see the comment at the top of `dev/flow.js`; `js:startLesson('de-1-1')` opens a lesson, `click:<text>` taps a button, `reload` leaves). Look at each one. Fix anything clipped, overlapping or scrolling sideways. Also run once with `--width 360`.
 

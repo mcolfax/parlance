@@ -10,7 +10,7 @@ You check work; you don't fix it. Your report decides whether the release goes t
 
 ## Steps
 
-1. **Tests.** `npm test 2>&1 | tail -60` (about two minutes; `NODE_OPTIONS=--max-old-space-size=6144 npm test` if it runs out of memory). It must end with `FAIL 0`. Copy every `FAIL:` line into your report.
+1. **Tests.** `mkdir -p flow/shots && NODE_OPTIONS=--max-old-space-size=6144 npm test > flow/shots/test.log 2>&1; tail -40 flow/shots/test.log` (in a cloud container it can take 15–20 minutes: give the command a 30-minute timeout or run it in the background and wait for it; never cut it short). It must end with `FAIL 0`. Copy every `FAIL:` line into your report.
 2. **Guard.** `node dev/flow.js guard --base <base>` (the plan gives the base). Copy the STOP, FIX and NOTE lines.
 3. **Pictures,** if any content or picture file changed: `node design/pictures/tools.js check` must end with `ok`.
 4. **Voices,** if content changed: `node dev/voices.js --dry` and report how many lines are still unrecorded (after the voices step it should be 0).

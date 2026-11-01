@@ -48,7 +48,7 @@ STORIES.push(ST('de-s10', 'B1', 'Title in German', 'Title in English', 'scene ke
 
 You may be in a git worktree. If `node_modules` is missing, link it: `ln -s <main checkout>/node_modules node_modules` (or run `npm ci`). Then:
 
-1. `npm test 2>&1 | tail -40` (about two minutes; `NODE_OPTIONS=--max-old-space-size=6144` if it runs out of memory). If the only failures are the lesson or story **counts** the integration step will update, that's expected; say so. Fix every other failure in your files.
+1. `mkdir -p flow/shots && NODE_OPTIONS=--max-old-space-size=6144 npm test > flow/shots/test.log 2>&1; tail -40 flow/shots/test.log` (in a cloud container it can take 15–20 minutes: give the command a 30-minute timeout or run it in the background and wait for it; never cut it short). If the only failures are the lesson or story **counts** the integration step will update, that's expected; say so. Fix every other failure in your files.
 2. `node dev/flow.js guard` must show no FIX or STOP lines caused by your files.
 3. Read your lessons once more as a learner would: is every sentence natural, correct and at the right level?
 
