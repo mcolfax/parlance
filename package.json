@@ -6,7 +6,10 @@
     "test": "node dev/test.js index.html",
     "preview": "python3 dev/preview.py",
     "files": "node dev/files.js",
-    "web": "node dev/web.js"
+    "web": "node dev/web.js",
+    "snapshot": "node dev/flow.js snapshot",
+    "guard": "node dev/flow.js guard",
+    "shots": "node dev/flow.js shots"
   },
   "devDependencies": {
     "jsdom": "24.1.3"

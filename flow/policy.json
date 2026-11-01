@@ -1,0 +1,21 @@
+{
+  "note": "Matt's switches for the enhancement flow (flow/README.md). Only Matt changes this file: the guard stops any release that touches it. paused: true makes every cycle report and stop. budgets.recraftUnitsPerMonth: Recraft API units the flow may spend a month on cast figures and story scenes (1,000 units = US$1); 0 means it must ask. focus: areas to favor when the planner chooses work (any of content, lesson-types, ux, pictures, stories, feedback, quality); avoid: things the planner must not propose.",
+  "paused": false,
+  "maxPackagesPerCycle": 3,
+  "maxNewLessonsPerLanguagePerCycle": 8,
+  "budgets": {
+    "recraftUnitsPerMonth": 0
+  },
+  "models": {
+    "orchestrator": "opus",
+    "planner": "opus",
+    "reviewer": "opus",
+    "builder": "sonnet",
+    "content": "sonnet",
+    "illustrator": "sonnet",
+    "verifier": "sonnet",
+    "chores": "haiku"
+  },
+  "focus": ["feedback", "content", "lesson-types", "ux"],
+  "avoid": []
+}

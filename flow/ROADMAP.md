@@ -1,0 +1,23 @@
+# Roadmap
+
+The flow's backlog. The planner picks from it each cycle (after approved proposals), adds what it notices, and keeps the table's shape: `| ID | Area | Idea | Why / evidence | Status |`. Rows are roughly in priority order; the planner may reorder. Matt can add, edit, reorder or delete rows any time; a row he deletes or marks `parked` is never planned.
+
+Areas: `content`, `stories`, `lesson-types`, `ux`, `pictures`, `quality`, `perf`. Statuses: `open`, `planned`, `done (<version>)`, `needs-matt` (Red: waiting on him; see flow/POLICY.md), `parked`.
+
+| ID | Area | Idea | Why / evidence | Status |
+|---|---|---|---|---|
+| R-1 | ux | Fix the Learn top bar at phone width: the wordmark is cut off ("Parlanc") because the logo, the music button and the three-language switch don't fit in 412px. Check 360px too, light and dark. | Screenshot at 412 × 915 when the flow was set up (`node dev/flow.js shots`, Learn tab). Matt's phone is about 412px wide. | open |
+| R-2 | content | Grow C1 and C2: each language has 16 C1 and 12 C2 lessons against 36 at A2. Add C1/C2 units (for example persuading and debating, register and idioms, news and media, negotiating at work), at most two units per language per cycle, the same ideas in all three languages. | `node dev/flow.js snapshot` | open |
+| R-3 | stories | Stories for advanced learners: each language has one B2 and one C1 story and no C2 story. Add s10–s12 per language at B2, C1 and C2 with the existing cast (a story without a Recraft scene keeps its drawn scene). | Story levels in `content/stories-*.js` | open |
+| R-4 | lesson-types | "Choose the reply": read or hear a line, pick the natural reply from three. Built from lesson sentences and story lines, graded without the tutor, from A2. Gives web learners, who have no Talk, some conversation practice. | Talk needs Claude; the web version has no conversation practice. | open |
+| R-5 | lesson-types | Picture questions in Review sessions (`reviewEx()`), using the same safe-picture rules as lessons. | `docs/ARCHITECTURE.md`: "Review sessions don't ask picture questions yet." | open |
+| R-6 | lesson-types | Gender drill: sort nouns by article (der/die/das, el/la, il/lo/la/l’) from the learner's own learned words, in Review → practice. | Vocab already carries gender; articles are a classic stumbling block. | open |
+| R-7 | lesson-types | Story listening mode: play a story line by line with its recorded voices, text hidden until tapped, then the questions. | Every story line is recorded (`media/voice/*-stories.mp3`). | open |
+| R-8 | lesson-types | "Put the conversation in order" (B1+): four to six lines of a dialogue, shuffled. | Uses story and lesson lines; no tutor needed. | open |
+| R-9 | quality | Content audit, one level and one language per cycle: unnatural phrasing, blanks with two right answers, missing natural English variants. Fixes that keep review-card keys only (see POLICY.md, "Changing existing content"). | Learners are marked wrong for good answers when an English variant is missing. | open |
+| R-10 | ux | Accessibility pass: icon-only buttons have labels, tap targets at least 44px, focus order in sheets, contrast in dark mode, nothing moves with reduced motion. | 52 `aria-label`s in `js/ui/`; no audit has been done. | open |
+| R-11 | ux | The Learn route is very long at phone width (the open level lists every unit, about 10,000px). Consider collapsing finished units and bringing the current one into view. | Full-page screenshot of Learn at 412px. | open |
+| R-12 | pictures | More word pictures: 38–40% of course words have one. Draw the concrete concepts still without a picture (mostly verbs), batch by level. | `node dev/flow.js snapshot`; `node design/pictures/tools.js check` coverage table | open |
+| R-13 | lesson-types | "Spot the mistake" (B2+): one of three sentences has an error in the lesson's idea; tap it, then see the right form. | Practices noticing, which typing drills don't. | open |
+| R-14 | perf | Measure cold start on a throttled Android-class CPU (about 70 scripts load in order). If it's slow, propose a safe way to load less at first. | Not measured yet. | open |
+| R-15 | stories | Story scenes for the five stories still without one (Spanish 1, Italian 4), drawn in Recraft like the other 22. About 80 units (US$0.08) each, US$0.40 in all. | 22 of 27 stories have a scene. Recraft costs money, so this waits until Matt sets `budgets.recraftUnitsPerMonth` in `flow/policy.json` to at least 400. | needs-matt |

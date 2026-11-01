@@ -47,6 +47,9 @@ npm run files        # JSON map of the files to publish next to index.html
 npm run web          # builds the web version into dist/ (what Vercel serves)
 NODE_PATH="$(npm root -g)" node dev/icons.js   # redraws media/icons/ from Pip (needs Playwright)
 node dev/voices.js   # records new lines into media/voice/ (Google key: the environment's network secret; --dry counts them)
+node dev/flow.js snapshot   # the course's shape, coverage, next free ids and spend (the planner starts here)
+node dev/flow.js guard      # checks the working tree against origin/main: STOP (Matt decides), FIX, NOTE
+node dev/flow.js shots --steps "tab:Learn;shot:learn"   # screenshots at 412px, light and dark (usage at the top of dev/flow.js)
 ```
 
 A GitHub Action (`keep-awake.yml`) reads the web database three times a day so the free Supabase project doesn't pause. If it fails, the web version's database is down.
@@ -82,11 +85,21 @@ The preview runs without the artifact runtime, so there is no account sync, data
   - `status` is `pending`, `approved`, `rejected` or `shipped`.
   - `proposals/_meta.lastSynthAt` marks the newest feedback already turned into proposals.
   - See `synthesize()` in `js/ui/studio.js`.
-- Feedback is collected on the **web version only** (Claude copies send people there). `node dev/feedback.js open` prints SQL for the open notes and approved proposals; run it with Supabase `execute_sql` on project `ibrweunxigetiazzuwiz`.
-- **Only build proposals with `status: "approved"`.** Matt approves them in the app (Me → Studio). Follow his `note`.
+- Feedback is collected on the **web version only** (Claude copies send people there). `node dev/feedback.js open` prints SQL for the open notes and the approved and pending proposals; run it with Supabase `execute_sql` on project `ibrweunxigetiazzuwiz`.
+- **Only build proposals with `status: "approved"`.** Matt approves them in the app (Me → Studio). Follow his `note`. The enhancement flow's gate may also approve a pending proposal that `flow/POLICY.md` puts in Green or Amber (`node dev/feedback.js approve`, which records `decidedBy: "flow"`); never one Matt rejected.
 - After shipping, close the loop for each built proposal: `node dev/feedback.js close <version> "<one warm sentence on what changed>" --proposal <id>`, then run the SQL it prints. That sets the proposal to `shipped` with `version` and `shippedAt`, and marks the learners' notes resolved, so each of them gets a thank-you with your sentence the next time they open Parlance. Write the sentence for the learner, in plain, warm English. Studio → Proposals → Mark shipped does the same.
   - Notes with no proposal: `... close <version> "<message>" --notes <id,id>`.
   - If the proposal lives in the Claude artifact's database, use ArtifactData to set the `shipped` fields instead, and Studio there for the notes.
+
+## The enhancement flow
+
+Parlance improves itself on a schedule. Read `flow/README.md` first; the rules for what may ship without Matt are in `flow/POLICY.md`.
+
+- The scheduled task **Parlance flow cycle** runs the `flow-cycle` skill (`.claude/skills/flow-cycle/SKILL.md`) twice a week. One cycle: intake → plan (Opus) → plan gate → build (Sonnet and Haiku) → verify → review (Opus) → ship → report. Run it by hand with `/flow-cycle` (or `plan-only`, `dry-run`, `build <plan>`).
+- The agents are in `.claude/agents/`: `parlance-planner` and `parlance-reviewer` (Opus), `parlance-content`, `parlance-builder`, `parlance-illustrator` and `parlance-verifier` (Sonnet), `parlance-chores` (Haiku). Plans go in `flow/plans/` from `flow/plans/TEMPLATE.md`; the backlog is `flow/ROADMAP.md`; each cycle adds a line to `flow/LOG.md`.
+- Green and Amber work ships without asking. Red (money, anything that could lose progress, accounts and privacy, the look and the birds, taking features away, the automation itself) goes to Matt as a pending proposal titled "Your call: …" (`node dev/feedback.js escalate`), and nothing else does.
+- `node dev/flow.js guard` must show no STOP and no FIX before a flow release ships. Only Matt edits `flow/POLICY.md` and `flow/policy.json`.
+- Learner notes are private: never copy a learner's words, name, email or uid into the repo; cite note ids and paraphrase.
 
 ## Database rules (declared at publish; keep them)
 
