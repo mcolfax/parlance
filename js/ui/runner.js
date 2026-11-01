@@ -110,7 +110,7 @@ function startReview(practice){
   let entries = practice ? learnedEntries(lang).sort((a, b) => (a.card.ef - b.card.ef) || ((b.card.lapses || 0) - (a.card.lapses || 0))).slice(0, 12) : dueEntries(lang).slice(0, 20);
   if (!entries.length) return;
   if (practice) entries = shuffle(entries);
-  Object.assign(Run, { active: true, started: true, finished: false, mode: practice ? 'practice' : 'review', lang, lesson: null, queue: entries.map(reviewEx), pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 });
+  Object.assign(Run, { active: true, started: true, finished: false, mode: practice ? 'practice' : 'review', lang, lesson: null, queue: reviewQueue(entries), pos: 0, first: new Map(), tries: new Map(), xp: 0, skipped: 0, combo: 0, bestCombo: 0 });
   openOverlay('run'); runHead(); recWarm(lang, Run.queue.map(ex => ex.item && ex.item.t).filter(Boolean)); nextEx();
 }
 /* the other ways to practise: your mistakes, the forms in the lesson tables, a unit checkpoint and the placement test */
