@@ -1,7 +1,7 @@
 # One idea per card, pictures in review, a top bar that fits
 
 - **Cycle:** 2026-11-01
-- **Status:** building
+- **Status:** shipped (4.27.0)
 - **Release:** 4.27.0 (minor: a lesson feature and a review feature, plus content and UX fixes)
 - **Base:** `main` at bf7f0e0
 - **Proposals built:** web `pmvxw6o4w0` (pending, Green: the gate approves it, scoped to unit 2, see below); web `pmvxw6o4w1` (pending, option (a) only, Green copy: the gate approves it for (a); option (b) is not built and not escalated, see Gate)
@@ -447,5 +447,5 @@ await b.close();srv.close();console.log(fails?'FAIL '+fails:'ALL PASS');process.
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:**
+- **Shipped:** WP1, WP2, WP3 in 4.27.0 | **Dropped:** none | **Escalated:** none
+- **Notes for the next cycle:** The 2026-11-01 session merged and pushed 4.27.0 (web deployed) and closed pmvxw6o4w1, but stopped before publishing the artifact. The 2026-11-04 cycle reran `npm test` on main (FAIL 0), published the artifact, set `latest` to 4.27.0 in both homes and closed pmvxw6o4w0 (note fmvbms644lr5x thanked). R-16 continues with unit 1.
