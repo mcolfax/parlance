@@ -352,6 +352,43 @@ function formEx(lesson, d){
     options: typed ? null : shuffle([d.form, ...shuffle(d.pool.filter(f => f !== d.form)).slice(0, 3)]), accepted: [d.form], ansLang: lesson.lang,
     item: { t: d.form, alt: [], e: [d.cap + ' · ' + d.label], g: null } };
 }
+/* article practice: a noun from a finished lesson, asked without its article */
+function genderNoun(item, lang){   // { art, noun, plural } when the word starts with an article that fits its gender, else null
+  const G = GENDER_DRILL[lang]; if (!G || !item || !item.g) return null;
+  const m = (lang === 'it' ? /^(l[’']|\S+)\s*(.+)$/i : /^(\S+)\s+(.+)$/).exec(String(item.t).trim()); if (!m) return null;
+  const art = m[1].toLowerCase().replace(/'/g, '’'), noun = m[2].trim();
+  if (!noun || !G.fits[art] || !G.fits[art].includes(item.g)) return null;   // el agua (feminine, with el) is left out
+  return { art, noun, plural: item.g === 'pl' };
+}
+/* nouns that appear with two different articles somewhere in the course are never asked */
+function genderClashes(lang){
+  const seen = new Map(), out = new Set();
+  for (const l of coreOrder(lang)) for (const v of l.vocab){ const g = genderNoun(v, lang); if (!g) continue; const k = g.noun.toLowerCase(); if (seen.has(k) && seen.get(k) !== g.art) out.add(k); else if (!seen.has(k)) seen.set(k, g.art); }
+  return out;
+}
+function genderEntries(lang){
+  const clash = genderClashes(lang), seen = new Set(), out = [];
+  for (const e of learnedEntries(lang, 'v')){
+    const g = genderNoun(e.item, lang); if (!g || seen.has(e.item.t) || clash.has(g.noun.toLowerCase())) continue;
+    seen.add(e.item.t); out.push(e);
+  }
+  return out;
+}
+/* no key and no srs: an article question never moves a review card or lands on "Fix my mistakes" */
+function genderEx(entry){
+  const lang = entry.lesson.lang, G = GENDER_DRILL[lang], g = genderNoun(entry.item, lang);
+  return { id: ++EXID, type: 'gender', lang, lesson: entry.lesson, item: entry.item, kind: 'v', noun: g.noun, plural: g.plural, correct: g.art, options: (g.plural ? G.pl : G.sg).slice() };
+}
+/* right; or, in Spanish and Italian, the right gender in the wrong number or form: a near miss that doesn't count */
+function genderGrade(ex, value){
+  const G = GENDER_DRILL[ex.lang], v = String(value == null ? '' : value).trim().toLowerCase().replace(/'/g, '’');
+  if (v === ex.correct) return { ok: true, level: 'exact' };
+  const gv = G.gender[v], ng = ex.item.g === 'm' || ex.item.g === 'f' ? ex.item.g : G.gender[ex.correct], same = !!gv && (gv === ng || gv === 'mf');
+  if (ex.lang === 'es' && same) return { ok: false, level: 'article', note: 'Right gender, but ' + ex.noun + ' is ' + (ex.plural ? 'plural' : 'singular') + ': ' + ex.item.t + '.' };
+  if (ex.lang === 'it' && same && (ex.plural ? G.pl : G.sg).includes(v) && G.why[ex.correct]) return { ok: false, level: 'article', note: 'Right gender. ' + G.why[ex.correct] };
+  if (ex.lang === 'de' && ex.plural) return { ok: false, level: 'wrong', note: 'In the plural, every noun takes die.' };
+  return { ok: false, level: 'wrong' };
+}
 /* a short test over one unit: a mix of its words, phrases, blanks and forms, favouring what you got wrong */
 function buildCheckpoint(unit){
   const typed = LEVELS.indexOf(unit.level) >= 2, lang = unit.lessons[0].lang, miss = S.langs[lang].miss;
@@ -502,6 +539,7 @@ function evaluate(ex, value){
       return { ok: sc >= 0.75, level: sc >= 0.999 ? 'exact' : sc >= 0.75 ? 'typo' : 'wrong', note: close ? heardNote(value, match, ex.lang) : '', heard: value, match };
     }
     case 'match': return { ok: true, level: 'exact' };
+    case 'gender': return genderGrade(ex, value);
     default: {
       const tiles = ex.type.startsWith('bank') || (ex.type === 'listen' && ex.mode === 'tiles');
       let r = check(value, ex.accepted, ex.ansLang, { typo: !tiles });
