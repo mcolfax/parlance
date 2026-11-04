@@ -760,6 +760,7 @@ async function main(){
       const q = Run().queue, ov = () => w.document.querySelector('.overlay:not(.out)');
       ok(Run().mode === 'genders' && q.length === 12 && q.every(x => x.type === 'gender') && new Set(q.map(x => x.item.t)).size === 12, lang + ' article practice asks 12 different nouns');
       ok(ov().querySelector('.gap-sent .gender-noun').textContent === Run().cur.noun && !ov().querySelector('.gap-sent').textContent.includes(Run().cur.item.t) && ov().querySelectorAll('.gap-opts .tile').length === Run().cur.options.length, lang + ' each noun is shown without its article, with one button per article');
+      ok(!!ov().querySelector('.gap-opts.gender-opts') && fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8').includes('.gender-opts .tile{min-width:56px}'), lang + ' article buttons are wide enough to tap');
       [...ov().querySelectorAll('.gap-opts .tile')].find(b => b.textContent === Run().cur.correct).click(); E('doCheck()');
       ok(ov().querySelector('.ov-foot').classList.contains('ok') && ov().querySelector('.fb-ans').textContent.includes(Run().cur.item.t), lang + ' the right article is accepted and the whole word is shown');
       footBtn('Continue').click();

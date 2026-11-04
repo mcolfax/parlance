@@ -522,7 +522,7 @@ const RENDER = {
     return h('div', { class: 'ex' }, qLabel('Choose the article'),
       h('div', { class: 'gap-sent', lang: LANGS[ex.lang].tts }, gap, sep, h('span', { class: 'gender-noun' }, ex.noun)),
       h('p', { class: 'muted' }, ex.item.e[0]),
-      h('div', { class: 'chips gap-opts' }, ex.options.map((o, i) => {
+      h('div', { class: 'chips gap-opts gender-opts' }, ex.options.map((o, i) => {
         const b = h('button', { class: 'tile', type: 'button', style: '--i:' + i, 'aria-pressed': 'false' }, o);
         b.addEventListener('click', () => { gap.textContent = o; sep.textContent = o.endsWith('’') ? '' : ' '; gap.classList.remove('filled'); void gap.offsetWidth; gap.classList.add('filled'); b.parentNode.querySelectorAll('.tile').forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); sfx('select'); api.set(o); api.ready(true); });
         return b;
