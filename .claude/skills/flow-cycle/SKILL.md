@@ -5,7 +5,14 @@ description: Run one Parlance enhancement cycle end to end. Intake feedback, pla
 
 # One enhancement cycle
 
-You are the **orchestrator** (Opus). You make the judgment calls: the plan gate, merging, the ship decision. You **delegate the work**: Opus agents plan and review, Sonnet and Haiku agents build, check and run chores. Keep your own context lean: read plans, reports and diffs, not whole generated files.
+You are the **orchestrator** (Opus). You make the judgment calls: the plan gate, merging, the ship decision. You **delegate the work**: Opus agents plan and review, Sonnet and Haiku agents build, check and run chores.
+
+**Keep your own context small.** You are the most expensive model in the cycle and every turn rereads your whole context: the first cycles spent about three quarters of their cost on Opus, and one was cut off by Matt's usage limit. So:
+- Send long command output to a file in your scratchpad and read only what you need (`tail`, `grep`). Never pull a full test log, diff, content file or generated file into your context.
+- Don't review content, diffs or screenshots yourself: the planner, verifier and reviewer do that. You read the plan and their reports.
+- Give each agent a complete prompt once (plan path, package, base, what to report) and wait for its report; don't poll it or reread its worktree.
+- Hand mechanical steps (integration counts, roadmap and log edits, alias-pack JSON) to `parlance-chores` or `parlance-builder`.
+- Commit and push at each stage boundary (plan approved, release shipped, log), so a cycle cut short loses little and the next one finishes it (preflight step 3).
 
 Read these before anything else, and follow them throughout: `CLAUDE.md`, `docs/ARCHITECTURE.md`, `flow/README.md`, `flow/POLICY.md`, `flow/policy.json`.
 
@@ -23,8 +30,9 @@ Use the task list to track the stages below. Name the cycle `<YYYY-MM-DD>` (add 
 
 1. Get onto a clean, current `main`: `git fetch origin main && git checkout main && git pull --ff-only origin main`. Then `npm ci`.
 2. `flow/policy.json`: if `paused` is true, report "The flow is paused (flow/policy.json)" and stop.
-3. **Resume before planning.** If the newest plan in `flow/plans/` has status `approved` or `building` and its release isn't on `main` (compare its Release with `APP_VERSION`), build that plan (go to stage 4) instead of writing a new one. If it is older than 14 days, mark it `dropped (stale)` and plan afresh.
-4. `node dev/flow.js snapshot > "$SCRATCH/snapshot.txt"` (use your scratchpad directory), and read it.
+3. **Finish an unfinished ship first.** Read `content/config` → `latest` in both homes (Supabase: `select data->>'latest' from public.docs where path = 'content/config'`; artifact: ArtifactData). If `APP_VERSION` on `main` is newer than either, the last cycle stopped partway through stage 7: do stage 7 steps 4–8 for that version (publish the artifact if it lags, set `latest` where it lags, close the loop for the proposals that plan built whose status isn't `shipped`), fill in that plan's Outcome and log it, then carry on with this cycle.
+4. **Resume before planning.** If the newest plan in `flow/plans/` has status `approved` or `building` and its release isn't on `main` (compare its Release with `APP_VERSION`), build that plan (go to stage 4) instead of writing a new one. If it is older than 14 days, mark it `dropped (stale)` and plan afresh.
+5. `node dev/flow.js snapshot > "$SCRATCH/snapshot.txt"` (use your scratchpad directory), and read it.
 
 ## 1. Intake
 
@@ -66,7 +74,7 @@ Set the plan's status to `approved`, mark the roadmap rows `planned`, commit `fl
    If worktree isolation isn't available in this session, run those packages one after another on the cycle branch instead (same prompts, no worktree).
 3. When the parallel agents finish, merge each worktree's branch into `flow/<cycle>` (`git merge --no-ff <branch> -m "Merge WP<n>: <name>"`). Shared files shouldn't conflict; if they do, resolve by keeping both sides' additions, then run `npm test`.
 4. Run the integration list: give it to one `parlance-builder` (or `parlance-chores` when it's only counts) on the cycle branch, without a worktree.
-5. Pictures, when content changed: `parlance-illustrator` on the cycle branch. Then voices: `parlance-chores` with "record the voices" (it runs `dev/voices.js --dry`, then `dev/voices.js`). If voices stop for the cap or the key, carry on: those lines use the device's voice until recorded; say so in the report and the release notes stay as they are.
+5. Pictures, when content changed: `parlance-illustrator` on the cycle branch. Then voices, **every cycle** (lines an earlier cycle couldn't record get recorded now): `parlance-chores` with "record the voices" (it runs `dev/voices.js --dry`, then `dev/voices.js` if anything is unrecorded). If voices stop, carry on: those lines use the device's voice until recorded, and the release notes stay as they are. If they stopped because Google turned the key down or the voice host is blocked, that is Matt's to fix: put it under "Needs you" in the report (the Google Text-to-Speech key in the Default environment's network secrets), with the number of lines waiting. If they stopped for the monthly cap, say when the month resets.
 6. Commit anything left uncommitted on the cycle branch.
 
 ## 5. Verify (parlance-verifier, Sonnet)
@@ -107,7 +115,7 @@ Parlance <version> is live: <release title>
 • Learners get: <one line per package that shipped>
 • Built by: planner (Opus) → <agents and models> → reviewer (Opus): SHIP
 • Feedback: <n> notes thanked, proposals <ids> shipped
-• Needs you: <each escalation's title, "in Me → Studio → Proposals"> (or "nothing")
+• Needs you: <each escalation's title, "in Me → Studio → Proposals"; anything blocked that only Matt can fix, such as a refused voice key> (or "nothing")
 • Skipped: <dropped packages and connectors that were down, in a few words> (or leave this line out)
 ```
 

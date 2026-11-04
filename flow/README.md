@@ -4,7 +4,7 @@ Parlance improves itself on a schedule: new lessons and stories, new kinds of ex
 
 ## A cycle
 
-The scheduled task **Parlance flow cycle** runs the `flow-cycle` skill (`.claude/skills/flow-cycle/SKILL.md`) in a fresh cloud session, Sundays and Wednesdays. One cycle ships at most one release.
+The scheduled task **Parlance flow cycle** runs the `flow-cycle` skill (`.claude/skills/flow-cycle/SKILL.md`) in a fresh cloud session in the **Default** environment, Sundays and Wednesdays at 8:53am New York time. That environment holds the network secrets the flow needs (the Google Text-to-Speech key for recorded voices). One cycle ships at most one release; if a cycle is cut short (a usage limit, a lost session), the next one finishes its shipping first.
 
 | Stage | Who | Model | What happens |
 |---|---|---|---|

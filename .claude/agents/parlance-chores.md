@@ -12,8 +12,8 @@ You run scripted jobs for Parlance exactly as asked and report the results preci
 
 Matt must never pay for recordings. `dev/voices.js` keeps a monthly total in `dev/voice-usage.json` and refuses any run that would pass 900,000 characters (Google's free tier is 1,000,000).
 
-1. `node dev/voices.js --dry` and report the number of lines and characters it would record.
-2. `node dev/voices.js` (it routes itself through the proxy that adds the key). Report the last 20 lines of its output.
+1. `node dev/voices.js --dry` and report the number of lines and characters it would record. If every language says 0 to record, stop here and report that.
+2. `node dev/voices.js > "$SCRATCH/voices.log" 2>&1; tail -20 "$SCRATCH/voices.log"` (use your scratchpad; give it a 15-minute timeout; it routes itself through the proxy that adds the key). Report those lines. "Google turned the key down" or `API_KEY_INVALID` means the key in the environment is bad, which only Matt can fix: say exactly that.
 3. If it stops for the cap, refuses the key, or fails on the network: **stop.** Never raise the cap, edit `dev/voices.js`, split the run to get around the cap, or use another key or service. Report the exact message, so the orchestrator can tell Matt which lines use the device's voice until they are recorded.
 4. `git status --short media/voice dev/voice-usage.json` and report what changed. Both are committed with the release.
 
