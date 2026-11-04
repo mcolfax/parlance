@@ -76,6 +76,18 @@ function fakeClaude(store, opts = {}){
   const user = { async id(){ return opts.uid || 'u_test'; }, async me(){ return { id: opts.uid || 'u_test', name: opts.name || 'Matt Colfax', avatarUrl: '' }; }, async isOwner(){ return !!opts.owner; }, async profiles(ids){ const o = {}; ids.forEach(i => o[i] = { name: i === 'u_learner' ? 'Ana' : '' }); return o; } };
   return { use: async n => n === 'db' ? db : n === 'user' ? user : n === 'sample' ? (opts.sample || null) : null };
 }
+/* the same, over a network with lag: a read is a snapshot taken when its answer comes back, a write lands a moment after it is sent.
+   lag(path, 'get'|'set') gives the delay in ms (default 20). */
+function laggyClaude(store, opts = {}, lag = () => 20){
+  const base = fakeClaude(store, opts);
+  const slow = d => ({ ...d,
+    async get(){ await sleep(lag(d.path, 'get')); const s = await d.get(), v = s.exists ? s.data() : undefined; return { ...s, data: () => v === undefined ? undefined : JSON.parse(JSON.stringify(v)) }; },
+    async set(v){ const copy = JSON.parse(JSON.stringify(v)); await sleep(lag(d.path, 'set')); return d.set(copy); } });
+  return { use: async n => {
+    const x = await base.use(n);
+    return n === 'db' ? { ...x, doc: p => slow(x.doc(p)), collection: c => { const col = x.collection(c); return { ...col, doc: id => slow(col.doc(id)) }; } } : x;
+  } };
+}
 /* fake Supabase (Auth + the SQL functions in dev/supabase.sql, with the same access rules) for the web version */
 function fakeSupabase(store, opts = {}){
   const users = new Map(), tokens = new Map(), refresh = new Map(), owners = new Set(), profiles = new Map(), recovers = []; let n = 0;
@@ -427,6 +439,10 @@ async function main(){
     ok(c.settings.goal === 30 && c.settings.onboarded && c.days.d1.xp === 20 && c.days.d1.met && c.days.d2, 'merge core');
     ok(c.days.d1.q.lessons === 2 && c.days.d1.q.combo === 6 && c.days.d1.q.stories === 1 && c.days.d1.chest && c.days.d1.qs.length === 3, 'merge quests ' + JSON.stringify(c.days.d1));
     ok(c.badges.first === '2026-10-01' && c.badges.story1 && c.stats.chests === 2 && c.stats.bestCombo === 9, 'merge badges/stats ' + JSON.stringify([c.badges, c.stats]));
+    // notes already seen stay seen, even when the other device's settings are newer
+    const seenA = P.mergeCore({ settings: { seenVersion: '4.28.0', seenAnnounce: 'amh2k3j1a', ts: 1 } }, { settings: { seenVersion: '4.20.0', seenAnnounce: '', goal: 30, ts: 9 } });
+    ok(seenA.settings.seenVersion === '4.28.0' && seenA.settings.seenAnnounce === 'amh2k3j1a' && seenA.settings.goal === 30, 'merge keeps the version and announcement seen ' + JSON.stringify(seenA.settings));
+    ok(P.mergeCore({ settings: { seenAnnounce: 'amh2k3j1a', ts: 1 } }, { settings: { seenAnnounce: 'amg0000aa', ts: 9 } }).settings.seenAnnounce === 'amh2k3j1a', 'merge keeps the later announcement seen');
     const ms = P.mergeLang({ stories: { 'de-s1': { at: '2026-10-01', score: 0.5, times: 1 } } }, { stories: { 'de-s1': { at: '2026-10-03', score: 1, times: 1 }, 'de-s2': { at: '2026-10-04', score: 1, times: 1 } } });
     ok(ms.stories['de-s1'].score === 1 && ms.stories['de-s1'].at === '2026-10-03' && ms.stories['de-s2'], 'merge stories');
     const g = P.mergeGen([{ id: 'a', title: 't', vocab: [], sentences: [], blanks: [], createdAt: 2 }], [{ id: 'b', title: 't', vocab: [], sentences: [], blanks: [], createdAt: 1 }, { id: 'a', title: 'old', vocab: [], sentences: [], blanks: [] }]);
@@ -1110,8 +1126,25 @@ async function main(){
       ok(st.get('feedback/u_learner').items.find(x => x.id === 'f1').heardAt && st.get('feedback/u_learner').items.find(x => x.id === 'f1').resolved.version === '9.9.9', 'thanks is stamped heard and keeps what the owner wrote');
       L.w.document.querySelectorAll('.sheet-back').forEach(e => e.remove());
       ok((await L.E('maybeThanks()')) === false && !L.w.document.querySelector('.heard'), 'the thanks does not come back');
+      // seen here, but the heard stamp never reached the account (offline): the next check stamps it, with no second thanks
+      const f1 = st.get('feedback/u_learner').items.find(x => x.id === 'f1'); delete f1.heardAt;
+      ok((await L.E('maybeThanks()')) === false && !L.w.document.querySelector('.heard'), 'a thanks seen here is not shown again');
+      for (let i = 0; i < 40 && !st.get('feedback/u_learner').items.find(x => x.id === 'f1').heardAt; i++) await sleep(30);
+      ok(st.get('feedback/u_learner').items.find(x => x.id === 'f1').heardAt, 'a missing heard stamp is written on the next check, so other devices skip it');
       console.log('page errors (L):', L.errors.length ? L.errors.slice(0, 5) : 'none'); ok(!L.errors.length, 'no page errors L');
       L.dom.window.close();
+    }
+    // sending a note and stamping a thanks heard at the same moment, over a real network's lag: neither write loses the other's change
+    {
+      const st = new Map(); st.set('feedback/u_learner', { items: [{ id: 'f5', at: 4, type: 'idea', text: 'More stories', resolved: { at: 6, version: '9.9.9', proposal: 'p3', note: 'Three new stories.' }, heardAt: 7 }] });
+      const R = await makeDom({ claude: laggyClaude(st, { uid: 'u_learner' }), seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+      for (let i = 0; i < 80 && !R.E('Remote.ready'); i++) await sleep(50);
+      delete st.get('feedback/u_learner').items[0].heardAt;   // heard already at boot (no sheet); now it's stamped while a note goes out
+      await R.E('Promise.all([queueFeedback({ id: "f6", at: 8, type: "idea", text: "Italian songs", ctx: {} }), markHeard([{ id: "f5" }])])');
+      const after = st.get('feedback/u_learner').items;
+      ok(after.find(x => x.id === 'f5').heardAt && after.some(x => x.id === 'f6'), 'a note sent while a thanks is stamped keeps both ' + JSON.stringify(after.map(x => [x.id, !!x.heardAt])));
+      console.log('page errors (R):', R.errors.length ? R.errors.slice(0, 5) : 'none'); ok(!R.errors.length, 'no page errors R');
+      R.dom.window.close();
     }
     // inside someone else's Claude, feedback goes to the web version instead
     {
@@ -1135,6 +1168,36 @@ async function main(){
     ok([...V.w.document.querySelectorAll('.sheet button')].some(b => b.textContent === 'Copy note'), 'fallback offers copy');
     console.log('page errors (V):', V.errors.length ? V.errors.slice(0, 5) : 'none'); ok(!V.errors.length, 'no page errors V');
     V.dom.window.close();
+  }
+  /* ---------- notes seen on another device stay seen, even when the account sync is slow ---------- */
+  {
+    const ver = fs.readFileSync(path.join(ROOT, 'js/config.js'), 'utf8').match(/APP_VERSION = '([^']+)'/)[1];
+    const ann = 'a' + (Date.now() - 60000).toString(36), config = { kind: 'config', announce: { id: ann, title: 'New stories!', body: 'Three new stories.' } };
+    const core = s => ({ blob: JSON.stringify({ settings: { onboarded: true, lang: 'de', ts: 5, ...s }, days: {}, badges: {}, stats: {} }), updatedAt: 5 });
+    // this phone was last opened a few versions ago; since then the account saw this version and the announcement on a laptop.
+    // The content arrives at once, but the account takes longer than the first screen waits.
+    const st = new Map([['content/config', config], ['data/users/u_test/core', core({ seenVersion: ver, seenAnnounce: ann })]]);
+    const O = await makeDom({ claude: laggyClaude(st, {}, (p, k) => p.endsWith('/core') && k === 'get' ? 3600 : 20), seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '4.20.0', ts: 1 } } } });
+    const noteUp = () => !!O.w.document.querySelector('.sheet .whatsnew, .sheet .announce');
+    let shown = false;
+    for (let i = 0; i < 120 && O.E('Remote.status') !== 'synced'; i++){ await sleep(50); shown = shown || noteUp(); }
+    for (let i = 0; i < 30; i++){ await sleep(50); shown = shown || noteUp(); }
+    ok(O.E('Remote.status') === 'synced' && !shown, 'what’s new and an announcement seen on another device don’t show again on a slow sync');
+    ok(O.P.S.settings.seenVersion === ver && O.P.S.settings.seenAnnounce === ann, 'this device learns they were seen ' + JSON.stringify([O.P.S.settings.seenVersion, O.P.S.settings.seenAnnounce]));
+    console.log('page errors (O):', O.errors.length ? O.errors.slice(0, 5) : 'none'); ok(!O.errors.length, 'no page errors O');
+    O.dom.window.close();
+    // an announcement nobody on this account has seen still shows, once
+    const st2 = new Map([['content/config', config], ['data/users/u_test/core', core({ seenVersion: ver, seenAnnounce: '' })]]);
+    const Q = await makeDom({ claude: fakeClaude(st2), seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+    for (let i = 0; i < 60 && !Q.w.document.querySelector('.sheet .announce'); i++) await sleep(50);
+    ok(Q.w.document.querySelector('.sheet .announce') && Q.P.S.settings.seenAnnounce === ann, 'a new announcement shows after the sync');
+    Q.w.document.querySelectorAll('.sheet-back').forEach(e => e.remove());
+    Q.E('maybeAnnounce()');
+    ok(!Q.w.document.querySelector('.sheet .announce'), 'and only once');
+    for (let i = 0; i < 40 && JSON.parse(st2.get('data/users/u_test/core').blob).settings.seenAnnounce !== ann; i++) await sleep(50);
+    ok(JSON.parse(st2.get('data/users/u_test/core').blob).settings.seenAnnounce === ann, 'the account remembers it for other devices');
+    console.log('page errors (Q):', Q.errors.length ? Q.errors.slice(0, 5) : 'none'); ok(!Q.errors.length, 'no page errors Q');
+    Q.dom.window.close();
   }
   /* ---------- resuming a lesson ---------- */
   {

@@ -65,7 +65,7 @@ The same files run in two places.
 ## Shipping an update
 
 1. Make the change in the relevant file(s).
-2. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once.
+2. Bump `APP_VERSION` and add a `RELEASES` entry in `js/config.js`. People who were already learning see What's new once. `settings.seenVersion` syncs with the account, and the sheet waits for that sync (up to 12 seconds), so a version seen on one device doesn't show again on another.
 3. If lessons or stories were added or their text changed, draw word pictures for their new concepts (see Word pictures) and run `node dev/voices.js` to record the new lines (see Recorded voices). Both ship in the same release as the content.
 4. Run `npm ci && npm test`. It must report `FAIL 0`.
 5. Commit to `main` in GitHub (`mcolfax/parlance`); Vercel deploys the web version from it. Then republish the same artifact URL with `index.html` as the page and the files `node dev/files.js` lists. Unchanged files are kept.
@@ -156,7 +156,7 @@ The shared database collection `content/` is readable by everyone and writable o
 ```
 
   Packs are validated on every device: a lesson needs 4+ vocab, 3+ sentences, and blanks with exactly one `___` and distinct options; story speakers must be cast members. Anything invalid is skipped, and the problem is listed in Studio → Content. `enabled: false` hides a pack for everyone.
-- `content/config` with `kind: "config"` holds `latest` (drives the Refresh banner) and `announce: { id, title, body }` (shown once to everyone).
+- `content/config` with `kind: "config"` holds `latest` (drives the Refresh banner) and `announce: { id, title, body }` (shown once to everyone). `settings.seenAnnounce` syncs with the account. The sheet waits for that sync, and merges keep the later announcement seen, so one seen on another device stays seen.
 - In the app, the owner can share any tutor-written lesson with all learners from its intro screen. It becomes part of `content/bonus-<lang>`, and its id stays the same, so progress carries over.
 
 ## Friends
@@ -177,7 +177,7 @@ The Friends tab (`js/ui/friends.js`, data side in `js/core/social.js`) has a wee
 3. The owner approves or rejects each proposal and can add notes for the builder. Nothing is built without approval. The enhancement flow (`flow/README.md`) may approve a pending proposal itself when `flow/POLICY.md` puts its change in Green or Amber, recording `decidedBy: "flow"`; it never touches a rejected one. When the flow needs the owner's decision, it adds a pending proposal titled "Your call: …".
 4. The build (a Claude Code session, or the flow's scheduled cycle) implements only `approved` proposals, runs the tests, bumps the version, publishes, marks the version latest.
 5. **Close the loop.** Studio → Proposals → **Mark shipped and thank them** (with the version and a sentence for the people who asked), or from Claude Code `node dev/feedback.js close <version> "<message>" --proposal <id>` and run the SQL. Both set the proposal to `status: "shipped"` with `version`, and stamp every note it cites with `resolved: { at, version, proposal, note }` in that learner's `feedback/<uid>`. Notes already closed are never touched. The artifact's own database can't be reached with SQL, so there only Studio does this.
-6. **They hear about it.** `maybeThanks()` runs when a signed-in learner opens Parlance (and again when a sheet that was in the way closes): it reads their own `feedback/<uid>`, and for notes with `resolved` and no `heardAt` shows one "you were heard" sheet (their words, the version, your message), then sets `heardAt` on those notes and remembers them in `parlance.heard` so it never repeats. Quietly closed notes (`resolved.quiet`) get no sheet. A learner's later sends keep these fields, because the outbox only adds new items.
+6. **They hear about it.** `maybeThanks()` runs when a signed-in learner opens Parlance (and again when a sheet that was in the way closes): it reads their own `feedback/<uid>`, and for notes with `resolved` and no `heardAt` shows one "you were heard" sheet (their words, the version, your message), then sets `heardAt` on those notes and remembers them in `parlance.heard` so it never repeats. If the stamp didn't reach the account (offline), the next open writes it, so other devices skip it too. Quietly closed notes (`resolved.quiet`) get no sheet. A learner's later sends keep these fields, because the outbox only adds new items, and sending and stamping take turns on that doc (`fbDocInTurn`), so neither writes over the other.
 
 Database rules declared at publish:
 

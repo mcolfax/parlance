@@ -59,9 +59,11 @@ function checkUpdateBanner(){
     document.body.append(b);
   } else if (!show && b) b.remove();
 }
+/* Shown once. It waits for the account sync (Remote.ready), since the content often arrives first and an announcement
+   seen on another device would otherwise show again. */
 function maybeAnnounce(){
   const a = Live.config && Live.config.announce;
-  if (!a || typeof a !== 'object' || !a.id || !a.title || !S.settings.onboarded || busy() || document.querySelector('.sheet-back')) return;
+  if (!a || typeof a !== 'object' || !a.id || !a.title || !Remote.ready || !S.settings.onboarded || busy() || document.querySelector('.sheet-back')) return;
   if (S.settings.seenAnnounce === a.id) return;
   S.settings.seenAnnounce = a.id; touchSettings();
   sfx('quest');

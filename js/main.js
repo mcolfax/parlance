@@ -18,8 +18,14 @@ function boot(){
   setTimeout(() => { if (homeMusicOn()) songPrefetch(); }, 1200); // fetch the theme song early so the first tap can start it
   Promise.race([remoteP, sleep(2600)]).then(() => {
     if (!S.settings.onboarded && !busy()) openOnboarding(false);
-    else setTimeout(() => { if (!maybeWhatsNew()) afterLiveConfig(); }, 600);
+    // What's new waits for the account sync, so notes already seen on another device stay seen (it goes ahead if the sync takes too long)
+    else Promise.race([remoteP, sleep(12000)]).then(() => setTimeout(bootNotes, 600));
   });
+}
+/* What's new once per version, else any announcement. If another note is up (a thank-you), it waits for that to close. */
+function bootNotes(tries = 0){
+  if (document.querySelector('.sheet-back') && tries < 10){ setTimeout(() => bootNotes(tries + 1), 3000); return; }
+  if (!maybeWhatsNew()) afterLiveConfig();
 }
 /* a learner who picked a bird other than Pip sees it from the first screen: its part sheet loads first (a moment;
    Pip stands in if it takes longer than that) */

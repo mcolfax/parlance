@@ -29,6 +29,10 @@ function fbContext(extra){
   const lang = S.settings.lang;
   return { screen: Run.active ? 'lesson' : Story.open ? 'story' : Talk.open ? 'talk' : Film.open ? 'film' : UI.tab, lang, level: currentLevel(lang), app: APP_VERSION, w: window.innerWidth || 0, ...(extra || {}) };
 }
+/* feedback/<uid> is read, changed and written back from two places (sending notes, marking a thank-you heard), so those
+   take turns: otherwise one could write over the other and lose a note or the heard stamp */
+let fbDocTurn = Promise.resolve();
+function fbDocInTurn(fn){ const run = fbDocTurn.then(fn); fbDocTurn = run.catch(() => {}); return run; }
 function outbox(){ const b = readJSON(OUTBOX_KEY); return Array.isArray(b) ? b : []; }
 function queueFeedback(item){ const b = outbox(); b.push(item); writeJSON(OUTBOX_KEY, b.slice(-100)); return flushOutbox(); }
 async function flushOutbox(){
@@ -38,14 +42,16 @@ async function flushOutbox(){
   if (Feedback.flushing) return 'busy';
   Feedback.flushing = true;
   try {
-    const ref = Remote.db.doc('feedback/' + Remote.uid);
-    let cur = [];
-    try { const snap = await ref.get(); if (snap.exists && Array.isArray(snap.data().items)) cur = snap.data().items.slice(); } catch (e) {}
-    const have = new Set(cur.map(x => x.id));
-    const items = cur.concat(box.filter(x => !have.has(x.id))).slice(-200);
-    await ref.set({ items, updatedAt: Date.now(), app: APP_VERSION });
-    const sent = new Set(items.map(x => x.id));
-    writeJSON(OUTBOX_KEY, outbox().filter(x => !sent.has(x.id)));
+    await fbDocInTurn(async () => {
+      const ref = Remote.db.doc('feedback/' + Remote.uid);
+      let cur = [];
+      try { const snap = await ref.get(); if (snap.exists && Array.isArray(snap.data().items)) cur = snap.data().items.slice(); } catch (e) {}
+      const have = new Set(cur.map(x => x.id));
+      const items = cur.concat(box.filter(x => !have.has(x.id))).slice(-200);
+      await ref.set({ items, updatedAt: Date.now(), app: APP_VERSION });
+      const sent = new Set(items.map(x => x.id));
+      writeJSON(OUTBOX_KEY, outbox().filter(x => !sent.has(x.id)));
+    });
     Feedback.canWrite = true;
     return 'sent';
   } catch (e){
@@ -124,6 +130,9 @@ async function maybeThanks(tries = 0){
   try { const snap = await Remote.db.doc('feedback/' + Remote.uid).get(); doc = snap.exists ? JSON.parse(JSON.stringify(snap.data())) : null; } catch (e) { return false; }
   if (!doc || !Array.isArray(doc.items)) return false;
   const local = heardLocal();
+  // shown on this device before, but the heard stamp never reached the account (offline): stamp it now, so other devices skip it too
+  const unstamped = doc.items.filter(x => x && x.resolved && !x.heardAt && local.has(x.id));
+  if (unstamped.length) markHeard(unstamped);
   const fresh = doc.items.filter(x => x && x.resolved && !x.resolved.quiet && x.type !== 'rating' && !x.heardAt && !local.has(x.id));
   if (!fresh.length) return false;
   if (busy() || document.querySelector('.sheet-back')){ if (tries < 8) setTimeout(() => maybeThanks(tries + 1), 5000); return false; }
@@ -149,10 +158,12 @@ async function markHeard(items){
   const ids = new Set(items.map(x => x.id)), now = Date.now();
   const local = heardLocal(); for (const id of ids) local.add(id); writeJSON(HEARD_KEY, [...local].slice(-300));
   try {
-    const ref = Remote.db.doc('feedback/' + Remote.uid);
-    const snap = await ref.get(); if (!snap.exists) return;
-    const doc = JSON.parse(JSON.stringify(snap.data()));
-    doc.items = (doc.items || []).map(x => ids.has(x.id) && !x.heardAt ? { ...x, heardAt: now } : x);
-    await ref.set(doc);
+    await fbDocInTurn(async () => {
+      const ref = Remote.db.doc('feedback/' + Remote.uid);
+      const snap = await ref.get(); if (!snap.exists) return;
+      const doc = JSON.parse(JSON.stringify(snap.data()));
+      doc.items = (doc.items || []).map(x => ids.has(x.id) && !x.heardAt ? { ...x, heardAt: now } : x);
+      await ref.set(doc);
+    });
   } catch (e) {}
 }

@@ -142,6 +142,14 @@ function mergeSocial(a, b){
   for (const f of ['cheers', 'seen']){ out[f] = { ...b[f] }; for (const [id, v] of Object.entries(a[f])) if (!out[f][id] || String(v) > String(out[f][id])) out[f][id] = v; }
   return out;
 }
+/* The announcement seen last, whichever device's settings are newer: one seen never turns back into one unseen.
+   Studio's ids are 'a' + the time in base 36, so the later of two is the later announcement. */
+function laterAnnounce(x, y, fallback){
+  x = typeof x === 'string' ? x : ''; y = typeof y === 'string' ? y : '';
+  if (!x || !y || x === y) return x || y;
+  const at = id => /^a[0-9a-z]{6,}$/.test(id) ? parseInt(id.slice(1), 36) : 0;
+  return at(x) && at(y) ? (at(x) >= at(y) ? x : y) : fallback;
+}
 function mergeCore(a, b){
   const sa = cleanSettings(a && a.settings), sb = cleanSettings(b && b.settings);
   const bNewer = (sb.ts || 0) > (sa.ts || 0);
@@ -149,6 +157,7 @@ function mergeCore(a, b){
   if (sa.onboarded || sb.onboarded) settings.onboarded = true;
   if (sa.filmSeen || sb.filmSeen) settings.filmSeen = true;
   settings.seenVersion = cmpVersion(sa.seenVersion || '0', sb.seenVersion || '0') >= 0 ? sa.seenVersion : sb.seenVersion;
+  settings.seenAnnounce = laterAnnounce(sa.seenAnnounce, sb.seenAnnounce, settings.seenAnnounce);
   return { settings, days: mergeDays(a && a.days, b && b.days), badges: mergeBadges(a && a.badges, b && b.badges), stats: mergeStats(a && a.stats, b && b.stats) };
 }
 function sliceData(slice){
