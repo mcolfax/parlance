@@ -1,7 +1,7 @@
 # One idea per card in unit 1, and article practice in Review
 
 - **Cycle:** 2026-11-04
-- **Status:** approved
+- **Status:** building
 - **Release:** 4.28.0 (minor: a new practice type, plus content and copy fixes)
 - **Base:** `main` at 5a59939 (release 4.27.0)
 - **Proposals built:** none open. WP1 continues web proposal `pmvxw6o4w0` (note fmvbms644lr5x), which the orchestrator marks shipped for 4.27.0 (unit 2). Nothing is closed for 4.28.0.

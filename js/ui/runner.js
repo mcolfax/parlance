@@ -129,6 +129,10 @@ function startForms(){
   const all = shuffle(ls.flatMap(l => formDrills(l).map(d => ({ l, d })))).slice(0, 10);
   beginSession('forms', lang, all.map(x => formEx(x.l, x.d)));
 }
+function startGenders(){
+  const lang = S.settings.lang, es = genderEntries(lang); if (es.length < GENDER_DRILL.min) return;
+  beginSession('genders', lang, shuffle(es).slice(0, GENDER_DRILL.perSession).map(genderEx));
+}
 function startCheckpoint(u){
   const lang = S.settings.lang; if (!unitDone(lang, u)) return;
   beginSession('checkpoint', lang, buildCheckpoint(u), { unit: u });
@@ -200,7 +204,7 @@ function feedbackAnswer(ex){
   if (ex.type === 'form') return { t: ex.correct, en: ex.cap + ' · ' + ex.label, target: true };
   if (ex.type === 'blank') return { t: blankSaid(ex.blank), en: ex.blank.e, target: true };
   if (ex.type === 'match') return null;
-  return { t: ex.item.t, en: ex.item.e[0], target: ['mc-e2t', 'type-e2t', 'bank-e2t', 'listen', 'speak', 'pic-name', 'pic-type'].includes(ex.type) };
+  return { t: ex.item.t, en: ex.item.e[0], target: ['mc-e2t', 'type-e2t', 'bank-e2t', 'listen', 'speak', 'pic-name', 'pic-type', 'gender'].includes(ex.type) };
 }
 function showCombo(n){
   if (!OV.combo) return;
@@ -246,7 +250,7 @@ function showFeedback(ex, res){
     res.diffs && res.diffs.length && (cmp || !res.ok || res.level === 'form') ? diffList(res.diffs) : null);
   if (!res.ok || res.level === 'ai') fb.append(reportLink(ex));
   const userWords = !res.ok && typeof Run.value === 'string' ? new Set(fold(norm(Run.value, ans && ans.target ? lang : 'en')).split(' ')) : null;
-  if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank', 'pic-pick'].includes(ex.type))){
+  if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank', 'pic-pick', 'gender'].includes(ex.type))){
     if (!res.ok) fb.append(h('div', { class: 'fb-label' }, 'Correct answer'));
     if (ans.target) fb.append(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, ex.type === 'blank' ? sayText(ans.t, lang, glossOpts(ans)) : (ex.item.g && ex.kind === 'v' ? itemText(ex.item, lang) : sayText(ans.t, lang, { ...(userWords ? { miss: userWords } : {}), ...glossOpts(ans) }))), speakBtn(ans.t, lang)), h('div', { class: 'fb-sub' }, ans.en));
     else fb.append(h('div', { class: 'fb-ans' }, userWords ? markMissing(ans.en, userWords) : ans.en), h('div', { class: 'fb-sub row' }, h('span', { class: 'grow' }, itemText(ex.item, lang)), speakBtn(ans.t, lang)));
@@ -513,6 +517,17 @@ const RENDER = {
     if (typed){ const box = answerBox(api, ex.lang, 'Type the form'); return h('div', { class: 'ex' }, ...head, box, charBar(box, ex.lang)); }
     return h('div', { class: 'ex' }, ...head, options(ex.options, o => { api.set(o); api.ready(true); speak(o, ex.lang); }));
   },
+  gender(ex, api){
+    const gap = h('span', { class: 'gap' }, ' '), sep = document.createTextNode(' ');
+    return h('div', { class: 'ex' }, qLabel('Choose the article'),
+      h('div', { class: 'gap-sent', lang: LANGS[ex.lang].tts }, gap, sep, h('span', { class: 'gender-noun' }, ex.noun)),
+      h('p', { class: 'muted' }, ex.item.e[0]),
+      h('div', { class: 'chips gap-opts gender-opts' }, ex.options.map((o, i) => {
+        const b = h('button', { class: 'tile', type: 'button', style: '--i:' + i, 'aria-pressed': 'false' }, o);
+        b.addEventListener('click', () => { gap.textContent = o; sep.textContent = o.endsWith('’') ? '' : ' '; gap.classList.remove('filled'); void gap.offsetWidth; gap.classList.add('filled'); b.parentNode.querySelectorAll('.tile').forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); sfx('select'); api.set(o); api.ready(true); });
+        return b;
+      })));
+  },
   speak(ex, api){
     const wrap = h('div', { class: 'ex' }, qLabel('Say this out loud'), targetPrompt(ex.item, ex.lang, false, ex), h('p', { class: 'muted' }, ex.item.e[0]));
     const heard = h('p', { class: 'heard', 'aria-live': 'polite' });
@@ -590,7 +605,7 @@ function finishRun(){
     bumpQuest('reviews', uniq.length);
   } else {
     xp += XP.review; title = uniq.length + ' ' + plural(uniq.length, 'item') + ' ' + (Run.mode === 'review' ? 'reviewed' : Run.mode === 'mistakes' ? 'fixed up' : 'practiced');
-    top = Run.mode === 'review' ? 'Review complete' : Run.mode === 'mistakes' ? 'Mistakes practiced' : Run.mode === 'forms' ? 'Forms practiced' : 'Practice complete';
+    top = Run.mode === 'review' ? 'Review complete' : Run.mode === 'mistakes' ? 'Mistakes practiced' : Run.mode === 'forms' ? 'Forms practiced' : Run.mode === 'genders' ? 'Articles practiced' : 'Practice complete';
     bumpQuest('reviews', uniq.length);
   }
   bumpQuest('combo', Run.bestCombo, true);

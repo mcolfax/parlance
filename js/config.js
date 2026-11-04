@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.27.0';
+const APP_VERSION = '4.28.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,10 @@ const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.28.0', date: '2026-11-04', title: 'Articles and first steps', notes: [
+    'The first four lessons, from hello to how are you, now explain one idea per card, each with its own example, in German, Spanish and Italian.',
+    'New in Review: practice the articles of the nouns you’ve learned, der, die and das, el and la, or il, lo and la.',
+    'On the web version, Me now says that tutor grading needs Parlance in Claude.'] },
   { v: '4.27.0', date: '2026-11-01', title: 'Smaller steps', notes: [
     'The lessons on numbers, time and days in unit 2 now explain one idea per card, each with its own example, in German, Spanish and Italian.',
     'Reviews now ask up to three picture questions, the same kind your lessons ask at that level.',
@@ -263,6 +267,15 @@ const HINTS = { A1: 'full', A2: 'full', B1: 'tap', B2: 'tap', C1: 'off', C2: 'of
    pic-pick: hear and read the word, tap its picture. pic-name: see the picture, choose the word. pic-type: see the picture, type the word.
    Only words whose picture is safe to ask about are used (design/pictures/briefs-src.txt, quiz 1); see "Word pictures" in docs/ARCHITECTURE.md. */
 const PIC_EX = { A1: 'pic-pick', A2: 'pic-pick', B1: 'pic-name', B2: 'pic-name', C1: 'pic-type', C2: 'pic-type', perLesson: 2, perReview: 3 };
+/* Practice articles (Review tab, startGenders()): nouns from finished lessons, shown without their article.
+   sg and pl are the buttons for a singular and a plural noun; fits says which vocab genders an article can go with;
+   gender is each article's own gender (mf: either), for telling a near miss; why is the Italian rule a near miss shows. */
+const GENDER_DRILL = { min: 6, perSession: 12,
+  de: { label: 'der, die, das', sg: ['der', 'die', 'das'], pl: ['der', 'die', 'das'], fits: { der: ['m'], die: ['f', 'pl'], das: ['n'] }, gender: { der: 'm', die: 'f', das: 'n' }, why: {} },
+  es: { label: 'el, la, los, las', sg: ['el', 'la', 'los', 'las'], pl: ['el', 'la', 'los', 'las'], fits: { el: ['m'], la: ['f'], los: ['pl'], las: ['pl'] }, gender: { el: 'm', la: 'f', los: 'm', las: 'f' }, why: {} },
+  it: { label: 'il, lo, la, i, gli, le', sg: ['il', 'lo', 'la', 'l’'], pl: ['i', 'gli', 'le'], fits: { il: ['m'], lo: ['m'], la: ['f'], 'l’': ['m', 'f'], i: ['pl'], gli: ['pl'], le: ['pl'] }, gender: { il: 'm', lo: 'm', la: 'f', 'l’': 'mf', i: 'm', gli: 'm', le: 'f' },
+    why: { 'l’': 'Before a vowel, il and la become l’.', lo: 'Before s + consonant, z, gn, ps or y, use lo, not il.', il: 'Use il before most consonants. lo is for s + consonant, z, gn, ps and y, and l’ is for a vowel.', la: 'Use la before a consonant. It becomes l’ only before a vowel.', gli: 'Before a vowel, s + consonant, z, gn, ps or y, use gli, not i.', i: 'Use i before most consonants. gli is for a vowel, s + consonant, z, gn, ps and y.' } }
+};
 /* Wrong form of the right word (a wrong ending, person or tense): in the early levels the answer still counts and says what was off;
    from B1 on it does not count, and says why. */
 const FORM_PASS = { A1: true, A2: true, B1: false, B2: false, C1: false, C2: false };

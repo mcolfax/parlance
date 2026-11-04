@@ -215,9 +215,21 @@ async function main(){
     const bs = A.E('tipBites(T("t", ' + JSON.stringify(bodyA) + ', [["alpha one", "a"], ["charlie two", "c"]], [["Plain caption", null, [["x", "**bravo**"]]]]))');
     ok(bs.length === 3 && bs[0].body === 'One **alpha** idea.' && bs[1].body === 'Two **bravo** idea.' && bs[2].body === 'Three **charlie** idea. Four.', 'tipBites: blank lines make one bite per paragraph: ' + JSON.stringify(bs.map(b => b.body)));
     ok(bs[0].examples.length === 1 && bs[0].examples[0].t === 'alpha one' && bs[2].examples.length === 1 && bs[2].examples[0].t === 'charlie two' && bs[1].tables.length === 1 && bs[1].tables[0].cap === 'Plain caption' && bs[0].tables.length === 0 && bs[2].tables.length === 0, 'tipBites: blank lines make one bite per paragraph, each example and table with the paragraph that names it');
-    const es11 = A.E('tipBites(getLesson("es-1-1").tip)');
-    ok(es11.length === 3 && es11[0].body.startsWith('Greet by the time of day') && es11[1].body.startsWith('**¿Cómo estás?**') && es11[2].body.startsWith('Put **señor**') && es11[2].tables.length === 2 && es11[0].tables.length === 0 && es11[1].tables.length === 0, 'tipBites: a tip without blank lines is cut as before'); }
+    const es91 = A.E('tipBites(getLesson("es-9-1").tip)');
+    ok(es91.length === 2 && es91[0].body.startsWith('The **present perfect** is') && es91[1].body.startsWith('Regular endings') && es91[0].tables.map(t => t.cap).join('|') === 'haber (the helper)' && es91[1].tables.map(t => t.cap).join('|') === 'Participles' && es91[0].examples.length === 2 && es91[1].examples.length === 1, 'tipBites: a tip without blank lines is cut as before'); }
   { const TIP_PLACES = {
+      'es-1-1': [['Buenas noches y gracias.', 'Greeting and when to use it'], ['¡Hola! ¿Cómo estás?', 'Muy bien, gracias.', 'Asking “How are you?”'], ['Buenos días, señora López.']],
+      'de-1-1': [['Guten Morgen, Anna!', 'Greetings through the day'], ['Hallo, wie geht’s?'], ['Danke, gut.', 'Auf Wiedersehen, Herr Braun.']],
+      'it-1-1': [['Buonasera e grazie.', 'Greeting and when to use it'], ['Ciao, Marco! A presto.', 'Hello and goodbye'], ['Buongiorno, signora Rossi.']],
+      'es-1-2': [['Me llamo Matt.', 'llamarse (reflexive): to be called'], ['¿Cómo te llamas?', '¿Cómo se llama usted?', 'tú or usted?'], ['Mi nombre es Lucía.', 'Mucho gusto, Lucía.']],
+      'de-1-2': [['Ich heiße Matt.', 'Present of **heißen** (to be called)'], ['Wie heißt du?', 'Wie heißen Sie?'], ['Mein Name ist Lena.', 'Freut mich, Lena!']],
+      'it-1-2': [['Mi chiamo Matt.', 'chiamarsi (reflexive): to be called'], ['Come ti chiami?', 'Come si chiama Lei?', 'tu or Lei?'], ['Piacere, Lucia.']],
+      'es-1-3': [['¿De dónde eres?', 'Ana es de Colombia.', 'ser (irregular): to be'], ['Vivo en Boston.', 'vivir (regular -ir): to live'], ['Guadalajara es una ciudad de México.']],
+      'de-1-3': [['Anna kommt aus Österreich.'], ['Ich wohne in Boston.', 'Wo wohnst du?', 'Present of **kommen** and **wohnen** (regular verbs)'], ['Berlin ist eine Stadt in Deutschland.']],
+      'it-1-3': [['Di dove sei?', 'Marco è di Napoli.', 'essere (irregular): to be'], ['Abito a Boston.', 'abitare (regular -are): to live'], ['Roma è una città in Italia.']],
+      'es-1-4': [['Ella es doctora.', 'ser or estar?'], ['Estoy cansado.', 'estar (irregular yo): to be'], ['Estamos muy cansados.', 'Agreement of cansado']],
+      'de-1-4': [['Ich bin müde.', 'Present of **sein** (to be)'], ['Er ist Lehrer.', 'Jobs: he and she'], ['Mir geht es auch gut.']],
+      'it-1-4': [['Sto bene, grazie.'], ['Come stai?', 'stare (irregular): to be, to feel'], ['Siamo molto stanchi.', 'Anna è molto felice.', 'Agreement of stanco']],
       'es-2-1': [['Dos más tres son cinco.'], ['Tengo dos hermanos.', 'Mi hijo tiene siete años.', 'tener (irregular): to have', 'Plurals'], ['Cuesta cinco dólares.', 'costar (o→ue): to cost']],
       'de-2-1': [['Zwei plus drei ist fünf.', 'Numbers 0–10 (and 10 is **zehn**)'], ['Ich habe zwei Brüder.', 'Present of **haben** (to have)', 'Plurals you meet here'], ['Das kostet fünf Euro.', 'Mein Sohn ist sieben Jahre alt.']],
       'it-2-1': [['Due più tre fa cinque.'], ['Ho due fratelli.', 'Mio figlio ha sette anni.', 'avere (irregular): to have'], ['Costa cinque euro.', 'costare: to cost', 'Plurals']],
@@ -247,10 +259,26 @@ async function main(){
       const got = A.E('tipBites(getLesson(' + JSON.stringify(id) + ').tip)').map(b => [...b.examples.map(e => e.t), ...b.tables.map(t => t.cap)]);
       ok(JSON.stringify(got) === JSON.stringify(TIP_PLACES[id]), id + ' tip cards hold what the plan says: ' + JSON.stringify(got));
     }
-    ok(Object.keys(TIP_PLACES).length === 12 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all twelve unit 2 tips are cut into three paragraphs'); }
+    ok(Object.keys(TIP_PLACES).length === 24 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all twenty-four unit 1 and unit 2 tips are cut into three paragraphs'); }
   /* the top bar lets the wordmark wrap away instead of being cut mid-word (layout itself is checked in a browser) */
   { const css = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8'), brand = (css.match(/\n\.brand\{[^}]*\}/) || [''])[0];
     ok(brand.includes('flex-wrap:wrap') && brand.includes('height:26px') && !css.includes('@media (max-width:400px){\n  .brand-name'), 'the top bar lets the wordmark wrap instead of cutting it'); }
+  /* article practice: which nouns are asked, how a question is built, and how answers are graded */
+  { const gx = (lang, t) => 'genderEx((l => ({ lesson: l, item: l.vocab.find(v => v.t === ' + JSON.stringify(t) + ') }))(coreOrder(' + JSON.stringify(lang) + ').find(l => l.vocab.some(v => v.t === ' + JSON.stringify(t) + '))))';
+    const ev = (lang, t, v) => A.E('evaluate(' + gx(lang, t) + ', ' + JSON.stringify(v) + ')');
+    const sameJ = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+    ok(sameJ(A.E('genderNoun({ t: "die Stadt", g: "f" }, "de")'), { art: 'die', noun: 'Stadt', plural: false }) && A.E('genderNoun({ t: "die Schuhe", g: "pl" }, "de").plural') === true
+      && sameJ(A.E('genderNoun({ t: "l’anno", g: "m" }, "it")'), { art: 'l’', noun: 'anno', plural: false }) && A.E('genderNoun({ t: "lo sconto", g: "m" }, "it").art') === 'lo'
+      && A.E('genderNoun({ t: "el agua", g: "f" }, "es")') === null && A.E('genderNoun({ t: "hola", g: null }, "es")') === null && A.E('genderClashes("es").has("papa")') === false, 'article practice: which nouns are asked, without their article');
+    const opts = (lang, t) => A.E(gx(lang, t) + '.options.join("|")'), types = [['de', 'die Stadt'], ['es', 'la ciudad'], ['it', 'la città'], ['it', 'gli occhi']].map(([l, t]) => A.E('(x => x.type === "gender" && !("key" in x) && !("srs" in x))(' + gx(l, t) + ')'));
+    ok(opts('de', 'die Stadt') === 'der|die|das' && opts('es', 'la ciudad') === 'el|la|los|las' && opts('it', 'la città') === 'il|lo|la|l’' && opts('it', 'gli occhi') === 'i|gli|le' && types.every(Boolean), 'article practice: the buttons for each language, and no review card behind a question');
+    ok(sameJ(ev('de', 'die Stadt', 'die'), { ok: true, level: 'exact' }) && sameJ(ev('es', 'la ciudad', 'la'), { ok: true, level: 'exact' }) && sameJ(ev('it', 'l’anno', 'l’'), { ok: true, level: 'exact' }) && sameJ(ev('it', 'l’anno', "l'"), { ok: true, level: 'exact' }), 'article practice: the right article counts');
+    const w1 = ev('de', 'die Stadt', 'der'), w2 = ev('es', 'la ciudad', 'el'), w3 = ev('it', 'l’anno', 'la'), w4 = ev('de', 'die Schuhe', 'das');
+    ok(!w1.ok && w1.level === 'wrong' && !w2.ok && w2.level === 'wrong' && !w3.ok && w3.level === 'wrong' && !w4.ok && w4.note === 'In the plural, every noun takes die.', "article practice: a wrong article doesn't count");
+    const n1 = ev('es', 'la ciudad', 'las'), n2 = ev('es', 'los guantes', 'el'), n3 = ev('it', 'l’anno', 'il'), n4 = ev('it', 'lo sconto', 'il'), n5 = ev('it', 'la città', 'l’'), n6 = ev('it', 'gli occhi', 'i');
+    ok(n1.ok === false && n1.level === 'article' && n1.note === 'Right gender, but ciudad is singular: la ciudad.' && n2.note === 'Right gender, but guantes is plural: los guantes.' && n2.level === 'article'
+      && n3.level === 'article' && n3.note === 'Right gender. Before a vowel, il and la become l’.' && n4.level === 'article' && n4.note === 'Right gender. Before s + consonant, z, gn, ps or y, use lo, not il.'
+      && n5.ok === false && n5.level === 'article' && n6.ok === false && n6.level === 'article', "article practice: the right gender in the wrong number or form is a near miss that doesn't count"); }
   /* word pictures: the mapping and the files follow the rules, and enough lessons ask about them (floors: the shipped numbers, rounded down) */
   { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
     let fails; try { fails = await T.check(); } finally { console.log = log; }
@@ -718,9 +746,36 @@ async function main(){
       if (E('mistakeEntries(S.settings.lang).length')){ E('startMistakes()'); ok(!Run().queue.some(x => x.type.startsWith('pic-')), 'mistake sessions ask no picture questions'); E('endRun()'); }
       else ok(true, 'mistake sessions ask no picture questions (no mistakes to practise)');
     }
+    { /* article practice from the Review tab: nouns from finished lessons; no review card or mistake changes */
+      const label = 'Practice articles: ' + E('GENDER_DRILL[S.settings.lang].label');
+      const artBtn = () => [...w.document.querySelectorAll('#app button')].find(b => b.textContent.trim() === label);
+      const cards = P.S.langs[lang].cards, saved = { ...cards }, six = E('genderEntries(S.settings.lang).slice(0, 6).map(e => e.key)');
+      for (const k of Object.keys(cards)) delete cards[k];
+      E('UI.tab="review"; render()'); ok(!artBtn(), lang + ' a learner with no nouns yet sees no article practice');
+      for (const k of six.slice(0, 5)) cards[k] = saved[k]; E('render()'); ok(!artBtn(), lang + ' five nouns are not enough for article practice');
+      cards[six[5]] = saved[six[5]]; E('render()'); ok(!!artBtn(), lang + ' six nouns bring article practice');
+      Object.assign(cards, saved); E('render()');
+      const before = JSON.stringify(P.S.langs[lang].cards) + JSON.stringify(P.S.langs[lang].miss), xp0 = P.S.langs[lang].xp || 0;
+      artBtn().click();
+      const q = Run().queue, ov = () => w.document.querySelector('.overlay:not(.out)');
+      ok(Run().mode === 'genders' && q.length === 12 && q.every(x => x.type === 'gender') && new Set(q.map(x => x.item.t)).size === 12, lang + ' article practice asks 12 different nouns');
+      ok(ov().querySelector('.gap-sent .gender-noun').textContent === Run().cur.noun && !ov().querySelector('.gap-sent').textContent.includes(Run().cur.item.t) && ov().querySelectorAll('.gap-opts .tile').length === Run().cur.options.length, lang + ' each noun is shown without its article, with one button per article');
+      ok(!!ov().querySelector('.gap-opts.gender-opts') && fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8').includes('.gender-opts .tile{min-width:56px}'), lang + ' article buttons are wide enough to tap');
+      [...ov().querySelectorAll('.gap-opts .tile')].find(b => b.textContent === Run().cur.correct).click(); E('doCheck()');
+      ok(ov().querySelector('.ov-foot').classList.contains('ok') && ov().querySelector('.fb-ans').textContent.includes(Run().cur.item.t), lang + ' the right article is accepted and the whole word is shown');
+      footBtn('Continue').click();
+      const R = Run(); R.value = R.cur.options.find(o => o !== R.cur.correct); R.canCheck = true; E('doCheck()');
+      ok(ov().querySelector('.ov-foot').classList.contains('bad'), lang + ' a wrong article is marked wrong');
+      footBtn('Continue').click();
+      await finishCurrent();
+      ok(Run().finished && ov().querySelector('.stamp').textContent.includes('Articles practiced'), lang + ' article practice finishes');
+      ok(JSON.stringify(P.S.langs[lang].cards) + JSON.stringify(P.S.langs[lang].miss) === before && (P.S.langs[lang].xp || 0) > xp0, lang + ' article practice changes no review card or mistake, and earns practice XP');
+      footBtn('Continue').click();
+    }
     for (const tab of ['learn', 'stories', 'review', 'talk', 'friends', 'me']){ E('UI.tab=' + JSON.stringify(tab) + '; render()'); ok(w.document.querySelector('#app').children.length > 0, 'tab ' + tab); }
     E('UI.tab="me"; render()');
     ok(![...w.document.querySelectorAll('#app button')].some(b => b.textContent.includes('Go to Talk')), 'the Claude version\'s Me has no Go to Talk pointer');
+    ok([...w.document.querySelectorAll('#app .setrow')].some(r => r.textContent.includes('Tutor grading') && r.textContent.includes('If a typed answer doesn’t match, Claude checks')), 'the Claude version explains tutor grading as before');
     { /* every level on Learn opens and closes, the last open one too */
       E('UI.tab="learn"; UI.openLang=null; render()');
       const openHeads = () => [...w.document.querySelectorAll('.lvl-head[aria-expanded="true"]')];
@@ -1467,6 +1522,7 @@ async function main(){
     ok(W1.w.document.querySelectorAll('.gen .ai-picker a').length === 3, 'lessons on demand can be handed to a chat app on the web');
     W1.E('UI.tab="me"; render()');
     ok([...W1.w.document.querySelectorAll('#app p')].some(p => p.textContent.includes('practice any Talk scene in Claude, ChatGPT or Gemini')) && [...W1.w.document.querySelectorAll('#app button')].some(b => b.textContent.trim() === 'Go to Talk'), 'Me on the web points to Talk scenes in chat apps');
+    ok([...W1.w.document.querySelectorAll('#app .setrow')].some(r => r.textContent.includes('Tutor grading') && r.textContent.includes('Needs Parlance in Claude. On the web version, Parlance checks your typed answers on its own.')), 'on the web, tutor grading says it needs Parlance in Claude');
     [...W1.w.document.querySelectorAll('#app button')].find(b => b.textContent.trim() === 'Go to Talk').click();
     ok(W1.E('UI.tab') === 'talk', 'Go to Talk opens Talk');
     W1.E('UI.tab="me"; render()');
