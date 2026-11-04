@@ -215,9 +215,21 @@ async function main(){
     const bs = A.E('tipBites(T("t", ' + JSON.stringify(bodyA) + ', [["alpha one", "a"], ["charlie two", "c"]], [["Plain caption", null, [["x", "**bravo**"]]]]))');
     ok(bs.length === 3 && bs[0].body === 'One **alpha** idea.' && bs[1].body === 'Two **bravo** idea.' && bs[2].body === 'Three **charlie** idea. Four.', 'tipBites: blank lines make one bite per paragraph: ' + JSON.stringify(bs.map(b => b.body)));
     ok(bs[0].examples.length === 1 && bs[0].examples[0].t === 'alpha one' && bs[2].examples.length === 1 && bs[2].examples[0].t === 'charlie two' && bs[1].tables.length === 1 && bs[1].tables[0].cap === 'Plain caption' && bs[0].tables.length === 0 && bs[2].tables.length === 0, 'tipBites: blank lines make one bite per paragraph, each example and table with the paragraph that names it');
-    const es11 = A.E('tipBites(getLesson("es-1-1").tip)');
-    ok(es11.length === 3 && es11[0].body.startsWith('Greet by the time of day') && es11[1].body.startsWith('**¿Cómo estás?**') && es11[2].body.startsWith('Put **señor**') && es11[2].tables.length === 2 && es11[0].tables.length === 0 && es11[1].tables.length === 0, 'tipBites: a tip without blank lines is cut as before'); }
+    const es91 = A.E('tipBites(getLesson("es-9-1").tip)');
+    ok(es91.length === 2 && es91[0].body.startsWith('The **present perfect** is') && es91[1].body.startsWith('Regular endings') && es91[0].tables.map(t => t.cap).join('|') === 'haber (the helper)' && es91[1].tables.map(t => t.cap).join('|') === 'Participles' && es91[0].examples.length === 2 && es91[1].examples.length === 1, 'tipBites: a tip without blank lines is cut as before'); }
   { const TIP_PLACES = {
+      'es-1-1': [['Buenas noches y gracias.', 'Greeting and when to use it'], ['¡Hola! ¿Cómo estás?', 'Muy bien, gracias.', 'Asking “How are you?”'], ['Buenos días, señora López.']],
+      'de-1-1': [['Guten Morgen, Anna!', 'Greetings through the day'], ['Hallo, wie geht’s?'], ['Danke, gut.', 'Auf Wiedersehen, Herr Braun.']],
+      'it-1-1': [['Buonasera e grazie.', 'Greeting and when to use it'], ['Ciao, Marco! A presto.', 'Hello and goodbye'], ['Buongiorno, signora Rossi.']],
+      'es-1-2': [['Me llamo Matt.', 'llamarse (reflexive): to be called'], ['¿Cómo te llamas?', '¿Cómo se llama usted?', 'tú or usted?'], ['Mi nombre es Lucía.', 'Mucho gusto, Lucía.']],
+      'de-1-2': [['Ich heiße Matt.', 'Present of **heißen** (to be called)'], ['Wie heißt du?', 'Wie heißen Sie?'], ['Mein Name ist Lena.', 'Freut mich, Lena!']],
+      'it-1-2': [['Mi chiamo Matt.', 'chiamarsi (reflexive): to be called'], ['Come ti chiami?', 'Come si chiama Lei?', 'tu or Lei?'], ['Piacere, Lucia.']],
+      'es-1-3': [['¿De dónde eres?', 'Ana es de Colombia.', 'ser (irregular): to be'], ['Vivo en Boston.', 'vivir (regular -ir): to live'], ['Guadalajara es una ciudad de México.']],
+      'de-1-3': [['Anna kommt aus Österreich.'], ['Ich wohne in Boston.', 'Wo wohnst du?', 'Present of **kommen** and **wohnen** (regular verbs)'], ['Berlin ist eine Stadt in Deutschland.']],
+      'it-1-3': [['Di dove sei?', 'Marco è di Napoli.', 'essere (irregular): to be'], ['Abito a Boston.', 'abitare (regular -are): to live'], ['Roma è una città in Italia.']],
+      'es-1-4': [['Ella es doctora.', 'ser or estar?'], ['Estoy cansado.', 'estar (irregular yo): to be'], ['Estamos muy cansados.', 'Agreement of cansado']],
+      'de-1-4': [['Ich bin müde.', 'Present of **sein** (to be)'], ['Er ist Lehrer.', 'Jobs: he and she'], ['Mir geht es auch gut.']],
+      'it-1-4': [['Sto bene, grazie.'], ['Come stai?', 'stare (irregular): to be, to feel'], ['Siamo molto stanchi.', 'Anna è molto felice.', 'Agreement of stanco']],
       'es-2-1': [['Dos más tres son cinco.'], ['Tengo dos hermanos.', 'Mi hijo tiene siete años.', 'tener (irregular): to have', 'Plurals'], ['Cuesta cinco dólares.', 'costar (o→ue): to cost']],
       'de-2-1': [['Zwei plus drei ist fünf.', 'Numbers 0–10 (and 10 is **zehn**)'], ['Ich habe zwei Brüder.', 'Present of **haben** (to have)', 'Plurals you meet here'], ['Das kostet fünf Euro.', 'Mein Sohn ist sieben Jahre alt.']],
       'it-2-1': [['Due più tre fa cinque.'], ['Ho due fratelli.', 'Mio figlio ha sette anni.', 'avere (irregular): to have'], ['Costa cinque euro.', 'costare: to cost', 'Plurals']],
@@ -247,7 +259,7 @@ async function main(){
       const got = A.E('tipBites(getLesson(' + JSON.stringify(id) + ').tip)').map(b => [...b.examples.map(e => e.t), ...b.tables.map(t => t.cap)]);
       ok(JSON.stringify(got) === JSON.stringify(TIP_PLACES[id]), id + ' tip cards hold what the plan says: ' + JSON.stringify(got));
     }
-    ok(Object.keys(TIP_PLACES).length === 12 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all twelve unit 2 tips are cut into three paragraphs'); }
+    ok(Object.keys(TIP_PLACES).length === 24 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all twenty-four unit 1 and unit 2 tips are cut into three paragraphs'); }
   /* the top bar lets the wordmark wrap away instead of being cut mid-word (layout itself is checked in a browser) */
   { const css = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8'), brand = (css.match(/\n\.brand\{[^}]*\}/) || [''])[0];
     ok(brand.includes('flex-wrap:wrap') && brand.includes('height:26px') && !css.includes('@media (max-width:400px){\n  .brand-name'), 'the top bar lets the wordmark wrap instead of cutting it'); }
