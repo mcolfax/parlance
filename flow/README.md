@@ -4,7 +4,7 @@ Parlance improves itself on a schedule: new lessons and stories, new kinds of ex
 
 ## A cycle
 
-The scheduled task **Parlance flow cycle** runs the `flow-cycle` skill (`.claude/skills/flow-cycle/SKILL.md`) in a fresh cloud session in the **Default** environment, Sundays and Wednesdays at 8:53am New York time. That environment holds the network secrets the flow needs (the Google Text-to-Speech key for recorded voices). One cycle ships at most one release; if a cycle is cut short (a usage limit, a lost session), the next one finishes its shipping first.
+The scheduled task **Parlance flow cycle** runs the `flow-cycle` skill (`.claude/skills/flow-cycle/SKILL.md`) in a fresh cloud session, Sundays and Wednesdays at 8:53am New York time. Its environment has the Supabase and Vercel connectors but can't reach Google's voice service, so when voice lines are waiting, the cycle schedules a one-off **Parlance voices** task in the Default environment, which holds the Text-to-Speech key (`.claude/skills/flow-voices/SKILL.md`). One cycle ships at most one release; if a cycle is cut short (a usage limit, a lost session), the next one finishes its shipping first.
 
 | Stage | Who | Model | What happens |
 |---|---|---|---|
@@ -41,6 +41,7 @@ Failures loop back to the agent that owns the file, at most twice; then the pack
 | Path | What it is |
 |---|---|
 | `.claude/skills/flow-cycle/SKILL.md` | The cycle, step by step (the orchestrator follows it) |
+| `.claude/skills/flow-voices/SKILL.md` | Recording and shipping waiting voice lines (the one-off voice task follows it) |
 | `.claude/agents/parlance-*.md` | Each agent's job, model and rules |
 | `flow/POLICY.md`, `flow/policy.json` | What may ship without Matt; his switches (only he edits these) |
 | `flow/ROADMAP.md` | The backlog |
