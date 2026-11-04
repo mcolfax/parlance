@@ -1,7 +1,7 @@
 # One idea per card in unit 1, and article practice in Review
 
 - **Cycle:** 2026-11-04
-- **Status:** building
+- **Status:** shipped (4.28.0)
 - **Release:** 4.28.0 (minor: a new practice type, plus content and copy fixes)
 - **Base:** `main` at 5a59939 (release 4.27.0)
 - **Proposals built:** none open. WP1 continues web proposal `pmvxw6o4w0` (note fmvbms644lr5x), which the orchestrator marks shipped for 4.27.0 (unit 2). Nothing is closed for 4.28.0.
@@ -426,5 +426,5 @@ One parlance-chores (Haiku) run on the cycle branch after WP1 and WP2 are merged
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:**
+- **Shipped:** WP1, WP2 and integration in 4.28.0 | **Dropped:** none | **Escalated:** none
+- **Notes for the next cycle:** Reviewer FIX round 1: de-1-4 card 2 now says "Lehrer looks the same in the plural" (the old rule was wrong for Ärzte, Lehrerinnen); article tiles get `min-width:56px` (`.gender-opts`) to clear the 44px tap target. Two voice lines (1 de, 1 es) were already unrecorded at base and still are: this session's proxy refused texttospeech.googleapis.com, so a session with the key should run `node dev/voices.js`. The picture table shows 1 undecided de B2 vocab item, also at base. R-16 continues with unit 3.
