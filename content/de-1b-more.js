@@ -112,7 +112,7 @@ U('Shopping & clothes', 'A2', [
        ['Color + noun after “a”', ['', 'm (der)', 'f (die)', 'n (das)'], [['a … (subject)', 'ein roter Rock', 'eine rote Hose', 'ein rot**es** Kleid'], ['a … (object)', 'einen rot**en** Rock', 'eine rote Hose', 'ein rot**es** Kleid']]],
        ['Plural', ['', 'Example'], [['no article', '**neue** Schuhe (new shoes)'], ['my', '**meine** Socken']]]]),
     [['die Hose', 'pants|trousers|pair of pants|pair of trousers', 'f'], ['das Hemd', 'shirt|dress shirt|button-up shirt', 'n'], ['der Pullover', 'sweater|jumper|pullover', 'm'], ['das Kleid', 'dress', 'n'],
-     ['der Rock', 'skirt', 'm'], ['die Schuhe', 'shoes'], ['die Socken', 'socks'], ['das T-Shirt', 'T-shirt|tee', 'n']],
+     ['der Rock', 'skirt', 'm'], ['die Schuhe', 'shoes', 'pl'], ['die Socken', 'socks'], ['das T-Shirt', 'T-shirt|tee', 'n']],
     [['Ich trage heute eine schwarze Hose.', 'I’m wearing black pants today.|I am wearing black pants today.|I’m wearing black trousers today.|I am wearing black trousers today.|Today I’m wearing black pants.|Today I am wearing black pants.|Today I’m wearing black trousers.|Today I am wearing black trousers.|I’m wearing a pair of black pants today.|I am wearing a pair of black pants today.|I’m wearing a pair of black trousers today.|I am wearing a pair of black trousers today.|I wear black pants today.|I wear black trousers today.'],
      ['Er trägt ein weißes Hemd.', 'He is wearing a white shirt.|He’s wearing a white shirt.|He wears a white shirt.'],
      ['Das Kleid ist sehr schön.', 'The dress is very beautiful.|The dress is very pretty.|The dress is very nice.|The dress is very lovely.'],
