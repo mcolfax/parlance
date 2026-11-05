@@ -103,7 +103,7 @@ const STORY_GLOSS = {
     leid: 'sorry (es tut mir leid: I’m sorry)', genug: 'enough', diese: 'this · these', 'höchstens': 'at most', cousine: 'cousin (a woman)', 'erzählen': 'to tell',
     je: 'ever (oh je: oh dear)', hoffentlich: 'hopefully · I hope', fast: 'almost', reparieren: 'to repair · to fix', weg: 'gone · away',
     ihnen: 'you · to you (formal) · them', 'küche': 'kitchen', halten: 'to hold · to keep', hause: 'home (nach Hause: home; zu Hause: at home)' },
-  es: { 'día': 'day', sirvo: 'I serve (from servir)', dulce: 'sweet', ochenta: 'eighty', traigo: 'I bring (from traer)', efectivo: 'cash', aceptar: 'to accept',
+  es: { lluvia: 'rain', tiempo: 'weather · time', 'día': 'day', sirvo: 'I serve (from servir)', dulce: 'sweet', ochenta: 'eighty', traigo: 'I bring (from traer)', efectivo: 'cash', aceptar: 'to accept',
     tarjeta: 'card', persona: 'person', foto: 'photo', abuela: 'grandmother · grandma', setenta: 'seventy', vender: 'to sell', fruta: 'fruit', chile: 'chili pepper',
     'pásele': 'come on in (polite, Mexico)', damos: 'we give (from dar)', vi: 'I saw (from ver)', necesitar: 'to need', jitomate: 'tomato (Mexico)', aguacate: 'avocado',
     poco: 'a little · few', cilantro: 'cilantro', cena: 'dinner', hacer: 'to do · to make', guacamole: 'guacamole', viene: 'comes (from venir)', cenar: 'to have dinner',
