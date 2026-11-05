@@ -438,3 +438,11 @@ Object.assign(LESSON_GLOSS.it, { "animale": "animal (animale domestico: pet)", "
   "rossi": "Rossi (a last name)", "scarico": "dead · flat (of a battery)", "risposto": "answered (from rispondere)", "fatto": "done · made (from fare)", "benissimo": "very well · very clearly", "pare": "seems (a quanto pare: apparently)", "qualsiasi": "any",
   "sostituiranno": "will replace (from sostituire)", "fammi": "let me (fammi sapere: let me know)", "mettiti": "put on (command, from mettersi)", "mezz’ora": "half an hour", "piovendo": "raining (from piovere)", "improvviso": "sudden (all’improvviso: suddenly)",
   "domestico": "domestic (animale domestico: pet)", "file": "file" });
+/* units 40–41 (4.29.0) */
+Object.assign(LESSON_GLOSS.it, { "pur": "even though · although (pur + gerund)", "annoia": "bores · is boring (from annoiare)", "ottimo": "excellent · great", "creare": "to create · to build", "deludente": "disappointing", "amato": "loved (from amare)",
+  "pianto": "cried (from piangere)", "direbbe": "would say (si direbbe che: you’d think that)", "statua": "statue", "muova": "moves (subjunctive of muoversi)", "rapide": "quick · fast", "esca": "comes out (subjunctive of uscire)",
+  "quest’opera": "this work", "opera": "work · artwork", "astratta": "abstract", "preciso": "precise · specific", "viva": "alive", "pittore": "painter", "dipinge": "paints (from dipingere)", "architetti": "architects",
+  "sicuro": "safe · secure", "vetro": "glass", "faremo": "we will make · we will do (from fare)", "abbiano": "have (subjunctive of avere)", "supponiamo": "let’s suppose (from supporre)", "scegliere": "to choose",
+  "vista": "view (punto di vista: point of view)", "checché": "whatever (formal, + subjunctive)", "dica": "says (subjunctive of dire; checché se ne dica: whatever people say)", "limiti": "limits", "persona": "person",
+  "riusciamo": "we manage · we can (from riuscire)", "misurarlo": "to measure it", "figuriamoci": "let alone · let’s imagine (from figurarsi)", "buon": "good", "scienziato": "scientist", "vita": "life", "pieno": "full",
+  "vale": "is worth (vale la pena: it’s worth it)", "pena": "pain · effort (vale la pena: it’s worth it)", "rinunciare": "to give up" });
