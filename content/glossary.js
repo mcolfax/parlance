@@ -482,4 +482,5 @@ Object.assign(LESSON_GLOSS.it, {
   "inquilino": "tenant (male)", "l’inquilino": "the tenant", "tenuto": "required · held (essere tenuto a: to be required to)", "altro": "other · otherwise (salvo che preveda altro: unless it provides otherwise)",
   "riceverà": "will receive (from ricevere)", "siano": "are (subjunctive of essere)", "danni": "damage · damages (plural of il danno)", "disdetto": "canceled (from disdire)",
   "utile": "useful", "misura": "measure · extent (nella misura in cui: insofar as)", "applicata": "applied · enforced (from applicare)", "vigore": "force (in vigore: in force)",
-  "eccezione": "exception", "un’eccezione": "an exception", "eccezioni": "exceptions (plural of l’eccezione)", "cercano": "look for · seek (from cercare)" });
+  "eccezione": "exception", "un’eccezione": "an exception", "eccezioni": "exceptions (plural of l’eccezione)", "cercano": "look for · seek (from cercare)",
+  "prove": "evidence · proof (plural of la prova)", "silenziosa": "quiet · silent" });
