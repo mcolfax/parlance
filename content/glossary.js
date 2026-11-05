@@ -468,3 +468,7 @@ Object.assign(LESSON_GLOSS.es, {
   "elegir": "to choose", "experimento": "experiment", "mental": "mental (experimento mental: thought experiment)", "distinta": "different", "respetar": "to respect", "difícil": "hard · difficult",
   "siquiera": "even (ni siquiera: not even)", "medirlo": "to measure it (from medir)", "explicarlo": "to explain it (from explicar)", "refutarlo": "to refute it (from refutar)", "ignorarlo": "to ignore it (from ignorar)",
   "explicación": "explanation", "encontró": "found (from encontrar)", "riesgo": "risk", "gratitud": "gratitude" });
+
+/* unit 16 (4.29.0) */
+Object.assign(LESSON_GLOSS.de, { "ski": "ski (Ski fahren: to ski)", "blätter": "leaves (plural of das Blatt)" });
+Object.assign(LESSON_GLOSS.es, { "lunares": "polka dots (de lunares: polka dot)", "noviembre": "November" });
