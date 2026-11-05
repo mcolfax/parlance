@@ -472,3 +472,5 @@ Object.assign(LESSON_GLOSS.es, {
 /* unit 16 (4.29.0) */
 Object.assign(LESSON_GLOSS.de, { "ski": "ski (Ski fahren: to ski)", "blätter": "leaves (plural of das Blatt)" });
 Object.assign(LESSON_GLOSS.es, { "lunares": "polka dots (de lunares: polka dot)", "noviembre": "November" });
+Object.assign(LESSON_GLOSS.de, { "farben": "colors (plural of die Farbe)" });
+Object.assign(LESSON_GLOSS.es, { "recomendarla": "to recommend it (from recomendar)", "colores": "colors (plural of el color)" });
