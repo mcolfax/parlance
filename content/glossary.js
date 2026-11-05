@@ -457,3 +457,14 @@ Object.assign(LESSON_GLOSS.de, {
   "gedanken": "thoughts (plural of der Gedanke)", "fall": "case (gesetzt den Fall: supposing)", "bekanntes": "well-known · famous", "jeder": "everyone · each",
   "bequemlichkeit": "comfort · convenience", "bedeutet": "means (from bedeuten)", "geschweige": "let alone (geschweige denn: let alone)", "messen": "to measure",
   "wen": "whom (accusative of wer)", "sieht": "sees (from sehen; wie man es sieht: how you see it)", "schwer": "hard · heavy · difficult", "bringt": "brings (from bringen)" });
+
+/* units 40–41 (4.29.0) */
+Object.assign(LESSON_GLOSS.es, {
+  "imaginas": "you imagine (from imaginar)", "sabrá": "will know (from saber)", "busque": "looks for (subjunctive of buscar)", "acción": "action", "parar": "to stop",
+  "recomiende": "recommends (subjunctive of recomendar)", "dirá": "will say (from decir)", "disfrutarlo": "to enjoy it (from disfrutar)", "diría": "would say (from decir; se diría que: you’d think that)",
+  "mueve": "moves (from mover; se mueve: moves)", "grita": "shouts (from gritar)", "resulta": "turns out to be · comes across as (from resultar)", "dentro": "inside (por dentro: on the inside)",
+  "moderna": "modern", "área": "area (el área verde: green space)", "elegante": "elegant", "resultan": "turn out to be · come across as (from resultar)", "modernas": "modern (plural)",
+  "acogedora": "cozy · welcoming", "suponiendo": "supposing (from suponer; suponiendo que: supposing that)", "mente": "mind", "supuesto": "supposition (en el supuesto de que: in the event that)",
+  "elegir": "to choose", "experimento": "experiment", "mental": "mental (experimento mental: thought experiment)", "distinta": "different", "respetar": "to respect", "difícil": "hard · difficult",
+  "siquiera": "even (ni siquiera: not even)", "medirlo": "to measure it (from medir)", "explicarlo": "to explain it (from explicar)", "refutarlo": "to refute it (from refutar)", "ignorarlo": "to ignore it (from ignorar)",
+  "explicación": "explanation", "encontró": "found (from encontrar)", "riesgo": "risk", "gratitud": "gratitude" });
