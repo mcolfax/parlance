@@ -474,3 +474,11 @@ Object.assign(LESSON_GLOSS.de, { "ski": "ski (Ski fahren: to ski)", "blätter": 
 Object.assign(LESSON_GLOSS.es, { "lunares": "polka dots (de lunares: polka dot)", "noviembre": "November" });
 Object.assign(LESSON_GLOSS.de, { "farben": "colors (plural of die Farbe)" });
 Object.assign(LESSON_GLOSS.es, { "recomendarla": "to recommend it (from recomendar)", "colores": "colors (plural of el color)" });
+
+/* unit 42 (4.30.0) */
+Object.assign(LESSON_GLOSS.es, {
+  "mentir": "to lie", "declaró": "declared (from declarar)", "conforme": "as (conforme + verb: as something changes step by step)", "avanzaba": "was moving on · was progressing (from avanzar)",
+  "defensa": "defense", "fuerza": "strength · force", "acercaba": "was getting closer (from acercarse)", "pasaban": "were passing (from pasar)", "decidió": "decided (from decidir)",
+  "absolverlo": "to acquit him (from absolver)", "renueva": "renews (from renovar)", "salvo": "unless · except (salvo que: unless)", "anticipación": "advance (con un mes de anticipación: a month in advance)",
+  "devuelve": "returns · gives back (from devolver)", "reparar": "to repair", "causado": "caused (from causar)", "diga": "says (subjunctive of decir)", "será": "will be (from ser)",
+  "aplique": "is applied (subjunctive of aplicar)", "vacío": "gap · empty (vacío legal: legal loophole)", "legal": "legal", "aprovechan": "take advantage of · use (from aprovechar)", "eludirla": "to get around it (from eludir)" });
