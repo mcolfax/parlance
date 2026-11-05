@@ -474,3 +474,12 @@ Object.assign(LESSON_GLOSS.de, { "ski": "ski (Ski fahren: to ski)", "blätter": 
 Object.assign(LESSON_GLOSS.es, { "lunares": "polka dots (de lunares: polka dot)", "noviembre": "November" });
 Object.assign(LESSON_GLOSS.de, { "farben": "colors (plural of die Farbe)" });
 Object.assign(LESSON_GLOSS.es, { "recomendarla": "to recommend it (from recomendar)", "colores": "colors (plural of el color)" });
+
+/* unit 42 (4.30.0) */
+Object.assign(LESSON_GLOSS.it, {
+  "avvocato": "lawyer (male)", "man": "as (man mano che: as, step by step)", "avanti": "forward · ahead (andare avanti: to go on)", "difesa": "defense",
+  "procedeva": "was going on · was progressing (from procedere)", "diventava": "was becoming (from diventare)", "emergeva": "was emerging · came out (from emergere)",
+  "inquilino": "tenant (male)", "l’inquilino": "the tenant", "tenuto": "required · held (essere tenuto a: to be required to)", "altro": "other · otherwise (salvo che preveda altro: unless it provides otherwise)",
+  "riceverà": "will receive (from ricevere)", "siano": "are (subjunctive of essere)", "danni": "damage · damages (plural of il danno)", "disdetto": "canceled (from disdire)",
+  "utile": "useful", "misura": "measure · extent (nella misura in cui: insofar as)", "applicata": "applied · enforced (from applicare)", "vigore": "force (in vigore: in force)",
+  "eccezione": "exception", "un’eccezione": "an exception", "eccezioni": "exceptions (plural of l’eccezione)", "cercano": "look for · seek (from cercare)" });
