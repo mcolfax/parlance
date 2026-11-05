@@ -279,20 +279,13 @@ n 0 a-clothes wool | ball of yarn with two knitting needles
 - degree | several meanings
 n 1 a-weather fog | hills fading into layers of pale gray mist, a lamp post glowing
 n 0 a-weather forecast | weather map panel with a sun, a cloud and a raindrop symbol
-= it-s-cloudy cloud
-= it-s-cold cold
-= it-s-hot hot
-- it-s-raining | same picture as the rain in its lesson
-= it-s-snowing snow
 = overcast cloud
 n 0 a-weather temperature | glass thermometer with a red column halfway and tick marks
 - there-will-be | grammar phrase
 n 1 a-weather thunderstorm | dark cloud with a yellow lightning bolt and heavy rain
 - ferragosto | holiday name
 n 1 a-nature flower | pink flower with a yellow center, green stem and two leaves
-- in-july | month
 n 1 a-nature leaf | single green leaf with veins and a short stem
-- march | month
 - season | abstract
 - this-year | time word
 v 1 a-verbs to-ski | figure on skis with poles going down a slope, snow spray behind
@@ -915,7 +908,7 @@ n 0 b-travel adventure | compass with a red needle on top of a rolled map
 n 1 b-travel backpack | green hiking backpack with straps and pockets
 n 0 b-nature landscape | green hills, a winding river, a tree and a sun
 n 0 b-travel souvenir | small snow globe with a tower inside and a base
-n 0 b-news election | ballot box with a paper going into the slot
+n 0 b-news election {"de":["die Wahl"],"es":["las elecciones"]} | ballot box with a paper going into the slot
 = to-elect election
 n 0 b-news government | parliament building with a dome and a flag
 n 0 b-news law | scales of justice with a gavel
@@ -1504,7 +1497,6 @@ n 1 c-home fridge-argentina | tall fridge with two doors and handles
 n 1 c-food bread-roll-bavaria-austria | round bread roll with a cut on top
 = tomato-austria tomato
 = kid-argentina child
-= money-mexico-informal money
 = money-much-of-latin-america money
 = cash-slang cash
 = pub beer
@@ -2047,3 +2039,77 @@ n 1 b-science star | bright yellow five-pointed star with a little sparkle
 n 1 b-science telescope | telescope on a tripod pointing up at the sky
 - to-discover | abstract
 - to-explore | abstract
+# ---- the new A1 unit 16 and units 40-41 (WP3 part 2) ----
+a 0 a-colors dark-green | paint daub in dark green with a brush
+a 0 a-colors gold | three stacked gold bars with sparkles
+a 0 a-clothes polka-dot | red cloth with white dots
+n 0 a-clothes silk | flowing pink satin ribbon with a sheen and sparkles
+a 0 a-weather humid | sweaty face among wavy air lines with water drops
+= mist fog
+= weather-forecast forecast
+= gift present
+= checkered checked
+n 0 a-misc money-mexico-informal {"es":["la lana"]} | rolled-up banknotes tied with a red band, a stack of coins (la lana, Mexican slang for money; es-16-2 teaches it as wool with its own picture)
+n 0 c-arts cast | three actors side by side with a gold star above
+- convincing | abstract adjective
+- predictable | abstract adjective
+n 0 c-arts review | paper with three gold stars and lines of text
+- suspense | abstract
+- to-disappoint | abstract
+- chapter | abstract: a book picture would stand for any book word
+n 0 c-arts character | figure stepping out of an open book
+- ending | abstract
+- gripping | abstract adjective
+- long-winded | abstract adjective
+n 0 c-arts narrator | figure speaking while holding an open book, sound arcs
+= reading to-read
+- to-captivate | abstract
+- to-grip | abstract
+- abstract | ambiguous adjective (abstract art)
+n 0 c-arts brushstroke | curved stroke of red paint with a brush at its end
+n 0 c-arts canvas | blank canvas on an easel
+n 0 c-arts painting | framed landscape painting with sun and hills on a wall
+n 0 c-arts sculpture | stone bust on a pedestal
+n 0 c-arts contrast | circle half white and half black
+n 0 c-arts shadow | figure standing in the sun with a long shadow on the ground
+- to-depict | abstract
+n 1 c-city bridge | stone arch bridge with railing over water
+n 0 c-city building | tall tan office block with rows of windows and a door
+n 0 c-city fa-ade | front of a building with arched windows, pilasters, cornice and a door
+= high-rise skyscraper
+= green-space park
+- protected-as-a-landmark | abstract
+- livable | abstract adjective
+n 1 c-city skyscraper | tall blue glass tower with an antenna between two lower buildings
+v 0 c-city to-design | figure drawing a house plan on a blueprint with a pencil
+n 0 c-thinking choice | signpost with two arrows pointing opposite ways
+- consequence | abstract
+- dilemma | abstract
+- in-the-event-that | grammar phrase
+- let-s-say-that | grammar phrase
+- let-s-suppose-that | grammar phrase
+- moral | abstract
+- supposing | grammar phrase
+- supposing-that | grammar phrase
+- thought-experiment | abstract
+v 0 c-thinking to-weigh | balance scale with a red ball in one pan and a blue cube in the other
+- duty | abstract
+- fair | abstract adjective
+- society | abstract
+- to-violate | abstract
+- belief | abstract
+- doubt | abstract
+- faith | abstract
+- hypothesis | abstract
+- proof | abstract
+n 0 c-thinking science | glass flask with green liquid and bubbles
+- skeptical | abstract adjective
+- contentment | abstract
+- depending | grammar phrase
+- fulfilled | abstract adjective
+- gratitude | abstract
+- just-to | grammar phrase
+- meaning | abstract
+= serenity calm
+- to-succeed | abstract
+- well-being | abstract
