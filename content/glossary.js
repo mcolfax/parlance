@@ -438,3 +438,7 @@ Object.assign(LESSON_GLOSS.it, { "animale": "animal (animale domestico: pet)", "
   "rossi": "Rossi (a last name)", "scarico": "dead · flat (of a battery)", "risposto": "answered (from rispondere)", "fatto": "done · made (from fare)", "benissimo": "very well · very clearly", "pare": "seems (a quanto pare: apparently)", "qualsiasi": "any",
   "sostituiranno": "will replace (from sostituire)", "fammi": "let me (fammi sapere: let me know)", "mettiti": "put on (command, from mettersi)", "mezz’ora": "half an hour", "piovendo": "raining (from piovere)", "improvviso": "sudden (all’improvviso: suddenly)",
   "domestico": "domestic (animale domestico: pet)", "file": "file" });
+
+/* unit 16 (4.29.0) */
+Object.assign(LESSON_GLOSS.de, { "ski": "ski (Ski fahren: to ski)", "blätter": "leaves (plural of das Blatt)" });
+Object.assign(LESSON_GLOSS.es, { "lunares": "polka dots (de lunares: polka dot)", "noviembre": "November" });
