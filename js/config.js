@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.28.1';
+const APP_VERSION = '4.29.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,10 @@ const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.29.0', date: '2026-11-05', title: 'Art, ideas and fresh A1', notes: [
+    'Two new advanced units in every language: Arts & criticism at C1, and Ideas & ethics at C2.',
+    'In German and Spanish, the A1 unit “Colors, clothes & weather” no longer repeats earlier lessons: it now teaches shades and patterns, fabrics, the forecast, and seasons and holidays, like Italian.',
+    'Many more words have a picture.'] },
   { v: '4.28.1', date: '2026-11-04', title: 'Seen once', notes: [
     'What’s new, announcements and thank-you notes show once. If you’ve seen one on your phone, your laptop won’t show it again.',
     'A note you send always reaches us, even if a thank-you arrives at the same moment.'] },
