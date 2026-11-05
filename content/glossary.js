@@ -438,3 +438,14 @@ Object.assign(LESSON_GLOSS.it, { "animale": "animal (animale domestico: pet)", "
   "rossi": "Rossi (a last name)", "scarico": "dead · flat (of a battery)", "risposto": "answered (from rispondere)", "fatto": "done · made (from fare)", "benissimo": "very well · very clearly", "pare": "seems (a quanto pare: apparently)", "qualsiasi": "any",
   "sostituiranno": "will replace (from sostituire)", "fammi": "let me (fammi sapere: let me know)", "mettiti": "put on (command, from mettersi)", "mezz’ora": "half an hour", "piovendo": "raining (from piovere)", "improvviso": "sudden (all’improvviso: suddenly)",
   "domestico": "domestic (animale domestico: pet)", "file": "file" });
+
+/* units 40–41 (4.29.0) */
+Object.assign(LESSON_GLOSS.es, {
+  "imaginas": "you imagine (from imaginar)", "sabrá": "will know (from saber)", "busque": "looks for (subjunctive of buscar)", "acción": "action", "parar": "to stop",
+  "recomiende": "recommends (subjunctive of recomendar)", "dirá": "will say (from decir)", "disfrutarlo": "to enjoy it (from disfrutar)", "diría": "would say (from decir; se diría que: you’d think that)",
+  "mueve": "moves (from mover; se mueve: moves)", "grita": "shouts (from gritar)", "resulta": "turns out to be · comes across as (from resultar)", "dentro": "inside (por dentro: on the inside)",
+  "moderna": "modern", "área": "area (el área verde: green space)", "elegante": "elegant", "resultan": "turn out to be · come across as (from resultar)", "modernas": "modern (plural)",
+  "acogedora": "cozy · welcoming", "suponiendo": "supposing (from suponer; suponiendo que: supposing that)", "mente": "mind", "supuesto": "supposition (en el supuesto de que: in the event that)",
+  "elegir": "to choose", "experimento": "experiment", "mental": "mental (experimento mental: thought experiment)", "distinta": "different", "respetar": "to respect", "difícil": "hard · difficult",
+  "siquiera": "even (ni siquiera: not even)", "medirlo": "to measure it (from medir)", "explicarlo": "to explain it (from explicar)", "refutarlo": "to refute it (from refutar)", "ignorarlo": "to ignore it (from ignorar)",
+  "explicación": "explanation", "encontró": "found (from encontrar)", "riesgo": "risk", "gratitud": "gratitude" });
