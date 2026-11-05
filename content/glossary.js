@@ -438,3 +438,14 @@ Object.assign(LESSON_GLOSS.it, { "animale": "animal (animale domestico: pet)", "
   "rossi": "Rossi (a last name)", "scarico": "dead · flat (of a battery)", "risposto": "answered (from rispondere)", "fatto": "done · made (from fare)", "benissimo": "very well · very clearly", "pare": "seems (a quanto pare: apparently)", "qualsiasi": "any",
   "sostituiranno": "will replace (from sostituire)", "fammi": "let me (fammi sapere: let me know)", "mettiti": "put on (command, from mettersi)", "mezz’ora": "half an hour", "piovendo": "raining (from piovere)", "improvviso": "sudden (all’improvviso: suddenly)",
   "domestico": "domestic (animale domestico: pet)", "file": "file" });
+
+/* units 40–41 (4.29.0) */
+Object.assign(LESSON_GLOSS.de, {
+  "streng": "harsh · strict", "fehlt": "is missing · is lacking (from fehlen)", "gewünscht": "wished · wanted (from wünschen)", "kürzen": "to cut · to shorten",
+  "anfang": "beginning · start (von Anfang an: from the start)", "gefesselt": "gripped · captivated (from fesseln)", "zweite": "second", "jedem": "to everyone · to each (dative of jeder)",
+  "künstlerin": "artist (female)", "erzeugt": "creates · generates (from erzeugen)", "indem": "by (…ing) · while", "licht": "light", "kontrastiert": "contrasts (from kontrastieren)",
+  "dar": "depicts (stellt … dar: depicts, from darstellen)", "benutzt": "uses (from benutzen)", "dadurch": "through that (dadurch, dass: through the fact that)", "sichtbar": "visible",
+  "wirft": "throws · casts (from werfen)", "schafft": "creates (from schaffen)", "pflanzt": "plants (from pflanzen)", "bäume": "trees (plural of der Baum)", "protestieren": "to protest",
+  "gedanken": "thoughts (plural of der Gedanke)", "fall": "case (gesetzt den Fall: supposing)", "bekanntes": "well-known · famous", "jeder": "everyone · each",
+  "bequemlichkeit": "comfort · convenience", "bedeutet": "means (from bedeuten)", "geschweige": "let alone (geschweige denn: let alone)", "messen": "to measure",
+  "wen": "whom (accusative of wer)", "sieht": "sees (from sehen; wie man es sieht: how you see it)", "schwer": "hard · heavy · difficult", "bringt": "brings (from bringen)" });
