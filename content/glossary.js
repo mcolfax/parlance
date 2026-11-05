@@ -474,3 +474,9 @@ Object.assign(LESSON_GLOSS.de, { "ski": "ski (Ski fahren: to ski)", "blätter": 
 Object.assign(LESSON_GLOSS.es, { "lunares": "polka dots (de lunares: polka dot)", "noviembre": "November" });
 Object.assign(LESSON_GLOSS.de, { "farben": "colors (plural of die Farbe)" });
 Object.assign(LESSON_GLOSS.es, { "recomendarla": "to recommend it (from recomendar)", "colores": "colors (plural of el color)" });
+
+/* unit 42 (4.30.0) */
+Object.assign(LESSON_GLOSS.de, { "Ampel": "traffic light", "Gemäß": "according to · under (takes the dative)", "Paragraf": "paragraph · section (of a law)", "freigesprochen": "acquitted (from freisprechen)",
+  "Ordnung": "order (in Ordnung: in order, fine)", "beachten": "to observe · to pay attention to", "Bedingung": "condition (unter der Bedingung, dass: on the condition that)", "sauber": "clean",
+  "problematisch": "problematic", "kennt": "knows · recognizes (from kennen)", "gilt": "applies · is valid (from gelten)", "erlaubt": "allows (from erlauben)", "Firmen": "companies (plural of die Firma)",
+  "Innenstadt": "city center", "Fälle": "cases (plural of der Fall)" });
