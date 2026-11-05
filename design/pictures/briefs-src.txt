@@ -1196,10 +1196,10 @@ n 0 b-misc falling | bar chart with three falling bars and a down arrow
 - to-practice | abstract or grammar
 - to-talk-about-it | abstract or grammar
 - to-think-about-it | abstract or grammar
-- deposit | abstract or grammar
+n 0 c-law deposit | green banknote with a yellow key lying across it
 - furnished | abstract or grammar
 - landlord | abstract or grammar
-- lease | abstract or grammar
+n 0 c-law lease | contract page with a small red-roofed house on it, text lines and a signature squiggle
 - to-view | abstract or grammar
 - utilities | abstract or grammar
 n 0 a-phones account {"it":["l’account"]} | round profile picture: a figure's head and shoulders in a circle, a small green tick (das Konto in de-26-3 and la cuenta in es-26-3 name it themselves: their text means something else elsewhere)
@@ -2113,3 +2113,35 @@ n 0 c-thinking science | glass flask with green liquid and bubbles
 = serenity calm
 - to-succeed | abstract
 - well-being | abstract
+# ---- unit 42, Law & justice (release 4.30.0, WP2) ----
+n 0 c-law court | courthouse: triangular pediment with a scales emblem, four columns, wide steps
+n 0 c-law judge | woman in a black robe with a white collar and brown bob hair, a gavel and block beside her
+n 0 c-law lawyer | woman in a blue suit and red tie with brown bob hair, a small pair of scales beside her
+n 0 c-law crime | handcuffs: two grey cuffs with lock plates, joined by a sagging chain
+n 0 c-law defect | grey water pipe broken in the middle, blue drops falling into a puddle
+n 0 c-law rule | thick closed red law book with yellow spine bands and a small yellow scales emblem on the cover
+- defendant | person in a role; a figure in a dock would look like any other person
+- guilty | abstract adjective
+- ruling | abstract; a decision, not an object
+- sentence | abstract; the punishment or the wording of it
+- testimony | abstract; spoken evidence
+- to-accuse | abstract; pointing could mean anything
+- verdict | abstract; the decision, not an object
+- criminal | person in a role; shares the crime picture's meaning but would repeat it within a lesson
+- fraud | abstract
+- investigation | abstract
+- offender | person in a role; abstract
+- punishment | abstract
+- to-acquit | abstract
+- to-convict | abstract
+- trial | abstract; the same courthouse would repeat the court picture
+- victim | person in a role; cannot be told apart in a picture
+- notice | abstract
+- to-be-required-to | grammar phrase
+- in-force | abstract adjective
+- insofar | grammar phrase
+- insofar-as | grammar phrase
+- legal-loophole | abstract
+- loophole | abstract
+- to-ban | abstract; a no-entry sign needs a subject
+- to-get-around | abstract
