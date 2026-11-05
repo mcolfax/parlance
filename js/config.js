@@ -7,7 +7,7 @@ const APP_VERSION = '4.29.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
-const SCHEMA_VERSION = 9;          // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+const SCHEMA_VERSION = 10;         // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
    functions that apply the same access rules as the artifact (dev/supabase.sql).
@@ -19,6 +19,9 @@ const RELEASES = [
     'Two new advanced units in every language: Arts & criticism at C1, and Ideas & ethics at C2.',
     'In German and Spanish, the A1 unit “Colors, clothes & weather” no longer repeats earlier lessons: it now teaches shades and patterns, fabrics, the forecast, and seasons and holidays, like Italian.',
     'Many more words have a picture.'] },
+  { v: '4.28.2', date: '2026-11-05', title: 'Fair duels', notes: [
+    'A duel win now pays its bonus once. A duel settled more than a week after it ended could pay again each time you came back to Parlance.',
+    'The duel bonus counts toward your total XP and the weekly league, but not your daily goal. A goal day on your calendar always means you practiced.'] },
   { v: '4.28.1', date: '2026-11-04', title: 'Seen once', notes: [
     'What’s new, announcements and thank-you notes show once. If you’ve seen one on your phone, your laptop won’t show it again.',
     'A note you send always reaches us, even if a thank-you arrives at the same moment.'] },

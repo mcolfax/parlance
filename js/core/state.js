@@ -56,7 +56,8 @@ const MIGRATIONS = [
   { to: 6, run: st => { st.settings = cleanSettings(st.settings); } },   // the bird you learn with (settings.mascot)
   { to: 7, run: st => { st.settings = cleanSettings(st.settings); } },   // word hints (settings.hints)
   { to: 8, run: st => { for (const l of LANG_IDS) if (st.langs[l]) st.langs[l] = cleanLang(st.langs[l]); } },   // mistakes (miss) and checkpoints (cp)
-  { to: 9, run: st => { st.langs = obj(st.langs); st.gen = obj(st.gen); for (const l of LANG_IDS){ st.langs[l] = cleanLang(st.langs[l]); if (!Array.isArray(st.gen[l])) st.gen[l] = []; } } }   // Italian: a language of its own beside German and Spanish
+  { to: 9, run: st => { st.langs = obj(st.langs); st.gen = obj(st.gen); for (const l of LANG_IDS){ st.langs[l] = cleanLang(st.langs[l]); if (!Array.isArray(st.gen[l])) st.gen[l] = []; } } },   // Italian: a language of its own beside German and Spanish
+  { to: 10, run: st => { st.days = obj(st.days); for (const d of Object.values(st.days)) if (d && typeof d === 'object' && 'bonus' in d){ if (+d.bonus > 0) d.bonus = +d.bonus; else delete d.bonus; } } }   // days[k].bonus: a duel win's XP, which doesn't count toward the daily goal (goalXP, engine.js)
 ];
 function migrate(st){
   const from = +st.v || 1;
@@ -97,7 +98,8 @@ function mergeDays(a, b){
   const out = { ...(a || {}) };
   for (const [k, v] of Object.entries(b || {})){
     const x = out[k]; if (!x){ out[k] = v; continue; }
-    const d = { xp: Math.max(+x.xp || 0, +v.xp || 0), met: !!(x.met || v.met) };
+    const d = { ...v, ...x, xp: Math.max(+x.xp || 0, +v.xp || 0), met: !!(x.met || v.met) };   // fields either side doesn't know survive
+    const bonus = Math.max(+x.bonus || 0, +v.bonus || 0); if (bonus) d.bonus = bonus; else delete d.bonus;
     const q = { ...obj(v.q) }; for (const [qk, qv] of Object.entries(obj(x.q))) q[qk] = Math.max(+qv || 0, +q[qk] || 0);
     if (Object.keys(q).length) d.q = q;
     const qs = Array.isArray(x.qs) ? x.qs : Array.isArray(v.qs) ? v.qs : null; if (qs) d.qs = qs;
@@ -136,9 +138,15 @@ function mergeSocial(a, b){
   const k = a.since >= b.since ? a : b; out.secret = k.secret; out.since = k.since; out.home = k.home;   // a changed secret wins
   out.friends = { ...b.friends };
   for (const [id, f] of Object.entries(a.friends)){ if (!f || typeof f !== 'object') continue; const x = out.friends[id]; out.friends[id] = x && typeof x === 'object' ? mergeFriend(f, x) : f; }
+  out.past = { ...b.past, ...a.past };
   out.duels = { ...b.duels };
   for (const [id, d] of Object.entries(a.duels)){ const x = out.duels[id]; if (!x || (+(d && d.u) || 0) >= (+x.u || 0)) out.duels[id] = d; }
-  out.past = { ...b.past, ...a.past };
+  // a settled duel (in past) is over on every device, and a finished one past its keep goes (duelGone, social.js),
+  // so the account's old copy of a duel can't come back as on and pay out again
+  for (const [id, d] of Object.entries(out.duels)){
+    if (d && typeof d === 'object' && d.state === 'on' && out.past[id]) out.duels[id] = { ...d, state: 'done' };
+    if (typeof duelGone === 'function' && duelGone(out.duels[id])) delete out.duels[id];
+  }
   for (const f of ['cheers', 'seen']){ out[f] = { ...b[f] }; for (const [id, v] of Object.entries(a[f])) if (!out[f][id] || String(v) > String(out[f][id])) out[f][id] = v; }
   return out;
 }

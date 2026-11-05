@@ -520,7 +520,7 @@ async function main(){
     }
     // a save from before Italian (schema 8) has no Italian progress yet and still loads, keeping what it had
     const pre = await makeDom({ seed: { 'parlance.v2': { v: 8, settings: { onboarded: true, lang: 'es' }, days: {}, langs: { es: { done: { 'es-1-1': { at: '2026-10-01', acc: 1, times: 1 } }, cards: {}, xp: 40 } }, extra: { keep: 'me' } } } });
-    ok(pre.P.S.langs.it && Object.keys(pre.P.S.langs.it.done).length === 0 && pre.P.S.gen.it && pre.P.S.langs.es.done['es-1-1'] && pre.P.S.v === 9 && pre.P.S.extra && pre.P.S.extra.keep === 'me', 'an older save gets Italian and keeps everything else');
+    ok(pre.P.S.langs.it && Object.keys(pre.P.S.langs.it.done).length === 0 && pre.P.S.gen.it && pre.P.S.langs.es.done['es-1-1'] && pre.P.S.v === 10 && pre.P.S.extra && pre.P.S.extra.keep === 'me', 'an older save gets Italian and keeps everything else');
     pre.E('S.settings.lang = "it"; touchSettings(); S.langs.it.done["it-1-1"] = { at: "2026-10-02", acc: 1, times: 1 }; touch("it")');
     ok(JSON.parse(pre.w.localStorage.getItem('parlance.v2')).langs.it.done['it-1-1'] && ['de', 'es', 'it'].every(l => pre.E('SLICES').includes(l) && pre.E('SLICES').includes('gen-' + l)), 'Italian progress is saved, with its own synced slices');
     pre.dom.window.close();
@@ -1012,7 +1012,7 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 9 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 10 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
     for (const lang of LANG_IDS) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }
@@ -1844,6 +1844,26 @@ async function main(){
     sh = lastSheet(M);
     ok(sh && sh.querySelector('h3').textContent === 'Ana' && sh.querySelector('.fr-week') && sh.textContent.includes('1 won, 0 lost'), 'friend sheet with the week and your duel record: ' + (sh && sh.textContent));
     M.w.document.querySelectorAll('.sheet-back').forEach(b => b.remove());
+    // a duel settled more than a week after it ended: the account still holds it as "on", and it must not pay again
+    M.E('S.social.duels.dLate = { id: "dLate", a: Remote.uid, b: "u_ana", metric: "xp", at: Date.now() - 20 * DAY_MS, u: Date.now() - 18 * DAY_MS, state: "on", start: addDays(today(), -18), end: addDays(today(), -12) }');
+    M.E('S.days[addDays(today(), -14)] = { xp: 50, met: true, q: { lessons: 2 } }');
+    await M.E('syncNow(true)');
+    ok(JSON.parse(store.get('data/users/u_matt/social').blob).duels.dLate.state === 'on', 'the account holds the late duel as on');
+    const lateXP = M.P.S.langs.de.xp, lateDay = M.E('todayXP()'), lateTotal = M.E('S.days[today()].xp'), lateBonus = M.E('S.days[today()].bonus || 0');
+    for (let i = 0; i < 3; i++){ await M.E('socialRefresh(true)'); await sleep(30); await M.E('syncNow(true)'); await sleep(30); }
+    ok(M.P.S.social.past.dLate && M.P.S.social.past.dLate.me === 50, 'the late duel is settled: ' + JSON.stringify(M.P.S.social.past.dLate));
+    ok(M.P.S.langs.de.xp === lateXP + M.E('XP.duelWin') && M.E('S.days[today()].xp') === lateTotal + M.E('XP.duelWin') && M.E('S.days[today()].bonus') === lateBonus + M.E('XP.duelWin') && M.E('todayXP()') === lateDay, 'a late duel pays once, not on every refresh: ' + (M.P.S.langs.de.xp - lateXP) + ' XP');
+    const lateSrv = JSON.parse(store.get('data/users/u_matt/social').blob).duels.dLate;
+    ok(!M.P.S.social.duels.dLate && !(lateSrv && lateSrv.state === 'on'), 'the finished duel leaves the account too: ' + JSON.stringify(lateSrv));
+    ok(M.E('mergeSocial({ past: { dX: { me: 1 } }, duels: {} }, { duels: { dX: { id: "dX", a: "u_matt", b: "u_ana", metric: "xp", state: "on", end: addDays(today(), -1) } } }).duels.dX.state') === 'done', 'a merge never brings a settled duel back as on');
+    // a duel win counts toward your totals and the week (league, duels), not the daily goal
+    const dw = M.E('XP.duelWin');
+    const bonusDay = JSON.parse(M.E(`(() => { const k = today(), keep = S.days[k], xp = S.langs.de.xp; S.days[k] = { xp: 0, met: false }; addXP(XP.duelWin, 'de', true); const d = S.days[k];
+      const r = { xp: d.xp, bonus: d.bonus, met: d.met, goal: todayXP(), quest: questProgress('xp30'), card: cardDays(S.days)[k], cal: streakCalendar(streakInfo()).querySelector('.cal-d.today').className, lang: S.langs.de.xp - xp };
+      S.days[k] = keep; S.langs.de.xp = xp; return JSON.stringify(r); })()`));
+    ok(bonusDay.xp === dw && bonusDay.bonus === dw && !bonusDay.met && bonusDay.goal === 0 && bonusDay.quest === 0 && bonusDay.lang === dw && bonusDay.card && bonusDay.card[0] === dw && !bonusDay.card[2] && !/\b(met|some)\b/.test(bonusDay.cal), 'a duel win alone doesn’t meet the daily goal, and still counts toward totals and the week: ' + JSON.stringify(bonusDay));
+    const mergedDay = JSON.parse(M.E('JSON.stringify(mergeDays({ "2026-10-01": { xp: 30, met: true, bonus: 20 } }, { "2026-10-01": { xp: 25, met: false, extra: 1 } })["2026-10-01"])'));
+    ok(mergedDay.xp === 30 && mergedDay.met && mergedDay.bonus === 20 && mergedDay.extra === 1, 'merging days keeps the bonus and fields it doesn’t know: ' + JSON.stringify(mergedDay));
     // a third friend, then removing one: the old card goes, the others get the new code
     const B = await makeDom({ claude: fakeClaude(store, { uid: 'u_bo', name: 'Bo' }), seed: seed() });
     await started(B);

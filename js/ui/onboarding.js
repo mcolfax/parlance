@@ -63,7 +63,7 @@ function finishOnb(){
   const lang = Onb.lang;
   S.settings.lang = lang; S.settings.goal = Onb.goal; S.settings.onboarded = true; S.settings.seenVersion = APP_VERSION;
   if (S.langs[lang].start !== Onb.level){ S.langs[lang].start = Onb.level; S.langs[lang].startTs = Date.now(); touch(lang); }
-  const d = S.days[today()]; if (d && d.xp >= Onb.goal) d.met = true;
+  const d = S.days[today()]; if (d && goalXP(d) >= Onb.goal) d.met = true;
   touchSettings();
   Onb.open = false; UI.openLang = null; closeOverlay(); UI.animate = true; render(); window.scrollTo(0, 0);
   sfx('done');

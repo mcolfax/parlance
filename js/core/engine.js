@@ -1,17 +1,21 @@
 "use strict";
 /* ===================== PROGRESS ===================== */
-function addXP(n, lang){
+/* bonus: XP that wasn't practice (a duel win). It counts toward your totals and the week (league, duels),
+   but not toward the day: the daily goal, the streak, the XP quest and the daily charts read goalXP(). */
+function addXP(n, lang, bonus){
   if (!n) return;
   const k = today(); const d = S.days[k] || (S.days[k] = { xp: 0, met: false });
   const was = d.met;
-  d.xp += n; if (d.xp >= S.settings.goal) d.met = true;
+  d.xp += n; if (bonus) d.bonus = (+d.bonus || 0) + n;
+  if (goalXP(d) >= S.settings.goal) d.met = true;
   if (!was && d.met) setTimeout(() => sfx('streak'), 1100);
   S.langs[lang].xp = (S.langs[lang].xp || 0) + n;
   touch('core', lang);
 }
-function todayXP(){ return (S.days[today()] || {}).xp || 0; }
+function goalXP(d){ return d ? Math.max(0, (+d.xp || 0) - (+d.bonus || 0)) : 0; }
+function todayXP(){ return goalXP(S.days[today()]); }
 function streakInfo(){ return streakFrom(S.days, today()); }
-/* days: { 'YYYY-MM-DD': { xp, met } }. Also counts a friend's streak from the days on their card (social.js). */
+/* days: { 'YYYY-MM-DD': { xp, met, bonus? } }. Also counts a friend's streak from the days on their card (social.js). */
 function streakFrom(days, t){
   const met = k => !!(days[k] && days[k].met);
   const keys = Object.keys(days).filter(k => days[k] && days[k].xp > 0).sort();
@@ -62,7 +66,7 @@ function questIds(){
   d.qs = [a, b, pool[(r >>> 7) % pool.length]];
   return d.qs;
 }
-function questProgress(id){ const q = QUESTS[id]; const d = S.days[today()] || {}; const v = q.key === 'xp' ? (d.xp || 0) : ((d.q || {})[q.key] || 0); return Math.min(q.target, v); }
+function questProgress(id){ const q = QUESTS[id]; const d = S.days[today()] || {}; const v = q.key === 'xp' ? goalXP(d) : ((d.q || {})[q.key] || 0); return Math.min(q.target, v); }
 function questDone(id){ return questProgress(id) >= QUESTS[id].target; }
 function questSnapshot(){ return new Set(questIds().filter(questDone)); }
 function questDiff(before){ return questIds().filter(id => questDone(id) && !before.has(id)); }
