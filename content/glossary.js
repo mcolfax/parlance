@@ -480,3 +480,9 @@ Object.assign(LESSON_GLOSS.de, { "Ampel": "traffic light", "Gemäß": "according
   "Ordnung": "order (in Ordnung: in order, fine)", "beachten": "to observe · to pay attention to", "Bedingung": "condition (unter der Bedingung, dass: on the condition that)", "sauber": "clean",
   "problematisch": "problematic", "kennt": "knows · recognizes (from kennen)", "gilt": "applies · is valid (from gelten)", "erlaubt": "allows (from erlauben)", "Firmen": "companies (plural of die Firma)",
   "Innenstadt": "city center", "Fälle": "cases (plural of der Fall)" });
+Object.assign(LESSON_GLOSS.es, {
+  "mentir": "to lie", "declaró": "declared (from declarar)", "conforme": "as (conforme + verb: as something changes step by step)", "avanzaba": "was moving on · was progressing (from avanzar)",
+  "defensa": "defense", "fuerza": "strength · force", "acercaba": "was getting closer (from acercarse)", "pasaban": "were passing (from pasar)", "decidió": "decided (from decidir)",
+  "absolverlo": "to acquit him (from absolver)", "renueva": "renews (from renovar)", "salvo": "unless · except (salvo que: unless)", "anticipación": "advance (con un mes de anticipación: a month in advance)",
+  "devuelve": "returns · gives back (from devolver)", "reparar": "to repair", "causado": "caused (from causar)", "diga": "says (subjunctive of decir)", "será": "will be (from ser)",
+  "aplique": "is applied (subjunctive of aplicar)", "vacío": "gap · empty (vacío legal: legal loophole)", "legal": "legal", "aprovechan": "take advantage of · use (from aprovechar)", "eludirla": "to get around it (from eludir)" });
