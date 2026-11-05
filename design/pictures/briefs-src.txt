@@ -541,7 +541,7 @@ n 1 a-leisure party-fun {"de":["die Party"],"es":["la fiesta"],"it":["la festa"]
 - party | political party
 - to-decline | abstract
 - to-have-to | modal verb
-= to-invite invitation
+- to-invite | shares a lesson with la invitation, which has the picture
 - too-bad | function word
 - unfortunately | function word
 n 1 a-nature beach | sandy beach with a palm tree and a beach umbrella, small waves
@@ -887,8 +887,8 @@ v 0 b-verbs to-mix | figure whisking a bowl
 = to-stir to-mix
 v 0 b-verbs to-peel | peeler removing a long curl of skin from a carrot
 n 0 b-health allergy | face with red blotches sneezing next to a yellow flower
-= allergic allergy
-= allergic-to allergy
+- allergic | shares a lesson with the allergy picture
+- allergic-to | shares a lesson with the allergy picture
 n 0 b-food gluten | two ears of wheat
 n 1 b-food nut | walnut, one whole and one cracked open
 = nuts nut
@@ -1086,13 +1086,13 @@ v 0 b-home to-rent | figure handing a key to another figure
 = to-move-in to-move
 a 0 b-feelings jealous | round green face with narrowed side-glancing eyes
 n 0 b-people relationship | two linked hearts, one red and one orange
-= to-fall-in-love relationship
-= to-love-each-other relationship
+- to-fall-in-love | shares a lesson with the relationship picture
+- to-love-each-other | shares a lesson with the relationship picture
 v 0 b-verbs to-marry | two gold rings and a small bouquet of white flowers
 = to-get-married to-marry
 v 0 b-verbs to-break-up | red heart split by a crack with two halves
 n 0 b-people donation | hand dropping a coin into a box with a heart on it
-= to-donate donation
+- to-donate | shares a lesson with the donation picture
 n 0 b-work interview | two figures facing each other across a small table with papers
 = job-interview interview
 = cv application
@@ -1116,7 +1116,7 @@ x 0 b-feelings to-be-in-a-bad-mood | grumpy round face with a small storm cloud 
 = to-cry-one-s-eyes-out sad
 n 0 b-misc rising | bar chart with three rising bars and an up arrow
 n 0 b-misc falling | bar chart with three falling bars and a down arrow
-= growing rising
+- growing | shares a lesson with the rising picture
 - i-won | abstract or grammar
 - i-would-travel | abstract or grammar
 - if | abstract or grammar
@@ -1477,6 +1477,7 @@ n 0 a-phones account {"it":["l’account"]} | round profile picture: a figure's 
 - hey-argentina | abstract or grammar
 # ---- chunk 1461-1825 (C1 and C2: abstract mostly; the few concrete ones) ----
 n 1 c-food watermelon | slice of watermelon, red flesh, green rind and black seeds
+n 0 c-food watermelon-anguria {"it":["l’anguria"]} | whole round watermelon with dark and light green stripes and a short stem (l’anguria: the same fruit as il cocomero, taught in the same lesson, so it gets a different picture)
 = chart rising
 n 1 c-travel car | red car seen from the side with round wheels
 n 1 c-animals kitten | small gray kitten with big eyes playing with a ball of yarn
