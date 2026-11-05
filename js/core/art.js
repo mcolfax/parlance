@@ -259,7 +259,9 @@ const UNIT_ART = {
   'Phones & messages': '<rect x="6.5" y="3" width="11" height="18" rx="2.2"/><path d="M10.6 18.2h2.8M9.4 7.8h5.2M9.4 10.8h3.6"/>',
   'Emergencies & help': '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.6"/><path d="M6 6l3.4 3.4M14.6 14.6 18 18M18 6l-3.4 3.4M9.4 14.6 6 18"/>',
   'The great outdoors': '<path d="M2.5 19.5 9 9.5l3.6 5.6 2.6-3.6 6.3 8z"/><circle cx="17" cy="6" r="2.2"/>',
-  'Science & technology': '<circle cx="12" cy="12" r="1.4"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/>'
+  'Science & technology': '<circle cx="12" cy="12" r="1.4"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/>',
+  'Arts & criticism': '<rect x="5" y="3.5" width="14" height="11" rx="1"/><path d="M7.5 12l3-3.5 2.2 2.4 1.6-1.7 2.2 2.8M12 14.5 8 21M12 14.5l4 6.5M12 14.5V21"/><circle cx="9.5" cy="7.2" r="1.1"/>',
+  'Ideas & ethics': '<path d="M12 3.5a5.8 5.8 0 0 0-3.4 10.5c.8.6 1.2 1.4 1.2 2.3h4.4c0-.9.4-1.7 1.2-2.3A5.8 5.8 0 0 0 12 3.5z"/><path d="M9.8 18.7h4.4M10.6 21h2.8M10 9.6l2 2 2-2M12 11.6v4.4"/>'
 };
 function unitSign(title, size){
   const p = UNIT_ART[title] || UNIT_ART['Telling stories'];
