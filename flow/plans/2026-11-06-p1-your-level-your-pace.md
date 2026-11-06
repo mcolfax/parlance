@@ -9,7 +9,7 @@
 
 ## Why this, why now
 
-7 of 8 web learners stop within 5 active days, and nobody has finished more than 5 lessons in a language (`flow/PREMIUM.md`). Half of them placed themselves above A1, but the route has no way past a unit they already know, so they sit through easy lessons (rating fmvl62jxd97vy, "Too easy"). Half never find Stories, and only 1 of 8 has opened the bird picker. **Test out** lets anyone pass a unit's checkpoint early and move on. **Your first week** is a small checklist on Learn that leads new learners to the features they skip. **The practice grid** fixes R-19: the Review hero has up to five stacked full-width buttons at 412px. This release also gives P2 and P3 a place to add their own practice tiles.
+7 of 8 web learners stop within 5 active days, and nobody has finished more than 5 lessons in a language (`flow/PREMIUM.md`). Half of them placed themselves above A1, but the route has no way past a unit they already know, so they sit through easy lessons (rating fmvl62jxd97vy, "Too easy"). Half never find Stories, and only 1 of 8 has opened the bird picker. **Test out** lets anyone pass a unit's checkpoint early and move on. **Your first week** is a small checklist on Learn that leads new learners to the features they skip. **The practice grid** fixes R-19: the Review hero has up to five stacked full-width buttons at 412px. This release also gives later releases a place to add their own practice tiles (speed round, listening, conversations).
 
 ## Gate
 
@@ -214,10 +214,10 @@ If `.q-bar` is scoped to `.quests` in the CSS, add `.first-week .q-bar` and `.fi
 - **Reads first:** `viewReview()` in `js/ui/review.js`; `startReview()`, `startMistakes()`, `startForms()`, `startGenders()`, `formLessons()` in `js/ui/runner.js`; the `.hero` rules in `styles/components.css`; the article practice block in `dev/test.js` (search `'Practice articles: '`).
 - **Must not touch:** `js/ui/runner.js`, `js/ui/learn.js`, `js/core/*`.
 
-**Spec.** Before: the Review hero stacks up to five full-width buttons (Review, Fix my mistakes, Practice my weakest items, Practice verb forms and endings, Practice articles), and the verb forms label wraps at 412px. After: the hero keeps its title, text, bird and the primary **Review N items** button. Under it, when any practice applies, an eyebrow **More practice** and a two-column grid of tiles. Each tile has an icon, a short label and a sub-line. Later releases add tiles (P2: Listen hands-free; P3: Conversations) by adding an entry to `practiceTiles()`.
+**Spec.** Before: the Review hero stacks up to five full-width buttons (Review, Fix my mistakes, Practice my weakest items, Practice verb forms and endings, Practice articles), and the verb forms label wraps at 412px. After: the hero keeps its title, text, bird and the primary **Review N items** button. Under it, when any practice applies, an eyebrow **More practice** and a two-column grid of tiles. Each tile has an icon, a short label and a sub-line. Later releases add tiles (P3: Speed round; P4: Listen hands-free; P5: Conversations) by adding an entry to `practiceTiles()`.
 
 ```js
-/* the practice options under the Review button; P2 and P3 add their own entries here */
+/* the practice options under the Review button; later releases add their own entries here */
 function practiceTiles(lang){
   const fix = mistakeEntries(lang).length, all = learnedEntries(lang).length, forms = formLessons(lang).length, arts = genderEntries(lang).length >= GENDER_DRILL.min;
   return [
@@ -299,4 +299,4 @@ On the cycle branch, after the three packages are merged (`parlance-chores`, Hai
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
 - **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** Promote `flow/plans/queue/p2-listen-hands-free.md` (see `flow/PREMIUM.md`).
+- **Notes for the next cycle:** Promote `flow/plans/queue/p2-keep-going.md` (see `flow/PREMIUM.md`).

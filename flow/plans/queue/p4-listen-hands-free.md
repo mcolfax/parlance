@@ -1,8 +1,8 @@
 # Listen hands-free: your words read aloud, and stories you can listen to
 
-- **Cycle:** set when promoted (premium program P2, `flow/PREMIUM.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-p2-listen-hands-free.md`, set Release, Base and `approved`)
-- **Release:** 4.33.0, or the next free minor when promoted
+- **Cycle:** set when promoted (premium program P4, `flow/PREMIUM.md`)
+- **Status:** queued (promote: move to `flow/plans/<cycle date>-p4-listen-hands-free.md`, set Release, Base and `approved`)
+- **Release:** 4.35.0, or the next free minor when promoted
 - **Base:** `main` at promotion time (nothing below depends on line numbers)
 - **Proposals built:** none
 - **Roadmap items:** R-7, new R-25
@@ -115,7 +115,7 @@ Also in `listen.js`:
 - `listenMeta(it)` and `listenSession(on)`: Media Session, each wrapped in `if (!('mediaSession' in navigator)) return; try { … } catch (e) {}`. Meta: `navigator.mediaSession.metadata = new MediaMetadata({ title: it.t, artist: it.e, album: 'Parlance · ' + LANGS[Listen.lang].name })` and `navigator.mediaSession.playbackState = Listen.playing ? 'playing' : 'paused'`. Session: set the handlers `play → listenPlay`, `pause → listenPause`, `nexttrack → () => listenStep(1)`, `previoustrack → () => listenStep(-1)` when `on`, each with its own try/catch, and set all four to `null` and `metadata = null` when off.
 - `listenEnd()`: `Listen.playing = false; Listen.gen++; wakeHold(false); listenSession(false); sfx('done');` then `swapBody(h('div', { class: 'listen done' }, pip('cheer', 78, { tap: false }), h('h1', null, 'All ' + n + ' heard.'), h('p', { class: 'muted' }, dueCount(Listen.lang) ? 'Listening doesn’t move your review schedule, so your reviews are still waiting in Review.' : 'Come back any time for another round.')))` and a footer with `h('button', { class: 'btn btn-quiet', type: 'button', onclick: () => { Listen.pos = 0; Listen.playing = true; listenSession(true); wakeHold(true); listenLoop(); } }, 'Again')` and `h('button', { class: 'btn btn-primary', type: 'button', onclick: endListen }, 'Done')` inside `h('div', { class: 'ls-controls' }, …)`.
 
-*Review tile* (`practiceTiles()` in `js/ui/review.js`), inserted after the `weak` entry:
+*Review tile* (`practiceTiles()` in `js/ui/review.js`), inserted right after the `weak` entry (before `speed`, if P3 shipped):
 ```js
 { id: 'listen', icon: 'headphones', label: 'Listen hands-free', sub: 'Hear your words, say them back', show: learnedEntries(lang).length >= LISTEN.min, run: () => startListen() },
 ```
@@ -240,4 +240,4 @@ After WP2 is merged (`parlance-chores`, Haiku):
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
 - **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** Promote `flow/plans/queue/p3-conversation-practice.md`.
+- **Notes for the next cycle:** Promote `flow/plans/queue/p5-conversation-practice.md`.

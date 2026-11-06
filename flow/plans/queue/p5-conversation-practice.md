@@ -1,8 +1,8 @@
 # Conversation practice: choose the reply, and put a conversation in order
 
-- **Cycle:** set when promoted (premium program P3, `flow/PREMIUM.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-p3-conversation-practice.md`, set Release, Base and `approved`)
-- **Release:** 4.34.0, or the next free minor when promoted
+- **Cycle:** set when promoted (premium program P5, `flow/PREMIUM.md`)
+- **Status:** queued (promote: move to `flow/plans/<cycle date>-p5-conversation-practice.md`, set Release, Base and `approved`)
+- **Release:** 4.36.0, or the next free minor when promoted
 - **Base:** `main` at promotion time
 - **Proposals built:** none. Answers idea note fmv58xfx9pqsf (tutor features outside Claude) in a way that needs no tutor.
 - **Roadmap items:** R-4, R-8
@@ -186,7 +186,7 @@ h('section', { class: 'card convo-card' },
   h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => startConvo() }, ic('talk'), 'Practice conversations'))
 ```
 - **Talk on the web.** In `webTalk()`, right after the notice and the Open in Claude field, append a `card convo-card` with the title `Practice without the tutor`. When `convoReadStories(lang).length > 0`: text `Choose the right reply and put lines in order, from the stories you’ve read. It works right here, no tutor needed.` and the `Practice conversations` button as above. Otherwise: text `Read a story, then practice its conversations here.` and `h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => { UI.tab = 'stories'; UI.animate = true; render(); window.scrollTo(0, 0); } }, ic('stories'), 'Go to Stories')`.
-- **Review.** In `practiceTiles()`, after the `weak` entry (and after `listen` if P2 shipped): `{ id: 'convo', icon: 'talk', label: 'Conversations', sub: 'From stories you’ve read', show: convoReadStories(lang).length > 0, run: () => startConvo() }`.
+- **Review.** In `practiceTiles()`, after the `listen` entry if it exists, otherwise after `weak`: `{ id: 'convo', icon: 'talk', label: 'Conversations', sub: 'From stories you’ve read', show: convoReadStories(lang).length > 0, run: () => startConvo() }`.
 - CSS (`styles/features.css`): `.convo-card .btn{margin-top:4px}`.
 
 **Steps.**
@@ -234,4 +234,4 @@ After WP2 is merged (`parlance-chores`, Haiku):
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
 - **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** Promote `flow/plans/queue/p4-your-week.md`.
+- **Notes for the next cycle:** Promote `flow/plans/queue/p6-your-week.md`.
