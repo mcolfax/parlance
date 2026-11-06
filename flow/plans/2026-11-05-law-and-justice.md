@@ -80,4 +80,5 @@ New lessons only. Undo: `git revert`, patch release, republish, set `latest`.
 
 ## Outcome
 
-- **Shipped:** – | **Dropped:** – | **Escalated:** –
+- **Shipped:** 4.30.0 (WP1 unit 42 in de, es and it; WP2 8 drawings: court, judge, lawyer, crime, lease, deposit, defect, rule) | **Dropped:** – | **Escalated:** –
+- **Notes:** review fixes before merge (Italian: a clearer *in base a* example, *man mano che* with a real change, a subjunctive blank after *salvo che*; Spanish: the 42-3 tip now says *haya* is the subjunctive of *hay*); German tips in units 40–42 keep the sentence period outside bold examples. *Das Gericht* needed no picture field: de-4-b1 only uses it in a sentence. Voices for 4.29.0 and 4.30.0 (1,010 lines, 20,041 characters) were handed over together.
