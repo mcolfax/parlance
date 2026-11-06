@@ -172,9 +172,15 @@ function fitOverlay(){
   OV.root.style.top = vv.offsetTop + 'px';
 }
 if (window.visualViewport){ window.visualViewport.addEventListener('resize', fitOverlay); window.visualViewport.addEventListener('scroll', fitOverlay); }
-function swapBody(nodes){
+/* a new overlay drawn underneath `top`, which stays on top until its own exit (the film's iris) takes it away */
+function openOverlayBeneath(kind, top){
+  openOverlay(kind + ' still');
+  if (top && top.isConnected && top !== OV.root) document.body.insertBefore(OV.root, top);
+}
+/* still: no slide-in (the screen is being revealed by something else, such as the film's iris) */
+function swapBody(nodes, still){
   OV.bodyIn.replaceChildren(...[].concat(nodes).filter(Boolean));
-  if (!reduced()){ OV.bodyIn.classList.remove('slide'); void OV.bodyIn.offsetWidth; OV.bodyIn.classList.add('slide'); }
+  if (!still && !reduced()){ OV.bodyIn.classList.remove('slide'); void OV.bodyIn.offsetWidth; OV.bodyIn.classList.add('slide'); }
   OV.body.scrollTop = 0;
 }
 

@@ -384,7 +384,7 @@ function musicVolume(v){ if (Music.bus && SFX.ctx) Music.bus.gain.setTargetAtTim
    One audio file shared by the intro film and the tabs. It is fetched once and played from a local copy. On iPhone and
    iPad its volume runs through Web Audio (the only way to set volume there); elsewhere the element's own volume is used
    (see songRoute). If the local copy isn't possible it plays the file directly. Modes: 'off', 'home' (loops softly behind the tabs), 'film' (the intro film drives it). */
-const Song = { el: null, url: '', local: false, routed: false, volFixed: null, gain: null, unlocked: false, failed: false, mode: 'off', vol: 0, duck: 1, ducks: 0, fetching: null, syncT: 0, stopT: 0, src: '' };
+const Song = { el: null, url: '', local: false, routed: false, volFixed: null, gain: null, unlocked: false, failed: false, mode: 'off', vol: 0, duck: 1, ducks: 0, fetching: null, syncT: 0, stopT: 0, src: '', glideT: 0, gliding: false };
 /* the file to use on this device: the first source the browser says it can play (or the first, if it won't say) */
 function songSrc(){
   if (Song.src) return Song.src;
@@ -455,7 +455,7 @@ function songSeek(at){
 /* start (or keep) playing at `vol`, fading over `ramp` seconds; `at` seeks first */
 function songStart(at, vol, ramp){
   const a = songEl(); if (!a) return false;
-  clearTimeout(Song.stopT); sfxCtx();
+  clearTimeout(Song.stopT); songGlideStop(); sfxCtx();
   if (at != null) songSeek(at);
   if (a.paused){ Song.vol = 0; songApply(0.01); }
   Song.vol = vol;
@@ -464,10 +464,25 @@ function songStart(at, vol, ramp){
 }
 function songStop(ramp){
   const a = Song.el; if (!a) return;
+  songGlideStop();
   Song.vol = 0; songApply(ramp || 0.05);
   clearTimeout(Song.stopT);
   Song.stopT = setTimeout(() => { if (Song.vol === 0){ try { a.pause(); } catch (e) {} } }, (ramp || 0.05) * 1000 + 40);
 }
+/* move the volume to `to` over `secs` in small steps, then call done. An audio element's own volume jumps (only the Web
+   Audio route can ramp), so a slow fade has to be many little steps. Anything that starts or stops the song ends it. */
+function songGlide(to, secs, done){
+  songGlideStop();
+  const from = Song.vol, t0 = Date.now(), ms = Math.max(1, (secs || 0) * 1000);
+  Song.gliding = true;
+  const step = () => {
+    const p = Math.min(1, (Date.now() - t0) / ms);
+    Song.vol = from + (to - from) * p; songApply(0.06);
+    if (p >= 1){ songGlideStop(); if (done) done(); }
+  };
+  Song.glideT = setInterval(step, 40); step();
+}
+function songGlideStop(){ if (Song.glideT){ clearInterval(Song.glideT); Song.glideT = 0; } Song.gliding = false; }
 /* a voice starts (on) or stops speaking: the song turns down under it (MEDIA.song.duck), then comes back up */
 function songDuck(on){
   Song.ducks = Math.max(0, Song.ducks + (on ? 1 : -1));
@@ -499,14 +514,16 @@ document.addEventListener('keydown', songGesture, { capture: true });
 function musicVol(){ return S.settings.musicVol == null ? 0.6 : S.settings.musicVol; }
 function homeMusicOn(){ return !!(MEDIA.song && S.settings.homeMusic && musicVol() > 0); }
 function homeVol(){ return musicVol() * MEDIA.song.home; }
-function homeMusicWanted(){ return homeMusicOn() && Song.unlocked && !Song.failed && typeof UI !== 'undefined' && !busy() && !document.hidden; }
+/* onboarding is quiet, unless the intro film handed its song on (Onb.music): then it plays on softly through setup */
+function musicHeld(){ return busy() && !(typeof Onb !== 'undefined' && Onb.open && Onb.music && !Run.active && !Talk.open && !Story.open && !Film.open && !Studio.open); }
+function homeMusicWanted(){ return homeMusicOn() && Song.unlocked && !Song.failed && typeof UI !== 'undefined' && !musicHeld() && !document.hidden; }
 function songSync(delay){ clearTimeout(Song.syncT); Song.syncT = setTimeout(songSyncNow, delay == null ? 150 : delay); }
 function songSyncNow(){
   if (typeof Film !== 'undefined' && Film.open){ if (Song.mode === 'home'){ Song.mode = 'off'; songStop(0.3); } return; } // the film drives the song while it is open
   if (homeMusicWanted()){
     if (Song.mode !== 'home'){ Song.mode = 'home'; if (Song.el) Song.el.loop = true; songStart(null, homeVol(), 1.2); }
     else if (Song.el && Song.el.paused) songStart(null, homeVol(), 0.8);
-    else { Song.vol = homeVol(); songApply(0.3); }
+    else if (!Song.gliding){ Song.vol = homeVol(); songApply(0.3); }   // a glide (the film handing its song on) gets there itself
   } else if (Song.mode === 'home'){ Song.mode = 'off'; songStop(0.5); }
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden) songSyncNow(); else songSync(300); });

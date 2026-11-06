@@ -1,9 +1,12 @@
 "use strict";
 /* ===================== ONBOARDING ===================== */
 const Onb = { open: false, step: 0, lang: 'de', level: 'A1', goal: 20 };
-function openOnboarding(replay, step){
-  Object.assign(Onb, { open: true, step: step || 0, replay: !!replay, lang: S.settings.lang, level: S.langs[S.settings.lang].start || 'A1', goal: S.settings.goal });
-  openOverlay('onb'); drawOnb();
+/* opts.beneath: an overlay that is leaving (the intro film), to draw this underneath; opts.music: the film's song carries
+   on softly through setup */
+function openOnboarding(replay, step, opts = {}){
+  Object.assign(Onb, { open: true, step: step || 0, replay: !!replay, music: !!opts.music, still: !!opts.beneath, lang: S.settings.lang, level: S.langs[S.settings.lang].start || 'A1', goal: S.settings.goal });
+  if (opts.beneath) openOverlayBeneath('onb', opts.beneath); else openOverlay('onb');
+  drawOnb();
 }
 function onbHead(){
   const back = Onb.step > 0 ? h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'Back', html: IC.back, onclick: () => { Onb.step--; drawOnb(); } }) : h('span', { class: 'icon-spacer' });
@@ -16,15 +19,17 @@ function onbFoot(label, run, disabled){
   OV.footIn.replaceChildren(h('button', { class: 'btn btn-primary btn-wide', type: 'button', disabled: !!disabled, onclick: run }, label));
 }
 function drawOnb(){
+  const still = Onb.still; Onb.still = false;
+  const show = nodes => swapBody(nodes, still);
   onbHead();
   document.documentElement.setAttribute('data-lang', Onb.lang);
   const next = () => { Onb.step++; drawOnb(); };
   if (Onb.step === 0){
-    swapBody(h('div', { class: 'onb-step welcome' },
+    show(h('div', { class: 'onb-step welcome' },
       h('div', { class: 'hero-lines', html: '<svg viewBox="0 0 340 170" width="100%" height="170"><path class="ln de" d="M30 140 C 100 140 110 38 190 38 L 310 38"/><path class="ln es" d="M30 140 C 100 140 120 88 190 88 L 310 88"/><path class="ln it" d="M30 140 C 100 140 130 138 190 138 L 310 138"/><circle class="st" cx="30" cy="140" r="9"/><circle class="st de" cx="310" cy="38" r="9"/><circle class="st es" cx="310" cy="88" r="9"/><circle class="st it" cx="310" cy="138" r="9"/><text x="296" y="22" class="lb de" text-anchor="end">Hallo!</text><text x="296" y="72" class="lb es" text-anchor="end">¡Hola!</text><text x="296" y="122" class="lb it" text-anchor="end">Ciao!</text></svg>' }, pip('happy', 70, { cls: 'fly-in', say: 'Hi! I’m Pip.', sayPos: 'up-right', mouth: true, wave: true })),
       h('h1', null, 'Your own language course.'),
       h('p', { class: 'lead' }, 'German, Spanish and Italian, from first words to fluent: short lessons, smart review, stories, and a tutor who talks back.'),
-      h('button', { class: 'film-card', type: 'button', onclick: () => { Onb.open = false; openFilm({ doneLabel: 'Continue', onDone: () => openOnboarding(Onb.replay, 1) }); } },
+      h('button', { class: 'film-card', type: 'button', onclick: e => { Onb.open = false; openFilm({ from: e.currentTarget.querySelector('.fc-thumb') || e.currentTarget, setup: true }); } },
         h('span', { class: 'fc-thumb', 'aria-hidden': 'true' }, pip('cheer', 54, { tap: false }), h('span', { class: 'fc-play', html: IC.play })),
         h('span', { class: 'fc-text' }, h('b', null, 'Watch the intro film'), h('span', { class: 'small muted' }, '50 seconds, with sound. Meet ' + mascot().name + ' and see what’s inside.'))),
       h('ul', { class: 'perks' },
@@ -34,24 +39,24 @@ function drawOnb(){
         h('li', null, h('b', null, 'Conversations'), ' with a Claude tutor who corrects every message'))));
     onbFoot('Get started', next);
   } else if (Onb.step === 1){
-    swapBody(h('div', { class: 'onb-step' }, h('h1', null, 'What do you want to learn?'), h('p', { class: 'lead' }, 'You can learn more than one and switch any time.'),
+    show(h('div', { class: 'onb-step' }, h('h1', null, 'What do you want to learn?'), h('p', { class: 'lead' }, 'You can learn more than one and switch any time.'),
       h('div', { class: 'big-choices' }, LANG_IDS.map(l => h('button', { class: 'big-choice lang-' + l, type: 'button', 'aria-pressed': String(Onb.lang === l), onclick: () => { Onb.lang = l; Onb.level = S.langs[l].start || 'A1'; speak(LANGS[l].hello, l); sfx('tap'); drawOnb(); } },
         h('span', { class: 'bc-line', 'aria-hidden': 'true' }), h('span', { class: 'bc-title' }, LANGS[l].native), h('span', { class: 'bc-sub' }, LANGS[l].name + ' · ' + LANGS[l].variety), h('span', { class: 'bc-cast' }, castOf(l).map(id => avatar(id, 30))), h('span', { class: 'bc-hello' }, LANGS[l].hello))))));
     onbFoot('Continue', next);
   } else if (Onb.step === 2){
-    swapBody(h('div', { class: 'onb-step' }, h('h1', null, 'Where should your route start?'), h('p', { class: 'lead' }, 'Earlier lessons stay open, so you can always go back.'),
+    show(h('div', { class: 'onb-step' }, h('h1', null, 'Where should your route start?'), h('p', { class: 'lead' }, 'Earlier lessons stay open, so you can always go back.'),
       h('div', { class: 'opts' }, LEVELS.map((lv, i) => h('button', { class: 'opt level-opt', type: 'button', style: '--i:' + i, 'aria-pressed': String(Onb.level === lv), onclick: () => { Onb.level = lv; sfx('tap'); drawOnb(); } },
         h('span', { class: 'cefr' }, lv), h('span', null, h('span', { class: 'lo-title' }, LEVEL_BLURB[lv]), h('span', { class: 'lo-sub' }, LEVEL_NAME[lv])))))));
     onbFoot('Continue', next);
   } else if (Onb.step === 3){
-    swapBody(h('div', { class: 'onb-step' }, h('h1', null, 'Pick a daily goal'), h('p', { class: 'lead' }, 'A lesson is worth about 15 XP. Small and steady wins.'),
+    show(h('div', { class: 'onb-step' }, h('h1', null, 'Pick a daily goal'), h('p', { class: 'lead' }, 'A lesson is worth about 15 XP. Small and steady wins.'),
       h('div', { class: 'opts' }, [[10, 'Casual', 'About 5 minutes a day'], [20, 'Regular', 'About 10 minutes a day'], [30, 'Serious', 'About 15 minutes a day']].map(([g, n, d], i) => h('button', { class: 'opt level-opt', type: 'button', style: '--i:' + i, 'aria-pressed': String(Onb.goal === g), onclick: () => { Onb.goal = g; sfx('tap'); drawOnb(); } },
         h('span', { class: 'cefr' }, g), h('span', null, h('span', { class: 'lo-title' }, n), h('span', { class: 'lo-sub' }, d + ' · ' + g + ' XP')))))));
     onbFoot('Continue', next);
   } else {
     const out = h('p', { class: 'small', 'aria-live': 'polite' });
     const play = h('button', { class: 'sound-check', type: 'button', onclick: async () => { play.classList.add('live'); out.textContent = 'Playing…'; const r = await speakTest(Onb.lang); play.classList.remove('live'); out.textContent = audioResultText(r, Onb.lang); out.className = 'small ' + (r === 'ok' ? 'good' : 'warn'); } }, h('span', { html: IC.speaker, 'aria-hidden': 'true' }), h('span', null, 'Tap to hear ', h('em', null, LANGS[Onb.lang].test)));
-    swapBody(h('div', { class: 'onb-step' }, h('h1', null, 'Check your sound'), h('p', { class: 'lead' }, 'Every word and sentence can be read aloud by your device.'),
+    show(h('div', { class: 'onb-step' }, h('h1', null, 'Check your sound'), h('p', { class: 'lead' }, 'Every word and sentence can be read aloud by your device.'),
       play, out,
       h('div', { class: 'dictate-coach' }, h('span', { class: 'coach-mic', html: IC.mic, 'aria-hidden': 'true' }),
         h('div', null, h('strong', null, 'Speaking practice uses dictation'), h('p', { class: 'small muted' }, 'When it’s your turn to speak, tap the box, switch your iPhone keyboard to ' + LANGS[Onb.lang].keyboard + ' with the globe key, and tap the keyboard’s mic.'))),

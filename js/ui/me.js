@@ -105,7 +105,7 @@ function viewMe(){
     h('div', { class: 'row', style: 'align-items:flex-start' }, pip('love', 58, { cls: 'about-pip' }), h('div', { class: 'grow' }, h('h3', null, 'Parlance ' + APP_VERSION), h('p', { class: 'small muted' }, 'Tell ' + mascot().name + ' what to improve. Every note is read, grouped and turned into updates.'))),
     h('div', { class: 'about-actions' },
       h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openFeedback() }, ic('heart'), 'Send feedback'),
-      h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => openFilm() }, ic('play'), 'Watch the intro film'),
+      h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: e => openFilm({ from: e.currentTarget }) }, ic('play'), 'Watch the intro film'),
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => showWhatsNew('') }, ic('spark'), 'What’s new'))));
   if (studioAvailable()) v.append(h('section', { class: 'card studio-entry' },
     h('div', { class: 'row' }, h('div', { class: 'grow' }, h('h3', null, 'Studio'), h('p', { class: 'small muted' }, 'Only you see this. Review learner feedback, approve improvements, and manage live content.')), ic('wand')),

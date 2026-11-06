@@ -22,8 +22,7 @@
 .f-mute[aria-pressed="false"]{opacity:.6}
 .f-mute[aria-pressed="true"]{background:transparent;color:var(--film-ink);border-color:rgb(255 255 255 / .35)}
 .f-range{flex:1;min-width:0;accent-color:var(--line);height:28px}
-.btn.pulse-cta{animation:ctapulse 1.6s ease-in-out infinite}
-@keyframes ctapulse{50%{box-shadow:0 0 0 8px var(--line-glow)}}
+.overlay.film.leaving{pointer-events:none}
 
 /* backdrop: rays, fireflies and palm fronds */
 .f-rays path{fill:var(--film-white);opacity:.035}
@@ -75,7 +74,9 @@
 .f-cream{fill:var(--film-cream);opacity:.9}.f-terra{fill:var(--film-terra);opacity:.9}.f-arch{fill:var(--film-bg2);opacity:.6}.f-trunk{fill:var(--film-frond)}.f-pine{fill:var(--film-leaf)}
 
 /* scenes 4 to 7: the phone and what is on it */
-.f-phone-body{fill:var(--film-phone);filter:drop-shadow(0 10px 18px rgb(0 0 0 / .45))}
+.f-phone-body{fill:var(--film-phone)}
+.f-phone-sh{fill:var(--film-shadow);opacity:.2}
+.f-rig{overflow:visible}
 .f-phone-edge{fill:none;stroke:var(--film-phone-edge);stroke-width:2}
 .f-screen{fill:var(--film-screen)}
 .f-notch{fill:var(--film-phone)}
