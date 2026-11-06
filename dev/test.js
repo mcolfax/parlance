@@ -1284,6 +1284,7 @@ async function main(){
       wb.click(); ok(G.E('Film.open') && !G.E('Film.setup') && G.w.document.querySelectorAll('.overlay').length === 1, 'Me opens the film');
       [...G.w.document.querySelectorAll('.overlay.film .ov-foot button')].find(b => b.textContent === 'Close').click();
       ok(!G.E('Film.open') && !G.w.document.querySelector('.overlay') && G.E('UI.tab') === 'me' && G.w.document.querySelector('#app').textContent.includes('Watch the intro film'), 'closing it returns to Me as it was');
+      G.E('UI.tab = "learn"; render()');
     }
     { /* first time: the film opens from the welcome screen and flows straight on into setup's first question */
       const O = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: false } } } });
