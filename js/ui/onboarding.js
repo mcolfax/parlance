@@ -55,7 +55,7 @@ function drawOnb(){
     onbFoot('Continue', next);
   } else {
     const out = h('p', { class: 'small', 'aria-live': 'polite' });
-    const play = h('button', { class: 'sound-check', type: 'button', onclick: async () => { play.classList.add('live'); out.textContent = 'Playing…'; const r = await speakTest(Onb.lang); play.classList.remove('live'); out.textContent = audioResultText(r, Onb.lang); out.className = 'small ' + (r === 'ok' ? 'good' : 'warn'); } }, h('span', { html: IC.speaker, 'aria-hidden': 'true' }), h('span', null, 'Tap to hear ', h('em', null, LANGS[Onb.lang].test)));
+    const play = h('button', { class: 'sound-check', type: 'button', onclick: async () => { play.classList.add('live'); out.textContent = 'Playing…'; songDuck(true); let r; try { r = await speakTest(Onb.lang); } finally { songDuck(false); }   // the film's song may be playing on under setup play.classList.remove('live'); out.textContent = audioResultText(r, Onb.lang); out.className = 'small ' + (r === 'ok' ? 'good' : 'warn'); } }, h('span', { html: IC.speaker, 'aria-hidden': 'true' }), h('span', null, 'Tap to hear ', h('em', null, LANGS[Onb.lang].test)));
     show(h('div', { class: 'onb-step' }, h('h1', null, 'Check your sound'), h('p', { class: 'lead' }, 'Every word and sentence can be read aloud by your device.'),
       play, out,
       h('div', { class: 'dictate-coach' }, h('span', { class: 'coach-mic', html: IC.mic, 'aria-hidden': 'true' }),

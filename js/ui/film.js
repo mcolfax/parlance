@@ -514,7 +514,7 @@ function filmMusicStop(fade){
   musicStop();
 }
 /* the song can carry on behind what comes next when it is playing now and music is on there */
-function filmCarry(){ return !!(Film.usingSong && !Film.muted && Film.playing && Song.mode === 'film' && Song.el && !Song.el.paused && !Song.failed && homeMusicOn()); }
+function filmCarry(){ return !!(Film.usingSong && !Film.muted && Film.playing && Song.mode === 'film' && Song.el && !Song.el.paused && !Song.failed && homeMusicOn() && Song.unlocked); }
 function filmPlayIcon(){
   if (!Film.playBtn) return;
   Film.playBtn.innerHTML = Film.playing ? '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';

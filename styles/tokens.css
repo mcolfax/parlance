@@ -102,7 +102,8 @@
   /* the phone in the film shows the app in its light theme, whatever the learner's theme is */
   --film-phone:#0B1510; --film-phone-edge:#2C4A38; --film-screen:#F3F7EC; --film-card2:#FFFFFF; --film-ink2:#15301F; --film-muted2:#4F6B57;
   --film-hair:#D6E3CF; --film-de-soft:#DDF1E3; --film-es-soft:#FFE9D2; --film-ok-bg:#DDF4E4; --film-ok:#11643A; --film-bad:#A3231B; --film-bad-bg:#FFE3DE;
-  --film-der:#2360C6; --film-gold:#B8860B; --film-shadow:#020805;
+  --film-der:#2360C6; --film-gold:#B8860B;
+  --film-shadow:#020805;   /* the phone's soft shadow plates */
   --line:var(--de); --line-ink:var(--de-ink); --line-text:var(--de-text); --line-soft:var(--de-soft); --line-glow:var(--de-glow); --line-edge:var(--de-edge); --line-soft-edge:var(--de-soft-edge);
 }
 @media (prefers-color-scheme: dark){

@@ -1268,6 +1268,38 @@ async function main(){
     G.E('filmSeek(26)'); G.E('filmSeek(12)'); ok(G.w.document.querySelector('.film-cap').textContent.includes('Berlin'), 'scrubbing back brings the caption back');
     G.E('filmSeek(35.5)'); [...G.w.document.querySelectorAll('.overlay.film .ov-foot button')].find(b => b.textContent === 'Close').click();
     ok(G.P.S.settings.filmSeen && !G.E('Film.open'), 'film closes and is remembered');
+    ok(!G.w.document.querySelector('.overlay') && !G.w.document.body.classList.contains('locked'), 'closing the film goes straight back to the app');
+    { /* the birds are live rigs on the film's clock, and nothing moves the whole stage (that made phones repaint every frame) */
+      G.E('openFilm({ autoplay: false })');
+      ok(G.w.document.querySelector('#f-bi-pip svg.rig.f-rig') && G.E('Film.rigs.pip.mood') === 'happy', 'the film’s birds are live rigs');
+      G.E('filmSeek(19)'); ok(G.E('Film.rigs.pip.mood') === 'cheer', 'a live bird takes the film’s mood');
+      G.E('filmSeek(8.8)'); ok(G.E('Film.rigs.kiwi.mood') === 'wave' && G.E('Film.rigs.pip.mood') === 'love', 'every bird on the perch has its own mood');
+      let still = true; for (const t of [0.5, 6, 20, 47]){ G.E('filmSeek(' + t + ')'); if (G.w.document.querySelector('#f-cam').getAttribute('transform')) still = false; }
+      ok(still, 'no camera move over the whole stage');
+      G.E('filmSeek(48)'); ok(G.w.document.querySelector('#f-title').style.opacity === '0' && G.w.document.querySelector('#f-cast').style.opacity === '0' && G.w.document.querySelector('#f-av-lena').style.visibility === 'visible', 'a scene that is over stays hidden even where its parts were shown');
+      G.E('filmSeek(49.3); filmPlay()'); for (let i = 0; i < 80 && G.E('Film.open'); i++) await sleep(50);
+      ok(!G.E('Film.open') && !G.w.document.querySelector('.overlay') && G.E('UI.tab') === 'learn', 'played to the end, the film goes back into the app by itself');
+      G.E('UI.tab = "me"; render()');
+      const wb = [...G.w.document.querySelectorAll('#app button')].find(b => b.textContent.includes('Watch the intro film'));
+      wb.click(); ok(G.E('Film.open') && !G.E('Film.setup') && G.w.document.querySelectorAll('.overlay').length === 1, 'Me opens the film');
+      [...G.w.document.querySelectorAll('.overlay.film .ov-foot button')].find(b => b.textContent === 'Close').click();
+      ok(!G.E('Film.open') && !G.w.document.querySelector('.overlay') && G.E('UI.tab') === 'me' && G.w.document.querySelector('#app').textContent.includes('Watch the intro film'), 'closing it returns to Me as it was');
+    }
+    { /* first time: the film opens from the welcome screen and flows straight on into setup's first question */
+      const O = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: false } } } });
+      for (let i = 0; i < 100 && !O.w.document.querySelector('.film-card'); i++) await sleep(25);
+      O.w.document.querySelector('.film-card').click();
+      ok(O.E('Film.open') && O.E('Film.setup') && O.w.document.querySelectorAll('.overlay').length === 1 && O.w.document.querySelector('.overlay.film'), 'the film opens over the welcome screen and takes its place');
+      ok([...O.w.document.querySelectorAll('.overlay.film .ov-foot button')].some(b => b.textContent === 'Continue'), 'in onboarding the film’s button says Continue');
+      O.E('filmSeek(49.3)'); for (let i = 0; i < 80 && O.E('Film.open'); i++) await sleep(50);
+      ok(!O.E('Film.open') && O.E('Onb.open') && O.E('Onb.step') === 1 && O.w.document.querySelectorAll('.overlay').length === 1 && /What do you want to learn/.test(O.w.document.querySelector('.overlay.onb').textContent), 'played to the end, it flows into setup’s first question');
+      ok(O.P.S.settings.filmSeen && !O.P.S.settings.onboarded, 'the film is remembered, and setup is still to do');
+      O.E('Onb.step = 0; drawOnb()'); O.w.document.querySelector('.film-card').click(); O.E('filmSeek(20)');
+      [...O.w.document.querySelectorAll('.overlay.film .ov-foot button')].find(b => b.textContent === 'Continue').click();
+      ok(!O.E('Film.open') && O.E('Onb.step') === 1 && O.w.document.querySelectorAll('.overlay.onb').length === 1, 'Continue skips the rest and goes on into setup');
+      console.log('page errors (O):', O.errors.length ? O.errors.slice(0, 5) : 'none'); ok(!O.errors.length, 'no page errors O');
+      O.dom.window.close();
+    }
     ok(G.w.document.querySelector('.hero .pip [data-s="beak"]') && G.w.document.querySelector('.hero .pip [data-s="crest2"]'), 'Pip is a parrot');
     { const r = G.E('(() => { const e = pip("happy", 60, { tap: false }); document.body.append(e); const rg = e.rig; rg.render(1);  Rig.setHorizon(20); for (let i = 0; i < 40; i++) rg.render(0.05); const hb = Rig.compile(rg.def).byId.head.i; const tilted = rg.frame.chans[hb].r; Rig.setHorizon(90); for (let i = 0; i < 40; i++) rg.render(0.05); const capped = rg.frame.chans[hb].r; Rig.setHorizon(0); for (let i = 0; i < 80; i++) rg.render(0.05); return [tilted, capped, rg.frame.chans[hb].r]; })()');
       ok(r[0] > 15 && r[0] < 25 && r[1] > 25 && r[1] < 32 && Math.abs(r[2]) < 8, 'the head holds level against a turned screen, within reason: ' + r); }
@@ -1427,6 +1459,13 @@ async function main(){
     E('filmPause()'); await sleep(300); ok(E('Song.el.paused'), 'pause stops the song');
     E('endFilm(false)'); await sleep(1000);
     ok(E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.loop'), 'home music resumes after the film');
+    /* with music on, a film closed while it plays hands its song on: it carries on softly behind the app, from the same spot */
+    E('openFilm({ autoplay: false }); filmSeek(30); filmPlay()'); await sleep(30);
+    const plays1 = E('window.__plays');
+    E('endFilm("cta")');
+    ok(E('Song.mode') === 'home' && !E('Song.el.paused') && E('Song.el.loop') && Math.abs(E('Song.el.currentTime') - 30) < 0.5 && E('Song.gliding'), 'closing the film hands its song on to the app');
+    await sleep(1900);
+    ok(!E('Song.gliding') && Math.abs(E('Song.vol') - E('homeVol()')) < 0.01 && E('window.__plays') === plays1 && !E('Song.el.paused'), 'it settles at the home volume without starting over');
     E('Song.local = false; Song.el.dispatchEvent(new Event("error"))');
     ok(E('Song.failed') && E('Song.mode') === 'off', 'a broken song file fails quietly');
     E('openFilm({ autoplay: false })'); E('filmPlay()');
