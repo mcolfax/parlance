@@ -261,7 +261,8 @@ const UNIT_ART = {
   'The great outdoors': '<path d="M2.5 19.5 9 9.5l3.6 5.6 2.6-3.6 6.3 8z"/><circle cx="17" cy="6" r="2.2"/>',
   'Science & technology': '<circle cx="12" cy="12" r="1.4"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/>',
   'Arts & criticism': '<rect x="5" y="3.5" width="14" height="11" rx="1"/><path d="M7.5 12l3-3.5 2.2 2.4 1.6-1.7 2.2 2.8M12 14.5 8 21M12 14.5l4 6.5M12 14.5V21"/><circle cx="9.5" cy="7.2" r="1.1"/>',
-  'Ideas & ethics': '<path d="M12 3.5a5.8 5.8 0 0 0-3.4 10.5c.8.6 1.2 1.4 1.2 2.3h4.4c0-.9.4-1.7 1.2-2.3A5.8 5.8 0 0 0 12 3.5z"/><path d="M9.8 18.7h4.4M10.6 21h2.8M10 9.6l2 2 2-2M12 11.6v4.4"/>'
+  'Ideas & ethics': '<path d="M12 3.5a5.8 5.8 0 0 0-3.4 10.5c.8.6 1.2 1.4 1.2 2.3h4.4c0-.9.4-1.7 1.2-2.3A5.8 5.8 0 0 0 12 3.5z"/><path d="M9.8 18.7h4.4M10.6 21h2.8M10 9.6l2 2 2-2M12 11.6v4.4"/>',
+  'Law & justice': '<path d="M5.5 8.5 10 4l3.5 3.5L9 12z"/><path d="M6.4 7.6l3.5 3.5M9.1 4.9l3.5 3.5M11.3 9.8l7.2 7.2"/><rect x="3" y="18" width="9.5" height="2.8" rx=".8"/>'
 };
 function unitSign(title, size){
   const p = UNIT_ART[title] || UNIT_ART['Telling stories'];

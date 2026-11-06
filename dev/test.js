@@ -221,7 +221,7 @@ async function main(){
       }
     }
   }
-  ok(lessonCount === 492, 'lesson count ' + lessonCount);
+  ok(lessonCount === 504, 'lesson count ' + lessonCount);
   /* tips: a hand-cut tip (blank lines) gives one bite per paragraph, and a tip without them is cut as it always was */
   { const bodyA = 'One **alpha** idea.\n\nTwo **bravo** idea.\n\nThree **charlie** idea.\n\nFour.';
     const bs = A.E('tipBites(T("t", ' + JSON.stringify(bodyA) + ', [["alpha one", "a"], ["charlie two", "c"]], [["Plain caption", null, [["x", "**bravo**"]]]]))');
