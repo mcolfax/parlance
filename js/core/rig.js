@@ -339,9 +339,10 @@ const Rig = (() => {
 
   /* ----- live instances ----- */
   const live = new Set(), made = new Set();
-  let raf = 0, lastT = 0, swept = 0;
+  let raf = 0, lastT = 0, swept = 0, held = false;
   function tick(now) {
     raf = 0;
+    if (held){ lastT = 0; return; }   // Rig.hold: every live bird waits (a screen covers them all)
     const t = now / 1000, dt = lastT ? Math.min(t - lastT, 0.1) : 1 / 60;
     lastT = t;
     for (const r of live) r._frame(t, dt);
@@ -353,7 +354,7 @@ const Rig = (() => {
   function sweep() {
     for (const r of made) if (!r.el.isConnected){ made.delete(r); live.delete(r); if (io) io.unobserve(r.el); r._gone = true; }
   }
-  const wake = () => { if (!raf && live.size && typeof requestAnimationFrame === 'function') raf = requestAnimationFrame(tick); };
+  const wake = () => { if (!held && !raf && live.size && typeof requestAnimationFrame === 'function') raf = requestAnimationFrame(tick); };
   const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(es => { for (const e of es){ const r = e.target._rig; if (r){ r._visible = e.isIntersecting; r._sync(); } } }) : null;
 
   /* Viseme script from text: vowels open the beak, m/b/p close it, the rest give a small opening. */
@@ -666,6 +667,9 @@ const Rig = (() => {
     return errs;
   }
 
-  return { create, setHorizon: d => { horizon = Number.isFinite(d) ? d : 0; }, svg, parts, validate, resolve, compile, css, lineWidth, EASE, staticFrame, inRoom, version: '1.0.0' };
+  /* hold(true) pauses every live rig until hold(false), for while something covers the whole page (the intro film,
+     whose own birds are driven by its clock and don't use this ticker); they pick up where they were */
+  const hold = on => { held = !!on; if (!held) wake(); };
+  return { create, hold, setHorizon: d => { horizon = Number.isFinite(d) ? d : 0; }, svg, parts, validate, resolve, compile, css, lineWidth, EASE, staticFrame, inRoom, version: '1.0.0' };
 })();
 if (typeof module !== 'undefined') module.exports = Rig;

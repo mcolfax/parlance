@@ -1276,9 +1276,16 @@ async function main(){
       G.E('filmSeek(8.8)'); ok(G.E('Film.rigs.kiwi.mood') === 'wave' && G.E('Film.rigs.pip.mood') === 'love', 'every bird on the perch has its own mood');
       let still = true; for (const t of [0.5, 6, 20, 47]){ G.E('filmSeek(' + t + ')'); if (G.w.document.querySelector('#f-cam').getAttribute('transform')) still = false; }
       ok(still, 'no camera move over the whole stage');
+      /* what moves every frame lives on layers the compositor moves (no redrawing): the rays, the glows, the fronds and each firefly */
+      G.E('filmSeek(20)');
+      const rays = G.w.document.querySelector('#f-rays'), glow = G.w.document.querySelector('#f-glow-a'), fly = G.w.document.querySelector('#f-fl3'), frond = G.w.document.querySelector('#f-fr1');
+      ok(rays && rays.tagName === 'DIV' && /rotate\(50\.00deg\)/.test(rays.style.transform) && glow.tagName === 'DIV' && /scale\(/.test(glow.style.transform) && /translate\(calc/.test(fly.style.transform) && /rotate\(.*deg\)/.test(frond.style.transform), 'rays, glows, fireflies and fronds are turned by CSS transforms: ' + rays.style.transform);
+      ok(!G.w.document.querySelector('.f-scene #f-rays, .f-scene #f-glow-a, .f-scene .f-fly, .f-scene #f-ring'), 'the scene layer holds none of what changes every frame');
+      ok(G.w.document.body.classList.contains('film-cover') && G.E('typeof Rig.hold') === 'function', 'while the film fills the screen, the page behind it is hidden and its birds wait');
       G.E('filmSeek(48)'); ok(G.w.document.querySelector('#f-title').style.opacity === '0' && G.w.document.querySelector('#f-cast').style.opacity === '0' && G.w.document.querySelector('#f-av-lena').style.visibility === 'visible', 'a scene that is over stays hidden even where its parts were shown');
       G.E('filmSeek(49.3); filmPlay()'); for (let i = 0; i < 80 && G.E('Film.open'); i++) await sleep(50);
       ok(!G.E('Film.open') && !G.w.document.querySelector('.overlay') && G.E('UI.tab') === 'learn', 'played to the end, the film goes back into the app by itself');
+      ok(!G.w.document.body.classList.contains('film-cover'), 'and the page behind it is back');
       G.E('UI.tab = "me"; render()');
       const wb = [...G.w.document.querySelectorAll('#app button')].find(b => b.textContent.includes('Watch the intro film'));
       wb.click(); ok(G.E('Film.open') && !G.E('Film.setup') && G.w.document.querySelectorAll('.overlay').length === 1, 'Me opens the film');
