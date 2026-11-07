@@ -145,7 +145,7 @@ const KAKADU = (() => {
        stand in front of the head's line, and the tuft goes over their roots */
     slots: sl => {
       sl = sl.filter(s => !/^crest\d$/.test(s.id));
-      for (const s of ['L', 'R']) Object.assign(sl.find(x => x.id === 'patch' + s), { showWith: { slot: 'pupil' + s, drawings: SHUT } });
+      for (const s of ['L', 'R']){ const k = sl.findIndex(x => x.id === 'patch' + s); sl[k] = Object.assign({}, sl[k], { showWith: { slot: 'pupil' + s, drawings: SHUT } }); }   // a copy: the shared slots stay as they are for every bird made after this one
       const i = sl.findIndex(s => s.id === 'patchR');
       sl.splice(i + 1, 0, { id: 'eyeL', bone: 'eyeL', att: 'on', showWith: { slot: 'pupilL', drawings: OPEN } }, { id: 'eyeR', bone: 'eyeR', att: 'on', showWith: { slot: 'pupilR', drawings: OPEN } });
       const j = sl.findIndex(s => s.id === 'headLine');

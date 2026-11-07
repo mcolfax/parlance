@@ -1,0 +1,32 @@
+{
+  "birds": {
+    "kakadu": {
+      "print": "eead76db567830b1",
+      "bytes": 6409542,
+      "frames": 3079
+    },
+    "kiwi": {
+      "print": "2e7dab0882816a2b",
+      "bytes": 6151910,
+      "frames": 3079
+    },
+    "mango": {
+      "print": "06d7e1966e835191",
+      "bytes": 6130034,
+      "frames": 3079
+    },
+    "pip": {
+      "print": "f00e77c591c587ad",
+      "bytes": 6109846,
+      "frames": 3079
+    },
+    "rojo": {
+      "print": "7723ab603aed21a1",
+      "bytes": 6347394,
+      "frames": 3079
+    }
+  },
+  "fps": 60,
+  "width": 720,
+  "height": 1280
+}
