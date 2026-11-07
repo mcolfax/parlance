@@ -615,6 +615,37 @@ async function main(){
     Q.E('endRun()');
     Q.E('UI.tab = "review"; render()');
     ok([...qd.querySelectorAll('#app button')].some(b => /Fix my mistakes/.test(b.textContent)), 'the Review tab offers Fix my mistakes');
+    { /* Your first week card on Learn */
+      const F = await makeDom(); F.P.S.settings.onboarded = true; F.P.S.settings.lang = 'es';
+      const fd = F.w.document, fapp = () => fd.querySelector('#app .first-week');
+      try { F.w.localStorage.removeItem('parlance.firstweek'); F.w.localStorage.removeItem('parlance.birds'); } catch (e) {}
+      F.E('UI.tab = "learn"; render()');
+      ok(!fapp(), 'first week: no card before the first lesson');
+      F.E('S.langs.es.done["es-1-1"] = { at: today(), acc: 1, times: 1 }; render()');
+      const lessonBtn = fd.querySelector('#app .first-week [data-step="lesson"]');
+      ok(!!fapp() && !!lessonBtn && lessonBtn.disabled && lessonBtn.closest('li').classList.contains('done') && /1 of /.test(fapp().textContent), 'first week: the card shows after a lesson, with the lesson step ticked');
+      fd.querySelector('#app .first-week [data-step="story"]').click();
+      const toStories = F.E('UI.tab');
+      F.E('UI.tab = "learn"; render()');
+      fd.querySelector('#app .first-week [data-step="review"]').click();
+      ok(toStories === 'stories' && F.E('UI.tab') === 'review', 'first week: each step\'s button goes where it says');
+      F.E('UI.tab = "learn"; render()');
+      ok(!fd.querySelector('#app .first-week [data-step="bird"]').closest('li').classList.contains('done'), 'first week: Meet the other birds starts unticked');
+      F.E('openBirdPicker()');
+      for (let i = 0; i < 100 && !F.E('Object.keys(MASCOTS).every(id => !!Bird.birds[id])'); i++) await sleep(50);   // let the part sheets land before the page closes
+      F.E('render()');
+      ok(fd.querySelector('#app .first-week [data-step="bird"]').closest('li').classList.contains('done'), 'first week: opening the bird picker ticks Meet the other birds');
+      F.E('UI.tab = "learn"; render()');
+      [...fapp().querySelectorAll('button')].find(b => b.textContent === 'Hide this').click();
+      let stored = ''; try { stored = F.w.localStorage.getItem('parlance.firstweek'); } catch (e) {}
+      ok(!fapp() && stored === 'hidden', 'first week: Hide this hides it on this device');
+      try { F.w.localStorage.removeItem('parlance.firstweek'); F.w.localStorage.removeItem('parlance.birds'); } catch (e) {}
+      F.E('render()');
+      ok(!!fapp(), 'first week: the card is back once the hidden flag is cleared');
+      F.E('for (let i = 1; i <= 8; i++) S.days["2026-01-0" + i] = { xp: 10, met: false }; render()');
+      ok(!fapp(), 'first week: gone after 8 practice days');
+      F.dom.window.close();
+    }
     { /* the practice grid under the Review button */
       const G = await makeDom(); G.P.S.settings.onboarded = true; G.P.S.settings.lang = 'es';
       const gd = G.w.document, GL = () => G.P.S.langs.es;

@@ -151,7 +151,7 @@ function checkpointRow(u, lang){
   const ready = unitDone(lang, u), rec = S.langs[lang].cp[u.title], passed = !!(rec && rec.pass), out = !!(S.langs[lang].outs || {})[u.title];
   const state = passed ? 'done' : ready ? 'next' : 'open';
   const best = rec ? ' · best ' + Math.round((rec.acc || 0) * 100) + '%' : '';
-  const meta = passed ? (out && !ready ? 'Tested out' : 'Passed') + best : rec ? 'Not passed yet' + best : ready ? CHECKPOINT.questions + ' questions · ' + Math.round(CHECKPOINT.pass * 100) + '% to pass' : 'Know this unit already? Test out';
+  const meta = passed ? (out && !ready ? 'Tested out' : 'Passed') + best : rec ? 'Not passed yet' + best : ready ? CHECKPOINT.questions + ' questions · ' + Math.round(CHECKPOINT.pass * 100) + '% to pass' : 'Know this unit already?';
   return h('ol', { class: 'stations checkpoint' }, h('li', { class: state },
     h('button', { class: 'station', type: 'button', onclick: () => ready || passed ? startCheckpoint(u, !ready) : confirmTestOut(u) },
       h('span', { class: 'dot' }, passed ? ic('check') : ic('flag')),
@@ -189,9 +189,43 @@ function levelSection(lang, lv){
   });
   return sec;
 }
+/* Your first week: a short checklist for new learners; hiding it and the bird picker tick are kept on this device only */
+const FW_KEY = 'parlance.firstweek';
+function fwGet(k){ try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+function fwSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+function goTab(t){ UI.tab = t; UI.animate = true; render(); window.scrollTo(0, 0); }
+function firstWeekSteps(){
+  const lang = S.settings.lang, days = Object.values(S.days).filter(d => d && d.xp > 0);
+  const toNext = () => { const nx = nextLesson(lang); if (nx) startLesson(nx.id); };
+  const steps = [
+    { id: 'lesson', label: 'Finish your first lesson', done: LANG_IDS.some(l => Object.keys(S.langs[l].done).length > 0), run: toNext },
+    { id: 'review', label: 'Practice the words you learned', done: Object.values(S.days).some(d => d && d.q && d.q.reviews > 0), run: () => goTab('review') },
+    { id: 'story', label: 'Read a story', done: LANG_IDS.some(l => Object.keys(S.langs[l].stories).length > 0), run: () => goTab('stories') },
+    { id: 'bird', label: 'Meet the other birds', done: S.settings.mascot !== 'pip' || fwGet('parlance.birds') === '1', run: () => openBirdPicker() },
+    { id: 'goal', label: 'Reach your daily goal', done: days.some(d => d.met), run: toNext }
+  ];
+  if (Web.on && (webIOS() || Web.install || webStandalone())) steps.push({ id: 'home', label: 'Put Parlance on your Home Screen', done: webStandalone(), run: () => webAddHome() });
+  return steps;
+}
+function firstWeekCard(){
+  if (fwGet(FW_KEY) === 'hidden') return null;
+  if (!LANG_IDS.some(l => Object.keys(S.langs[l].done).length > 0)) return null;
+  if (Object.values(S.days).filter(d => d && d.xp > 0).length >= 8) return null;
+  const steps = firstWeekSteps(), n = steps.filter(s => s.done).length;
+  if (n === steps.length) return null;
+  return h('section', { class: 'card first-week' },
+    h('div', { class: 'row' }, h('h3', { class: 'grow' }, 'Your first week'), h('span', { class: 'small muted' }, n + ' of ' + steps.length)),
+    h('span', { class: 'q-bar', 'aria-hidden': 'true' }, h('i', { style: 'width:' + Math.round(n / steps.length * 100) + '%' })),
+    h('ul', { class: 'fw-list' }, steps.map(s => h('li', { class: s.done ? 'done' : '' },
+      h('button', { class: 'fw-step', type: 'button', disabled: s.done, 'data-step': s.id, onclick: s.run },
+        h('span', { class: 'fw-dot', 'aria-hidden': 'true' }, s.done ? ic('check') : null),
+        h('span', { class: 'grow' }, s.label, s.done ? h('span', { class: 'sr' }, ' (done)') : null),
+        s.done ? null : ic('chev', 'fw-go'))))),
+    h('button', { class: 'linkish small', type: 'button', onclick: () => { fwSet(FW_KEY, 'hidden'); UI.animate = false; render(); } }, 'Hide this'));
+}
 function viewLearn(){
   const lang = S.settings.lang;
-  const v = h('div', { class: 'view' }, topBar(), greetBlock(), resumeCard(), heroCard(), questCard(), wordOfDay(), routeStrip());
+  const v = h('div', { class: 'view' }, topBar(), greetBlock(), resumeCard(), heroCard(), firstWeekCard(), questCard(), wordOfDay(), routeStrip());
   for (const lv of LEVELS){ const s = levelSection(lang, lv); if (s) v.append(s); }
   v.append(genSection());
   if (UI.justDone){ const id = UI.justDone; setTimeout(() => { if (UI.justDone === id) UI.justDone = null; }, 1600); }

@@ -23,6 +23,7 @@ function birdCard(){
 }
 /* each bird's part sheet loads as the picker opens; the one you tap cheers in its own voice */
 function openBirdPicker(){
+  try { localStorage.setItem('parlance.birds', '1'); } catch (e) {}
   let pick = MASCOTS[S.settings.mascot] ? S.settings.mascot : 'pip';
   const lang = S.settings.lang, ids = Object.keys(MASCOTS), failed = new Set(), opts = {};
   const opt = id => {
@@ -234,17 +235,18 @@ function openWebNewPassword(){
 /* Chrome hands us an install prompt to call. Safari on iPhone and iPad has none, so its button shows the steps instead. */
 function webHomeScreenCard(){
   if (webStandalone() || !(webIOS() || Web.install)) return null;
-  const add = h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => {
-    if (!Web.install){ openHomeScreenHelp(); return; }
-    const ev = Web.install; Web.install = null;
-    try { await ev.prompt(); } catch (e) {}
-    render();
-  } }, 'Add to Home Screen');
+  const add = h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => webAddHome() }, 'Add to Home Screen');
   return h('section', { class: 'card web-home' },
     h('div', { class: 'row', style: 'align-items:flex-start' }, h('img', { class: 'web-home-ic', src: 'media/icons/icon-180.png', alt: '', width: '48', height: '48' }),
       h('div', { class: 'grow' }, h('h3', null, 'Put Parlance on your Home Screen'),
         h('p', { class: 'small muted' }, Web.install ? 'It opens full screen, like an app.' : 'It opens full screen, like an app. Safari adds it in three taps.'))),
     add);
+}
+async function webAddHome(){
+  if (!Web.install){ openHomeScreenHelp(); return; }
+  const ev = Web.install; Web.install = null;
+  try { await ev.prompt(); } catch (e) {}
+  render();
 }
 function openHomeScreenHelp(){
   const step = (icon, title, sub) => h('li', { class: 'hs-step' }, h('span', { class: 'hs-ic', html: IC[icon], 'aria-hidden': 'true' }), h('div', null, h('b', null, title), h('span', { class: 'small muted' }, sub)));
