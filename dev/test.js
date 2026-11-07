@@ -615,6 +615,22 @@ async function main(){
     Q.E('endRun()');
     Q.E('UI.tab = "review"; render()');
     ok([...qd.querySelectorAll('#app button')].some(b => /Fix my mistakes/.test(b.textContent)), 'the Review tab offers Fix my mistakes');
+    { /* the practice grid under the Review button */
+      const G = await makeDom(); G.P.S.settings.onboarded = true; G.P.S.settings.lang = 'es';
+      const gd = G.w.document, GL = () => G.P.S.langs.es;
+      G.E('UI.tab = "review"; render()');
+      ok(G.E('practiceTiles("es")').length === 0 && !gd.querySelector('#app .practice-grid'), 'review practice: a new learner sees no practice tiles');
+      const l1 = G.E('getLesson')('es-1-1'), wk = G.E('itemKey')(l1, 'v', 0), wk2 = G.E('itemKey')(l1, 'v', 1);
+      GL().cards[wk] = { ef: 2.5, n: 0, iv: 0, due: '2999-01-01', last: '2026-10-01', ts: 1 }; GL().cards[wk2] = { ef: 2.5, n: 0, iv: 0, due: '2999-01-01', last: '2026-10-01', ts: 1 };
+      G.E('UI.tab = "review"; render()');
+      ok(!!gd.querySelector('#app [data-practice="weak"]') && !gd.querySelector('#app [data-practice="mistakes"]') && G.E('mistakeEntries("es").length') === 0, 'review practice: tiles for what applies (no mistakes yet, so no Fix my mistakes tile)');
+      GL().miss[wk] = { ts: 5, ok: 0 }; G.E('render()');
+      ok(G.E('mistakeEntries("es").length') > 0 && !!gd.querySelector('#app [data-practice="mistakes"]') && /to fix/.test(gd.querySelector('#app [data-practice="mistakes"] .pt-sub').textContent) && gd.querySelectorAll('#app .practice-grid .practice-tile').length === G.E('practiceTiles("es")').length, 'review practice: tiles for what applies (Fix my mistakes appears with a mistake)');
+      gd.querySelector('#app [data-practice="weak"]').click();
+      ok(G.E('Run.mode') === 'practice', 'review practice: Weakest items starts a practice session');
+      G.E('endRun()');
+      G.dom.window.close();
+    }
     Q.E('startMistakes()');
     let guard = 0;
     while (Q.E('Run.active && !Run.finished') && guard++ < 60){
@@ -763,8 +779,7 @@ async function main(){
       else ok(true, 'mistake sessions ask no picture questions (no mistakes to practise)');
     }
     { /* article practice from the Review tab: nouns from finished lessons; no review card or mistake changes */
-      const label = 'Practice articles: ' + E('GENDER_DRILL[S.settings.lang].label');
-      const artBtn = () => [...w.document.querySelectorAll('#app button')].find(b => b.textContent.trim() === label);
+      const artBtn = () => w.document.querySelector('#app [data-practice="articles"]');
       const cards = P.S.langs[lang].cards, saved = { ...cards }, six = E('genderEntries(S.settings.lang).slice(0, 6).map(e => e.key)');
       for (const k of Object.keys(cards)) delete cards[k];
       E('UI.tab="review"; render()'); ok(!artBtn(), lang + ' a learner with no nouns yet sees no article practice');
