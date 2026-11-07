@@ -1,8 +1,8 @@
 # Your week: a weekly recap, and a shorter Learn route
 
-- **Cycle:** set when promoted (premium program P6, `flow/PREMIUM.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-p6-your-week.md`, set Release, Base and `approved`)
-- **Release:** 4.37.0, or the next free minor when promoted
+- **Cycle:** set when promoted (premium program P7, `flow/PREMIUM.md`)
+- **Status:** queued (promote: move to `flow/plans/<cycle date>-p7-your-week.md`, set Release, Base and `approved`)
+- **Release:** 4.38.0, or the next free minor when promoted
 - **Base:** `main` at promotion time
 - **Proposals built:** none
 - **Roadmap items:** R-11, new R-26
@@ -225,4 +225,4 @@ After WP2 is merged (`parlance-chores`, Haiku):
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
 - **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** The premium program's six releases are done. Compare the measures in `flow/PREMIUM.md`, "How we'll know it worked", four weeks after P1 shipped.
+- **Notes for the next cycle:** The premium program's seven releases are done. Compare the measures in `flow/PREMIUM.md`, "How we'll know it worked", four weeks after P1 shipped.

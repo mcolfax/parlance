@@ -214,7 +214,7 @@ If `.q-bar` is scoped to `.quests` in the CSS, add `.first-week .q-bar` and `.fi
 - **Reads first:** `viewReview()` in `js/ui/review.js`; `startReview()`, `startMistakes()`, `startForms()`, `startGenders()`, `formLessons()` in `js/ui/runner.js`; the `.hero` rules in `styles/components.css`; the article practice block in `dev/test.js` (search `'Practice articles: '`).
 - **Must not touch:** `js/ui/runner.js`, `js/ui/learn.js`, `js/core/*`.
 
-**Spec.** Before: the Review hero stacks up to five full-width buttons (Review, Fix my mistakes, Practice my weakest items, Practice verb forms and endings, Practice articles), and the verb forms label wraps at 412px. After: the hero keeps its title, text, bird and the primary **Review N items** button. Under it, when any practice applies, an eyebrow **More practice** and a two-column grid of tiles. Each tile has an icon, a short label and a sub-line. Later releases add tiles (P3: Speed round; P4: Listen hands-free; P5: Conversations) by adding an entry to `practiceTiles()`.
+**Spec.** Before: the Review hero stacks up to five full-width buttons (Review, Fix my mistakes, Practice my weakest items, Practice verb forms and endings, Practice articles), and the verb forms label wraps at 412px. After: the hero keeps its title, text, bird and the primary **Review N items** button. Under it, when any practice applies, an eyebrow **More practice** and a two-column grid of tiles. Each tile has an icon, a short label and a sub-line. Later releases add tiles (P4: Speed round; P5: Listen hands-free; P6: Conversations) by adding an entry to `practiceTiles()`.
 
 ```js
 /* the practice options under the Review button; later releases add their own entries here */
@@ -299,4 +299,4 @@ On the cycle branch, after the three packages are merged (`parlance-chores`, Hai
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
 - **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** Promote `flow/plans/queue/p2-keep-going.md` (see `flow/PREMIUM.md`).
+- **Notes for the next cycle:** Promote `flow/plans/queue/p2-works-offline.md` (see `flow/PREMIUM.md`).

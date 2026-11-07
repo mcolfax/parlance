@@ -1,8 +1,8 @@
 # Keep going: a lesson loop that flows, sounds good and keeps you company
 
-- **Cycle:** set when promoted (premium program P2, `flow/PREMIUM.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-p2-keep-going.md`, set Release, Base and `approved`)
-- **Release:** 4.33.0, or the next free minor when promoted
+- **Cycle:** set when promoted (premium program P3, `flow/PREMIUM.md`)
+- **Status:** queued (promote: move to `flow/plans/<cycle date>-p3-keep-going.md`, set Release, Base and `approved`)
+- **Release:** 4.34.0, or the next free minor when promoted
 - **Base:** `main` at promotion time (nothing below depends on line numbers)
 - **Proposals built:** none
 - **Roadmap items:** new R-33, R-34, R-35
@@ -161,4 +161,4 @@ After WP3 (`parlance-chores`, Haiku):
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
 - **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** Promote `flow/plans/queue/p3-play.md`.
+- **Notes for the next cycle:** Promote `flow/plans/queue/p4-play.md`.

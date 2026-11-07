@@ -1,8 +1,8 @@
 # Conversation practice: choose the reply, and put a conversation in order
 
-- **Cycle:** set when promoted (premium program P5, `flow/PREMIUM.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-p5-conversation-practice.md`, set Release, Base and `approved`)
-- **Release:** 4.36.0, or the next free minor when promoted
+- **Cycle:** set when promoted (premium program P6, `flow/PREMIUM.md`)
+- **Status:** queued (promote: move to `flow/plans/<cycle date>-p6-conversation-practice.md`, set Release, Base and `approved`)
+- **Release:** 4.37.0, or the next free minor when promoted
 - **Base:** `main` at promotion time
 - **Proposals built:** none. Answers idea note fmv58xfx9pqsf (tutor features outside Claude) in a way that needs no tutor.
 - **Roadmap items:** R-4, R-8
@@ -234,4 +234,4 @@ After WP2 is merged (`parlance-chores`, Haiku):
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
 - **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** Promote `flow/plans/queue/p6-your-week.md`.
+- **Notes for the next cycle:** Promote `flow/plans/queue/p7-your-week.md`.

@@ -1,12 +1,12 @@
 # Play: a sticker book, a speed round, and streak milestones
 
-- **Cycle:** set when promoted (premium program P3, `flow/PREMIUM.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-p3-play.md`, set Release, Base and `approved`)
-- **Release:** 4.34.0, or the next free minor when promoted
+- **Cycle:** set when promoted (premium program P4, `flow/PREMIUM.md`)
+- **Status:** queued (promote: move to `flow/plans/<cycle date>-p4-play.md`, set Release, Base and `approved`)
+- **Release:** 4.35.0, or the next free minor when promoted
 - **Base:** `main` at promotion time
 - **Proposals built:** none
 - **Roadmap items:** new R-30, R-31, R-32
-- **Needs:** P1 (`practiceTiles()` in `js/ui/review.js`) and P2 (`o.more` in `showComplete()`, the pitch argument of `sfx()`). If either was dropped, the package that needs it adds that small piece itself, exactly as P1 WP3 or P2 WP1/WP2 specify, and says so in its report.
+- **Needs:** P1 (`practiceTiles()` in `js/ui/review.js`) and P3 Keep going (`o.more` in `showComplete()`, the pitch argument of `sfx()`). If either was dropped, the package that needs it adds that small piece itself, exactly as P1 WP3 or P3 WP1/WP2 specify, and says so in its report.
 
 ## Why this, why now
 
@@ -269,4 +269,4 @@ After WP3 (`parlance-chores`, Haiku):
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
 - **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** Promote `flow/plans/queue/p4-listen-hands-free.md`.
+- **Notes for the next cycle:** Promote `flow/plans/queue/p5-listen-hands-free.md`.
