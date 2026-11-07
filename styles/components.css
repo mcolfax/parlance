@@ -182,6 +182,7 @@ li.locked .st-title{color:var(--muted)}
 .form-cap{font-size:15px}
 .form-prompt{font-size:34px}
 .stations.checkpoint{margin-top:6px}
+.stations.checkpoint li.open .dot{color:var(--line-text)}
 .tip>.ex-line:first-child{border-top:0;padding-top:2px}
 .ex-line{display:flex;flex-direction:column;gap:2px;padding:9px 0;border-top:1px solid var(--hair-2)}
 .ex-line .t{display:flex;align-items:center;gap:10px;font:700 18px var(--body)}
@@ -344,6 +345,19 @@ li.locked .st-title{color:var(--muted)}
 .btn.shine::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgb(255 255 255 / .32) 50%,transparent 70%);transform:translateX(-120%);animation:shine 5s ease-in-out 1.4s infinite;pointer-events:none}
 @keyframes shine{0%,72%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
 
+/* More practice (Review hero) */
+.practice{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.practice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.practice-tile{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:84px;padding:12px;border-radius:var(--r-md);background:var(--bg);border:2px solid var(--hair);box-shadow:0 3px 0 var(--hair);color:var(--ink);font:inherit;text-align:left;cursor:pointer;animation:rise var(--dur) var(--ease) both;animation-delay:calc(var(--i, 0) * 40ms)}
+.practice-tile:active{box-shadow:0 1px 0 var(--hair);transform:translateY(2px)}
+.practice-tile .pt-ic{color:var(--line-text)}
+.practice-tile .pt-ic svg{width:20px;height:20px}
+.practice-tile .pt-label{font-weight:700;line-height:1.2}
+.practice-tile .pt-sub{font-size:13px;line-height:1.25;color:var(--muted)}
+.practice-grid .practice-tile:last-child:nth-child(odd){grid-column:1 / -1}
+@media (max-width:340px){.practice-grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.practice-tile{animation:none}}
+
 /* quests + chest */
 .quests .q-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
 .quests li{display:grid;grid-template-columns:34px minmax(0,1fr) 40px;gap:12px;align-items:center;animation:rise .4s var(--ease) both;animation-delay:calc(var(--i,0) * 70ms)}
@@ -358,6 +372,17 @@ li.locked .st-title{color:var(--muted)}
 .q-num{font:800 13px var(--body);color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;display:flex;justify-content:flex-end}
 .quests li.done .q-num{color:var(--ok)}
 @keyframes barin{from{width:0}}
+
+/* Your first week (Learn) */
+.first-week .q-bar{display:block;margin:8px 0 4px}
+.first-week .fw-list{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column}
+.first-week .fw-step{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:6px 0;background:none;border:0;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.first-week .fw-dot{display:grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--hair)}
+.first-week .fw-dot svg{width:15px;height:15px}
+.first-week li.done .fw-dot{background:var(--line);border-color:var(--line);color:var(--surface)}
+.first-week li.done .fw-step{color:var(--muted);cursor:default}
+.first-week .fw-go{color:var(--muted);transform:rotate(-90deg)}
+.first-week .linkish{align-self:flex-start}
 .chest{width:70px;height:63px;border:0;background:none;padding:0;flex:none;transition:transform .15s var(--ease)}
 .chest:active{transform:scale(.92)}
 .chest svg{width:100%;height:100%;display:block;overflow:visible}

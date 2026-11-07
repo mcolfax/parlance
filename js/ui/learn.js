@@ -58,6 +58,8 @@ function heroCard(){
     h('p', { class: 'muted' }, 'Keep your words fresh in Review, read a story, talk with your tutor, or have it write new lessons below.'));
   const where = nx.core ? 'Unit ' + (nx.unit + 1) + ' · ' + COURSE[lang].units[nx.unit].title : 'Your lessons';
   const started = Object.keys(S.langs[lang].done).length > 0;
+  const nu = nx.core ? COURSE[lang].units[nx.unit] : null;
+  const fresh = nu && nu.lessons[0].id === nx.id && !nu.lessons.some(l => isDone(lang, l.id)) && !(S.langs[lang].cp[nu.title] && S.langs[lang].cp[nu.title].pass) && (started || startIndex(lang) > 0);
   const mood = pipMoodNow();
   const say = mood === 'wow' ? ({ de: 'Deine Serie!', es: '¡Tu racha!', it: 'La tua serie!' }[lang]) : mood === 'cheer' ? pickSay(lang, 'cheer') : pipHello(lang);
   // Pip waves hello and mouths its line when you come to Learn, and through the redraws right after (sync, profile), not on every redraw
@@ -68,7 +70,8 @@ function heroCard(){
     h('div', { class: 'hero-top' },
       h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Next stop · ' + nx.level + ' ' + LEVEL_NAME[nx.level]), h('h2', null, nx.title), h('p', { class: 'muted' }, where + ' · about ' + minutesFor(nx) + ' min')),
       pip(mood, 80, { cls: 'hero-pip', say, mouth: arriving && mood !== 'sleep', wave: arriving && mood === 'happy' })),
-    h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => startLesson(nx.id) }, started ? 'Continue' : 'Start your first lesson'));
+    h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => startLesson(nx.id) }, started ? 'Continue' : 'Start your first lesson'),
+    fresh ? h('button', { class: 'linkish small', type: 'button', onclick: () => confirmTestOut(nu) }, 'Know this unit already? Test out') : null);
 }
 /* a lesson left half-done on this device: one tap puts you back where you were (runner.js keeps the record) */
 function resumeCard(){
@@ -145,14 +148,20 @@ function stationList(lessons, lang){
 }
 /* the unit checkpoint: a short test that opens once every lesson in the unit is done */
 function checkpointRow(u, lang){
-  const ready = unitDone(lang, u), rec = S.langs[lang].cp[u.title];
-  const state = rec && rec.pass ? 'done' : ready ? 'next' : 'locked';
-  const meta = rec ? (rec.pass ? 'Passed' : 'Not passed yet') + ' · best ' + Math.round((rec.acc || 0) * 100) + '%' : CHECKPOINT.questions + ' questions · ' + Math.round(CHECKPOINT.pass * 100) + '% to pass';
+  const ready = unitDone(lang, u), rec = S.langs[lang].cp[u.title], passed = !!(rec && rec.pass), out = !!(S.langs[lang].outs || {})[u.title];
+  const state = passed ? 'done' : ready ? 'next' : 'open';
+  const best = rec ? ' · best ' + Math.round((rec.acc || 0) * 100) + '%' : '';
+  const meta = passed ? (out && !ready ? 'Tested out' : 'Passed') + best : rec ? 'Not passed yet' + best : ready ? CHECKPOINT.questions + ' questions · ' + Math.round(CHECKPOINT.pass * 100) + '% to pass' : 'Know this unit already?';
   return h('ol', { class: 'stations checkpoint' }, h('li', { class: state },
-    h('button', { class: 'station', type: 'button', onclick: () => ready ? startCheckpoint(u) : toast('Finish this unit’s lessons to unlock its checkpoint.') },
-      h('span', { class: 'dot' }, rec && rec.pass ? ic('check') : ic('flag')),
-      h('span', { class: 'st-body' }, h('span', { class: 'st-title' }, 'Unit checkpoint'), h('span', { class: 'st-meta' }, ready || rec ? meta : 'Unlocks when the unit is done')),
-      h('span', { class: 'st-state' }, rec && rec.pass ? 'Again' : ready ? 'Start' : ic('lock')))));
+    h('button', { class: 'station', type: 'button', onclick: () => ready || passed ? startCheckpoint(u, !ready) : confirmTestOut(u) },
+      h('span', { class: 'dot' }, passed ? ic('check') : ic('flag')),
+      h('span', { class: 'st-body' }, h('span', { class: 'st-title' }, 'Unit checkpoint'), h('span', { class: 'st-meta' }, meta)),
+      h('span', { class: 'st-state' }, passed ? 'Again' : ready ? 'Start' : 'Test out'))));
+}
+function confirmTestOut(u){
+  sheet('Test out of this unit?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('point', 56, { tap: false }),
+    h('p', { class: 'grow' }, CHECKPOINT.questions + ' questions from “' + u.title + '”. Score ' + Math.round(CHECKPOINT.pass * 100) + '% and your route moves past this unit. Its lessons stay open, and their words join Review when you take them.')),
+    [{ label: 'Not now' }, { label: 'Start the test', primary: true, run: () => { startCheckpoint(u, true); } }]);
 }
 function confirmLocked(l){
   sheet('Jump ahead?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('point', 56, { tap: false }), h('p', { class: 'grow' }, '“' + l.title + '” is further along your route. You can take it now; nothing is skipped for good.')),
@@ -180,9 +189,43 @@ function levelSection(lang, lv){
   });
   return sec;
 }
+/* Your first week: a short checklist for new learners; hiding it and the bird picker tick are kept on this device only */
+const FW_KEY = 'parlance.firstweek';
+function fwGet(k){ try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+function fwSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+function goTab(t){ UI.tab = t; UI.animate = true; render(); window.scrollTo(0, 0); }
+function firstWeekSteps(){
+  const lang = S.settings.lang, days = Object.values(S.days).filter(d => d && d.xp > 0);
+  const toNext = () => { const nx = nextLesson(lang); if (nx) startLesson(nx.id); };
+  const steps = [
+    { id: 'lesson', label: 'Finish your first lesson', done: LANG_IDS.some(l => Object.keys(S.langs[l].done).length > 0), run: toNext },
+    { id: 'review', label: 'Practice the words you learned', done: Object.values(S.days).some(d => d && d.q && d.q.reviews > 0), run: () => goTab('review') },
+    { id: 'story', label: 'Read a story', done: LANG_IDS.some(l => Object.keys(S.langs[l].stories).length > 0), run: () => goTab('stories') },
+    { id: 'bird', label: 'Meet the other birds', done: S.settings.mascot !== 'pip' || fwGet('parlance.birds') === '1', run: () => openBirdPicker() },
+    { id: 'goal', label: 'Reach your daily goal', done: days.some(d => d.met), run: toNext }
+  ];
+  if (Web.on && (webIOS() || Web.install || webStandalone())) steps.push({ id: 'home', label: 'Put Parlance on your Home Screen', done: webStandalone(), run: () => webAddHome() });
+  return steps;
+}
+function firstWeekCard(){
+  if (fwGet(FW_KEY) === 'hidden') return null;
+  if (!LANG_IDS.some(l => Object.keys(S.langs[l].done).length > 0)) return null;
+  if (Object.values(S.days).filter(d => d && d.xp > 0).length >= 8) return null;
+  const steps = firstWeekSteps(), n = steps.filter(s => s.done).length;
+  if (n === steps.length) return null;
+  return h('section', { class: 'card first-week' },
+    h('div', { class: 'row' }, h('h3', { class: 'grow' }, 'Your first week'), h('span', { class: 'small muted' }, n + ' of ' + steps.length)),
+    h('span', { class: 'q-bar', 'aria-hidden': 'true' }, h('i', { style: 'width:' + Math.round(n / steps.length * 100) + '%' })),
+    h('ul', { class: 'fw-list' }, steps.map(s => h('li', { class: s.done ? 'done' : '' },
+      h('button', { class: 'fw-step', type: 'button', disabled: s.done, 'data-step': s.id, onclick: s.run },
+        h('span', { class: 'fw-dot', 'aria-hidden': 'true' }, s.done ? ic('check') : null),
+        h('span', { class: 'grow' }, s.label, s.done ? h('span', { class: 'sr' }, ' (done)') : null),
+        s.done ? null : ic('chev', 'fw-go'))))),
+    h('button', { class: 'linkish small', type: 'button', onclick: () => { fwSet(FW_KEY, 'hidden'); UI.animate = false; render(); } }, 'Hide this'));
+}
 function viewLearn(){
   const lang = S.settings.lang;
-  const v = h('div', { class: 'view' }, topBar(), greetBlock(), resumeCard(), heroCard(), questCard(), wordOfDay(), routeStrip());
+  const v = h('div', { class: 'view' }, topBar(), greetBlock(), resumeCard(), heroCard(), firstWeekCard(), questCard(), wordOfDay(), routeStrip());
   for (const lv of LEVELS){ const s = levelSection(lang, lv); if (s) v.append(s); }
   v.append(genSection());
   if (UI.justDone){ const id = UI.justDone; setTimeout(() => { if (UI.justDone === id) UI.justDone = null; }, 1600); }

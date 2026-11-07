@@ -520,7 +520,7 @@ async function main(){
     }
     // a save from before Italian (schema 8) has no Italian progress yet and still loads, keeping what it had
     const pre = await makeDom({ seed: { 'parlance.v2': { v: 8, settings: { onboarded: true, lang: 'es' }, days: {}, langs: { es: { done: { 'es-1-1': { at: '2026-10-01', acc: 1, times: 1 } }, cards: {}, xp: 40 } }, extra: { keep: 'me' } } } });
-    ok(pre.P.S.langs.it && Object.keys(pre.P.S.langs.it.done).length === 0 && pre.P.S.gen.it && pre.P.S.langs.es.done['es-1-1'] && pre.P.S.v === 10 && pre.P.S.extra && pre.P.S.extra.keep === 'me', 'an older save gets Italian and keeps everything else');
+    ok(pre.P.S.langs.it && Object.keys(pre.P.S.langs.it.done).length === 0 && pre.P.S.gen.it && pre.P.S.langs.es.done['es-1-1'] && pre.P.S.v === 11 && pre.P.S.extra && pre.P.S.extra.keep === 'me', 'an older save gets Italian and keeps everything else');
     pre.E('S.settings.lang = "it"; touchSettings(); S.langs.it.done["it-1-1"] = { at: "2026-10-02", acc: 1, times: 1 }; touch("it")');
     ok(JSON.parse(pre.w.localStorage.getItem('parlance.v2')).langs.it.done['it-1-1'] && ['de', 'es', 'it'].every(l => pre.E('SLICES').includes(l) && pre.E('SLICES').includes('gen-' + l)), 'Italian progress is saved, with its own synced slices');
     pre.dom.window.close();
@@ -615,6 +615,53 @@ async function main(){
     Q.E('endRun()');
     Q.E('UI.tab = "review"; render()');
     ok([...qd.querySelectorAll('#app button')].some(b => /Fix my mistakes/.test(b.textContent)), 'the Review tab offers Fix my mistakes');
+    { /* Your first week card on Learn */
+      const F = await makeDom(); F.P.S.settings.onboarded = true; F.P.S.settings.lang = 'es';
+      const fd = F.w.document, fapp = () => fd.querySelector('#app .first-week');
+      try { F.w.localStorage.removeItem('parlance.firstweek'); F.w.localStorage.removeItem('parlance.birds'); } catch (e) {}
+      F.E('UI.tab = "learn"; render()');
+      ok(!fapp(), 'first week: no card before the first lesson');
+      F.E('S.langs.es.done["es-1-1"] = { at: today(), acc: 1, times: 1 }; render()');
+      const lessonBtn = fd.querySelector('#app .first-week [data-step="lesson"]');
+      ok(!!fapp() && !!lessonBtn && lessonBtn.disabled && lessonBtn.closest('li').classList.contains('done') && /1 of /.test(fapp().textContent), 'first week: the card shows after a lesson, with the lesson step ticked');
+      fd.querySelector('#app .first-week [data-step="story"]').click();
+      const toStories = F.E('UI.tab');
+      F.E('UI.tab = "learn"; render()');
+      fd.querySelector('#app .first-week [data-step="review"]').click();
+      ok(toStories === 'stories' && F.E('UI.tab') === 'review', 'first week: each step\'s button goes where it says');
+      F.E('UI.tab = "learn"; render()');
+      ok(!fd.querySelector('#app .first-week [data-step="bird"]').closest('li').classList.contains('done'), 'first week: Meet the other birds starts unticked');
+      F.E('openBirdPicker()');
+      for (let i = 0; i < 100 && !F.E('Object.keys(MASCOTS).every(id => !!Bird.birds[id])'); i++) await sleep(50);   // let the part sheets land before the page closes
+      F.E('render()');
+      ok(fd.querySelector('#app .first-week [data-step="bird"]').closest('li').classList.contains('done'), 'first week: opening the bird picker ticks Meet the other birds');
+      F.E('UI.tab = "learn"; render()');
+      [...fapp().querySelectorAll('button')].find(b => b.textContent === 'Hide this').click();
+      let stored = ''; try { stored = F.w.localStorage.getItem('parlance.firstweek'); } catch (e) {}
+      ok(!fapp() && stored === 'hidden', 'first week: Hide this hides it on this device');
+      try { F.w.localStorage.removeItem('parlance.firstweek'); F.w.localStorage.removeItem('parlance.birds'); } catch (e) {}
+      F.E('render()');
+      ok(!!fapp(), 'first week: the card is back once the hidden flag is cleared');
+      F.E('for (let i = 1; i <= 8; i++) S.days["2026-01-0" + i] = { xp: 10, met: false }; render()');
+      ok(!fapp(), 'first week: gone after 8 practice days');
+      F.dom.window.close();
+    }
+    { /* the practice grid under the Review button */
+      const G = await makeDom(); G.P.S.settings.onboarded = true; G.P.S.settings.lang = 'es';
+      const gd = G.w.document, GL = () => G.P.S.langs.es;
+      G.E('UI.tab = "review"; render()');
+      ok(G.E('practiceTiles("es")').length === 0 && !gd.querySelector('#app .practice-grid'), 'review practice: a new learner sees no practice tiles');
+      const l1 = G.E('getLesson')('es-1-1'), wk = G.E('itemKey')(l1, 'v', 0), wk2 = G.E('itemKey')(l1, 'v', 1);
+      GL().cards[wk] = { ef: 2.5, n: 0, iv: 0, due: '2999-01-01', last: '2026-10-01', ts: 1 }; GL().cards[wk2] = { ef: 2.5, n: 0, iv: 0, due: '2999-01-01', last: '2026-10-01', ts: 1 };
+      G.E('UI.tab = "review"; render()');
+      ok(!!gd.querySelector('#app [data-practice="weak"]') && !gd.querySelector('#app [data-practice="mistakes"]') && G.E('mistakeEntries("es").length') === 0, 'review practice: tiles for what applies (no mistakes yet, so no Fix my mistakes tile)');
+      GL().miss[wk] = { ts: 5, ok: 0 }; G.E('render()');
+      ok(G.E('mistakeEntries("es").length') > 0 && !!gd.querySelector('#app [data-practice="mistakes"]') && /to fix/.test(gd.querySelector('#app [data-practice="mistakes"] .pt-sub').textContent) && gd.querySelectorAll('#app .practice-grid .practice-tile').length === G.E('practiceTiles("es")').length, 'review practice: tiles for what applies (Fix my mistakes appears with a mistake)');
+      gd.querySelector('#app [data-practice="weak"]').click();
+      ok(G.E('Run.mode') === 'practice', 'review practice: Weakest items starts a practice session');
+      G.E('endRun()');
+      G.dom.window.close();
+    }
     Q.E('startMistakes()');
     let guard = 0;
     while (Q.E('Run.active && !Run.finished') && guard++ < 60){
@@ -651,6 +698,48 @@ async function main(){
     ok(Q.P.S.badges.checkpoint1 && Q.P.S.badges.checkpoint100 && !Q.P.S.badges.checkpoint5, 'a perfect checkpoint earns its badges');
     Q.E('S.stats.fixed = 25; S.stats.formsRight = 50; checkBadges({})');
     ok(Q.P.S.badges.fixer && Q.P.S.badges.forms50, 'fixing mistakes and form questions earn badges');
+    // test out of a unit (Learn → Test out): the checkpoint before the lessons; saved as outs, never as done
+    {
+      const to = {};
+      to.snap = JSON.stringify({ done: L().done, cp: L().cp, outs: L().outs, badges: Q.P.S.badges, stats: Q.P.S.stats });
+      ok(Q.E('SCHEMA_VERSION') === 11 && JSON.stringify(Q.E('cleanLang')({ done: {} }).outs) === '{}', 'test out: SCHEMA_VERSION is 11 and an old slice gets outs {}');
+      const mo = Q.E('mergeLang')({ outs: { A: '2026-11-01' } }, { outs: { B: '2026-11-02' } });
+      ok(mo.outs.A === '2026-11-01' && mo.outs.B === '2026-11-02' && Q.E('mergeLang')({}, { outs: { B: 'x' } }).outs.B === 'x', 'test out: merges keep outs from both sides');
+      ok(!(L().outs || {})[unit.title], 'test out: a normal checkpoint doesn\'t write outs');
+      Q.E('UI.tab = "learn"; UI.open = new Set(["A1"]); UI.openLang = "es"; render()');
+      ok([...qd.querySelectorAll('.stations.checkpoint li.open')].some(li => li.textContent.includes('Test out')), 'test out: Learn offers Test out on a unit that isn\'t done');
+      const units = Q.P.COURSE.es.units;
+      const free = units.map((u, i) => ({ u, i })).filter(x => x.i > 0 && x.u.level === 'A1' && !x.u.lessons.some(l => L().done[l.id]) && !L().cp[x.u.title]);
+      const U1 = free[0].u, U2 = free[1].u, i1 = free[0].i;
+      for (const u of units.slice(0, i1)) for (const l of u.lessons) if (!L().done[l.id]) L().done[l.id] = { at: '2026-10-01', acc: 1, times: 1 };
+      const runTest = async (u, right) => {
+        Q.E('startCheckpoint(COURSE.es.units[' + units.indexOf(u) + '], true)');
+        let g = 0;
+        while (Q.E('Run.active && !Run.finished') && g++ < 200){
+          const ex = Q.E('Run.cur'); let ans;
+          if (!right){
+            if (ex.type === 'match'){ Q.E('Run.pos++; nextEx()'); continue; }
+            ans = ex.options ? (ex.options.find(o => o !== ex.correct) || 'zzz') : 'zzz';
+          } else switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = Q.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = Q.P.tileTokens(ex.item.e[0]).join(' '); break;
+            case 'match': Q.E('Run.pos++; nextEx()'); continue; default: ans = ex.correct; }
+          Q.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()'); qfoot('Continue').click();
+        }
+      };
+      ok(Q.E('nextLesson("es")').id === U1.lessons[0].id, 'test out: setup: the next stop is the first lesson of the unit');
+      await runTest(U1, true);
+      const said = qov() ? qov().textContent : '';
+      ok(L().outs && L().outs[U1.title] && L().cp[U1.title].pass && Q.E('nextLesson("es")').unit > units.indexOf(U1) && !U1.lessons.some(l => L().done[l.id]), 'test out: passing moves the next stop past the unit');
+      ok(said.includes('Unit tested out.'), 'test out: the finish screen says Tested out');
+      qfoot('Continue').click();
+      ok(Q.E('lessonState("es", COURSE.es.units[' + units.indexOf(U1) + '].lessons[0], nextLesson("es"))') === 'open' && !Q.E('isDone("es", ' + JSON.stringify(U1.lessons[0].id) + ')') && !Q.E('levelComplete("es", "A1")') && !Q.P.S.badges.levelA1, 'test out: its lessons are open, not done, and A1 is not complete');
+      await runTest(U2, false);
+      qfoot('Continue').click();
+      ok(!(L().outs || {})[U2.title] && L().cp[U2.title] && L().cp[U2.title].pass === false, 'test out: failing writes no outs');
+      // put the page back as it was for the checks that follow
+      const sn = JSON.parse(to.snap);
+      L().done = sn.done; L().cp = sn.cp; L().outs = sn.outs || {}; Q.P.S.badges = sn.badges; Q.P.S.stats = sn.stats;
+      Q.E('UI.openLang = null; render()');
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
@@ -763,8 +852,7 @@ async function main(){
       else ok(true, 'mistake sessions ask no picture questions (no mistakes to practise)');
     }
     { /* article practice from the Review tab: nouns from finished lessons; no review card or mistake changes */
-      const label = 'Practice articles: ' + E('GENDER_DRILL[S.settings.lang].label');
-      const artBtn = () => [...w.document.querySelectorAll('#app button')].find(b => b.textContent.trim() === label);
+      const artBtn = () => w.document.querySelector('#app [data-practice="articles"]');
       const cards = P.S.langs[lang].cards, saved = { ...cards }, six = E('genderEntries(S.settings.lang).slice(0, 6).map(e => e.key)');
       for (const k of Object.keys(cards)) delete cards[k];
       E('UI.tab="review"; render()'); ok(!artBtn(), lang + ' a learner with no nouns yet sees no article practice');
@@ -1012,7 +1100,7 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 10 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 11 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
     for (const lang of LANG_IDS) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }

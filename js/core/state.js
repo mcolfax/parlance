@@ -9,7 +9,7 @@ const LS_KEY = 'parlance.v2';            // keep this key: changing it would orp
 const SLICES = ['core', ...LANG_IDS, ...LANG_IDS.map(l => 'gen-' + l), 'social'];
 /* miss: { itemKey: { ts: when you last got it wrong, ok: when you last got it right } } feeds "Fix my mistakes";
    cp: { unit title: { at, acc (best), pass } } for unit checkpoints */
-function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}, miss: {}, cp: {}, start: 'A1', startTs: 0 }; }
+function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}, miss: {}, cp: {}, outs: {}, start: 'A1', startTs: 0 }; }
 /* Friends (js/core/social.js), kept private and synced like the rest of your progress:
    on/name/bird: your friends card; secret/since/home: the hidden part of your card's path and invite code;
    friends: { uid: { code, cAt, at, gone } }; duels: { id: duel }; past: { id: finished duel }; cheers: { uid: day you cheered them };
@@ -20,7 +20,7 @@ function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defa
 function validLesson(l){ return l && typeof l.id === 'string' && typeof l.title === 'string' && Array.isArray(l.vocab) && Array.isArray(l.sentences) && Array.isArray(l.blanks); }
 function cleanLang(x){
   const o = { ...newLang(), ...(x && typeof x === 'object' ? x : {}) };
-  for (const k of ['done', 'cards', 'custom', 'stories', 'miss', 'cp']) if (!o[k] || typeof o[k] !== 'object') o[k] = {};
+  for (const k of ['done', 'cards', 'custom', 'stories', 'miss', 'cp', 'outs']) if (!o[k] || typeof o[k] !== 'object') o[k] = {};
   if (!LEVELS.includes(o.start)) o.start = 'A1';
   o.xp = +o.xp || 0;
   o.cards = migrateCardKeys(o.cards);
@@ -57,7 +57,8 @@ const MIGRATIONS = [
   { to: 7, run: st => { st.settings = cleanSettings(st.settings); } },   // word hints (settings.hints)
   { to: 8, run: st => { for (const l of LANG_IDS) if (st.langs[l]) st.langs[l] = cleanLang(st.langs[l]); } },   // mistakes (miss) and checkpoints (cp)
   { to: 9, run: st => { st.langs = obj(st.langs); st.gen = obj(st.gen); for (const l of LANG_IDS){ st.langs[l] = cleanLang(st.langs[l]); if (!Array.isArray(st.gen[l])) st.gen[l] = []; } } },   // Italian: a language of its own beside German and Spanish
-  { to: 10, run: st => { st.days = obj(st.days); for (const d of Object.values(st.days)) if (d && typeof d === 'object' && 'bonus' in d){ if (+d.bonus > 0) d.bonus = +d.bonus; else delete d.bonus; } } }   // days[k].bonus: a duel win's XP, which doesn't count toward the daily goal (goalXP, engine.js)
+  { to: 10, run: st => { st.days = obj(st.days); for (const d of Object.values(st.days)) if (d && typeof d === 'object' && 'bonus' in d){ if (+d.bonus > 0) d.bonus = +d.bonus; else delete d.bonus; } } },   // days[k].bonus: a duel win's XP, which doesn't count toward the daily goal (goalXP, engine.js)
+  { to: 11, run: st => { for (const l of LANG_IDS) if (st.langs[l]) st.langs[l] = cleanLang(st.langs[l]); } }   // outs: units tested out of (testedOut, engine.js)
 ];
 function migrate(st){
   const from = +st.v || 1;
@@ -126,6 +127,7 @@ function mergeLang(a, b){
   for (const [k, x] of Object.entries(a.miss)){ const y = out.miss[k]; out.miss[k] = y ? { ts: Math.max(+x.ts || 0, +y.ts || 0), ok: Math.max(+x.ok || 0, +y.ok || 0) } : x; }
   out.cp = { ...b.cp };
   for (const [k, x] of Object.entries(a.cp)){ const y = out.cp[k]; out.cp[k] = y ? { at: (x.at || '') > (y.at || '') ? x.at : y.at, acc: Math.max(+x.acc || 0, +y.acc || 0), pass: !!(x.pass || y.pass) } : x; }
+  out.outs = { ...b.outs, ...a.outs };
   if ((b.startTs || 0) > (a.startTs || 0)){ out.start = b.start; out.startTs = b.startTs; }
   return out;
 }
