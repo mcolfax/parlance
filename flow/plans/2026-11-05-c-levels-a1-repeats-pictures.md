@@ -143,5 +143,5 @@ A learner who finished an old unit 16 lesson keeps it as done, though its conten
 - **Notes for the next cycle:**
   - C1 "Law & justice" (unit 42) follows as 4.30.0.
   - The unit 16 rework orphaned 102 review-card keys. 57 are carried by the live alias packs `content/aliases-de` and `content/aliases-es` (both homes); the other 45 have no matching word and stay saved but unused.
-  - 719 voice lines (de 252, es 271, it 196) were handed to the session whose key works; until they're recorded those lines use the device's voice.
+  - 719 voice lines (de 252, es 271, it 196) were handed to the session whose key works; until they're recorded those lines use the device's voice. Recorded on 2026-11-07 (b65bcb5), together with 4.30.0's.
   - 4.28.2 shipped from another session while this one was building; it was merged before release.
