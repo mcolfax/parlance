@@ -722,6 +722,8 @@ async function main(){
       ok(quick && R.errors.some(e => /navigation/i.test(e)), 'offline: Refresh still reloads');
       R.w.close();
     }
+    { const fcss = fs.readFileSync(path.join(ROOT, 'styles', 'fonts.css'), 'utf8'), urls = [...fcss.matchAll(/url\(([^)]+)\)/g)].map(m => m[1]);
+      ok(!/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8')) && urls.length >= 6 && urls.every(u => fs.existsSync(path.join(ROOT, 'styles', u))), 'fonts: no outside font host'); }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
