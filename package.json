@@ -9,7 +9,8 @@
     "web": "node dev/web.js",
     "snapshot": "node dev/flow.js snapshot",
     "guard": "node dev/flow.js guard",
-    "shots": "node dev/flow.js shots"
+    "shots": "node dev/flow.js shots",
+    "offline-check": "node dev/offline.js"
   },
   "devDependencies": {
     "jsdom": "24.1.3"

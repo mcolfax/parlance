@@ -1,0 +1,161 @@
+"use strict";
+/* Checks the web version's offline support in a real browser (Playwright). Run: npm run offline-check
+   It builds dist/ with dev/web.js, serves it on 127.0.0.1 (a secure context, so the service worker registers; the response headers
+   are vercel.json's, so the Content-Security-Policy is the real one), and checks five things, printing PASS or FAIL for each:
+     1  the build: dist/sw.js is filled in, dist/offline.json lists the app's files with their true hashes
+     2  the worker installs, takes over, and the cache holds every file that isn't lazy
+     3  with the network off: reload, visit the tabs, finish a lesson; the progress is saved; nothing breaks
+     4  a new release (a second build, version 9.9.9) arrives through offlineUpdate() and replaces the old files
+     5  the kill switch: a worker that removes itself and the cache leaves the site as it was before
+   --shots <folder> also saves 412px screenshots of Me (online) and Learn (offline), light and dark.
+   Needs Playwright (preinstalled in cloud sessions; otherwise NODE_PATH="$(npm root -g)"). Leaves nothing running. */
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const http = require('http');
+const { execFileSync } = require('child_process');
+
+const ROOT = path.join(__dirname, '..'), DIST = path.join(ROOT, 'dist');
+const args = process.argv.slice(2), shotsDir = args.includes('--shots') ? path.resolve(args[args.indexOf('--shots') + 1]) : null;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const results = [];
+function report(n, okay, what){ results.push(okay); console.log((okay ? 'PASS ' : 'FAIL ') + n + (what ? ' ' + what : '')); }
+
+/* ----- a static server whose folder can change while it runs, with vercel.json's headers ----- */
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png',
+  '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.webm': 'video/webm', '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json' };
+function serve(){
+  const headers = {};
+  for (const h of JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8')).headers[0].headers) headers[h.key.toLowerCase()] = h.value;
+  const s = { root: DIST, hits: [], server: null, port: 0 };
+  s.server = http.createServer((req, res) => {
+    const u = decodeURIComponent(req.url.split('?')[0]); s.hits.push(u);
+    const rel = path.normalize(u === '/' ? 'index.html' : u).replace(/^([/\\])+/, ''), file = path.join(s.root, rel);
+    if (!file.startsWith(s.root) || !fs.existsSync(file) || fs.statSync(file).isDirectory()){ res.writeHead(404, headers); return res.end(); }
+    res.writeHead(200, { ...headers, 'content-type': TYPES[path.extname(file)] || 'application/octet-stream', 'cache-control': 'max-age=0' }); fs.createReadStream(file).pipe(res);
+  });
+  return new Promise(r => s.server.listen(0, '127.0.0.1', () => { s.port = s.server.address().port; r(s); }));
+}
+function playwright(){
+  try { return require('playwright'); } catch (e) {}
+  const g = execFileSync('npm', ['root', '-g'], { encoding: 'utf8' }).trim();
+  return require(path.join(g, 'playwright'));
+}
+
+/* a copy of dist/ as a later release would build it */
+function nextRelease(version, killed){
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'parlance-offline-'));
+  fs.cpSync(DIST, tmp, { recursive: true });
+  const cfg = path.join(tmp, 'js', 'config.js');
+  fs.writeFileSync(cfg, fs.readFileSync(cfg, 'utf8').replace(/const APP_VERSION = '[^']+'/, "const APP_VERSION = '" + version + "'"));
+if (killed){   // the kill-switch worker and offline.json, exactly as dev/web.js writes them with OFFLINE = false
+    fs.writeFileSync(path.join(tmp, 'sw.js'), "self.addEventListener('install', () => self.skipWaiting());\nself.addEventListener('activate', e => e.waitUntil(caches.delete('parlance').then(() => self.registration.unregister())));\n");
+    fs.writeFileSync(path.join(tmp, 'offline.json'), JSON.stringify({ version, files: {}, off: true }));
+  }
+  else require('./web.js').writeServiceWorker(tmp);
+  return tmp;
+}
+
+async function main(){
+  /* 1 ----- the build */
+  execFileSync(process.execPath, [path.join(__dirname, 'web.js')], { cwd: ROOT, stdio: 'ignore' });
+  const swSrc = fs.readFileSync(path.join(DIST, 'sw.js'), 'utf8'), man = JSON.parse(fs.readFileSync(path.join(DIST, 'offline.json'), 'utf8'));
+  const crypto = require('crypto'), problems = [];
+  if (/__MANIFEST__|__VERSION__/.test(swSrc)) problems.push('sw.js still has a placeholder');
+  const pageScripts = [...fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').matchAll(/<script src="([^"]+)"/g)].map(m => m[1]);
+  const need = ['index.html', 'media/voice/es.json', ...pageScripts];
+  for (const f of need) if (!man.files[f]) problems.push(f + ' is not listed');
+  if (man.files['media/voice/es.json'] && man.files['media/voice/es.json'][2]) problems.push('media/voice/es.json is lazy');
+  if (!Object.keys(man.files).some(f => /^media\/voice\/.*\.mp3$/.test(f) && man.files[f][2] === 1)) problems.push('no lazy voice pack is listed');
+  for (const [f, [hash, bytes]] of Object.entries(man.files)){
+    const buf = fs.existsSync(path.join(DIST, f)) ? fs.readFileSync(path.join(DIST, f)) : null;
+    if (!buf) problems.push(f + ' is listed but missing');
+    else if (crypto.createHash('sha256').update(buf).digest('hex').slice(0, 12) !== hash || buf.length !== bytes) problems.push(f + ' has a different hash or size than listed');
+  }
+  if (Object.keys(man.files).some(f => /^(dev|docs)\//.test(f) || f === 'styleguide.html')) problems.push('dev/, docs/ or styleguide.html is listed');
+  report('1 build', !problems.length, problems.slice(0, 5).join('; ') || Object.keys(man.files).length + ' files listed');
+
+  const { chromium } = playwright();
+  const srv = await serve(), base = 'http://127.0.0.1:' + srv.port + '/', tmps = [];
+  const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
+  const errors = [];
+  try {
+    const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, reducedMotion: 'reduce', colorScheme: 'light' });
+    await ctx.route(u => !u.toString().startsWith('http://127.0.0.1:' + srv.port), r => r.abort());   // Supabase, Google Fonts: not reachable here
+    await ctx.addInitScript(() => {   // an onboarded learner who has seen the film, with music and sounds off (as dev/flow.js shots)
+      try { if (!localStorage.getItem('parlance.v2')) localStorage.setItem('parlance.v2', JSON.stringify({ v: 9, settings: { onboarded: true, lang: 'es', seenVersion: '999.0.0', filmSeen: true, homeMusic: false, sfx: false, autoplay: false } })); } catch (e) {}
+    });
+    const page = await ctx.newPage();
+    page.on('pageerror', e => errors.push(e.message));
+    const view = () => page.waitForSelector('#app .view', { timeout: 10000 });
+    const shot = async name => {
+      if (!shotsDir) return;
+      fs.mkdirSync(shotsDir, { recursive: true });
+      for (const scheme of ['light', 'dark']){ await page.emulateMedia({ colorScheme: scheme }); await sleep(300); await page.screenshot({ path: path.join(shotsDir, scheme + '-' + name + '.png') }); }
+      await page.emulateMedia({ colorScheme: 'light' });
+    };
+    const tab = async t => { await page.locator('#tabs .tab', { hasText: t }).first().click({ timeout: 5000 }); await sleep(500); };
+
+    /* 2 ----- install and take over */
+    await page.goto(base, { waitUntil: 'load' });
+    await page.waitForFunction(() => navigator.serviceWorker && navigator.serviceWorker.getRegistration().then(r => !!(r && r.active)) && window.Offline && Offline.ready, null, { timeout: 30000 }).catch(() => {});
+    await page.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 5000 }).catch(() => {});
+    if (!await page.evaluate(() => !!navigator.serviceWorker.controller)){ await page.reload({ waitUntil: 'load' }); await page.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 10000 }).catch(() => {}); }
+    const wantKeys = Object.keys(man.files).filter(f => !man.files[f][2]).map(f => new URL(f + '?v=' + man.files[f][0], base).href);
+    const haveKeys = await page.evaluate(async () => (await (await caches.open('parlance')).keys()).map(r => r.url));
+    const lazyKeys = Object.keys(man.files).filter(f => man.files[f][2]).map(f => new URL(f + '?v=' + man.files[f][0], base).href);
+    const missing = wantKeys.filter(k => !haveKeys.includes(k)), extra = haveKeys.filter(k => !wantKeys.includes(k) && !lazyKeys.includes(k));   // a lazy file the page already used (a voice pack) may be there
+    const controlled = await page.evaluate(() => !!navigator.serviceWorker.controller);
+    await view();
+    await tab('Me'); await shot('me-online'); await tab('Learn');
+    report('2 install', controlled && !missing.length && !extra.length, controlled ? (missing.length ? 'missing from the cache: ' + missing.slice(0, 3).join(', ') : extra.length ? 'unexpected in the cache: ' + extra.slice(0, 3).join(', ') : wantKeys.length + ' files cached') : 'the worker never took over');
+
+    /* 3 ----- offline */
+    await ctx.setOffline(true);
+    const hitsBefore = srv.hits.length, bad = [];
+    page.on('requestfailed', r => { if (r.url().startsWith(base) && !/media\/voice\/|sw\.js/.test(r.url())) bad.push(r.url()); });
+    await page.reload({ waitUntil: 'load' });
+    let off = '';
+    try {
+      await view();
+      for (const t of ['Learn', 'Stories', 'Review', 'Me']) await tab(t);
+      await tab('Learn'); await shot('learn-offline');
+      const id = await page.evaluate(() => { const id = coreOrder(S.settings.lang)[0].id; startLesson(id); return id; });
+      await page.waitForSelector('.ov-foot button', { timeout: 10000 });
+      await page.evaluate(() => { Run.pos = Run.queue.length; nextEx(); });
+      await page.locator('button:visible', { hasText: 'Continue' }).first().click({ timeout: 10000 });
+      await sleep(500);
+      const saved = await page.evaluate(id => { try { saveLocal(); } catch (e) {} const s = JSON.parse(localStorage['parlance.v2']); const L = s.langs && s.langs[s.settings.lang]; return !!(L && L.done && L.done[id]); }, id);
+      if (!saved) off = 'the finished lesson is not in the saved progress';
+    } catch (e) { off = String(e.message).split('\n')[0]; }
+    const appHits = srv.hits.slice(hitsBefore).filter(u => u !== '/sw.js' && !/^\/media\/voice\/.*\.mp3$/.test(u));
+    if (!off && appHits.length) off = 'the server was asked for ' + appHits.slice(0, 3).join(', ') + ' while offline';
+    if (!off && bad.length) off = 'failed requests: ' + bad.slice(0, 3).join(', ');
+    if (!off && errors.length) off = 'page error: ' + errors[0];
+    report('3 offline', !off, off || 'reload, tabs and a finished lesson all worked with the network off');
+    await ctx.setOffline(false);
+
+    /* 4 ----- a new release */
+    const t2 = nextRelease('9.9.9'); tmps.push(t2); srv.root = t2;
+    await page.goto(base, { waitUntil: 'load' }); await view();
+    await page.evaluate(() => offlineUpdate());
+    await page.reload({ waitUntil: 'load' }); await view();
+    const ver = await page.evaluate(() => APP_VERSION);
+    const keys = await page.evaluate(async () => (await (await caches.open('parlance')).keys()).map(r => r.url));
+    const oldCfg = new URL('js/config.js?v=' + man.files['js/config.js'][0], base).href;
+    report('4 update', ver === '9.9.9' && !keys.includes(oldCfg), ver !== '9.9.9' ? 'the page still reports ' + ver : keys.includes(oldCfg) ? 'the old js/config.js is still cached' : 'the new version took over and the old files are gone');
+
+    /* 5 ----- the kill switch */
+    const t3 = nextRelease('9.9.8', true); tmps.push(t3); srv.root = t3;
+    await page.evaluate(() => offlineUpdate());
+    await page.reload({ waitUntil: 'load' }); await view(); await sleep(800);
+    await page.reload({ waitUntil: 'load' }); await view(); await sleep(800);
+    const k = await page.evaluate(async () => ({ controller: !!navigator.serviceWorker.controller, caches: await caches.keys(), ver: APP_VERSION }));
+    report('5 kill switch', !k.controller && !k.caches.includes('parlance'), k.controller ? 'a worker still controls the page' : k.caches.includes('parlance') ? 'the cache is still there' : 'no worker, no cache (page version ' + k.ver + ')');
+  } finally {
+    await browser.close(); srv.server.close();
+    for (const t of tmps) fs.rmSync(t, { recursive: true, force: true });
+  }
+}
+main().then(() => { console.log(results.every(Boolean) && results.length === 5 ? '\nAll five steps passed.' : '\nSomething failed.'); process.exit(results.every(Boolean) && results.length === 5 ? 0 : 1); },
+  e => { console.error(e && e.stack || e); console.log('FAIL (the check itself stopped: ' + String(e && e.message).split('\n')[0] + ')'); process.exit(1); });

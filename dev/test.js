@@ -709,6 +709,19 @@ async function main(){
       L().done = sn.done; L().cp = sn.cp; L().outs = sn.outs || {}; Q.P.S.badges = sn.badges; Q.P.S.stats = sn.stats;
       Q.E('UI.openLang = null; render()');
     }
+    // offline: the service worker is web-only; in the artifact build the module stays off, and Refresh still reloads
+    ok(Q.E('Offline.on') === false && Q.E('Offline.reg') === null, 'offline: nothing runs in the artifact');
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      R.P.Live.config = { kind: 'config', latest: '99.0.0' }; R.E('checkUpdateBanner()');
+      const rb = R.w.document.querySelector('#update-banner button');
+      const quick = await Promise.race([R.E('offlineUpdate()').then(() => true), sleep(500).then(() => false)]);
+      rb.click();
+      ok(rb.disabled && rb.textContent === 'Updating…', 'offline: Refresh says it is updating');
+      for (let i = 0; i < 60 && !R.errors.some(e => /navigation/i.test(e)); i++) await sleep(25);   // jsdom reports location.reload() as "not implemented: navigation"
+      ok(quick && R.errors.some(e => /navigation/i.test(e)), 'offline: Refresh still reloads');
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
