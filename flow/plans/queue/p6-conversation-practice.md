@@ -2,7 +2,7 @@
 
 - **Cycle:** set when promoted (premium program P6, `flow/PREMIUM.md`)
 - **Status:** queued (promote: move to `flow/plans/<cycle date>-p6-conversation-practice.md`, set Release, Base and `approved`)
-- **Release:** 4.37.0, or the next free minor when promoted
+- **Release:** 4.38.0, or the next free minor when promoted
 - **Base:** `main` at promotion time
 - **Proposals built:** none. Answers idea note fmv58xfx9pqsf (tutor features outside Claude) in a way that needs no tutor.
 - **Roadmap items:** R-4, R-8

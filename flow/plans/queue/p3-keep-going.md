@@ -2,7 +2,7 @@
 
 - **Cycle:** set when promoted (premium program P3, `flow/PREMIUM.md`)
 - **Status:** queued (promote: move to `flow/plans/<cycle date>-p3-keep-going.md`, set Release, Base and `approved`)
-- **Release:** 4.34.0, or the next free minor when promoted
+- **Release:** 4.35.0, or the next free minor when promoted
 - **Base:** `main` at promotion time (nothing below depends on line numbers)
 - **Proposals built:** none
 - **Roadmap items:** new R-33, R-34, R-35

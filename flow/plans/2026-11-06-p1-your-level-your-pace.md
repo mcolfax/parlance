@@ -1,9 +1,9 @@
 # Your level, your pace: test out of a unit, a first-week guide, a tidy practice grid
 
 - **Cycle:** 2026-11-06 (premium program P1, `flow/PREMIUM.md`)
-- **Status:** approved
-- **Release:** 4.32.0 (minor: new features)
-- **Base:** `main` at 96137e4 (if `main` has moved, use its head; nothing below depends on line numbers)
+- **Status:** building
+- **Release:** 4.33.0 (minor: new features)
+- **Base:** `main` at e3b0c02 (4.32.0), merged into the work branch as dcfdcb4
 - **Proposals built:** none. Answers rating fmvl62jxd97vy ("Too easy") and the first-week drop-off in `flow/PREMIUM.md`.
 - **Roadmap items:** R-19, new R-23 and R-24
 
@@ -271,7 +271,7 @@ If `rise` isn't a keyframe defined in the stylesheets, drop the `animation` and 
 ## Integration
 
 On the cycle branch, after the three packages are merged (`parlance-chores`, Haiku):
-- [ ] `js/config.js`: `APP_VERSION = '4.32.0'`; the `RELEASES` entry from "Release notes" below, dated the ship day.
+- [ ] `js/config.js`: `APP_VERSION = '4.33.0'`; the `RELEASES` entry from "Release notes" below, dated the ship day.
 - [ ] `docs/ARCHITECTURE.md`, "Practice beyond lessons", the **Unit checkpoints** bullet: add "A unit's checkpoint can also be taken before its lessons, from Learn (**Test out**): a pass records the unit in `langs[lang].outs` (schema 11), `nextLesson()` moves past it and its lessons show as open, but they aren't done: no review cards, no level badge." And in "Where things live" nothing changes.
 - [ ] `CLAUDE.md`: nothing (no new command or rule).
 - [ ] No content changed: no pictures, no voices. Run `node dev/voices.js --dry` once to confirm 0 lines, then skip the illustrator.

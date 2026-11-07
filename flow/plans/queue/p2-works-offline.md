@@ -2,7 +2,7 @@
 
 - **Cycle:** set when promoted (premium program P2, `flow/PREMIUM.md`)
 - **Status:** queued (promote: move to `flow/plans/<cycle date>-p2-works-offline.md`, set Release, Base and `approved`)
-- **Release:** 4.33.0, or the next free minor when promoted
+- **Release:** 4.34.0, or the next free minor when promoted
 - **Base:** `main` at promotion time (nothing below depends on line numbers)
 - **Proposals built:** web `proposals/pfmw53mrwk`, "Make the web app work offline", approved by Matt himself in chat on 2026-11-06, on one condition: it must cost nothing. Check its status before building (POLICY "If Matt approved a Red proposal himself").
 - **Roadmap items:** R-28
