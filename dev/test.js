@@ -755,6 +755,17 @@ async function main(){
     }
     { const fcss = fs.readFileSync(path.join(ROOT, 'styles', 'fonts.css'), 'utf8'), urls = [...fcss.matchAll(/url\(([^)]+)\)/g)].map(m => m[1]);
       ok(!/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8')) && urls.length >= 6 && urls.every(u => fs.existsSync(path.join(ROOT, 'styles', u))), 'fonts: no outside font host'); }
+    // offline in the app: Me's card is web-only; Friends says so when there is no connection
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      R.E('UI.tab = "me"; render()');
+      ok(!R.w.document.querySelector('#app .offline-card') && R.E('Offline.on') === false, 'offline: no offline card in the artifact');
+      Object.defineProperty(R.w.navigator, 'onLine', { get: () => false, configurable: true });
+      R.E('UI.tab = "friends"; render()');
+      const note = R.w.document.querySelector('#app .friends > .notice');
+      ok(note && /Friends needs a connection/.test(note.textContent) && note.previousElementSibling && note.previousElementSibling.matches('header.top'), 'offline: Friends says it needs a connection');
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

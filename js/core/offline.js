@@ -26,4 +26,18 @@ function offlineUpdate(ms){
     reg.update().then(() => { if (!reg.installing && !reg.waiting) done(); }, done);
   });
 }
+/* the voice files for a language, from offline.json (the worker's list): which are kept on this phone, and their size */
+async function offlineVoices(lang){
+  const m = await (await fetch('offline.json')).json(), c = await caches.open('parlance');
+  const packs = Object.keys(m.files).filter(p => p.startsWith('media/voice/' + lang + '-') && p.endsWith('.mp3'));
+  let kept = 0, bytes = 0;
+  for (const p of packs){ bytes += m.files[p][1]; if (await c.match(new URL(p + '?v=' + m.files[p][0], location.href).href)) kept++; }
+  return { packs, kept, total: packs.length, mb: Math.round(bytes / 1048576) };
+}
+/* fetch each pack once; the worker keeps it. onStep(done, total) after each */
+async function saveVoices(lang, onStep){
+  const v = await offlineVoices(lang); let n = 0;
+  for (const p of v.packs){ try { await fetch(p); } catch (e) {} onStep(++n, v.total); }
+  return offlineVoices(lang);
+}
 offlineStart();

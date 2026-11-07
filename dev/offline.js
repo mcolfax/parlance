@@ -1,13 +1,15 @@
 "use strict";
 /* Checks the web version's offline support in a real browser (Playwright). Run: npm run offline-check
    It builds dist/ with dev/web.js, serves it on 127.0.0.1 (a secure context, so the service worker registers; the response headers
-   are vercel.json's, so the Content-Security-Policy is the real one), and checks five things, printing PASS or FAIL for each:
+   are vercel.json's, so the Content-Security-Policy is the real one), and checks seven things, printing PASS or FAIL for each:
      1  the build: dist/sw.js is filled in, dist/offline.json lists the app's files with their true hashes
      2  the worker installs, takes over, and the cache holds every file that isn't lazy
      3  with the network off: reload, visit the tabs, finish a lesson; the progress is saved; nothing breaks
      4  a new release (a second build, version 9.9.9) arrives through offlineUpdate() and replaces the old files
      5  the kill switch: a worker that removes itself and the cache leaves the site as it was before
-   --shots <folder> also saves 412px screenshots of Me (online) and Learn (offline), light and dark.
+     6  Me → Save Spanish voices for offline keeps every Spanish voice pack, and the card says so
+     7  with the network off, a lesson's first word comes from the kept pack (no voice request fails)
+   --width <px> changes the phone's width (default 412). --shots <folder> also saves screenshots of Me (online, and after saving voices), Learn and Friends (offline), light and dark.
    Needs Playwright (preinstalled in cloud sessions; otherwise NODE_PATH="$(npm root -g)"). Leaves nothing running. */
 const fs = require('fs');
 const os = require('os');
@@ -17,6 +19,7 @@ const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..'), DIST = path.join(ROOT, 'dist');
 const args = process.argv.slice(2), shotsDir = args.includes('--shots') ? path.resolve(args[args.indexOf('--shots') + 1]) : null;
+const width = args.includes('--width') ? +args[args.indexOf('--width') + 1] : 412;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const results = [];
 function report(n, okay, what){ results.push(okay); console.log((okay ? 'PASS ' : 'FAIL ') + n + (what ? ' ' + what : '')); }
@@ -80,17 +83,22 @@ async function main(){
   const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
   const errors = [];
   try {
-    const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, reducedMotion: 'reduce', colorScheme: 'light' });
-    await ctx.route(u => !u.toString().startsWith('http://127.0.0.1:' + srv.port), r => r.abort());   // Supabase, Google Fonts: not reachable here
-    await ctx.addInitScript(() => {   // an onboarded learner who has seen the film, with music and sounds off (as dev/flow.js shots)
-      try { if (!localStorage.getItem('parlance.v2')) localStorage.setItem('parlance.v2', JSON.stringify({ v: 9, settings: { onboarded: true, lang: 'es', seenVersion: '999.0.0', filmSeen: true, homeMusic: false, sfx: false, autoplay: false } })); } catch (e) {}
-    });
+    const newCtx = async () => {
+      const ctx = await browser.newContext({ viewport: { width, height: 915 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, reducedMotion: 'reduce', colorScheme: 'light' });
+      await ctx.route(u => !u.toString().startsWith('http://127.0.0.1:' + srv.port), r => r.abort());   // Supabase, Google Fonts: not reachable here
+      await ctx.addInitScript(() => {   // an onboarded learner who has seen the film, with music and sounds off (as dev/flow.js shots)
+        try { if (!localStorage.getItem('parlance.v2')) localStorage.setItem('parlance.v2', JSON.stringify({ v: 9, settings: { onboarded: true, lang: 'es', seenVersion: '999.0.0', filmSeen: true, homeMusic: false, sfx: false, autoplay: false } })); } catch (e) {}
+      });
+      return ctx;
+    };
+    const ctx = await newCtx();
     const page = await ctx.newPage();
     page.on('pageerror', e => errors.push(e.message));
     const view = () => page.waitForSelector('#app .view', { timeout: 10000 });
     const shot = async name => {
       if (!shotsDir) return;
       fs.mkdirSync(shotsDir, { recursive: true });
+      await page.evaluate(() => { const c = document.querySelector('.offline-card'); if (c) c.scrollIntoView({ block: 'center' }); }); await sleep(200);
       for (const scheme of ['light', 'dark']){ await page.emulateMedia({ colorScheme: scheme }); await sleep(300); await page.screenshot({ path: path.join(shotsDir, scheme + '-' + name + '.png') }); }
       await page.emulateMedia({ colorScheme: 'light' });
     };
@@ -119,6 +127,8 @@ async function main(){
     try {
       await view();
       for (const t of ['Learn', 'Stories', 'Review', 'Me']) await tab(t);
+      await shot('me-offline');
+      await tab('Friends'); await shot('friends-offline');
       await tab('Learn'); await shot('learn-offline');
       const id = await page.evaluate(() => { const id = coreOrder(S.settings.lang)[0].id; startLesson(id); return id; });
       await page.waitForSelector('.ov-foot button', { timeout: 10000 });
@@ -152,10 +162,58 @@ async function main(){
     await page.reload({ waitUntil: 'load' }); await view(); await sleep(800);
     const k = await page.evaluate(async () => ({ controller: !!navigator.serviceWorker.controller, caches: await caches.keys(), ver: APP_VERSION }));
     report('5 kill switch', !k.controller && !k.caches.includes('parlance'), k.controller ? 'a worker still controls the page' : k.caches.includes('parlance') ? 'the cache is still there' : 'no worker, no cache (page version ' + k.ver + ')');
+
+    /* 6 ----- save a language's voices (a fresh phone: the worker installs again from the first build) */
+    srv.root = DIST;
+    await ctx.close();
+    const ctx2 = await newCtx(), p2 = await ctx2.newPage();
+    p2.on('pageerror', e => errors.push(e.message));
+    const view2 = () => p2.waitForSelector('#app .view', { timeout: 10000 });
+    await p2.goto(base, { waitUntil: 'load' });
+    await p2.waitForFunction(() => window.Offline && Offline.ready, null, { timeout: 30000 }).catch(() => {});
+    await p2.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 5000 }).catch(() => {});
+    if (!await p2.evaluate(() => !!navigator.serviceWorker.controller)){ await p2.reload({ waitUntil: 'load' }); await p2.waitForFunction(() => navigator.serviceWorker.controller, null, { timeout: 10000 }).catch(() => {}); }
+    await view2();
+    const esPacks = Object.keys(man.files).filter(f => /^media\/voice\/es-.*\.mp3$/.test(f));
+    let six = '';
+    try {
+      await p2.locator('#tabs .tab', { hasText: 'Me' }).first().click({ timeout: 5000 });
+      const save = p2.locator('.offline-card button', { hasText: 'Save Spanish voices for offline' });
+      await save.waitFor({ timeout: 10000 });
+      await save.click();
+      await p2.locator('.offline-card', { hasText: 'Spanish voices are saved for offline.' }).waitFor({ timeout: 60000 });
+      const have = await p2.evaluate(async () => (await (await caches.open('parlance')).keys()).map(r => r.url));
+      const lacking = esPacks.filter(f => !have.includes(new URL(f + '?v=' + man.files[f][0], base).href));
+      if (!esPacks.length) six = 'no Spanish voice packs are listed';
+      else if (lacking.length) six = lacking.length + ' of ' + esPacks.length + ' packs are not in the cache, for example ' + lacking[0];
+      if (shotsDir){ fs.mkdirSync(shotsDir, { recursive: true }); await p2.evaluate(() => document.querySelector('.offline-card').scrollIntoView({ block: 'center' })); await sleep(200); for (const scheme of ['light', 'dark']){ await p2.emulateMedia({ colorScheme: scheme }); await sleep(300); await p2.screenshot({ path: path.join(shotsDir, scheme + '-me-voices-saved.png') }); } await p2.emulateMedia({ colorScheme: 'light' }); }
+    } catch (e) { six = String(e.message).split('\n')[0]; }
+    report('6 save voices', !six, six || esPacks.length + ' Spanish voice packs kept, and the card says so');
+
+    /* 7 ----- offline, the first word plays from the kept pack */
+    const failedVoice = [];
+    p2.on('requestfailed', r => { if (/media\/voice\//.test(r.url())) failedVoice.push(r.url()); });
+    await ctx2.setOffline(true);
+    let seven = '';
+    try {
+      await p2.reload({ waitUntil: 'load' }); await view2();
+      const got = await p2.evaluate(async () => {
+        const l = coreOrder(S.settings.lang)[0], text = lessonSaid(l)[0], lang = S.settings.lang;
+        startLesson(l.id);
+        const idx = await recIndex(lang), clip = idx && recClip(idx, text);
+        if (!clip) return { text, why: 'the word has no recorded clip' };
+        const buf = await recPack(lang, clip[0]);
+        return { text, why: buf && buf.byteLength >= clip[1] + clip[2] ? '' : 'the pack did not load', played: await speak(text, lang) };
+      });
+      if (got.why) seven = got.why + ' (' + got.text + ')';
+      else if (failedVoice.length) seven = 'voice requests failed: ' + failedVoice.slice(0, 2).join(', ');
+    } catch (e) { seven = String(e.message).split('\n')[0]; }
+    report('7 voices offline', !seven, seven || 'the first word’s recorded clip loaded with the network off');
+    await ctx2.close();
   } finally {
     await browser.close(); srv.server.close();
     for (const t of tmps) fs.rmSync(t, { recursive: true, force: true });
   }
 }
-main().then(() => { console.log(results.every(Boolean) && results.length === 5 ? '\nAll five steps passed.' : '\nSomething failed.'); process.exit(results.every(Boolean) && results.length === 5 ? 0 : 1); },
+main().then(() => { console.log(results.every(Boolean) && results.length === 7 ? '\nAll seven steps passed.' : '\nSomething failed.'); process.exit(results.every(Boolean) && results.length === 7 ? 0 : 1); },
   e => { console.error(e && e.stack || e); console.log('FAIL (the check itself stopped: ' + String(e && e.message).split('\n')[0] + ')'); process.exit(1); });

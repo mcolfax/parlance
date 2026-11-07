@@ -133,6 +133,7 @@ function viewMe(){
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: showBackup }, 'Copy backup code'),
       h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: restoreBackup }, 'Restore')),
     DL.save ? h('button', { class: 'linkish', type: 'button', style: 'align-self:flex-start', onclick: downloadBackup }, 'Download a backup file') : null));
+  if (Offline.on) v.append(offlineCard(lang));
   const home = Web.on && webHomeScreenCard(); if (home) v.append(home);
   v.append(h('div', { class: 'row wrap center' },
     h('button', { class: 'linkish', type: 'button', onclick: () => openOnboarding(true) }, 'Change language or level'),
@@ -233,6 +234,26 @@ function openWebNewPassword(){
     } }]);
 }
 /* Chrome hands us an install prompt to call. Safari on iPhone and iPad has none, so its button shows the steps instead. */
+/* Me → Use Parlance offline (web version only): what is kept on this phone, and a button to keep a language's voices */
+function offlineCard(lang){
+  const name = LANGS[lang].name, line = h('div', { class: 'offline-voices' }, h('p', { class: 'small muted' }, 'Checking voices…'));
+  const fill = () => !navigator.onLine ? line.replaceChildren(h('p', { class: 'small muted' }, 'Connect to save voices.')) : offlineVoices(lang).then(v => {
+    if (!v.total || v.kept >= v.total){
+      line.replaceChildren(h('div', { class: 'row' }, ic('check'), h('p', { class: 'small grow' }, v.total ? name + ' voices are saved for offline.' : 'There are no ' + name + ' voices to save yet.')));
+      return;
+    }
+    const btn = h('button', { class: 'btn btn-quiet btn-sm', type: 'button' }, 'Save ' + name + ' voices for offline (' + v.mb + ' MB)');
+    btn.onclick = () => {
+      btn.disabled = true; btn.textContent = 'Saving voices… 0 of ' + v.total;
+      saveVoices(lang, (n, t) => { btn.textContent = 'Saving voices… ' + n + ' of ' + t; }).then(fill, fill);
+    };
+    line.replaceChildren(btn, h('p', { class: 'small muted' }, 'Until then, lessons you haven’t opened yet use your phone’s own voice when offline. Best on Wi-Fi.'));
+  }, () => line.replaceChildren(h('p', { class: 'small muted' }, 'Voices can’t be checked right now.')));
+  const sec = h('section', { class: 'card offline-card' }, h('h3', null, 'Use Parlance offline'),
+    h('p', { class: 'small muted' }, 'Parlance is kept on this phone, so lessons, reviews and stories open without a connection. Your progress syncs when you’re back online.'), line);
+  setTimeout(fill, 0);
+  return sec;
+}
 function webHomeScreenCard(){
   if (webStandalone() || !(webIOS() || Web.install)) return null;
   const add = h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => webAddHome() }, 'Add to Home Screen');

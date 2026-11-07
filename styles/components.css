@@ -278,6 +278,7 @@ li.locked .st-title{color:var(--muted)}
 .web-msg:empty{display:none}
 .web-home-ic{flex:none;border-radius:var(--r-md)}
 .web-home .btn{align-self:flex-start}
+.offline-card .row{align-items:center;gap:8px}
 .hs-help{display:flex;flex-direction:column;gap:16px}
 .hs-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px;counter-reset:hs}
 .hs-step{display:grid;grid-template-columns:46px minmax(0,1fr);gap:14px;align-items:center}
