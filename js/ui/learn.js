@@ -58,6 +58,8 @@ function heroCard(){
     h('p', { class: 'muted' }, 'Keep your words fresh in Review, read a story, talk with your tutor, or have it write new lessons below.'));
   const where = nx.core ? 'Unit ' + (nx.unit + 1) + ' · ' + COURSE[lang].units[nx.unit].title : 'Your lessons';
   const started = Object.keys(S.langs[lang].done).length > 0;
+  const nu = nx.core ? COURSE[lang].units[nx.unit] : null;
+  const fresh = nu && nu.lessons[0].id === nx.id && !nu.lessons.some(l => isDone(lang, l.id)) && !(S.langs[lang].cp[nu.title] && S.langs[lang].cp[nu.title].pass) && (started || startIndex(lang) > 0);
   const mood = pipMoodNow();
   const say = mood === 'wow' ? ({ de: 'Deine Serie!', es: '¡Tu racha!', it: 'La tua serie!' }[lang]) : mood === 'cheer' ? pickSay(lang, 'cheer') : pipHello(lang);
   // Pip waves hello and mouths its line when you come to Learn, and through the redraws right after (sync, profile), not on every redraw
@@ -68,7 +70,8 @@ function heroCard(){
     h('div', { class: 'hero-top' },
       h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Next stop · ' + nx.level + ' ' + LEVEL_NAME[nx.level]), h('h2', null, nx.title), h('p', { class: 'muted' }, where + ' · about ' + minutesFor(nx) + ' min')),
       pip(mood, 80, { cls: 'hero-pip', say, mouth: arriving && mood !== 'sleep', wave: arriving && mood === 'happy' })),
-    h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => startLesson(nx.id) }, started ? 'Continue' : 'Start your first lesson'));
+    h('button', { class: 'btn btn-primary btn-wide shine', type: 'button', onclick: () => startLesson(nx.id) }, started ? 'Continue' : 'Start your first lesson'),
+    fresh ? h('button', { class: 'linkish small', type: 'button', onclick: () => confirmTestOut(nu) }, 'Know this unit already? Test out') : null);
 }
 /* a lesson left half-done on this device: one tap puts you back where you were (runner.js keeps the record) */
 function resumeCard(){
@@ -145,14 +148,20 @@ function stationList(lessons, lang){
 }
 /* the unit checkpoint: a short test that opens once every lesson in the unit is done */
 function checkpointRow(u, lang){
-  const ready = unitDone(lang, u), rec = S.langs[lang].cp[u.title];
-  const state = rec && rec.pass ? 'done' : ready ? 'next' : 'locked';
-  const meta = rec ? (rec.pass ? 'Passed' : 'Not passed yet') + ' · best ' + Math.round((rec.acc || 0) * 100) + '%' : CHECKPOINT.questions + ' questions · ' + Math.round(CHECKPOINT.pass * 100) + '% to pass';
+  const ready = unitDone(lang, u), rec = S.langs[lang].cp[u.title], passed = !!(rec && rec.pass), out = !!(S.langs[lang].outs || {})[u.title];
+  const state = passed ? 'done' : ready ? 'next' : 'open';
+  const best = rec ? ' · best ' + Math.round((rec.acc || 0) * 100) + '%' : '';
+  const meta = passed ? (out && !ready ? 'Tested out' : 'Passed') + best : rec ? 'Not passed yet' + best : ready ? CHECKPOINT.questions + ' questions · ' + Math.round(CHECKPOINT.pass * 100) + '% to pass' : 'Know this unit already? Test out';
   return h('ol', { class: 'stations checkpoint' }, h('li', { class: state },
-    h('button', { class: 'station', type: 'button', onclick: () => ready ? startCheckpoint(u) : toast('Finish this unit’s lessons to unlock its checkpoint.') },
-      h('span', { class: 'dot' }, rec && rec.pass ? ic('check') : ic('flag')),
-      h('span', { class: 'st-body' }, h('span', { class: 'st-title' }, 'Unit checkpoint'), h('span', { class: 'st-meta' }, ready || rec ? meta : 'Unlocks when the unit is done')),
-      h('span', { class: 'st-state' }, rec && rec.pass ? 'Again' : ready ? 'Start' : ic('lock')))));
+    h('button', { class: 'station', type: 'button', onclick: () => ready || passed ? startCheckpoint(u, !ready) : confirmTestOut(u) },
+      h('span', { class: 'dot' }, passed ? ic('check') : ic('flag')),
+      h('span', { class: 'st-body' }, h('span', { class: 'st-title' }, 'Unit checkpoint'), h('span', { class: 'st-meta' }, meta)),
+      h('span', { class: 'st-state' }, passed ? 'Again' : ready ? 'Start' : 'Test out'))));
+}
+function confirmTestOut(u){
+  sheet('Test out of this unit?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('point', 56, { tap: false }),
+    h('p', { class: 'grow' }, CHECKPOINT.questions + ' questions from “' + u.title + '”. Score ' + Math.round(CHECKPOINT.pass * 100) + '% and your route moves past this unit. Its lessons stay open, and their words join Review when you take them.')),
+    [{ label: 'Not now' }, { label: 'Start the test', primary: true, run: () => { startCheckpoint(u, true); } }]);
 }
 function confirmLocked(l){
   sheet('Jump ahead?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('point', 56, { tap: false }), h('p', { class: 'grow' }, '“' + l.title + '” is further along your route. You can take it now; nothing is skipped for good.')),

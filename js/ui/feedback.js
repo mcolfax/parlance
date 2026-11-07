@@ -108,7 +108,8 @@ function quickRating(ctx){
   const opts = [[-1, 'Too easy'], [0, 'Just right'], [1, 'Too hard']];
   box.append(h('div', { class: 'chips center' }, opts.map(([v, label]) => h('button', { class: 'chip', type: 'button', onclick: () => {
     queueFeedback({ id: fbId(), at: Date.now(), type: 'rating', rating: v, text: label, ctx: fbContext(ctx) });
-    sfx('pop'); box.replaceChildren(h('span', { class: 'small good rate-thanks' }, ic('check'), ' Thanks, noted. ', h('button', { class: 'linkish small', type: 'button', onclick: () => openFeedback({ type: 'level', ctx }) }, 'Tell us more')));
+    sfx('pop'); box.replaceChildren(...[h('span', { class: 'small good rate-thanks' }, ic('check'), ' Thanks, noted. ', h('button', { class: 'linkish small', type: 'button', onclick: () => openFeedback({ type: 'level', ctx }) }, 'Tell us more')),
+      v === -1 && ctx && ctx.lessonId ? h('p', { class: 'small muted' }, 'Feeling easy? On Learn, tap Test out on a unit you already know.') : null].filter(Boolean));
   } }, label))));
   return box;
 }

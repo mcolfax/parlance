@@ -133,9 +133,9 @@ function startGenders(){
   const lang = S.settings.lang, es = genderEntries(lang); if (es.length < GENDER_DRILL.min) return;
   beginSession('genders', lang, shuffle(es).slice(0, GENDER_DRILL.perSession).map(genderEx));
 }
-function startCheckpoint(u){
-  const lang = S.settings.lang; if (!unitDone(lang, u)) return;
-  beginSession('checkpoint', lang, buildCheckpoint(u), { unit: u });
+function startCheckpoint(u, testOut){
+  const lang = S.settings.lang; if (!unitDone(lang, u) && !testOut) return;
+  beginSession('checkpoint', lang, buildCheckpoint(u), { unit: u, testOut: !!testOut });
 }
 function startPlacement(){
   const lang = S.settings.lang, first = LEVELS.find(lv => placementSet(lang, lv).length); if (!first) return;
@@ -597,11 +597,14 @@ function finishRun(){
     bumpQuest('lessons', 1); if (acc >= 0.9) bumpQuest('acc', 1);
   } else if (Run.mode === 'checkpoint'){
     const u = Run.unit, L = S.langs[lang], prev = L.cp[u.title], pass = acc >= CHECKPOINT.pass;
+    const out = !!Run.testOut && !unitDone(lang, u);
     xp += pass && !(prev && prev.pass) ? XP.checkpoint : XP.review;
-    L.cp[u.title] = { at: today(), acc: Math.max(acc, prev && prev.acc || 0), pass: !!(pass || (prev && prev.pass)) };
-    title = u.title; top = pass ? 'Checkpoint passed' : 'Checkpoint'; cpPass = pass;
-    h1o = pass ? 'Checkpoint passed.' : 'Not quite yet.';
-    subo = pass ? 'You know this unit. The mistakes you made are on your “Fix my mistakes” list.' : 'You need ' + Math.round(CHECKPOINT.pass * 100) + '% to pass. Look back at the unit’s lessons and try again whenever you like.';
+    L.cp[u.title] = { ...(prev || {}), at: today(), acc: Math.max(acc, prev && prev.acc || 0), pass: !!(pass || (prev && prev.pass)) };
+    if (out && pass){ L.outs = L.outs || {}; if (!L.outs[u.title]) L.outs[u.title] = today(); UI.openLang = null; }
+    title = u.title; top = out ? (pass ? 'Tested out' : 'Checkpoint') : pass ? 'Checkpoint passed' : 'Checkpoint'; cpPass = pass;
+    h1o = out ? (pass ? 'Unit tested out.' : 'Not quite yet.') : pass ? 'Checkpoint passed.' : 'Not quite yet.';
+    subo = out ? (pass ? 'Your route moves past “' + u.title + '”. Its lessons stay open whenever you want them.' : 'You need ' + Math.round(CHECKPOINT.pass * 100) + '% to test out. Its lessons will get you there, and you can try again any time.')
+      : pass ? 'You know this unit. The mistakes you made are on your “Fix my mistakes” list.' : 'You need ' + Math.round(CHECKPOINT.pass * 100) + '% to pass. Look back at the unit’s lessons and try again whenever you like.';
     bumpQuest('reviews', uniq.length);
   } else {
     xp += XP.review; title = uniq.length + ' ' + plural(uniq.length, 'item') + ' ' + (Run.mode === 'review' ? 'reviewed' : Run.mode === 'mistakes' ? 'fixed up' : 'practiced');
