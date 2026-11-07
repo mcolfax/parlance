@@ -520,7 +520,7 @@ async function main(){
     }
     // a save from before Italian (schema 8) has no Italian progress yet and still loads, keeping what it had
     const pre = await makeDom({ seed: { 'parlance.v2': { v: 8, settings: { onboarded: true, lang: 'es' }, days: {}, langs: { es: { done: { 'es-1-1': { at: '2026-10-01', acc: 1, times: 1 } }, cards: {}, xp: 40 } }, extra: { keep: 'me' } } } });
-    ok(pre.P.S.langs.it && Object.keys(pre.P.S.langs.it.done).length === 0 && pre.P.S.gen.it && pre.P.S.langs.es.done['es-1-1'] && pre.P.S.v === 10 && pre.P.S.extra && pre.P.S.extra.keep === 'me', 'an older save gets Italian and keeps everything else');
+    ok(pre.P.S.langs.it && Object.keys(pre.P.S.langs.it.done).length === 0 && pre.P.S.gen.it && pre.P.S.langs.es.done['es-1-1'] && pre.P.S.v === 11 && pre.P.S.extra && pre.P.S.extra.keep === 'me', 'an older save gets Italian and keeps everything else');
     pre.E('S.settings.lang = "it"; touchSettings(); S.langs.it.done["it-1-1"] = { at: "2026-10-02", acc: 1, times: 1 }; touch("it")');
     ok(JSON.parse(pre.w.localStorage.getItem('parlance.v2')).langs.it.done['it-1-1'] && ['de', 'es', 'it'].every(l => pre.E('SLICES').includes(l) && pre.E('SLICES').includes('gen-' + l)), 'Italian progress is saved, with its own synced slices');
     pre.dom.window.close();
@@ -667,6 +667,48 @@ async function main(){
     ok(Q.P.S.badges.checkpoint1 && Q.P.S.badges.checkpoint100 && !Q.P.S.badges.checkpoint5, 'a perfect checkpoint earns its badges');
     Q.E('S.stats.fixed = 25; S.stats.formsRight = 50; checkBadges({})');
     ok(Q.P.S.badges.fixer && Q.P.S.badges.forms50, 'fixing mistakes and form questions earn badges');
+    // test out of a unit (Learn → Test out): the checkpoint before the lessons; saved as outs, never as done
+    {
+      const to = {};
+      to.snap = JSON.stringify({ done: L().done, cp: L().cp, outs: L().outs, badges: Q.P.S.badges, stats: Q.P.S.stats });
+      ok(Q.E('SCHEMA_VERSION') === 11 && JSON.stringify(Q.E('cleanLang')({ done: {} }).outs) === '{}', 'test out: SCHEMA_VERSION is 11 and an old slice gets outs {}');
+      const mo = Q.E('mergeLang')({ outs: { A: '2026-11-01' } }, { outs: { B: '2026-11-02' } });
+      ok(mo.outs.A === '2026-11-01' && mo.outs.B === '2026-11-02' && Q.E('mergeLang')({}, { outs: { B: 'x' } }).outs.B === 'x', 'test out: merges keep outs from both sides');
+      ok(!(L().outs || {})[unit.title], 'test out: a normal checkpoint doesn\'t write outs');
+      Q.E('UI.tab = "learn"; UI.open = new Set(["A1"]); UI.openLang = "es"; render()');
+      ok([...qd.querySelectorAll('.stations.checkpoint li.open')].some(li => li.textContent.includes('Test out')), 'test out: Learn offers Test out on a unit that isn\'t done');
+      const units = Q.P.COURSE.es.units;
+      const free = units.map((u, i) => ({ u, i })).filter(x => x.i > 0 && x.u.level === 'A1' && !x.u.lessons.some(l => L().done[l.id]) && !L().cp[x.u.title]);
+      const U1 = free[0].u, U2 = free[1].u, i1 = free[0].i;
+      for (const u of units.slice(0, i1)) for (const l of u.lessons) if (!L().done[l.id]) L().done[l.id] = { at: '2026-10-01', acc: 1, times: 1 };
+      const runTest = async (u, right) => {
+        Q.E('startCheckpoint(COURSE.es.units[' + units.indexOf(u) + '], true)');
+        let g = 0;
+        while (Q.E('Run.active && !Run.finished') && g++ < 200){
+          const ex = Q.E('Run.cur'); let ans;
+          if (!right){
+            if (ex.type === 'match'){ Q.E('Run.pos++; nextEx()'); continue; }
+            ans = ex.options ? (ex.options.find(o => o !== ex.correct) || 'zzz') : 'zzz';
+          } else switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = Q.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = Q.P.tileTokens(ex.item.e[0]).join(' '); break;
+            case 'match': Q.E('Run.pos++; nextEx()'); continue; default: ans = ex.correct; }
+          Q.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()'); qfoot('Continue').click();
+        }
+      };
+      ok(Q.E('nextLesson("es")').id === U1.lessons[0].id, 'test out: setup: the next stop is the first lesson of the unit');
+      await runTest(U1, true);
+      const said = qov() ? qov().textContent : '';
+      ok(L().outs && L().outs[U1.title] && L().cp[U1.title].pass && Q.E('nextLesson("es")').unit > units.indexOf(U1) && !U1.lessons.some(l => L().done[l.id]), 'test out: passing moves the next stop past the unit');
+      ok(said.includes('Unit tested out.'), 'test out: the finish screen says Tested out');
+      qfoot('Continue').click();
+      ok(Q.E('lessonState("es", COURSE.es.units[' + units.indexOf(U1) + '].lessons[0], nextLesson("es"))') === 'open' && !Q.E('isDone("es", ' + JSON.stringify(U1.lessons[0].id) + ')') && !Q.E('levelComplete("es", "A1")') && !Q.P.S.badges.levelA1, 'test out: its lessons are open, not done, and A1 is not complete');
+      await runTest(U2, false);
+      qfoot('Continue').click();
+      ok(!(L().outs || {})[U2.title] && L().cp[U2.title] && L().cp[U2.title].pass === false, 'test out: failing writes no outs');
+      // put the page back as it was for the checks that follow
+      const sn = JSON.parse(to.snap);
+      L().done = sn.done; L().cp = sn.cp; L().outs = sn.outs || {}; Q.P.S.badges = sn.badges; Q.P.S.stats = sn.stats;
+      Q.E('UI.openLang = null; render()');
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
@@ -1027,7 +1069,7 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 10 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 11 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
     for (const lang of LANG_IDS) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }

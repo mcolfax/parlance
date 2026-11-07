@@ -106,15 +106,20 @@ function isDone(lang, id){ return !!S.langs[lang].done[id]; }
 function startIndex(lang){ return LEVELS.indexOf(S.langs[lang].start || 'A1'); }
 /* The next stop is the first unfinished lesson after the furthest one you've done on your route,
    so lessons added to earlier levels later don't pull you backwards (they show as open). */
+/* a unit you tested out of (Learn → Test out): its lessons aren't done, but your route moves past them */
+function testedOut(lang, l){ if (!l || !l.core) return false; const u = COURSE[lang].units[l.unit]; return !!(u && (S.langs[lang].outs || {})[u.title]); }
 function nextLesson(lang){
   const si = startIndex(lang); const core = coreOrder(lang);
   const inRoute = l => LEVELS.indexOf(l.level) >= si;
-  let last = -1; core.forEach((l, i) => { if (inRoute(l) && isDone(lang, l.id)) last = i; });
-  return core.find((l, i) => i > last && inRoute(l) && !isDone(lang, l.id)) || core.find(l => inRoute(l) && !isDone(lang, l.id)) || core.find(l => !isDone(lang, l.id)) || genLessons(lang).find(l => !isDone(lang, l.id)) || null;
+  const passed = l => isDone(lang, l.id) || testedOut(lang, l);
+  let last = -1; core.forEach((l, i) => { if (inRoute(l) && passed(l)) last = i; });
+  return core.find((l, i) => i > last && inRoute(l) && !passed(l)) || core.find(l => inRoute(l) && !passed(l)) || core.find(l => !passed(l))
+    || genLessons(lang).find(l => !isDone(lang, l.id)) || core.find(l => !isDone(lang, l.id)) || null;
 }
 function lessonState(lang, l, nx){
   if (isDone(lang, l.id)) return 'done';
   if (nx && nx.id === l.id) return 'next';
+  if (testedOut(lang, l)) return 'open';
   if (!l.core) return 'open';
   if (LEVELS.indexOf(l.level) < startIndex(lang)) return 'open';
   if (nx && nx.core && CORE_IDX[lang].get(l.id) < CORE_IDX[lang].get(nx.id)) return 'open';
