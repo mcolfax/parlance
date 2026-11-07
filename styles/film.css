@@ -8,26 +8,46 @@
 .overlay.film .ov-body{overflow:hidden}
 .overlay.film .ov-body-in{height:100%;padding:0 12px;max-width:520px}
 .film-wrap{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;height:100%;cursor:pointer}
-.film-stage{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-.film-svg{width:100%;height:100%;max-height:100%;display:block}
+.film-stage{position:relative;width:100%;height:100%;container-type:size}
+/* the 9:16 box every layer of the film is drawn in, in film units (360 x 640; --fu is one unit). The layers that move
+   every frame are turned and faded by the compositor, so the phone never redraws the whole film (see js/ui/film.js). */
+.film-box{position:absolute;left:50%;top:50%;width:100%;width:min(100cqw,56.25cqh);aspect-ratio:360/640;transform:translate(-50%,-50%);container-type:inline-size;--fu:calc(100cqw / 360)}
+.f-l{position:absolute;left:0;top:0;width:100%;height:100%;will-change:transform;pointer-events:none}
+.film-svg,.f-fx{display:block;overflow:visible}
+.f-fly{position:absolute;left:0;top:0;width:calc(2 * var(--r) * var(--fu));height:calc(2 * var(--r) * var(--fu));margin:calc(-1 * var(--r) * var(--fu)) 0 0 calc(-1 * var(--r) * var(--fu));border-radius:50%;background:var(--film-spark);will-change:transform,opacity;pointer-events:none}
+.f-sky{background:linear-gradient(var(--film-bg2),var(--film-bg) 55%,var(--film-mid));will-change:auto}
+.f-rays{left:50%;top:46.875%;width:222.2%;height:auto;aspect-ratio:1;transform:translate(-50%,-50%);background:repeating-conic-gradient(from -5.3deg,color-mix(in srgb,var(--film-white) 3.5%,transparent) 0deg 10.3deg,transparent 10.9deg 45deg)}
+.f-glow{left:50%;top:46.875%;width:150%;height:auto;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%)}
+.f-glow.de{background:radial-gradient(closest-side,color-mix(in srgb,var(--film-de) 42%,transparent),transparent)}
+.f-glow.es{background:radial-gradient(closest-side,color-mix(in srgb,var(--film-es) 40%,transparent),transparent)}
+.f-rays2{left:50%;top:53.125%;width:127.8%;height:auto;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:repeating-conic-gradient(from -6.4deg,color-mix(in srgb,var(--film-sun) 16%,transparent) 0deg 12.5deg,transparent 13.1deg 30deg)}
+.f-frond-w{position:absolute;width:0;height:0;transform-origin:0 0;will-change:transform;pointer-events:none}
+.f-frond-w svg{position:absolute;left:calc(-20 * var(--fu));top:calc(-70 * var(--fu));width:calc(200 * var(--fu));height:calc(110 * var(--fu));overflow:visible}
+/* the round window the film closes into (filmWindow in js/ui/film.js): the outer circle clips, the inner layer holds the
+   film still while the two scale against each other */
+.f-win-o,.f-win-i{position:absolute;left:0;top:0;width:100%;height:100%}
+.f-win-o.round{border-radius:50%;overflow:hidden;will-change:transform,opacity}
+.f-win-o.round .f-win-i{will-change:transform}
+.overlay.film{transition:background-color .3s}
+.overlay.film.leaving{background-color:transparent}
+.overlay.film.leaving .ov-head,.overlay.film.leaving .ov-foot,.overlay.film.leaving .film-cap,.overlay.film.leaving .film-big{opacity:0;transition:opacity .25s}
+/* the film as video (MEDIA.film): the same 9:16 box, played by the phone's video hardware */
+.f-video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;background:var(--film-bg);pointer-events:none}
+.film-big::after{content:"";position:absolute;inset:24px;border-radius:50%;border:4px solid color-mix(in srgb,var(--film-white) 25%,transparent);border-top-color:var(--film-white);animation:f-spin .9s linear infinite}
+@keyframes f-spin{to{transform:rotate(360deg)}}
 .film-cap{position:absolute;left:14px;right:14px;bottom:12px;text-align:center;font:700 17px/1.35 var(--body);color:var(--film-ink);text-shadow:0 2px 12px rgb(0 0 0 / .7),0 0 2px rgb(0 0 0 / .5);pointer-events:none;text-wrap:balance}
+.film-cap{will-change:transform}   /* the captions animate word by word: a layer of their own */
 .film-cap span{display:inline-block;margin:0 .14em;opacity:0;will-change:opacity,transform}
 .film-big{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;border:0;background:rgb(255 255 255 / .16);color:#fff;display:grid;place-items:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 0 0 6px rgb(255 255 255 / .08)}
-.film-big svg{margin-left:4px}
 .film-foot{background:var(--film-bg);border-color:rgb(255 255 255 / .08)}
-.f-controls{display:flex;align-items:center;gap:12px}
-.f-play{background:rgb(255 255 255 / .12);color:#fff}
-.f-time{font:700 13px var(--body);color:var(--film-muted);font-variant-numeric:tabular-nums;min-width:78px;text-align:right}
 .f-mute{background:transparent;color:var(--film-ink);border-color:rgb(255 255 255 / .2)}
 .f-mute[aria-pressed="false"]{opacity:.6}
 .f-mute[aria-pressed="true"]{background:transparent;color:var(--film-ink);border-color:rgb(255 255 255 / .35)}
-.f-range{flex:1;min-width:0;accent-color:var(--line);height:28px}
 .overlay.film.leaving{pointer-events:none}
+/* the page behind the playing film isn't drawn (filmCover in js/ui/film.js) */
+body.film-cover #app,body.film-cover #tabs{visibility:hidden}
 
 /* backdrop: rays, fireflies and palm fronds */
-.f-rays path{fill:var(--film-white);opacity:.035}
-.f-rays2 path{fill:var(--film-sun);opacity:.16}
-.f-fly{fill:var(--film-spark)}
 .f-frond{fill:var(--film-frond);opacity:.9}
 .f-frond1{fill:var(--film-frond2);opacity:.75}
 .f-stem{fill:none;stroke:var(--film-frond2);stroke-width:4;stroke-linecap:round}

@@ -47,6 +47,7 @@ npm run files        # JSON map of the files to publish next to index.html
 npm run web          # builds the web version into dist/ (what Vercel serves)
 NODE_PATH="$(npm root -g)" node dev/icons.js   # redraws media/icons/ from Pip (needs Playwright)
 node dev/voices.js   # records new lines into media/voice/ (Google key: the environment's network secret; --dry counts them)
+node dev/film.js     # renders the intro film to media/film/<bird>.mp4 (Playwright + ffmpeg; --check says which are out of date)
 node dev/flow.js snapshot   # the course's shape, coverage, next free ids and spend (the planner starts here)
 node dev/flow.js guard      # checks the working tree against origin/main: STOP (Matt decides), FIX, NOTE
 node dev/flow.js shots --steps "tab:Learn;shot:learn"   # screenshots at 412px, light and dark (usage at the top of dev/flow.js)
@@ -62,6 +63,7 @@ The preview runs without the artifact runtime, so there is no account sync, data
 2. New or changed content ships with its pictures and voices. Whenever lessons or stories are added or their text changes:
    - **Word pictures.** Run `node design/pictures/tools.js inventory && node design/pictures/tools.js briefs && node design/pictures/tools.js check` and find the new concepts the coverage table counts as undecided. Give each one a line in `design/pictures/briefs-src.txt`: draw the concrete, drawable ones into `PICS` (`js/core/pics.js`, rules in `design/pictures/PLAN.md`) and mark the rest `-` with a reason. Then run `words`, `check` (must end with `ok`) and `shots`, and look at the contact sheets. Pictures are matched by a word's text. If a word picks up a drawing in the wrong sense (a piggy bank for saving a file, soccer for a political party), give that lesson's vocab item the right picture as a fourth field, or `-` for none (see "Word pictures" in `docs/ARCHITECTURE.md`). The drawing can go to a background agent while the rest of the release is built.
    - **Recorded voices.** Run `node dev/voices.js` so the new lines are recorded, and commit `media/voice/` with `dev/voice-usage.json`. It routes itself through the proxy that adds the network secret. Recording must never cost Matt anything: the script stops at 900,000 characters a month, under Google's free million. Never raise that cap or get around it. If the script stops or Google turns the key down, don't let it pass quietly: hand the recording to a session whose key works (send it the branch and the `--dry` counts), and tell Matt that those lines use the device's voice until they are recorded.
+   - **Intro film.** If the film's picture, a bird or a film color changed, run `node dev/film.js` and commit `media/film/` (`npm test` fails on a video that no longer matches; see "Intro film" in `docs/ARCHITECTURE.md`).
 3. Run `npm test`. It must end with `FAIL 0`.
 4. Commit to `main` and push. Vercel deploys the web version from `main` on its own.
 5. Publish with the Artifact tool:

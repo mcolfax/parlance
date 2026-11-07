@@ -2,9 +2,10 @@
 /* ===================== INTRO FILM =====================
    A 50-second animated film drawn in SVG, cut to the theme song (MEDIA.song) with live sound effects. The song runs
    at 99 beats a minute, so every scene starts on a bar line: bar(n) and bt(n) give the time of bar n and beat n.
-   Everything is a function of the playhead time t, so play, pause, scrub and replay are exact. While the song plays,
-   the playhead follows the song's clock: it waits for the music to really start, then eases toward it, so pictures
-   and music stay in step without jumps.
+   Everything is a function of the playhead time t, so every frame can be drawn on its own. While the song plays, the
+   playhead follows the song's clock: it waits for the music to really start, then eases toward it, so pictures and
+   music stay in step without jumps. The film just plays: there is no pause or scrubbing (leaving the app pauses it,
+   coming back carries on).
    - filmActors(): what moves, as keyframes [[time, value, ease]]
    - the scene builders (scene…): the SVG for each scene, and a small update per frame for what keyframes can't say
    - FILM_CAPTIONS / FILM_CUES / FILM_SAYS: on-screen text, sound effects and the bird's lines by time
@@ -13,13 +14,17 @@
    - filmScore(): a synthesized backup score, used only if the song can't play
    Scenes: 1 title, 2 meet your bird and the others, 3 two cities and their friends, 4 a lesson, 5 Talk, 6 a story and
    Review, 7 Friends, 8 rewards, 9 the route, 10 the end card.
-   Smooth on a phone: there is no camera move over the whole stage (it made the phone repaint everything every frame),
-   and the page only writes a value when it changes.
-   In and out: the film opens like an iris out of the button that started it, and closes like one onto your bird, the
-   way old cartoons end (filmIris). The next screen is drawn underneath first: setup's first question when the film is
-   part of onboarding, otherwise the app as it was. If music is on, the song carries on softly into it.
+   Two ways to show it. Normally it plays as a video of the learner's bird's film (MEDIA.film), rendered from the live
+   film below by node dev/film.js: a phone plays video with its own hardware, so it never drops frames, however busy
+   the picture. The live film draws every frame in the page; it is the fallback when a video can't play, and what the
+   videos are made from. The live stage is a stack of layers (see filmBack) so a phone redraws as little as it can.
+   In and out: only opacity and transform animate, never a clip over the film (on a phone that drew the film in missing
+   tiles). The film grows out of the button that opened it (filmZoomIn). What comes next is drawn underneath first:
+   setup's first question when the film is part of onboarding, otherwise the app as it was. Then the film closes into
+   a round window round your bird, with that screen showing all round it, holds a moment, and fades away (filmWindow).
+   If music is on, the song carries on softly into what comes next.
    ====================================================== */
-const FILM_BAR = 240 / 99, FILM_T0 = 0.2, FILM_DUR = 49.6;
+const FILM_BAR = 240 / 99, FILM_T0 = 0.2, FILM_DUR = 49.6, FILM_OUTRO = 1.7;   // FILM_OUTRO: the closing round the bird after a full film
 const bar = n => FILM_T0 + n * FILM_BAR;
 const bt = n => FILM_T0 + n * FILM_BAR / 4;
 const EASE = {
@@ -134,19 +139,26 @@ function frondSVG(){
 const FRONDS = [[-12, -8, 42, 1.25], [372, -12, 138, 1.15], [-14, 662, -38, 1.1], [376, 660, -142, 1.3]];
 const FIREFLIES = Array.from({ length: 24 }, (_, i) => ({ x: (i * 97 + 31) % 340 + 10, y: (i * 151 + 17) % 640, v: 10 + (i * 7) % 16, r: 1.2 + (i % 4) * 0.5, ph: i * 1.7 }));
 
-function sceneBackdrop(){
-  return '<defs><linearGradient id="f-bgg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-bg2)"/><stop offset=".55" style="stop-color:var(--film-bg)"/><stop offset="1" style="stop-color:var(--film-mid)"/></linearGradient>' +
-    '<linearGradient id="f-grad" x1="0" y1="1" x2="1" y2="0"><stop offset="0" style="stop-color:var(--film-de)"/><stop offset="1" style="stop-color:var(--film-sun)"/></linearGradient>' +
-    '<radialGradient id="f-glow-de"><stop offset="0" style="stop-color:var(--film-de);stop-opacity:.42"/><stop offset="1" style="stop-color:var(--film-de);stop-opacity:0"/></radialGradient>' +
-    '<radialGradient id="f-glow-es"><stop offset="0" style="stop-color:var(--film-es);stop-opacity:.4"/><stop offset="1" style="stop-color:var(--film-es);stop-opacity:0"/></radialGradient>' +
-    '<linearGradient id="f-sky-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-mid);stop-opacity:0"/><stop offset="1" style="stop-color:var(--film-mid);stop-opacity:.9"/></linearGradient>' +
-    '<linearGradient id="f-sky-i" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-it);stop-opacity:0"/><stop offset="1" style="stop-color:var(--film-it);stop-opacity:.34"/></linearGradient>' +
-    '<linearGradient id="f-sky-e" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-es);stop-opacity:0"/><stop offset="1" style="stop-color:var(--film-es);stop-opacity:.4"/></linearGradient></defs>' +
-    '<rect width="360" height="640" fill="url(#f-bgg)"/>' +
-    '<g id="f-rays" class="f-rays">' + Array.from({ length: 8 }, (_, i) => '<path d="M0 0L-70 -760L70 -760Z" transform="rotate(' + i * 45 + ')"/>').join('') + '</g>' +
-    '<circle id="f-glow-a" cx="180" cy="300" r="270" fill="url(#f-glow-de)"/><circle id="f-glow-b" cx="180" cy="300" r="270" fill="url(#f-glow-es)"/>' +
-    '<g id="f-flies">' + FIREFLIES.map((f, i) => '<circle id="f-fl' + i + '" r="' + f.r + '" class="f-fly"/>').join('') + '</g>' +
-    '<g id="f-fronds">' + FRONDS.map((f, i) => '<g id="f-fr' + i + '"><g class="f-frond f-frond' + (i % 2) + '">' + frondSVG() + '</g></g>').join('') + '</g>';
+/* The stage is a stack of layers in a 9:16 box (.film-box), all in the film's 360 x 640 units. A phone redraws a layer
+   whenever anything in it changes, so what moves every frame is kept apart from the detailed scenes:
+   - the sky (a CSS gradient), the slowly turning rays, the glows and the reward sunburst: turned, scaled and faded by
+     the compositor (CSS transforms), which costs no redrawing at all
+   - the fireflies: a tiny layer each, moved by the compositor (in one layer, they touched every part of it each frame)
+   - the palm fronds: one small layer each, swayed by the compositor
+   - the scenes (f-scene): one SVG that redraws only the small places where something moves
+   - on top (f-fx): the ring of light at each scene change
+   Before this, rays and glows that changed every frame made the phone redraw the whole film 60 times a second; it fell
+   behind and showed half-drawn frames. */
+const FILM_DEFS = '<linearGradient id="f-grad" x1="0" y1="1" x2="1" y2="0"><stop offset="0" style="stop-color:var(--film-de)"/><stop offset="1" style="stop-color:var(--film-sun)"/></linearGradient>' +
+  '<linearGradient id="f-sky-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-mid);stop-opacity:0"/><stop offset="1" style="stop-color:var(--film-mid);stop-opacity:.9"/></linearGradient>' +
+  '<linearGradient id="f-sky-i" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-it);stop-opacity:0"/><stop offset="1" style="stop-color:var(--film-it);stop-opacity:.34"/></linearGradient>' +
+  '<linearGradient id="f-sky-e" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--film-es);stop-opacity:0"/><stop offset="1" style="stop-color:var(--film-es);stop-opacity:.4"/></linearGradient>';
+function filmBack(){
+  const pc = (v, of) => (v / of * 100).toFixed(3) + '%';
+  return '<div class="f-l f-sky"></div><div class="f-l f-rays" id="f-rays"></div><div class="f-l f-glow de" id="f-glow-a"></div><div class="f-l f-glow es" id="f-glow-b"></div>' +
+    FIREFLIES.map((f, i) => '<i class="f-fly" id="f-fl' + i + '" style="--r:' + f.r + '"></i>').join('') +
+    FRONDS.map(([x, y], i) => '<div class="f-frond-w" id="f-fr' + i + '" style="left:' + pc(x, 360) + ';top:' + pc(y, 640) + '"><svg viewBox="-20 -70 200 110" class="f-frond f-frond' + (i % 2) + '" aria-hidden="true">' + frondSVG() + '</svg></div>').join('') +
+    '<div class="f-l f-rays2" id="f-reward"></div>';
 }
 
 function sceneTitle(){
@@ -244,8 +256,7 @@ function scenePhone(){
 
 /* scene 8: rewards */
 function sceneRewards(){
-  return fG('f-reward', '<g id="f-rays2" class="f-rays2">' + Array.from({ length: 12 }, (_, i) => '<path d="M0 0L-26 -230L26 -230Z" transform="rotate(' + i * 30 + ')"/>').join('') + '</g>') +
-    fG('f-chest', '<g class="chest film" transform="translate(-80 -72) scale(2)">' + inner(chestSVG()) + '</g>') +
+  return fG('f-chest', '<g class="chest film" transform="translate(-80 -72) scale(2)">' + inner(chestSVG()) + '</g>') +
     fG('f-xppill', fR(-58, -19, 116, 38, 19, 'f-pill') + fIc('spark', -44, -9, 18, 'f-sun') + fT(-18, 7, '+0 XP', 'f-pill-t', 'id="f-xpn"')) +
     '<g id="f-coins">' + [0, 1, 2, 3, 4, 5, 6, 7].map(i => '<g id="f-coin' + i + '"><circle r="8" class="f-coin"/><circle r="4.2" class="f-coin-in"/></g>').join('') + '</g>' +
     '<g id="f-medals">' + ['flame', 'book', 'trophy'].map((ic2, i) => fG('f-medal' + i, '<g class="medal on" transform="translate(-32 -36)">' + inner(medal(ic2, true, 64).innerHTML) + '</g>')).join('') + '</g>' +
@@ -271,12 +282,14 @@ function sceneEnd(){
     fG('f-brand', '<g transform="translate(-58 0) scale(.5)"><path d="' + LOGO_DE + '" transform="translate(-17 -17)" class="f-mk de"/></g><g transform="translate(-44 0) scale(.5)"><path d="' + LOGO_ES + '" transform="translate(-17 -17)" class="f-mk es"/></g>' + fT(-20, 8, 'Parlance', 'f-brand-t'));
 }
 
+/* the live film's top layer: the ring of light at each scene change */
+const filmTop = () => '<svg class="f-l f-fx" viewBox="0 0 360 640" aria-hidden="true"><circle id="f-ring" r="10" class="f-ring"/></svg>';
+/* the live film's layers, everything under the top layer */
 function filmSVG(){
   const lineup = filmLineup().map(([id]) => id), finale = filmFinale().map(([id]) => id);
   const birds = [...new Set([...lineup, ...finale])];
-  return '<svg class="film-svg" viewBox="0 0 360 640" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' + sceneBackdrop() +
+  return filmBack() + '<svg class="film-svg f-l f-scene" viewBox="0 0 360 640" aria-hidden="true"><defs>' + FILM_DEFS + '</defs>' +
     '<g id="f-cam">' + sceneTitle() + sceneCities() + sceneRoute() + sceneRewards() + scenePhone() + sceneEnd() + sceneBirds() +
-    '<circle id="f-ring" r="10" class="f-ring"/>' +
     birds.filter(id => id !== filmStar()).map(filmBirdSVG).join('') + filmBirdSVG(filmStar()) + '</g></svg>';
 }
 
@@ -370,7 +383,7 @@ function filmActors(){
   A['fd-heart'] = { x: [[b13 + 1.4, -20], [b13 + 2.1, 40, 'inOut']], y: [[b13 + 1.4, -64], [b13 + 2.1, -130, 'out']], o: fade(b13 + 1.4, b13 + 1.55, b13 + 1.9, b13 + 2.2), s: [[b13 + 1.4, 0.4], [b13 + 1.8, 1.3, 'out']] };
 
   /* ---- 8: rewards ---- */
-  A['f-reward'] = { x: 180, y: 340, o: [[b14 + 0.1, 0], [b14 + 0.8, 1], [b16 - 0.15, 1], [b16 + 0.1, 0]] };
+  A['f-reward'] = { o: [[b14 + 0.1, 0], [b14 + 0.8, 1], [b16 - 0.15, 1], [b16 + 0.1, 0]] };
   A['f-chest'] = { x: 180, y: 364, s: [[b14 + 0.15, 0.2], [b14 + 0.9, 1, 'back'], [b16 - 0.15, 1], [b16 + 0.1, 0.6, 'in']], o: [[b14 + 0.15, 0], [b14 + 0.45, 1], [b16 - 0.15, 1], [b16 + 0.1, 0]] };
   A['f-xppill'] = { x: 262, y: 60, s: [[b14 + 0.9, 0.2], [b14 + 1.3, 1, 'back']], o: [[b14 + 0.9, 0], [b14 + 1.0, 1], [b16 - 0.15, 1], [b16 + 0.1, 0]] };
   for (let i = 0; i < 8; i++){
@@ -412,55 +425,135 @@ const FILM_SAYS = [[bar(2) + 1.8, () => 'Hi! I’m ' + mascot().name + '.']];
 const FILM_DANCE = 1 / FILM_BAR;   // the rig's dance takes a second a round; slowed to a bar, it bobs once a beat
 const FILM_LOOK0 = [[0, 'happy', '']];
 
-/* openFilm({ from, setup, autoplay }). from: the element that opened it, which the iris opens out of. setup: the film is
+/* openFilm({ from, setup, autoplay, live }). from: the element that opened it, which it grows out of. live: the live
+   film rather than the video (dev/film.js and the tests use it). setup: the film is
    part of onboarding, so it flows on into setup's first question; otherwise it closes back into the app as it was. */
 function openFilm(opts = {}){
   if (Film.open) return;
   if (Film.outro && Film.gone) Film.gone();   // a film still closing finishes at once
-  const under = OV.root; OV.root = null;     // the screen it opens over stays until the iris has covered it
-  Object.assign(Film, { open: true, outro: false, t: 0, playing: false, prev: 0, setup: !!opts.setup, muted: false, wait: false, rigs: {}, sq: {}, gone: null });
+  const under = OV.root; OV.root = null;     // the screen it opens over stays until the film has covered it
+  const src = opts.live ? '' : filmVideoSrc();
+  Object.assign(Film, { open: true, outro: false, t: 0, playing: false, pending: false, stalled: false, prev: 0, setup: !!opts.setup, muted: false, wait: false, rigs: {}, sq: {}, gone: null, video: null, mode: src ? 'video' : 'live' });
   openOverlay('film still'); sfx('open');
   Film.root = OV.root;
   const close = h('button', { class: 'icon-btn plain f-x', type: 'button', 'aria-label': 'Close the film', html: IC.close, onclick: () => endFilm('close') });
-  Film.muteBtn = h('button', { class: 'chip f-mute', type: 'button', 'aria-pressed': 'true', onclick: () => { Film.muted = !Film.muted; Film.muteBtn.setAttribute('aria-pressed', String(!Film.muted)); Film.muteBtn.replaceChildren(ic('speaker'), Film.muted ? 'Sound off' : 'Sound on'); if (Film.muted) filmMusicStop(); else if (Film.playing) filmMusicStart(); } }, ic('speaker'), 'Sound on');
+  Film.muteBtn = h('button', { class: 'chip f-mute', type: 'button', 'aria-pressed': 'true', onclick: () => { Film.muted = !Film.muted; Film.muteBtn.setAttribute('aria-pressed', String(!Film.muted)); Film.muteBtn.replaceChildren(ic('speaker'), Film.muted ? 'Sound off' : 'Sound on'); if (Film.muted) filmMusicStop(); else if (Film.playing && !Film.pending) filmMusicStart(); } }, ic('speaker'), 'Sound on');
   OV.head.replaceChildren(close, h('div', { class: 'ov-title grow' }, 'Welcome to Parlance'), Film.muteBtn);
-  const stage = h('div', { class: 'film-stage', html: filmSVG(), role: 'img', 'aria-label': 'Intro film: ' + mascot().name + ' the ' + mascot().kind + ' shows you around Parlance' });
+  const stage = h('div', { class: 'film-stage', html: '<div class="f-win-o"><div class="f-win-i"><div class="film-box">' + (src ? '' : filmTop()) + '</div></div></div>', role: 'img', 'aria-label': 'Intro film: ' + mascot().name + ' the ' + mascot().kind + ' shows you around Parlance' });
   Film.caption = h('div', { class: 'film-cap', 'aria-live': 'polite' });
-  Film.big = h('button', { class: 'film-big', type: 'button', 'aria-label': 'Play', html: '<svg viewBox="0 0 24 24" width="40" height="40"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>' });
-  Film.big.addEventListener('click', e => { e.stopPropagation(); filmPlay(); });
+  Film.big = h('div', { class: 'film-big loading', role: 'status', 'aria-label': 'Loading', hidden: true });   // shows only while the video loads
   const wrap = h('div', { class: 'film-wrap' }, stage, Film.caption, Film.big);
-  wrap.addEventListener('click', () => { if (Film.playing) filmPause(); else filmPlay(); });
   OV.bodyIn.replaceChildren(wrap);
-  Film.svg = stage.querySelector('svg');
-  const $ = id => Film.svg.querySelector('#' + id), all = sel => [...Film.svg.querySelectorAll(sel)];
-  Film.els = {}; Film.actors = filmActors(); Film.looks = filmLooks();
+  Film.box = stage.querySelector('.film-box');
+  Film.actors = filmActors(); Film.looks = filmLooks(); Film.score = filmScore();
+  Film.q = {};
+  if (src) filmBuildVideo(src); else filmBuildLive();
+  // the film just plays: no pause or scrubbing, only a way on (or out) and the sound
+  Film.cta = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => endFilm('cta') }, Film.setup ? 'Continue' : 'Close');
+  OV.foot.className = 'ov-foot film-foot';
+  OV.footIn.replaceChildren(Film.cta);
+  filmRender(0); filmPlayIcon();
+  if (opts.autoplay !== false) filmPlay();   // inside the tap that opened it, so the music is allowed to start
+  filmZoomIn(Film.root, filmOrigin(opts.from), () => { if (under && under !== Film.root) under.remove(); if (Film.open) filmCover(true); });
+}
+
+/* ----- the film as video -----
+   A phone plays video with its own hardware, which never drops a frame the way drawing a busy SVG 60 times a second can.
+   So each bird has the film rendered to video from the live film (node dev/film.js writes media/film/<bird>.mp4, listed
+   in MEDIA.film), running FILM_OUTRO seconds past the end with the birds still dancing, for the closing. The video is muted and follows the film's clock, which follows the
+   song; captions, sound effects and the song itself stay live. If the video can't play (an error, or nothing after
+   9 seconds), the live film takes over where it is. */
+function filmVideoSrc(id){
+  const F = typeof MEDIA !== 'undefined' && MEDIA.film; id = id || mascotId();
+  return F && F.birds && F.birds.includes(id) ? F.dir + id + '.mp4' : '';
+}
+/* load the video early where someone is likely to watch it (the welcome screen); the film then uses this element */
+function filmPreload(){
+  const src = filmVideoSrc(); if (!src || typeof document === 'undefined' || Film.open) return;
+  if (Film.pre && Film.pre.getAttribute('src') === src) return;
+  Film.pre = filmVideoEl(src);
+}
+function filmVideoEl(src){
+  const v = document.createElement('video');
+  v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = 'auto';
+  for (const a of ['muted', 'playsinline', 'disablepictureinpicture', 'disableremoteplayback']) v.setAttribute(a, '');
+  v.setAttribute('aria-hidden', 'true'); v.setAttribute('src', src);
+  try { v.load(); } catch (e) {}
+  return v;
+}
+function filmBuildVideo(src){
+  const v = Film.pre && Film.pre.getAttribute('src') === src ? Film.pre : filmVideoEl(src);
+  Film.pre = null;
+  v.className = 'f-video';
+  Film.box.insertBefore(v, Film.box.firstChild);
+  Film.video = v;
+  v.addEventListener('error', () => { if (Film.video === v) filmGoLive(); });
+  v.addEventListener('canplay', () => { if (Film.video === v && Film.pending) filmPlayNow(); });
+  v.addEventListener('waiting', () => { if (Film.video === v && Film.playing && !Film.pending && Film.open) filmStall(true); });
+  v.addEventListener('playing', () => { if (Film.video === v) filmStall(false); });
+}
+/* the video follows the film's clock by playing a touch faster or slower, never by seeking: seeking a video needs the
+   host to serve parts of the file, and a gap this small closes in a second or two anyway. Only a gap of seconds (after
+   something odd) is closed with a seek. run false: it waits where it is. */
+function filmVideoSync(t, run){
+  const v = Film.video; if (!v) return;
+  if (!run){ if (!v.paused) try { v.pause(); } catch (e) {} return; }
+  const d = t - (v.currentTime || 0);
+  if (Math.abs(d) > 2 && !Film.stalled) try { v.currentTime = t; } catch (e) {}
+  const r = Math.max(0.9, Math.min(1.1, 1 + d * 0.5));
+  if (Math.abs(r - v.playbackRate) > 0.004) v.playbackRate = r;
+  if (v.paused){ try { const p = v.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} }
+}
+/* the video ran out of data mid-film: the song waits for it, and both go on together */
+function filmStall(on){
+  if (on === !!Film.stalled) return;
+  Film.stalled = on; filmLoading(on); clearTimeout(Film.stallT);
+  if (on){
+    if (Song.mode === 'film' && Song.el) try { Song.el.pause(); } catch (e) {}
+    Film.base = Film.t; Film.t0 = performance.now();
+    Film.stallT = setTimeout(() => { if (Film.stalled && Film.open) filmGoLive(); }, 9000);
+  } else if (Film.playing && Film.open){ Film.base = Film.t; Film.t0 = performance.now(); filmMusicStart(); }
+}
+function filmLoading(on){ filmPlayIcon(); }
+/* from video to the live film, in place: the video failed or is too slow to come */
+function filmGoLive(){
+  if (Film.mode === 'live' || !Film.box) return;
+  const v = Film.video; Film.video = null;
+  if (v){ try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {} v.remove(); }
+  clearTimeout(Film.slowT); clearTimeout(Film.stallT); Film.mode = 'live'; Film.stalled = false;
+  if (!Film.box.querySelector('.f-fx')) Film.box.insertAdjacentHTML('beforeend', filmTop());
+  Film.q = {};
+  filmBuildLive(); filmRender(Film.t);
+  if (Film.open && Film.pending) filmPlayNow();
+  else if (Film.open && Film.playing){ Film.base = Film.t; Film.t0 = performance.now(); filmMusicStart(); cancelAnimationFrame(Film.raf); Film.raf = requestAnimationFrame(filmTick); }
+}
+/* the live film: every layer drawn and moved in the page (see filmBack). It's what the videos are made from. */
+function filmBuildLive(){
+  Film.box.querySelector('.f-fx').insertAdjacentHTML('beforebegin', filmSVG());
+  Film.svg = Film.box.querySelector('.f-scene');
+  const $ = id => Film.box.querySelector('#' + id), all = sel => [...Film.box.querySelectorAll(sel)];
+  Film.els = {};
   for (const id of Object.keys(Film.actors)){ const el = $(id); if (el) Film.els[id] = el; }
   Film.lens = {};
   const L = (id, el) => { let n = 400; try { n = el.getTotalLength() || n; } catch (e) {} Film.lens[id] = n; el.style.strokeDasharray = n; return n; };
   L('f-line1', $('f-line1'));
   Film.route = all('#f-route .f-route, #f-route .f-route-glow'); Film.route.forEach(p => L('route', p));
-  Film.q = { ring: $('f-ring'), glowA: $('f-glow-a'), glowB: $('f-glow-b'), rays: $('f-rays'), rays2: $('f-rays2'), ringMark: $('f-markring'),
+  Object.assign(Film.q, { ring: $('f-ring'), glowA: $('f-glow-a'), glowB: $('f-glow-b'), rays: $('f-rays'), rays2: $('f-reward'), ringMark: $('f-markring'),
     flies: FIREFLIES.map((_, i) => $('f-fl' + i)), fronds: FRONDS.map((_, i) => $('f-fr' + i)), word: WORD.split('').map((_, i) => $('f-wl' + i)), wins: all('.f-win'),
     flags: [0, 1, 2, 3, 4, 5, 6, 7].map(i => $('f-bf' + i)), taps: TAPS.map((_, i) => $('f-tap' + i)), lg: [0, 1, 2, 3].map(i => [$('lg-' + i), $('lg-rank' + i), $('lg-xp' + i)]),
     cf: Array.from({ length: 26 }, (_, i) => $('f-cf' + i)), rain: Array.from({ length: 30 }, (_, i) => $('f-rn' + i)), chest: $('f-chest') && $('f-chest').querySelector('.chest'),
     rst: ROUTE_PTS.map((_, i) => $('f-rst' + i)), ck: [0, 1, 2, 3, 4].map(i => $('f-ck' + i)), coins: [0, 1, 2, 3, 4, 5, 6, 7].map(i => $('f-coin' + i)), sd: [0, 1, 2, 3, 4, 5, 6].map(i => $('f-sd' + i)),
-    tkd: [0, 1, 2].map(i => $('tk-d' + i)), tkRing: $('tk-ring'), rvCount: $('rv-count'), xpn: $('f-xpn'), streakN: $('f-streak-n') };
+    tkd: [0, 1, 2].map(i => $('tk-d' + i)), tkRing: $('tk-ring'), rvCount: $('rv-count'), xpn: $('f-xpn'), streakN: $('f-streak-n') });
   Film.q.ltWave = [...$('lt-wave').children]; Film.q.tkWave = [...$('tk-wave').children];
-  Film.score = filmScore();
   /* the birds: a live rig each. A bird whose part sheet hasn't arrived is Pip until it has (they fly in at bar 3). */
   for (const id of Object.keys(Film.looks)) filmRig(id);
   for (const id of filmOthers()) if (!Bird.birds[id]) loadMascot(id).then(() => { if (Film.open || Film.outro) filmRig(id); }, () => {});
-  // footer controls
-  Film.playBtn = h('button', { class: 'icon-btn f-play', type: 'button', 'aria-label': 'Play', onclick: () => Film.playing ? filmPause() : filmPlay() });
-  Film.range = h('input', { class: 'f-range', type: 'range', min: '0', max: String(FILM_DUR), step: '0.1', value: '0', 'aria-label': 'Film position' });
-  Film.range.addEventListener('input', () => filmSeek(+Film.range.value));
-  Film.time = h('span', { class: 'f-time' }, '0:00');
-  Film.cta = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => endFilm('cta') }, Film.setup ? 'Continue' : 'Close');
-  OV.foot.className = 'ov-foot film-foot';
-  OV.footIn.replaceChildren(h('div', { class: 'f-controls' }, Film.playBtn, Film.range, Film.time), Film.cta);
-  filmRender(0); filmPlayIcon();
-  if (opts.autoplay !== false) filmPlay();   // inside the tap that opened it, so the music is allowed to start
-  filmIris(Film.root, 'open', filmOrigin(opts.from), () => { if (under && under !== Film.root) under.remove(); });
+}
+/* while the film fills the screen, the page behind it is hidden and its birds wait: otherwise the phone keeps redrawing
+   a screen nobody can see. It comes back just before the film starts to close, so it is drawn by the time it shows. */
+function filmCover(on){
+  document.body.classList.toggle('film-cover', !!on);
+  if (typeof Rig !== 'undefined' && Rig.hold) Rig.hold(!!on);
 }
 
 /* a bird of the film as a live rig, played like a puppet on the film's clock (filmRigAt) */
@@ -515,28 +608,40 @@ function filmMusicStop(fade){
 }
 /* the song can carry on behind what comes next when it is playing now and music is on there */
 function filmCarry(){ return !!(Film.usingSong && !Film.muted && Film.playing && Song.mode === 'film' && Song.el && !Song.el.paused && !Song.failed && homeMusicOn() && Song.unlocked); }
-function filmPlayIcon(){
-  if (!Film.playBtn) return;
-  Film.playBtn.innerHTML = Film.playing ? '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
-  Film.playBtn.setAttribute('aria-label', Film.playing ? 'Pause' : 'Play');
-  if (Film.big) Film.big.hidden = Film.playing;
-}
+function filmPlayIcon(){ if (Film.big) Film.big.hidden = !(Film.pending || Film.stalled); }
 function filmPlay(){
   if (!Film.open) return;
   if (Film.t >= FILM_DUR - 0.05){ Film.t = 0; Film.prev = 0; }
-  unlockAudio();
-  Film.playing = true; Film.base = Film.t; Film.t0 = performance.now(); Film.prev = Film.t; Film.wait = false;
+  unlockAudio(); songUnlock();   // inside the tap, so the song may start a moment later once the video is ready
+  Film.playing = true; Film.pending = false;
+  const v = Film.mode === 'video' && Film.video;
+  // started once inside the tap, the video may play later too (iPhone in Low Power Mode refuses otherwise)
+  if (v && v.paused) try { const p = v.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+  if (v && v.readyState < 3){   // the video isn't ready to play yet: everything waits for it (up to 9 seconds, then the live film)
+    Film.pending = true; filmVideoSync(Film.t, false); filmLoading(true);
+    clearTimeout(Film.slowT); Film.slowT = setTimeout(() => { if (Film.pending && Film.open) filmGoLive(); }, 9000);
+    return;
+  }
+  filmPlayNow();
+}
+function filmPlayNow(){
+  Film.pending = false; clearTimeout(Film.slowT); filmLoading(false);
+  if (!Film.open || !Film.playing) return;
+  Film.vSince = performance.now();
+  Film.base = Film.t; Film.t0 = performance.now(); Film.prev = Film.t; Film.wait = false;
   filmMusicStart();
   cancelAnimationFrame(Film.raf); Film.raf = requestAnimationFrame(filmTick);
   filmPlayIcon();
 }
 function filmPause(){
-  Film.playing = false; cancelAnimationFrame(Film.raf); filmMusicStop(); filmPlayIcon();
+  Film.playing = false; Film.pending = false; clearTimeout(Film.slowT);
+  cancelAnimationFrame(Film.raf); filmMusicStop(); filmVideoSync(Film.t, false); filmLoading(false);
 }
 function filmSeek(t){
   Film.t = Math.max(0, Math.min(FILM_DUR, t)); Film.prev = Film.t;
   filmRender(Film.t);
-  if (!Film.playing) return;
+  if (Film.video){ filmVideoSync(Film.t, false); try { Film.video.currentTime = Film.t; } catch (e) {} }   // the next frame starts it again
+  if (!Film.playing || Film.pending) return;
   Film.base = Film.t; Film.t0 = performance.now(); Film.wait = false;
   if (Film.muted) return;
   if (Film.usingSong && !Song.failed){
@@ -565,8 +670,15 @@ function filmClock(now){
 }
 function filmTick(now){
   Film.raf = 0;
-  if (!Film.playing || !(Film.open || Film.outro)) return;
+  if (!Film.playing || !Film.open) return;
+  if (Film.stalled) Film.t0 = now;   // the video is catching up: the clock waits
   Film.t = filmClock(now);
+  if (Film.video){
+    filmVideoSync(Film.t, !Film.wait);   // during a stall it keeps loading (and plays on when it can) while the clock waits
+    // a video the phone refuses to play (it stays paused while the film runs): the live film takes over
+    if (Film.wait || Film.stalled || !Film.video.paused) Film.vSince = now;
+    else if (now - Film.vSince > 2000) filmGoLive();
+  }
   if (Film.open){
     // the last bars: the song fades to where it goes next (softly on behind the app, or away)
     const left = FILM_DUR - Film.t, fade = MEDIA.song ? MEDIA.song.fadeOut : 2.5;
@@ -579,10 +691,9 @@ function filmTick(now){
     Film.prev = Film.t;
   }
   filmRender(Film.t);
-  if (Film.open && Film.t >= FILM_DUR) endFilm('end');   // played to the end: on into setup, or back into the app
-  if (Film.playing && (Film.open || Film.outro)) Film.raf = requestAnimationFrame(filmTick);
+  if (Film.open && Film.t >= FILM_DUR){ endFilm('end'); return; }   // played to the end: on into setup, or back into the app
+  if (Film.playing && Film.open) Film.raf = requestAnimationFrame(filmTick);
 }
-function fmtTime(t){ const s = Math.floor(t); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
 const lookAt = (list, t) => { let r = list[0]; for (const k of list) if (t >= k[0]) r = k; return r; };
 /* writes that happen only when a value changes: a phone redraws less when the page touches less */
 function fShow(el, o){
@@ -628,20 +739,21 @@ function filmActor(id, a, t){
   }
 }
 
-/* everything keyframes can't say: the light, sparkle, counters, the league, confetti. Nothing moves the whole stage. */
+/* everything keyframes can't say: the light, sparkle, counters, the league, confetti. Nothing redraws the whole stage. */
 function filmFX(t){
   const Q = Film.q, b = bar;
-  // the glow swells softly on the beat, the rays turn slowly
-  const gs = 'translate(180 300) scale(' + (1 + 0.035 * beatPulse(t)).toFixed(3) + ') translate(-180 -300)';
-  fTf(Q.glowA, gs); fTf(Q.glowB, gs);
-  fTf(Q.rays, 'translate(180 300) rotate(' + (t * 2.5).toFixed(1) + ')');
-  if (Q.rays2) fTf(Q.rays2, 'rotate(' + (t * 9).toFixed(1) + ')');
+  // the glow swells softly on the beat, the rays turn slowly: CSS transforms on layers of their own, so the
+  // compositor moves them and nothing is redrawn
+  const gs = 'translate(-50%,-50%) scale(' + (1 + 0.035 * beatPulse(t)).toFixed(4) + ')';
+  fStyle(Q.glowA, 'transform', gs); fStyle(Q.glowB, 'transform', gs);
+  fStyle(Q.rays, 'transform', 'translate(-50%,-50%) rotate(' + (t * 2.5).toFixed(2) + 'deg)');
+  if (Q.rays2 && Q.rays2._v === 1) fStyle(Q.rays2, 'transform', 'translate(-50%,-50%) rotate(' + (t * 9).toFixed(2) + 'deg)');
   // fireflies drift up, palms sway
   FIREFLIES.forEach((f, i) => {
     const el = Q.flies[i], y = ((f.y - t * f.v) % 680 + 680) % 680 - 20, x = f.x + Math.sin(t * 0.6 + f.ph) * 14;
-    if (fShow(el, 0.15 + 0.6 * (0.5 + 0.5 * Math.sin(t * 1.9 + f.ph * 2)) * (y > 20 && y < 620 ? 1 : 0))) fTf(el, 'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ')');
+    if (fShow(el, 0.15 + 0.6 * (0.5 + 0.5 * Math.sin(t * 1.9 + f.ph * 2)) * (y > 20 && y < 620 ? 1 : 0))) fStyle(el, 'transform', 'translate(calc(' + x.toFixed(2) + ' * var(--fu)), calc(' + y.toFixed(2) + ' * var(--fu)))');
   });
-  FRONDS.forEach(([x, y, a, k], i) => fTf(Q.fronds[i], 'translate(' + x + ' ' + y + ') rotate(' + (a + Math.sin(t * 0.9 + i * 1.3) * 3.5).toFixed(1) + ') scale(' + k + ')'));
+  FRONDS.forEach(([x, y, a, k], i) => fStyle(Q.fronds[i], 'transform', 'rotate(' + (a + Math.sin(t * 0.9 + i * 1.3) * 3.5).toFixed(2) + 'deg) scale(' + k + ')'));
   // scene change: a soft ring of light
   let rp = -1; for (const rt of FILM_RINGS) if (t >= rt && t < rt + 0.9) rp = (t - rt) / 0.9;
   if (fShow(Q.ring, rp < 0 ? 0 : 0.3 * (1 - rp))){ fTf(Q.ring, 'translate(180 320)'); fAttr(Q.ring, 'r', (20 + 440 * EASE.out(rp)).toFixed(0)); }
@@ -709,8 +821,7 @@ function filmFX(t){
 }
 
 function filmRender(t){
-  for (const id in Film.actors) filmActor(id, Film.actors[id], t);
-  filmFX(t);
+  if (Film.mode === 'live'){ for (const id in Film.actors) filmActor(id, Film.actors[id], t); filmFX(t); }
   // captions, one word at a time; controls
   const cap = FILM_CAPTIONS.find(c => t >= c[0] && t < c[1]) || null;
   if (cap !== Film.cap){
@@ -727,75 +838,118 @@ function filmRender(t){
       Film.capSettled = settled;
     }
   }
-  const shown = Math.min(t, FILM_DUR);
-  if (Film.range && document.activeElement !== Film.range){ const v = shown.toFixed(1); if (Film.range._v !== v){ Film.range.value = v; Film.range._v = v; } }
-  if (Film.time) fText(Film.time, fmtTime(shown) + ' / ' + fmtTime(FILM_DUR));
 }
 
-/* ----- in and out ----- */
+/* ----- in and out -----
+   Only opacity and transform animate here, never a clip over the film: on a phone a clip animated over the film made
+   Chrome draw it in missing tiles, so the screen behind flashed through. The film closes into a round window that only
+   transforms shrink (filmWindow). */
+const filmCanAnimate = () => !reduced() && typeof Element !== 'undefined' && typeof Element.prototype.animate === 'function';
 /* the middle of the element that opened the film, if it's on screen */
 function filmOrigin(el){
   const r = el && el.isConnected && el.getBoundingClientRect();
   if (r && r.width && r.bottom > 0 && r.top < window.innerHeight) return [r.left + r.width / 2, r.top + r.height / 2];
   return [window.innerWidth / 2, window.innerHeight / 2];
 }
-/* where the iris closes: on the learner's bird while it's on the stage (r: a circle that holds it), else the middle */
-function filmBirdAt(){
-  const sh = Film.svg && Film.svg.getBoundingClientRect(), g = Film.els['f-b-' + filmStar()], rg = Film.rigs[filmStar()];
-  const b = rg && g && g._v === 1 && rg.el.getBoundingClientRect();
-  if (b && b.width && sh && b.left > sh.left - 20 && b.right < sh.right + 20 && b.top > sh.top - 20 && b.bottom < sh.bottom + 20) return { at: [b.left + b.width / 2, b.top + b.height * 0.5], r: Math.round(Math.max(b.width, b.height) * 0.62) };
-  return { at: sh && sh.width ? [sh.left + sh.width / 2, sh.top + sh.height / 2] : [window.innerWidth / 2, window.innerHeight / 2], r: 0 };
-}
-/* An iris, as in old cartoons. 'open' grows a circle out of `at` until the film fills the screen; 'close' shrinks it
-   onto `at`, pausing on a circle of radius `hold` round the bird first if given. Only clip-path animates, which a busy
-   phone still draws smoothly; with reduced motion, or no Web Animations, the change is instant. */
-function filmIris(root, mode, at, done, hold){
+/* the film grows out of the button that opened it. It is put in place almost transparent for two frames first, so the
+   phone has drawn it before it shows; `done` runs once it covers the screen. */
+function filmZoomIn(root, at, done){
   let fired = false;
-  const fin = () => { if (!fired){ fired = true; done(); } };
-  if (!root || reduced() || typeof root.animate !== 'function'){ fin(); return; }
-  const bx = root.getBoundingClientRect(), x = at[0] - bx.left, y = at[1] - bx.top;
-  const R = Math.ceil(Math.max(Math.hypot(x, y), Math.hypot(bx.width - x, y), Math.hypot(x, bx.height - y), Math.hypot(bx.width - x, bx.height - y))) + 4;
-  const c = (r, more) => Object.assign({ clipPath: 'circle(' + Math.max(0, r).toFixed(1) + 'px at ' + x.toFixed(1) + 'px ' + y.toFixed(1) + 'px)' }, more);
-  const open = mode === 'open';
-  const frames = open ? [c(0, { easing: 'cubic-bezier(.3,.1,.2,1)' }), c(R)]
-    : hold ? [c(R, { easing: 'cubic-bezier(.5,0,.3,1)' }), c(hold, { offset: 0.5 }), c(hold, { offset: 0.74, easing: 'cubic-bezier(.6,0,.9,.4)' }), c(0)]
-    : [c(R, { easing: 'cubic-bezier(.5,0,.75,.3)' }), c(0)];
-  const dur = open ? 620 : hold ? 1550 : 640;
-  let a;
-  try { a = root.animate(frames, { duration: dur, fill: 'forwards' }); } catch (e) { fin(); return; }
-  a.onfinish = () => { fin(); if (open) a.cancel(); };
-  setTimeout(fin, dur + 500);   // a hidden tab may hold the animation back: what's underneath mustn't wait for it
+  const fin = () => { if (fired) return; fired = true; root.style.opacity = ''; root.style.transform = ''; root.style.transformOrigin = ''; done(); };
+  if (!filmCanAnimate()) return fin();
+  const b = root.getBoundingClientRect();
+  root.style.transformOrigin = Math.round(at[0] - b.left) + 'px ' + Math.round(at[1] - b.top) + 'px';
+  root.style.opacity = '0.01'; root.style.transform = 'scale(.84)';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (fired || !root.isConnected) return fin();
+    let a;
+    try { a = root.animate([{ opacity: 0.01, transform: 'scale(.84)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 380, easing: 'cubic-bezier(.2,.75,.25,1)', fill: 'forwards' }); } catch (e) { return fin(); }
+    a.onfinish = () => { fin(); a.cancel(); };
+  }));
+  setTimeout(fin, 1400);   // a hidden tab may hold the animation back
+}
+/* where the film closes, in film units: on the learner's bird while it's on the stage, else the middle; hold is the
+   radius of the little circle that holds the bird */
+function filmIrisPlan(t){
+  const a = Film.actors && Film.actors['f-b-' + filmStar()];
+  const x = a ? kv(t, a.x) : 180, y = a ? kv(t, a.y) : 320, s = a ? kv(t, a.s) : 1;
+  const on = a && (a.o == null || kv(t, a.o) > 0.5) && x > 20 && x < 340 && y > 40 && y < 600;
+  return { c: on ? [x, y - 4] : [180, 300], hold: on ? Math.max(70, Math.round(64 * s + 16)) : 110 };
+}
+/* The film's round window, set up round the bird: the outer circle (f-win-o) is big enough to cover the whole stage
+   and clips what's inside; the inner layer (f-win-i) puts the film back where it was. Shrinking the outer and growing
+   the inner by the same amount makes the window smaller while the picture inside stays still: only transforms change,
+   so the phone's compositor does it without redrawing anything. */
+function filmWindow(plan){
+  const stage = Film.root && Film.root.querySelector('.film-stage'); if (!stage || !Film.box) return null;
+  const o = stage.querySelector('.f-win-o'), i = stage.querySelector('.f-win-i');
+  const S = stage.getBoundingClientRect(), B = Film.box.getBoundingClientRect(), u = B.width / 360;
+  if (!S.width || !u) return null;
+  const cx = B.left - S.left + plan.c[0] * u, cy = B.top - S.top + plan.c[1] * u;
+  const R0 = Math.ceil(Math.max(Math.hypot(cx, cy), Math.hypot(S.width - cx, cy), Math.hypot(cx, S.height - cy), Math.hypot(S.width - cx, S.height - cy))) + 2;
+  Object.assign(o.style, { left: (cx - R0) + 'px', top: (cy - R0) + 'px', width: 2 * R0 + 'px', height: 2 * R0 + 'px' });
+  Object.assign(i.style, { left: (R0 - cx) + 'px', top: (R0 - cy) + 'px', width: S.width + 'px', height: S.height + 'px', transformOrigin: cx + 'px ' + cy + 'px' });
+  o.classList.add('round');
+  return { o, i, R0, hold: plan.hold * u };
+}
+/* while the film closes: it plays on inside the window, which shrinks to a little circle round the bird (with what
+   comes next showing all round it), holds there a moment, then fades away */
+function filmOutroTick(now){
+  Film.raf = 0;
+  if (!Film.outro) return;
+  if (Film.playing){ Film.t = filmClock(now); filmRender(Film.t); }
+  const w = Film.win, u = (now - w.t0) / 1000, k = w.keys;
+  const s = Math.max(0.001, kv(u, k.r) / w.R0);
+  fStyle(w.o, 'transform', 'scale(' + s.toFixed(5) + ')'); fStyle(w.i, 'transform', 'scale(' + (1 / s).toFixed(5) + ')');
+  fStyle(w.o, 'opacity', Math.max(0, kv(u, k.o)).toFixed(3));
+  if (u >= k.dur) return filmGone(Film.root);
+  Film.raf = requestAnimationFrame(filmOutroTick);
 }
 /* endFilm(how): 'end' when it played to the end; 'cta' or 'close' when it's skipped or closed. What comes next is drawn
-   underneath first (setup's first question, or the app as it was), the song hands on to it, then the iris closes onto
-   the bird. A film that played to the end keeps dancing inside the closing iris. */
+   underneath first (setup's first question, or the app as it was), and the song hands on to it. Then the window
+   closes round the bird: slowly after a full film, briskly when skipped. */
 function endFilm(how){
   if (!Film.open) return;
   const natural = how === 'end', root = Film.root, carry = filmCarry();
   Film.open = false; Film.outro = true;
+  cancelAnimationFrame(Film.raf); Film.raf = 0;
   if (!S.settings.filmSeen){ S.settings.filmSeen = true; touchSettings(); }
-  if (root) root.classList.add('leaving');
+  filmCover(false);
   if (carry){ Song.mode = 'home'; Song.el.loop = true; songGlide(homeVol(), natural ? 0.5 : 1.6); }
   else filmMusicStop(0.5);
   if (!natural) sfx('close');
   if (OV.root === root) OV.root = null;
   if (Film.setup) openOnboarding(Onb.replay, 1, { beneath: root, music: carry });
   else render();   // quietly, underneath: something may have changed while the film played
-  const bird = filmBirdAt();
   Film.gone = () => filmGone(root);
-  filmIris(root, 'close', bird.at, Film.gone, natural ? bird.r : 0);
+  const w = root && filmCanAnimate() && filmWindow(filmIrisPlan(Film.t));
+  if (!w) return filmGone(root);
+  // just under fully opaque, so the phone draws what's underneath now rather than when it first shows
+  root.style.opacity = '0.999';
+  root.classList.add('leaving');   // the title, buttons and captions fade; the window is all that's left
+  const h = w.hold, R0 = w.R0;
+  w.keys = natural ? { r: [[0, R0], [0.8, h, 'inOut'], [1.25, h], [FILM_OUTRO, h * 0.86, 'out']], o: [[0, 1], [1.25, 1], [FILM_OUTRO, 0, 'out']], dur: FILM_OUTRO }
+    : { r: [[0, R0], [0.45, h, 'inOut'], [0.6, h], [0.9, h * 0.86, 'out']], o: [[0, 1], [0.6, 1], [0.9, 0, 'out']], dur: 0.9 };
+  w.t0 = performance.now(); Film.win = w;
+  if (Film.video) Film.video.playbackRate = 1;
+  Film.raf = requestAnimationFrame(filmOutroTick);
 }
 function filmGone(root){
   if (!Film.outro) return;
-  Film.outro = false; Film.gone = null; Film.playing = false; cancelAnimationFrame(Film.raf);
+  Film.outro = false; Film.gone = null; Film.playing = false; Film.pending = false; Film.stalled = false; clearTimeout(Film.slowT); clearTimeout(Film.stallT); cancelAnimationFrame(Film.raf); Film.raf = 0;
+  filmCover(false);
+  const v = Film.video; Film.video = null;
+  if (v){ try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {} }   // stop downloading
   for (const id in Film.rigs) Film.rigs[id].destroy();
   Film.rigs = {};
   if (root) root.remove();
   if (!OV.root) document.body.classList.remove('locked');
   songSync(200);
 }
+/* away from the app, the film waits; back again, it carries on (there is no pause button to press) */
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState !== 'hidden') return;
-  if (Film.open && Film.playing) filmPause();
-  else if (Film.outro && Film.gone) Film.gone();
+  if (document.visibilityState === 'hidden'){
+    if (Film.open && Film.playing){ filmPause(); Film.away = true; }
+    else if (Film.outro && Film.gone) Film.gone();
+  } else if (Film.open && Film.away){ Film.away = false; filmPlay(); }
 });

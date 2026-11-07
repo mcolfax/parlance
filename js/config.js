@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.31.0';
+const APP_VERSION = '4.32.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,14 @@ const SCHEMA_VERSION = 10;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.32.0', date: '2026-11-07', title: 'The intro film, as a video', notes: [
+    'The intro film now plays as a video, so it runs smoothly on every phone, with no flicker.',
+    'At the end it closes into a little circle round your bird again, with the next screen showing all round it, then fades away.',
+    'It just plays, with nothing to pause or scrub. If you leave the app, it waits for you.',
+    'Rojo no longer loses the pale patches round its eyes when Kakadu has been on screen first.'] },
+  { v: '4.31.1', date: '2026-11-06', title: 'A steadier intro film', notes: [
+    'The intro film no longer flickers on phones: no more frames with half the picture missing, and no flashes as it opens or closes.',
+    'It grows out of the button you tap, and at the end it closes like an old cartoon, onto your bird, before fading into setup or back to where you were.'] },
   { v: '4.31.0', date: '2026-11-06', title: 'A smoother intro film', notes: [
     'The intro film now plays smoothly on phones, without the stutter and flicker.',
     'Your bird comes alive in it: it flaps, blinks, waves and dances to the beat.',
@@ -214,11 +222,14 @@ const RELEASES = [
    voice: the recorded voices. dev/voices.js records every line the course can say with Google Cloud Text-to-Speech
    into dir; each speaker (the narrator, the cast, each bird in MASCOTS) has a Google voice per language. Google has no
    Mexican Spanish voices, so Spanish uses its Latin American US Spanish (es-US). Changing a voice here re-records that
-   speaker. */
+   speaker.
+   film: the intro film as video, one per bird in MASCOTS (dir + id + '.mp4'), rendered from the live film by
+   node dev/film.js. A bird missing here gets the live film. */
 const MEDIA = { song: { title: 'ABC Adventure', filmStart: 0, fadeOut: 2.5, home: 0.6, film: 1, duck: 0.25,
   sources: [ // first one the browser can play wins: AAC for Safari/iPhone and Chrome, Opus for Chromium and Firefox builds without AAC
     { src: 'media/abc-adventure.mp4', type: 'audio/mp4; codecs="mp4a.40.2"' },
     { src: 'media/abc-adventure.webm', type: 'audio/webm; codecs="opus"' }] },
+  film: { dir: 'media/film/', birds: ['pip', 'kiwi', 'mango', 'kakadu', 'rojo'] },
   voice: { dir: 'media/voice',
     de: { narrator: 'de-DE-Chirp3-HD-Erinome', pip: 'de-DE-Chirp3-HD-Leda', lena: 'de-DE-Chirp3-HD-Aoede', jonas: 'de-DE-Chirp3-HD-Puck', weber: 'de-DE-Chirp3-HD-Gacrux', emre: 'de-DE-Chirp3-HD-Algenib', leyla: 'de-DE-Chirp3-HD-Despina', brandt: 'de-DE-Chirp3-HD-Alnilam',
       kiwi: 'de-DE-Chirp3-HD-Laomedeia', mango: 'de-DE-Chirp3-HD-Callirrhoe', kakadu: 'de-DE-Chirp3-HD-Autonoe', rojo: 'de-DE-Chirp3-HD-Sadachbia' },

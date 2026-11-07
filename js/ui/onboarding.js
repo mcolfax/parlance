@@ -38,6 +38,7 @@ function drawOnb(){
         h('li', null, h('b', null, 'Spaced review'), ' that brings words back right before you’d forget them'),
         h('li', null, h('b', null, 'Conversations'), ' with a Claude tutor who corrects every message'))));
     onbFoot('Get started', next);
+    setTimeout(() => { if (Onb.open && Onb.step === 0 && typeof filmPreload === 'function') filmPreload(); }, 2500);   // the film is ready if they tap it
   } else if (Onb.step === 1){
     show(h('div', { class: 'onb-step' }, h('h1', null, 'What do you want to learn?'), h('p', { class: 'lead' }, 'You can learn more than one and switch any time.'),
       h('div', { class: 'big-choices' }, LANG_IDS.map(l => h('button', { class: 'big-choice lang-' + l, type: 'button', 'aria-pressed': String(Onb.lang === l), onclick: () => { Onb.lang = l; Onb.level = S.langs[l].start || 'A1'; speak(LANGS[l].hello, l); sfx('tap'); drawOnb(); } },

@@ -1251,7 +1251,7 @@ async function main(){
   {
     const G = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
     for (const name of Object.keys(G.E('SOUNDS'))) G.E('playSound(' + JSON.stringify(name) + ', 0.5)');
-    G.E('openFilm({ autoplay: false })');
+    G.E('openFilm({ autoplay: false, live: true })');
     ok(G.w.document.querySelector('.overlay.film .film-svg'), 'film stage');
     for (const t of [0, 3, 6.5, 9, 11, 14, 17, 20, 23.5, 25, 28, 30.5, 33, 35.5, 38, 41, 44, 49.6]){ G.E('filmSeek(' + t + ')'); }
     G.E('filmSeek(12)');
@@ -1270,21 +1270,58 @@ async function main(){
     ok(G.P.S.settings.filmSeen && !G.E('Film.open'), 'film closes and is remembered');
     ok(!G.w.document.querySelector('.overlay') && !G.w.document.body.classList.contains('locked'), 'closing the film goes straight back to the app');
     { /* the birds are live rigs on the film's clock, and nothing moves the whole stage (that made phones repaint every frame) */
-      G.E('openFilm({ autoplay: false })');
+      G.E('openFilm({ autoplay: false, live: true })');
       ok(G.w.document.querySelector('#f-bi-pip svg.rig.f-rig') && G.E('Film.rigs.pip.mood') === 'happy', 'the film’s birds are live rigs');
       G.E('filmSeek(19)'); ok(G.E('Film.rigs.pip.mood') === 'cheer', 'a live bird takes the film’s mood');
       G.E('filmSeek(8.8)'); ok(G.E('Film.rigs.kiwi.mood') === 'wave' && G.E('Film.rigs.pip.mood') === 'love', 'every bird on the perch has its own mood');
       let still = true; for (const t of [0.5, 6, 20, 47]){ G.E('filmSeek(' + t + ')'); if (G.w.document.querySelector('#f-cam').getAttribute('transform')) still = false; }
       ok(still, 'no camera move over the whole stage');
+      /* what moves every frame lives on layers the compositor moves (no redrawing): the rays, the glows, the fronds and each firefly */
+      G.E('filmSeek(20)');
+      const rays = G.w.document.querySelector('#f-rays'), glow = G.w.document.querySelector('#f-glow-a'), fly = G.w.document.querySelector('#f-fl3'), frond = G.w.document.querySelector('#f-fr1');
+      ok(rays && rays.tagName === 'DIV' && /rotate\(50\.00deg\)/.test(rays.style.transform) && glow.tagName === 'DIV' && /scale\(/.test(glow.style.transform) && /translate\(calc/.test(fly.style.transform) && /rotate\(.*deg\)/.test(frond.style.transform), 'rays, glows, fireflies and fronds are turned by CSS transforms: ' + rays.style.transform);
+      ok(!G.w.document.querySelector('.f-scene #f-rays, .f-scene #f-glow-a, .f-scene .f-fly, .f-scene #f-ring'), 'the scene layer holds none of what changes every frame');
+      ok(G.w.document.body.classList.contains('film-cover') && G.E('typeof Rig.hold') === 'function', 'while the film fills the screen, the page behind it is hidden and its birds wait');
       G.E('filmSeek(48)'); ok(G.w.document.querySelector('#f-title').style.opacity === '0' && G.w.document.querySelector('#f-cast').style.opacity === '0' && G.w.document.querySelector('#f-av-lena').style.visibility === 'visible', 'a scene that is over stays hidden even where its parts were shown');
       G.E('filmSeek(49.3); filmPlay()'); for (let i = 0; i < 80 && G.E('Film.open'); i++) await sleep(50);
       ok(!G.E('Film.open') && !G.w.document.querySelector('.overlay') && G.E('UI.tab') === 'learn', 'played to the end, the film goes back into the app by itself');
+      ok(!G.w.document.body.classList.contains('film-cover'), 'and the page behind it is back');
       G.E('UI.tab = "me"; render()');
       const wb = [...G.w.document.querySelectorAll('#app button')].find(b => b.textContent.includes('Watch the intro film'));
       wb.click(); ok(G.E('Film.open') && !G.E('Film.setup') && G.w.document.querySelectorAll('.overlay').length === 1, 'Me opens the film');
       [...G.w.document.querySelectorAll('.overlay.film .ov-foot button')].find(b => b.textContent === 'Close').click();
       ok(!G.E('Film.open') && !G.w.document.querySelector('.overlay') && G.E('UI.tab') === 'me' && G.w.document.querySelector('#app').textContent.includes('Watch the intro film'), 'closing it returns to Me as it was');
       G.E('UI.tab = "learn"; render()');
+    }
+    { /* the film as video: every bird has one, each matches the film as it is now, and the app plays the learner's own */
+      const FV = require(path.join(ROOT, 'dev', 'film.js')), man = FV.readManifest(), birds = Object.keys(G.E('MASCOTS'));
+      ok(JSON.stringify(G.E('MEDIA.film.birds').slice().sort()) === JSON.stringify(birds.slice().sort()), 'every bird learners can pick has a film video');
+      for (const id of birds){ try { await G.E('loadMascot(' + JSON.stringify(id) + ')'); } catch (e) {} }
+      ok(G.E('pipSVG("happy", 100, undefined, Bird.birds.rojo)').includes('data-s="patchL"') && !G.E('Bird.birds.rojo.slots.find(s => s.id === "patchL").showWith'), 'Rojo keeps the patches round its eyes when Kakadu loaded first (no bird changes the shared draw order)');
+      const stale = birds.filter(id => { const f = path.join(ROOT, 'media', 'film', id + '.mp4'), m = man.birds && man.birds[id]; return !fs.existsSync(f) || fs.statSync(f).size < 100000 || !m || m.print !== FV.filmPrint(G.E(FV.PRINT_EXPR(id)), ROOT); });
+      ok(!stale.length, 'each film video matches the film as it is now (if not, run node dev/film.js): ' + stale.join(', '));
+      G.E('openFilm({ autoplay: false })');
+      const v = G.w.document.querySelector('.overlay.film video.f-video');
+      ok(v && v.getAttribute('src') === 'media/film/pip.mp4' && v.muted && !G.w.document.querySelector('.overlay.film .f-scene') && G.E('Film.mode') === 'video', 'the film plays as video, the learner’s bird’s own');
+      ok(!G.w.document.querySelector('.overlay.film input[type=range], .overlay.film .f-play') && G.w.document.querySelectorAll('.overlay.film .ov-foot button').length === 1, 'no pause or scrubbing: the one button is the way on');
+      G.E('filmSeek(20)'); ok(Math.abs(v.currentTime - 20) < 0.01, 'the video follows the film’s clock');
+      /* a video that isn't ready yet: the film and the song wait (with a loading sign), then start with it */
+      G.E('Object.defineProperty(Film.video, "readyState", { configurable: true, get: () => 1 }); filmPlay()');
+      ok(G.E('Film.pending') && !G.w.document.querySelector('.overlay.film .film-big').hidden && G.E('Song.mode') !== 'film', 'a video still loading: the film and the song wait');
+      G.E('Object.defineProperty(Film.video, "readyState", { configurable: true, get: () => 4 }); Film.video.dispatchEvent(new Event("canplay"))');
+      ok(!G.E('Film.pending') && G.E('Film.playing') && G.w.document.querySelector('.overlay.film .film-big').hidden, 'and it starts once the video can play');
+      /* away from the app it waits; back again, it carries on */
+      G.E('Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "hidden" }); document.dispatchEvent(new Event("visibilitychange"))');
+      ok(!G.E('Film.playing') && G.E('Film.away'), 'leaving the app pauses the film');
+      G.E('Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "visible" }); document.dispatchEvent(new Event("visibilitychange")); delete document.visibilityState');
+      ok(G.E('Film.playing') && !G.E('Film.away'), 'and coming back carries on');
+      /* a video that fails: the live film takes over at the same moment */
+      G.E('filmSeek(12); Film.video.dispatchEvent(new Event("error"))');
+      ok(G.E('Film.mode') === 'live' && G.w.document.querySelector('.overlay.film .f-scene') && !G.w.document.querySelector('.overlay.film video') && G.w.document.querySelector('#f-av-lena').style.visibility === 'visible', 'a video that can’t play hands over to the live film, where it was');
+      G.E('endFilm("close")');
+      G.E('S.settings.mascot = "kiwi"; openFilm({ autoplay: false })');
+      ok(G.w.document.querySelector('.overlay.film video').getAttribute('src') === 'media/film/kiwi.mp4', 'a learner with Kiwi sees Kiwi’s film');
+      G.E('endFilm("close"); S.settings.mascot = "pip"; render()');
     }
     { /* first time: the film opens from the welcome screen and flows straight on into setup's first question */
       const O = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: false } } } });
@@ -1358,7 +1395,7 @@ async function main(){
     ok(B.E('avatar("pip", 40).querySelector(".rig-kiwi") && avatar("pip", 40, null, true).querySelector(".rig-pip")'), 'cast avatars show your bird; a friend’s Pip picture stays Pip');
     ok(B.E('cast("pip").name') === 'Kiwi' && B.E('cast("pip").pitch') === B.E('MASCOTS.kiwi.pitch') && B.E('cast("lena").name') === 'Lena', 'Kiwi speaks for Pip, in its own voice');
     ok(B.E('(() => { Object.assign(Talk, { who: "pip", lang: "de", level: "A1", scen: { prompt: "x" } }); return talkInstructions(); })()').includes('Your name is Kiwi. You are a cheerful, curious budgie'), 'Talk’s persona is your bird');
-    B.E('openFilm({ autoplay: false }); filmSeek(6)');
+    B.E('openFilm({ autoplay: false, live: true }); filmSeek(6)');
     ok(B.w.document.querySelector('.film-cap').textContent === 'Meet Kiwi, a budgie who loves to repeat after you.' && B.w.document.querySelector('#f-bi-kiwi .rig-kiwi'), 'the film stars your bird: ' + B.w.document.querySelector('.film-cap').textContent);
     B.E('endFilm(false)'); await sleep(50);
     console.log('page errors (B2):', B.errors.length ? B.errors.slice(0, 5) : 'none'); ok(!B.errors.length, 'no page errors B2');
