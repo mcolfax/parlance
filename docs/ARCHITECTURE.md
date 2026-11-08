@@ -11,6 +11,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `styles/art.css` | Pip's box and speech bubble, cast portraits, unit signs, story scenes, medals, the word popover | change illustrations |
 | `styles/components.css` | Screen-level styles grouped by feature | change one screen |
 | `styles/film.css`, `styles/features.css` | Intro film; feedback, Studio, update banner, What's new | change those features |
+| `styles/fonts.css`, `media/fonts/` | The two typefaces (Fredoka, Nunito) as self-hosted variable fonts (OFL), loaded by `styles/fonts.css` | change the typefaces |
 | `styleguide.html` | Living style guide rendered from the tokens and art functions | review the design system |
 | `js/config.js` | Version, release notes, the list of languages (`LANG_IDS`, `LANGS`), XP economy, daily quests, badges, Talk scenarios, the birds learners can pick (`MASCOTS`) | tune the game or ship a version |
 | `js/core/util.js` | DOM helper `h()`, dates, hashing, icons, particles, haptics | add an icon or helper |
@@ -23,6 +24,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `js/core/engine.js` | XP, streaks, spaced repetition, quests, badges, lesson status, exercises, grading | change learning logic |
 | `js/core/remote.js` | Live content packs, update banner, announcements, What's new, sharing a lesson | change live updates |
 | `js/core/host.js` | The web version's accounts and database: the same `window.claude.use()` surface, backed by Supabase | change how the web version signs in or stores data |
+| `js/core/offline.js` | The web version's offline support: starting the service worker (`offlineStart`), the update that waits for Refresh (`offlineUpdate`), and saving a language's voices for offline (`offlineVoices`, `saveVoices`) | change how the web version works offline |
 | `js/core/social.js` | Friends: cards, invite codes, the inbox handshake, duels and cheers (see "Friends" below) | change how friends connect or what they share |
 | `js/core/rig.js`, `js/core/bird.js`, `js/core/pip.js` | The birds' rig: the SVG runtime (blending, moves, blinks, springs, the head turn), the shared bird (skeleton, poses, faces, moods, moves) and Pip's part sheet traced from the model sheet. `design/rig/` holds the Blender files, the tracing tools and the review pages | change how a bird looks or moves (read `design/rig/README.md` first) |
 | `js/core/kiwi.js`, `mango.js`, `kakadu.js`, `rojo.js` | The other birds' part sheets, traced the same way. Not in `index.html`: one loads when a learner picks that bird (see "Your bird" below) | change how that bird looks |
@@ -35,6 +37,8 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `dev/test.js` | End-to-end tests (jsdom) | run before every publish |
 | `dev/preview.py`, `dev/files.js` | Local preview server; the list of files to publish | rarely |
 | `dev/web.js`, `vercel.json` | Builds the web version into `dist/` (page, Home Screen manifest and icon tags); Vercel runs it on every push to `main` | change how the web version is served |
+| `dev/sw.js` | The web version's service worker: precache, per-file hash caching, updates and the kill switch (`dev/web.js` writes it to `dist/sw.js`) | change offline behavior |
+| `dev/offline.js` | The offline check (`npm run offline-check`): builds `dist/`, then tests the worker, caching, updates and the kill switch in Playwright | check offline behavior |
 | `dev/icons.js`, `media/icons/` | Draws the web version's Home Screen icons from Pip's art and the tokens (the icon is always Pip) | Pip changes |
 | `dev/keep-awake.js`, `.github/workflows/keep-awake.yml` | Reads the web database three times a day so the free Supabase project isn't paused; a failed run means it's down | rarely |
 | `dev/supabase.sql` | The web version's database: the document table and the SQL functions that enforce the access rules | add a database path or rule |
@@ -50,6 +54,7 @@ The same files run in two places.
 - The tutor features (Talk, lessons on demand, tutor grading, Studio synthesis) need Claude. On the web they show the same "needs Claude" notices as a signed-out Claude page.
 - The two homes keep separate data: accounts, progress, feedback, proposals, friends and live content. A backup code moves progress between them, but not friends. `content/config.latest` and any live pack must be written to each home that should get it.
 - Friends must use the same home. An invite code says which home it's from (`Pc1…` for Claude, `Pw1…` for the web), and Parlance explains when someone pastes one from the other home.
+- **Works offline (web only).** `dev/web.js` writes `dist/sw.js` (from `dev/sw.js`) and `dist/offline.json`: every served file with a content hash. The worker precaches the app (about 6 MB) and keeps voice packs and the theme song when first fetched (or all of a language's voices from Me → Use Parlance offline). Each file is cached as `<path>?v=<hash>`, so one version's files always match; a new release takes over when the browser sees the new `sw.js`, and Refresh waits for it (`offlineUpdate()`). Kill switch: `OFFLINE = false` in `dev/web.js` ships a worker that removes itself. The artifact has none (`Offline.on` is false). The worker never touches other origins (Supabase), POST requests or Range requests.
 - On the web, every database call goes through SQL functions (`doc_get`, `doc_list`, `doc_set`, `doc_update`) that apply the same rules as the artifact (`dev/supabase.sql`). The tables themselves are closed to clients, so the public key in `config.js` can't reach anything else. Owners are listed in `public.owners`.
 - Live content on the web is checked every minute while the page is open, instead of being pushed.
 
@@ -204,6 +209,7 @@ data/users/{self}  (platform default: private to each person)
 - XP amounts, quests, badges and scenarios are data in `config.js`, not literals in screens.
 - Everything a learner reads is plain, warm English in sentence case.
 - Every word in a built-in story has a meaning when tapped: from the lessons, `COMMON_GLOSS`, `STORY_GLOSS` (both in `content/glossary.js`) or a cast member's name. `glossLookup()` also finds dictionary forms from common endings (bezahlst → bezahlen, vende → vender). When you add or change a story, `npm test` lists any word that still needs a `STORY_GLOSS` entry. Words outside the built-in content (Talk, live packs) are looked up by the tutor when Claude is there; otherwise the popover shows the whole line's translation.
+- The two typefaces (Fredoka, Nunito) are self-hosted variable fonts in `media/fonts/` (OFL), loaded by `styles/fonts.css`; there is no outside font host.
 
 ## How a lesson teaches
 
