@@ -1,7 +1,7 @@
 # Your level, your pace: test out of a unit, a first-week guide, a tidy practice grid
 
 - **Cycle:** 2026-11-06 (premium program P1, `flow/PREMIUM.md`)
-- **Status:** building
+- **Status:** shipped (4.33.0)
 - **Release:** 4.33.0 (minor: new features)
 - **Base:** `main` at e3b0c02 (4.32.0), merged into the work branch as dcfdcb4
 - **Proposals built:** none. Answers rating fmvl62jxd97vy ("Too easy") and the first-week drop-off in `flow/PREMIUM.md`.
@@ -298,5 +298,6 @@ On the cycle branch, after the three packages are merged (`parlance-chores`, Hai
 ## Outcome
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
-- **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** Promote `flow/plans/queue/p2-works-offline.md` (see `flow/PREMIUM.md`).
+- **Shipped:** 4.33.0, `main` a48b162, artifact version 68, `latest` set in both homes (2026-11-08) | **Dropped:** none | **Escalated:** none
+- **Built by:** parlance-builder (Sonnet) ×3 (WP1 and WP3 in parallel worktrees, then WP2), parlance-chores (Haiku) for docs and the voice dry run, parlance-verifier (Sonnet): PASS, parlance-reviewer (Opus): SHIP. A 5-hour usage limit paused the review once; it resumed after the reset.
+- **Notes for the next cycle:** The shots tool splits `--steps` on every `;`, so plans should write multi-statement `js:` steps as one comma expression. Reviewer suggestions went to the roadmap (R-38 to R-40). P2 promoted to `flow/plans/2026-11-08-p2-works-offline.md` (see `flow/PREMIUM.md`).

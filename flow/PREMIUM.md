@@ -54,8 +54,8 @@ Build them in order. Each is one flow release (at most three packages) and stand
 
 | # | Version | Title (release notes) | Packages | Zone | Plan |
 |---|---|---|---|---|---|
-| P1 | 4.33.0 | Your level, your pace | WP1 Test out of a unit · WP2 Your first week guide · WP3 Review practice grid (R-19) | Amber (saved state, checkpoints, XP) | [`plans/2026-11-06-p1-your-level-your-pace.md`](plans/2026-11-06-p1-your-level-your-pace.md) |
-| P2 | 4.34.0 | Works offline | WP1 The service worker · WP2 Self-hosted fonts · WP3 Offline in the app (save voices, notices) | Red, approved by Matt (`proposals/pfmw53mrwk`) | [`plans/queue/p2-works-offline.md`](plans/queue/p2-works-offline.md) |
+| P1 | 4.33.0 ✓ shipped | Your level, your pace | WP1 Test out of a unit · WP2 Your first week guide · WP3 Review practice grid (R-19) | Amber (saved state, checkpoints, XP) | [`plans/2026-11-06-p1-your-level-your-pace.md`](plans/2026-11-06-p1-your-level-your-pace.md) |
+| P2 | 4.34.0 | Works offline | WP1 The service worker · WP2 Self-hosted fonts · WP3 Offline in the app (save voices, notices) | Red, approved by Matt (`proposals/pfmw53mrwk`) | [`plans/2026-11-08-p2-works-offline.md`](plans/2026-11-08-p2-works-offline.md) |
 | P3 | 4.35.0 | Keep going | WP1 The finish screen leads somewhere · WP2 A chime that climbs, a bar that glows · WP3 Company on teach cards | Amber (audio) | [`plans/queue/p3-keep-going.md`](plans/queue/p3-keep-going.md) |
 | P4 | 4.36.0 | Time to play | WP1 Sticker book · WP2 Speed round · WP3 Streak milestones and new badges | Amber (XP, badges) | [`plans/queue/p4-play.md`](plans/queue/p4-play.md) |
 | P5 | 4.37.0 | Listen hands-free | WP1 Listen mode for your words · WP2 Listen to a story (R-7) | Amber (audio) | [`plans/queue/p5-listen-hands-free.md`](plans/queue/p5-listen-hands-free.md) |
