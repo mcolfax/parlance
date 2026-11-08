@@ -46,7 +46,7 @@ function writeServiceWorker(out){
   const crypto = require('crypto'), list = {};
   const walk = d => { for (const n of fs.readdirSync(path.join(out, d))){ const rel = d ? d + '/' + n : n, abs = path.join(out, rel);
     if (fs.statSync(abs).isDirectory()) walk(rel);
-    else if (!/^(dev|docs)\//.test(rel) && !['styleguide.html', 'sw.js', 'offline.json'].includes(rel)){
+    else if (!/^(dev|docs)\//.test(rel) && !/^media\/film\/.*\.(mp4|webm)$/.test(rel) && !['styleguide.html', 'sw.js', 'offline.json'].includes(rel)){
       const buf = fs.readFileSync(abs);
       list[rel] = [crypto.createHash('sha256').update(buf).digest('hex').slice(0, 12), buf.length, /^media\/voice\/.*\.mp3$/.test(rel) || /^media\/abc-adventure\./.test(rel) ? 1 : 0];
     } } };

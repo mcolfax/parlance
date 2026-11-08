@@ -13,7 +13,7 @@ self.addEventListener('install', e => e.waitUntil((async () => {
   for (const p of Object.keys(MANIFEST)){
     if (MANIFEST[p][2] || await c.match(keyOf(p))) continue;
     const r = await fetch(new URL(p, SCOPE).href, { cache: 'no-cache' });
-    if (!r.ok) throw new Error(p + ' ' + r.status);   // a failed install keeps the old version whole
+    if (!r.ok || await hashOf(r) !== MANIFEST[p][0]) throw new Error(p + ' ' + r.status);   // a failed or mismatched install keeps the old version whole; the browser retries with the newer sw.js
     await c.put(keyOf(p), r);
   }
   await self.skipWaiting();

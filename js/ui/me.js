@@ -233,7 +233,6 @@ function openWebNewPassword(){
       catch (e){ toast(webSignInError(e)); return true; }
     } }]);
 }
-/* Chrome hands us an install prompt to call. Safari on iPhone and iPad has none, so its button shows the steps instead. */
 /* Me → Use Parlance offline (web version only): what is kept on this phone, and a button to keep a language's voices */
 function offlineCard(lang){
   const name = LANGS[lang].name, line = h('div', { class: 'offline-voices' }, h('p', { class: 'small muted' }, 'Checking voices…'));
@@ -254,6 +253,7 @@ function offlineCard(lang){
   setTimeout(fill, 0);
   return sec;
 }
+/* Chrome hands us an install prompt to call. Safari on iPhone and iPad has none, so its button shows the steps instead. */
 function webHomeScreenCard(){
   if (webStandalone() || !(webIOS() || Web.install)) return null;
   const add = h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => webAddHome() }, 'Add to Home Screen');

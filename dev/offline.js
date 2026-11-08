@@ -1,14 +1,15 @@
 "use strict";
 /* Checks the web version's offline support in a real browser (Playwright). Run: npm run offline-check
    It builds dist/ with dev/web.js, serves it on 127.0.0.1 (a secure context, so the service worker registers; the response headers
-   are vercel.json's, so the Content-Security-Policy is the real one), and checks seven things, printing PASS or FAIL for each:
+   are vercel.json's, so the Content-Security-Policy is the real one), and checks eight things, printing PASS or FAIL for each:
      1  the build: dist/sw.js is filled in, dist/offline.json lists the app's files with their true hashes
      2  the worker installs, takes over, and the cache holds every file that isn't lazy
      3  with the network off: reload, visit the tabs, finish a lesson; the progress is saved; nothing breaks
      4  a new release (a second build, version 9.9.9) arrives through offlineUpdate() and replaces the old files
-     5  the kill switch: a worker that removes itself and the cache leaves the site as it was before
-     6  Me → Save Spanish voices for offline keeps every Spanish voice pack, and the card says so
-     7  with the network off, a lesson's first word comes from the kept pack (no voice request fails)
+     5  a release whose files don't match its list (it went live mid-install) fails to install; the old version stays whole
+     6  the kill switch: a worker that removes itself and the cache leaves the site as it was before
+     7  Me → Save Spanish voices for offline keeps every Spanish voice pack, and the card says so
+     8  with the network off, a lesson's first word comes from the kept pack (no voice request fails)
    --width <px> changes the phone's width (default 412). --shots <folder> also saves screenshots of Me (online, and after saving voices), Learn and Friends (offline), light and dark.
    Needs Playwright (preinstalled in cloud sessions; otherwise NODE_PATH="$(npm root -g)"). Leaves nothing running. */
 const fs = require('fs');
@@ -46,7 +47,7 @@ function playwright(){
 }
 
 /* a copy of dist/ as a later release would build it */
-function nextRelease(version, killed){
+function nextRelease(version, killed, tamper){
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'parlance-offline-'));
   fs.cpSync(DIST, tmp, { recursive: true });
   const cfg = path.join(tmp, 'js', 'config.js');
@@ -56,6 +57,9 @@ if (killed){   // the kill-switch worker and offline.json, exactly as dev/web.js
     fs.writeFileSync(path.join(tmp, 'offline.json'), JSON.stringify({ version, files: {}, off: true }));
   }
   else require('./web.js').writeServiceWorker(tmp);
+  if (tamper){   // change one byte after the list was written: the list's hash no longer matches the file (a release going live mid-install)
+    const f = path.join(tmp, tamper), buf = fs.readFileSync(f); buf[buf.length - 1] ^= 1; fs.writeFileSync(f, buf);
+  }
   return tmp;
 }
 
@@ -76,7 +80,10 @@ async function main(){
     else if (crypto.createHash('sha256').update(buf).digest('hex').slice(0, 12) !== hash || buf.length !== bytes) problems.push(f + ' has a different hash or size than listed');
   }
   if (Object.keys(man.files).some(f => /^(dev|docs)\//.test(f) || f === 'styleguide.html')) problems.push('dev/, docs/ or styleguide.html is listed');
-  report('1 build', !problems.length, problems.slice(0, 5).join('; ') || Object.keys(man.files).length + ' files listed');
+  const eager = Object.values(man.files).filter(v => !v[2]).reduce((n, v) => n + v[1], 0);
+  if (Object.keys(man.files).some(f => /^media\/film\/.*\.(mp4|webm)$/.test(f))) problems.push('an intro film is listed (videos are fetched with Range requests, so the cache can’t serve them)');
+  if (eager >= 10 * 1024 * 1024) problems.push('the files cached at install total ' + (eager / 1048576).toFixed(1) + ' MB (10 MB or more)');
+  report('1 build', !problems.length, problems.slice(0, 5).join('; ') || Object.keys(man.files).length + ' files listed, ' + (eager / 1048576).toFixed(1) + ' MB cached at install (not lazy)');
 
   const { chromium } = playwright();
   const srv = await serve(), base = 'http://127.0.0.1:' + srv.port + '/', tmps = [];
@@ -155,15 +162,28 @@ async function main(){
     const oldCfg = new URL('js/config.js?v=' + man.files['js/config.js'][0], base).href;
     report('4 update', ver === '9.9.9' && !keys.includes(oldCfg), ver !== '9.9.9' ? 'the page still reports ' + ver : keys.includes(oldCfg) ? 'the old js/config.js is still cached' : 'the new version took over and the old files are gone');
 
-    /* 5 ----- the kill switch */
+    /* 5 ----- a release whose files don't match its list: the install fails and the old version stays whole */
+    const t2b = nextRelease('9.9.10', false, 'js/config.js'); tmps.push(t2b); srv.root = t2b;
+    const man2 = JSON.parse(fs.readFileSync(path.join(t2b, 'offline.json'), 'utf8'));
+    await page.evaluate(() => offlineUpdate(4000));
+    const five = await page.evaluate(async () => {
+      const c = navigator.serviceWorker.controller; if (!c) return { none: true };
+      const version = await new Promise(res => { const t = setTimeout(() => res(''), 3000); navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.version){ clearTimeout(t); res(e.data.version); } }); c.postMessage('version'); });
+      return { version, keys: (await (await caches.open('parlance')).keys()).map(r => r.url) };
+    });
+    const badCfg = new URL('js/config.js?v=' + man2.files['js/config.js'][0], base).href;
+    report('5 mismatch', !five.none && five.version === '9.9.9' && !five.keys.includes(badCfg),
+      five.none ? 'no worker controls the page' : five.version !== '9.9.9' ? 'the worker answers ' + (five.version || 'nothing') + ' instead of 9.9.9' : five.keys.includes(badCfg) ? 'the mismatched js/config.js was cached' : 'the release with a changed file did not install; version ' + five.version + ' stays whole');
+
+    /* 6 ----- the kill switch */
     const t3 = nextRelease('9.9.8', true); tmps.push(t3); srv.root = t3;
     await page.evaluate(() => offlineUpdate());
     await page.reload({ waitUntil: 'load' }); await view(); await sleep(800);
     await page.reload({ waitUntil: 'load' }); await view(); await sleep(800);
     const k = await page.evaluate(async () => ({ controller: !!navigator.serviceWorker.controller, caches: await caches.keys(), ver: APP_VERSION }));
-    report('5 kill switch', !k.controller && !k.caches.includes('parlance'), k.controller ? 'a worker still controls the page' : k.caches.includes('parlance') ? 'the cache is still there' : 'no worker, no cache (page version ' + k.ver + ')');
+    report('6 kill switch', !k.controller && !k.caches.includes('parlance'), k.controller ? 'a worker still controls the page' : k.caches.includes('parlance') ? 'the cache is still there' : 'no worker, no cache (page version ' + k.ver + ')');
 
-    /* 6 ----- save a language's voices (a fresh phone: the worker installs again from the first build) */
+    /* 7 ----- save a language's voices (a fresh phone: the worker installs again from the first build) */
     srv.root = DIST;
     await ctx.close();
     const ctx2 = await newCtx(), p2 = await ctx2.newPage();
@@ -188,9 +208,9 @@ async function main(){
       else if (lacking.length) six = lacking.length + ' of ' + esPacks.length + ' packs are not in the cache, for example ' + lacking[0];
       if (shotsDir){ fs.mkdirSync(shotsDir, { recursive: true }); await p2.evaluate(() => document.querySelector('.offline-card').scrollIntoView({ block: 'center' })); await sleep(200); for (const scheme of ['light', 'dark']){ await p2.emulateMedia({ colorScheme: scheme }); await sleep(300); await p2.screenshot({ path: path.join(shotsDir, scheme + '-me-voices-saved.png') }); } await p2.emulateMedia({ colorScheme: 'light' }); }
     } catch (e) { six = String(e.message).split('\n')[0]; }
-    report('6 save voices', !six, six || esPacks.length + ' Spanish voice packs kept, and the card says so');
+    report('7 save voices', !six, six || esPacks.length + ' Spanish voice packs kept, and the card says so');
 
-    /* 7 ----- offline, the first word plays from the kept pack */
+    /* 8 ----- offline, the first word plays from the kept pack */
     const failedVoice = [];
     p2.on('requestfailed', r => { if (/media\/voice\//.test(r.url())) failedVoice.push(r.url()); });
     await ctx2.setOffline(true);
@@ -208,12 +228,12 @@ async function main(){
       if (got.why) seven = got.why + ' (' + got.text + ')';
       else if (failedVoice.length) seven = 'voice requests failed: ' + failedVoice.slice(0, 2).join(', ');
     } catch (e) { seven = String(e.message).split('\n')[0]; }
-    report('7 voices offline', !seven, seven || 'the first word’s recorded clip loaded with the network off');
+    report('8 voices offline', !seven, seven || 'the first word’s recorded clip loaded with the network off');
     await ctx2.close();
   } finally {
     await browser.close(); srv.server.close();
     for (const t of tmps) fs.rmSync(t, { recursive: true, force: true });
   }
 }
-main().then(() => { console.log(results.every(Boolean) && results.length === 7 ? '\nAll seven steps passed.' : '\nSomething failed.'); process.exit(results.every(Boolean) && results.length === 7 ? 0 : 1); },
+main().then(() => { console.log(results.every(Boolean) && results.length === 8 ? '\nAll eight steps passed.' : '\nSomething failed.'); process.exit(results.every(Boolean) && results.length === 8 ? 0 : 1); },
   e => { console.error(e && e.stack || e); console.log('FAIL (the check itself stopped: ' + String(e && e.message).split('\n')[0] + ')'); process.exit(1); });
