@@ -55,7 +55,7 @@ function checkUpdateBanner(){
   if (show && !b){
     b = h('div', { id: 'update-banner', class: 'update-banner', role: 'status' },
       pip('wow', 34, { tap: false }), h('span', { class: 'grow' }, h('b', null, 'Parlance ' + latest + ' is here. '), 'Refresh to get it; your progress stays.'),
-      h('button', { class: 'btn btn-sm btn-primary', type: 'button', onclick: () => { saveLocal(); syncNow(); setTimeout(() => { try { location.reload(); } catch (e) { toast('Close and reopen Parlance to update.'); } }, 350); } }, 'Refresh'));
+      h('button', { class: 'btn btn-sm btn-primary', type: 'button', onclick: e => { const b = e.currentTarget; b.disabled = true; b.textContent = 'Updating…'; saveLocal(); syncNow(); (typeof offlineUpdate === 'function' ? offlineUpdate() : Promise.resolve()).then(() => setTimeout(() => { try { location.reload(); } catch (err) { toast('Close and reopen Parlance to update.'); } }, 350)); } }, 'Refresh'));
     document.body.append(b);
   } else if (!show && b) b.remove();
 }
