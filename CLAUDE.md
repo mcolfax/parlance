@@ -45,6 +45,7 @@ npm run preview      # http://127.0.0.1:8765/_preview.html
 node design/pictures/tools.js check   # word pictures: drawing rules, the word mapping, coverage (must end with ok)
 npm run files        # JSON map of the files to publish next to index.html
 npm run web          # builds the web version into dist/ (what Vercel serves)
+npm run offline-check   # the web version offline: builds dist/, checks the worker, caching, updates and the kill switch (Playwright)
 NODE_PATH="$(npm root -g)" node dev/icons.js   # redraws media/icons/ from Pip (needs Playwright)
 node dev/voices.js   # records new lines into media/voice/ (Google key: the environment's network secret; --dry counts them)
 node dev/film.js     # renders the intro film to media/film/<bird>.mp4 (Playwright + ffmpeg; --check says which are out of date)

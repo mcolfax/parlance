@@ -49,6 +49,7 @@ function duelLeft(d){ const n = daysBetween(today(), d.end); return n <= 0 ? 'La
 /* ----- the tab ----- */
 function viewFriends(){
   const v = h('div', { class: 'view friends' }, topBar());
+  if (!navigator.onLine) v.append(h('div', { class: 'notice' }, 'Friends needs a connection. Everything else works offline, and your progress syncs when you’re back.'));
   const st = socialState();
   if (st !== 'ok' || !S.social.on){ v.append(friendsIntro(st)); return v; }
   if (pendingInvite() && !FR.offered){ FR.offered = true; setTimeout(() => offerInvite(), 400); }
