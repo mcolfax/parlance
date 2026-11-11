@@ -177,7 +177,6 @@ async function main(){
 
     /* 6 ----- the kill switch */
     const t3 = nextRelease('9.9.8', true); tmps.push(t3); srv.root = t3;
-    await page.evaluate(() => offlineUpdate());
     await page.reload({ waitUntil: 'load' }); await view(); await sleep(800);
     await page.reload({ waitUntil: 'load' }); await view(); await sleep(800);
     const k = await page.evaluate(async () => ({ controller: !!navigator.serviceWorker.controller, caches: await caches.keys(), ver: APP_VERSION }));
@@ -217,6 +216,8 @@ async function main(){
     let seven = '';
     try {
       await p2.reload({ waitUntil: 'load' }); await view2();
+      await p2.locator('#tabs .tab', { hasText: 'Me' }).first().click({ timeout: 5000 });
+      await p2.locator('.offline-card', { hasText: 'Spanish voices are saved for offline.' }).waitFor({ timeout: 10000 }).catch(() => { seven = 'offline, Me does not say the Spanish voices are saved'; });
       const got = await p2.evaluate(async () => {
         const l = coreOrder(S.settings.lang)[0], text = lessonSaid(l)[0], lang = S.settings.lang;
         startLesson(l.id);
@@ -225,7 +226,8 @@ async function main(){
         const buf = await recPack(lang, clip[0]);
         return { text, why: buf && buf.byteLength >= clip[1] + clip[2] ? '' : 'the pack did not load', played: await speak(text, lang) };
       });
-      if (got.why) seven = got.why + ' (' + got.text + ')';
+      if (seven) {}
+      else if (got.why) seven = got.why + ' (' + got.text + ')';
       else if (failedVoice.length) seven = 'voice requests failed: ' + failedVoice.slice(0, 2).join(', ');
     } catch (e) { seven = String(e.message).split('\n')[0]; }
     report('8 voices offline', !seven, seven || 'the first word’s recorded clip loaded with the network off');

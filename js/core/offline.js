@@ -8,7 +8,7 @@ function offlineStart(){
   Offline.on = true;
   /* offline.json says off:true when the kill switch is thrown (dev/web.js): then the page stops registering the worker and removes it */
   (navigator.onLine ? fetch('offline.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}, () => ({})) : Promise.resolve({})).then(m => {
-    if (m && m.off){ Offline.on = false; return navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())); }
+    if (m && m.off){ Offline.on = false; return Promise.all([caches.delete('parlance'), navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister())))]); }
     return navigator.serviceWorker.register('sw.js').then(reg => { Offline.reg = reg; return navigator.serviceWorker.ready; }).then(() => { Offline.ready = true; });
   }).catch(() => { Offline.on = false; });
   window.addEventListener('offline', () => {
@@ -28,7 +28,16 @@ function offlineUpdate(ms){
 }
 /* the voice files for a language, from offline.json (the worker's list): which are kept on this phone, and their size */
 async function offlineVoices(lang){
-  const m = await (await fetch('offline.json')).json(), c = await caches.open('parlance');
+  const c = await caches.open('parlance');
+  let m = null;
+  if (navigator.onLine){ try { const r = await fetch('offline.json'); if (r.ok) m = await r.json(); } catch (e) {} }
+  if (!m || !m.files){
+    /* offline.json isn't kept, so offline the voice index (which is) lists the packs instead */
+    const idx = await recIndex(lang); if (!idx) throw new Error('no voice index');
+    const packs = idx.packs.map(n => MEDIA.voice.dir + '/' + n); let kept = 0;
+    for (const p of packs) if (await c.match(new URL(p, location.href).href, { ignoreSearch: true })) kept++;
+    return { packs, kept, total: packs.length, mb: 0 };
+  }
   const packs = Object.keys(m.files).filter(p => p.startsWith('media/voice/' + lang + '-') && p.endsWith('.mp3'));
   let kept = 0, bytes = 0;
   for (const p of packs){ bytes += m.files[p][1]; if (await c.match(new URL(p + '?v=' + m.files[p][0], location.href).href)) kept++; }
