@@ -13,7 +13,7 @@
 The Selva palette is good, and almost all of it passes the usual contrast bars comfortably in both themes (measured from the tokens on 11 Nov, `flow/POLISH.md`). But nothing checks it, so a new token or a new pairing can slip under without anyone noticing, and three spots are under today, all in the light theme:
 - **Gold used as text** is 3.25:1 on white and 2.99:1 on the page background (small text needs 4.5): the gold finish stamp's lettering and the first-place rank in the league.
 - **The edge of a text field** is 1.33:1 against the card it sits on (a control's edge needs 3).
-- **White on the German green button** is 4.38:1, a hair under 4.5. Fixing it means changing `--de`, an existing Selva token, so it is Matt's call (`flow/POLISH.md`, "Matt's calls", 1). This plan records it as a known exception and does not change it.
+- **White on the German green button** was 4.38:1, a hair under 4.5. Matt approved the fix on 2026-11-11 and `--de` is now #1D8548 (4.67:1), so this plan has nothing to do there except check it.
 
 ## Gate
 
@@ -21,8 +21,6 @@ The Selva palette is good, and almost all of it passes the usual contrast bars c
 |---|---|---|---|
 | WP1 | Green | A dev tool and tests; no app file changes | — |
 | WP2 | Green | Accessibility polish with **new** tokens only; no existing token's value changes (POLICY "adding a new token is fine; changing an existing one is not") | — |
-
-If Matt has approved call 1 (a proposal with status `approved` and no `decidedBy`, named in the promoted plan), the orchestrator adds one step to WP2: set `--de:#1D8548` in the light `:root` block only (the guard's STOP for that line is then the one the approved proposal covers), and delete the `--de-ink` on `--de` entry from `KNOWN` in `dev/contrast.js`. Without that approval, leave `--de` alone.
 
 ## Work packages
 
@@ -58,12 +56,12 @@ They share `dev/test.js` and `dev/contrast.js`, so they run **one after another*
   ];
   ```
   A pair whose token doesn't exist in a theme is skipped, not failed (so `--streak-*` is skipped until Q2 has shipped).
-- `KNOWN` lists the accepted exceptions as `'<theme> <fg> <bg>': '<why>'`. It starts with one entry: `'light --de-ink --de': 'White on the German green is 4.38. Changing --de is Matt’s call (flow/POLISH.md, call 1).'`. (`--es` on `--bg` is deliberately not in `PAIRS`: mango is used as a fill with dark ink on it, never as a thin shape on the page.)
+- `KNOWN` lists the accepted exceptions as `'<theme> <fg> <bg>': '<why>'`. It starts empty: `const KNOWN = {};`. (`--es` on `--bg` is deliberately not in `PAIRS`: mango is used as a fill with dark ink on it, never as a thin shape on the page.)
 - `report()` returns `{ rows, failures, drift }`: a row per pair per theme (`light` and `dark`) with its ratio and `pass`, `known` or `fail`; `failures` are the rows under their minimum that aren't in `KNOWN`; `drift` lists every token whose value differs between `dark` and `darkMedia` (the two dark blocks must say the same thing).
 - Run directly (`node dev/contrast.js`), it prints the table, then `ok` or the failures, and exits 1 if there are failures or drift. `module.exports = { themes, ratio, report, PAIRS, KNOWN }`.
 
 **Steps.**
-1. Write `dev/contrast.js`; run it; it must print `ok` (33 pairs × 2 themes, one known, the streak pair skipped or passing).
+1. Write `dev/contrast.js`; run it; it must print `ok` (33 pairs × 2 themes, none known, the streak pair skipped or passing).
 2. `package.json`: the script line.
 3. Tests: one block in `dev/test.js` directly **before** the line containing `// placement: all right goes to the top`.
 4. `npm test`, `node dev/flow.js guard`, `npm run files` (confirm `dev/contrast.js` is not listed), commit.
@@ -74,11 +72,11 @@ They share `dev/test.js` and `dev/contrast.js`, so they run **one after another*
   - `contrast: the math is right`: `ratio('#000000', '#FFFFFF') === 21`, `ratio('#FFFFFF', '#FFFFFF') === 1`, `ratio('#15301F', '#F3F7EC')` is between 13 and 13.3.
   - `contrast: every pair passes or is a known exception`: `report().failures` is empty; on failure the message lists each failing pair with its theme, ratio and minimum.
   - `contrast: the two dark blocks agree`: `report().drift` is empty; on failure the message lists the tokens.
-  - `contrast: the German button is the only known exception`: `Object.keys(KNOWN).length === 1` (update this number, with a reason in the commit message, only when Matt accepts or settles an exception).
+  - `contrast: there are no known exceptions`: `Object.keys(KNOWN).length === 0` (an entry is added, with its reason, only when Matt accepts one).
 - [ ] Temporarily changing `--muted` in the light block to `#9BB5A0` makes `node dev/contrast.js` exit 1 naming `--muted` (then undo it; `git diff styles/tokens.css` is empty).
 - [ ] `node dev/flow.js guard`: no STOP, no FIX.
 
-**Stop and report if:** a pair in `PAIRS` fails today other than the one in `KNOWN` (the numbers of 11 Nov say none does; if the tokens have changed since, list the failures and don't add them to `KNOWN` yourself).
+**Stop and report if:** a pair in `PAIRS` fails today (the numbers of 11 Nov, with `--de` at #1D8548, say none does; if the tokens have changed since, list the failures and don't add them to `KNOWN` yourself).
 
 ### WP2 — Gold text and field edges
 

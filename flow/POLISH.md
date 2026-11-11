@@ -1,6 +1,6 @@
 # Polished Parlance: the program
 
-Matt asked (2026-11-11) for a review of what people recommend for free animation and design work, a plan to lift Parlance's animations, illustrations, colors and UI/UX to what people expect from a paid app, and build plans that Sonnet and Haiku agents can carry out, with a final review by the strongest model. This page is the research, the audit and the program. The four releases below are planned to the template's bar (`flow/plans/TEMPLATE.md`) and wait in `flow/plans/queue/` as `q1` to `q4`, next to the premium program's `p3` to `p7` ([PREMIUM.md](PREMIUM.md)).
+Matt asked (2026-11-11) for a review of what people recommend for free animation and design work, a plan to lift Parlance's animations, illustrations, colors and UI/UX to what people expect from a paid app, and build plans that Sonnet and Haiku agents can carry out, with a final review by the strongest model. This page is the research, the audit and the program. The five releases below are planned to the template's bar (`flow/plans/TEMPLATE.md`) and wait in `flow/plans/queue/` as `q1` to `q5`, next to the premium program's `p3` to `p7` ([PREMIUM.md](PREMIUM.md)).
 
 Written against `main` at `fd1e133` (4.33.0).
 
@@ -37,7 +37,7 @@ From screenshots of every tab, a lesson, the finish screen, a story and setup at
 | 9 | **It can still behave like a web page.** In the Home Screen app a pull at the top reloads it; a long press on a button selects its label; the 11,000px Learn route is laid out and painted in full. | `styles/base.css` has no `touch-action`, `user-select` or `content-visibility` | Q3 WP1 |
 | 10 | **No accessibility audit has been done** (R-10): no check that every control has a name, sheets don't hold or return focus. | `sheet()` in `js/ui/shell.js` | Q3 WP2 |
 | 11 | **Nothing checks contrast.** Measured from the tokens: light-theme gold text is 3.0 to 3.3:1 (needs 4.5); field borders are 1.3:1 (a control's edge needs 3); white on the German green button is 4.38:1, just under 4.5. Everything else passes, most of it comfortably, and dark mode passes everywhere. | Computed 11 Nov from `styles/tokens.css` | Q4 |
-| 12 | **The birds are underused.** Ten of 18 moods appear on screens (`wave`, `laugh`, `proud`, `dizzy`, `fly`, `dance`, `ready`, `oops` are rare or unused). | `grep -o "pip('[a-z]*'" js/ui/*.js` | P3 and P4 use more of them; nothing new here |
+| 12 | **Two of the birds' animations are never shown, and three are shown once.** The `laugh` mood and the head-`shake` clip appear on no screen; `sad`, `proud` and `ready` appear in one place each. After a failed checkpoint the bird cheers under confetti. | Counted 11 Nov across `js/ui/*.js` and `js/core/art.js` (the film aside) | Q5 (P3 and P4 use more of them too) |
 
 Looked at and left alone, on purpose:
 
@@ -56,16 +56,19 @@ Each is one flow release of two or three packages and stands alone.
 | Q2 | A better first look | WP1 Small things that look wrong · WP2 A loading screen with shape · WP3 Me, easier to get around | Green | [`plans/queue/q2-first-look.md`](plans/queue/q2-first-look.md) |
 | Q3 | Feels like an app | WP1 Touch and scrolling · WP2 Names and focus for every control | Green | [`plans/queue/q3-feels-like-an-app.md`](plans/queue/q3-feels-like-an-app.md) |
 | Q4 | Easier to read | WP1 A contrast check · WP2 Gold text and field edges | Green (new tokens only) | [`plans/queue/q4-easier-to-read.md`](plans/queue/q4-easier-to-read.md) |
+| Q5 | Every move counts | WP1 A moment for every mood and move of the birds | Green | [`plans/queue/q5-every-move.md`](plans/queue/q5-every-move.md) |
 
-**Order with the premium program.** P2 is already promoted. After it, promote in this order: **P3, Q1, Q2, P4, Q3, P5, Q4, P6, P7**. P3 goes first because it changes how a lesson feels (the finish screen, the climbing chime, the bird on teach cards), which is the biggest part of "polished"; Q1 follows so that everything after it is written against the timing tokens. From Q1 on, `npm test` fails any new transition with a literal duration, so the builders of later plans use the tokens (the failure message says which).
+**Order with the premium program.** P2 is already promoted. After it, promote in this order: **P3, Q1, Q2, P4, Q5, Q3, P5, Q4, P6, P7**. P3 goes first because it changes how a lesson feels (the finish screen, the climbing chime, the bird on teach cards), which is the biggest part of "polished"; Q1 follows so that everything after it is written against the timing tokens. From Q1 on, `npm test` fails any new transition with a literal duration, so the builders of later plans use the tokens (the failure message says which).
 
 ## Matt's calls
 
-These cross a Red line, so no plan builds them (call 1 is R-50 and call 2 is R-15 in `ROADMAP.md`). Say yes or no to each.
+Decided in chat on 2026-11-11.
 
-1. **The German green in the light theme.** White text on `--de` (#1F8A4C) is 4.38:1; the accessibility bar for button text is 4.5. Changing `--de` to #1D8548 gives 4.67 and is hard to tell apart by eye. It changes an existing Selva token, and the film videos carry the film's own colors, so they aren't affected. Recommended: yes.
-2. **The last five story scenes** (Spanish 1, Italian 4). 22 of 27 stories have a drawn scene. The rest cost about US$0.40 in Recraft in all (R-15, waiting on `budgets.recraftUnitsPerMonth` ≥ 400 in `flow/policy.json`). Recommended: yes; a story without its scene is the most visible illustration gap.
-3. **Reading Reddit directly.** If the first-hand threads matter to you, allow `reddit.com` for a session or paste the links, and this page gets a second pass.
+1. **The German green in the light theme: yes.** `--de` is now #1D8548 (white on it is 4.67:1, up from 4.38) and its glow matches. Done on this branch with Matt's approval; the film videos are unaffected (`node dev/film.js --check`). R-50.
+2. **The last five story scenes: yes, and Matt makes them himself in Recraft**, so no budget changes. The prompts are in `design/pictures/recraft/PROMPTS.md` (es-s9, it-s6, it-s7, it-s8, it-s9). When the SVGs arrive in `design/pictures/recraft/incoming/`, place them with `node design/pictures/tools.js svg`, add who stands where to `design/pictures/story-figs.json`, run `node design/pictures/tools.js scenes` and `npm test`. R-15.
+3. **No animation wasted.** Matt asked that every bird animation be used. Q5 does that and adds a test that keeps it so.
+
+Still open: reading Reddit first-hand needs `reddit.com` allowed for a session, or pasted links.
 
 ## How to run it cheaply
 
