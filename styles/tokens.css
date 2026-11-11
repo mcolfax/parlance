@@ -9,7 +9,7 @@
    ========================================================== */
 :root{
   --bg:#F3F7EC; --surface:#FFFFFF; --surface-2:#F9FBF5; --ink:#15301F; --muted:#4F6B57; --hair:#D6E3CF; --hair-2:#E6EFDD;
-  --de:#1F8A4C; --de-ink:#FFFFFF; --de-text:#17713D; --de-soft:#DDF1E3; --de-glow:rgb(31 138 76 / .24); --de-edge:#14633A; --de-soft-edge:#B9DEC5;
+  --de:#1D8548; --de-ink:#FFFFFF; --de-text:#17713D; --de-soft:#DDF1E3; --de-glow:rgb(29 133 72 / .24); --de-edge:#14633A; --de-soft-edge:#B9DEC5;
   --es:#FF8A1F; --es-ink:#2A1600; --es-text:#9A4A00; --es-soft:#FFE9D2; --es-glow:rgb(255 138 31 / .28); --es-edge:#C9640A; --es-soft-edge:#F5CFA8;
   --it:#D6366B; --it-ink:#FFFFFF; --it-text:#A3224D; --it-soft:#FFE1EB; --it-glow:rgb(214 54 107 / .26); --it-edge:#9E1F4B; --it-soft-edge:#F5B9CC;
   --ok:#11643A; --ok-bg:#DDF4E4; --bad:#A3231B; --bad-bg:#FFE3DE; --warn:#7A5A00; --warn-bg:#FFF3C4;
