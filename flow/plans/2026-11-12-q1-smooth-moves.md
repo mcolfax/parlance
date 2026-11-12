@@ -1,9 +1,9 @@
 # Smooth moves: one timing system, things that leave as well as arrive, quicker tabs
 
-- **Cycle:** set when promoted (polish program Q1, `flow/POLISH.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-q1-smooth-moves.md`, set Release, Base and `approved`)
-- **Release:** the next free minor when promoted
-- **Base:** `main` at promotion time (nothing below depends on line numbers)
+- **Cycle:** 2026-11-12-2 (polish program Q1, `flow/POLISH.md`)
+- **Status:** building
+- **Release:** 4.36.0
+- **Base:** `main` at e6b0f53 (4.35.0)
 - **Proposals built:** none
 - **Roadmap items:** new R-41, R-42, R-43
 - **Needs:** nothing. Promote after P3 (`flow/POLISH.md`, "Order").

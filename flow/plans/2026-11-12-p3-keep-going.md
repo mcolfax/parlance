@@ -1,7 +1,7 @@
 # Keep going: a lesson loop that flows, sounds good and keeps you company
 
 - **Cycle:** 2026-11-12 (premium program P3, `flow/PREMIUM.md`)
-- **Status:** building
+- **Status:** shipped (4.35.0)
 - **Release:** 4.35.0
 - **Base:** `main` at d04d314 (4.34.0)
 - **Proposals built:** none
@@ -160,5 +160,5 @@ After WP3 (`parlance-chores`, Haiku):
 ## Outcome
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.35.0, `e6b0f53` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:** Promote `flow/plans/queue/p4-play.md`.
