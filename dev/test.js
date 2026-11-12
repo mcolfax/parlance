@@ -989,6 +989,25 @@ async function main(){
       R.w.close();
       ok(/\.sk\{[^}]*var\(--hair-2\)/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'boot: the skeleton is styled from tokens');
     }
+    // Me, easier to get around (WP3): chips that jump to its cards
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document;
+      R.E('UI.tab = "me"; render()');
+      const jump = rd.querySelector('#app .view > .me-jump'), heads = [...rd.querySelectorAll('#app .view > section h3')].map(x => x.textContent.trim());
+      const want = [['Badges', 'Badges'], ['Last 7 days', 'This week'], ['Your bird', 'Your bird'], ['Sound', 'Sound'], ['Practice', 'Practice'], ['Your progress is saved', 'Backup']].filter(([t]) => heads.includes(t)).map(x => x[1]);
+      const labels = jump ? [...jump.querySelectorAll('button.chip')].map(b => b.textContent) : [];
+      ok(jump && jump.previousElementSibling && jump.previousElementSibling.classList.contains('profile') && want.length >= 5 && JSON.stringify(labels) === JSON.stringify(want), 'me: jump chips list the cards that exist: ' + JSON.stringify(labels));
+      const missing = R.E('(() => { const v = viewMe(); v.querySelector(".me-jump").remove(); [...v.querySelectorAll("section")].find(s => s.querySelector("h3") && s.querySelector("h3").textContent === "Practice").remove(); meJump(v); return [...v.querySelectorAll(".me-jump .chip")].map(b => b.textContent); })()');
+      ok(!missing.includes('Practice') && missing.includes('Sound') && missing.length === want.length - 1, 'me: jump chips list the cards that exist (a missing card gets no chip)');
+      const seen = []; R.w.Element.prototype.scrollIntoView = function(){ seen.push(this); };
+      [...jump.querySelectorAll('button.chip')].find(b => b.textContent === 'Sound').click();
+      ok(seen.length === 1 && seen[0].tagName === 'SECTION' && seen[0].querySelector('h3').textContent === 'Sound', 'me: a chip scrolls to its card');
+      const same = R.E('(() => { const v = viewMe(), withIt = [...v.querySelectorAll("section h3")].map(x => x.textContent.trim()); const keep = meJump; meJump = () => {}; const w = viewMe(); meJump = keep; return JSON.stringify(withIt) === JSON.stringify([...w.querySelectorAll("section h3")].map(x => x.textContent.trim())) && !w.querySelector(".me-jump") && !!v.querySelector(".me-jump"); })()');
+      ok(same, 'me: the cards are unchanged');
+      ok(/\.me-jump\{[^}]*overflow-x:auto/.test(fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8')), 'me: the chip row scrolls inside itself');
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

@@ -54,6 +54,15 @@ function openBirdPicker(){
       toast(MASCOTS[pick].name + ' is learning with you now.');
     } }]);
 }
+/* a row of chips under the profile that jump to Me's cards; it lists only the cards this learner has */
+const ME_JUMP = [['Badges', 'Badges'], ['Last 7 days', 'This week'], ['Your bird', 'Your bird'], ['Sound', 'Sound'], ['Practice', 'Practice'], ['Your progress is saved', 'Backup']];
+function meJump(v){
+  const heads = [...v.querySelectorAll('section h3')];
+  const chips = ME_JUMP.map(([title, label]) => { const h3 = heads.find(x => x.textContent.trim() === title); const sec = h3 && h3.closest('section'); return sec ? h('button', { class: 'chip', type: 'button', onclick: () => sec.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }) }, label) : null; }).filter(Boolean);
+  if (chips.length < 3) return;
+  const row = h('nav', { class: 'me-jump', 'aria-label': 'Jump to' }, chips);
+  const anchor = v.querySelector('.profile'); if (anchor) anchor.after(row); else if (v.firstElementChild) v.firstElementChild.after(row);
+}
 function viewMe(){
   const lang = S.settings.lang; const st = streakInfo(); const L = S.langs[lang];
   const v = h('div', { class: 'view' }, topBar());
@@ -140,6 +149,7 @@ function viewMe(){
     h('button', { class: 'linkish', type: 'button', onclick: () => openOnboarding(true) }, 'Change language or level'),
     h('button', { class: 'linkish danger', type: 'button', onclick: resetLang }, 'Reset ' + LANGS[lang].name + ' progress')));
   v.append(h('p', { class: 'small muted center' }, 'German is ' + LANGS.de.variety + '. Spanish is ' + LANGS.es.variety + ' (ustedes, no vosotros). Italian is ' + LANGS.it.variety + '.'));
+  meJump(v);
   return v;
 }
 /* your account's photo, else your initials, else a person: never a letter that isn't yours */
