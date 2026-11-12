@@ -660,12 +660,14 @@ function showComplete(o){
   const dateStr = new Date().toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
   const xpEl = h('span', { class: 'num' }, '+0');
   const cheer = pickSay(lang, 'cheer');
+  const ms = (o.badges || []).filter(id => /^streak\d+$/.test(id) && +id.slice(6) >= 7).pop();   // a new streak badge of 7, 14, 30 ... days is a moment of its own (the 3-day one isn't)
+  const gold = o.gold || !!ms, sub = ms ? (o.sub || o.h1) : o.sub;
   swapBody(h('div', { class: 'complete' },
     h('div', { class: 'stamp-wrap' },
-      h('div', { class: 'stamp' + (o.gold ? ' gold' : ''), 'aria-hidden': 'true' }, h('span', { class: 's-top' }, o.top), h('span', { class: 's-mid' }, o.title), h('span', { class: 's-bot' }, dateStr)),
-      pip(o.gold || o.acc === 1 ? 'dance' : 'cheer', 78, { cls: 'complete-pip', say: cheer, mouth: true, moveFor: 3200, lang })),
-    h('h1', null, o.h1),
-    o.sub ? h('p', { class: 'muted' }, o.sub) : null,
+      h('div', { class: 'stamp' + (gold ? ' gold' : ''), 'aria-hidden': 'true' }, h('span', { class: 's-top' }, o.top), h('span', { class: 's-mid' }, o.title), h('span', { class: 's-bot' }, dateStr)),
+      pip(ms ? 'fly' : gold || o.acc === 1 ? 'dance' : 'cheer', 78, { cls: 'complete-pip', say: cheer, mouth: true, moveFor: 3200, lang })),
+    h('h1', null, ms ? st.count + ' days in a row!' : o.h1),
+    sub ? h('p', { class: 'muted' }, sub) : null,
     h('div', { class: 'tiles3' },
       h('div', { class: 'stat' }, xpEl, h('span', { class: 'lbl' }, 'XP')),
       h('div', { class: 'stat' }, h('span', { class: 'num' }, Math.round(o.acc * 100) + '%'), h('span', { class: 'lbl' }, o.accLabel || 'first-try accuracy')),
@@ -683,7 +685,7 @@ function showComplete(o){
   countUp(xpEl, o.xp);
   if (o.quests && o.quests.length) setTimeout(() => sfx('quest'), 700);
   if (o.badges && o.badges.length) setTimeout(() => sfx('badge'), 1100);
-  confetti(OV.root, o.gold ? 180 : 110);
+  confetti(OV.root, gold ? 180 : 110);
   const root = OV.root;   // the cheer belongs to this finish screen: Next or the checkpoint button may already have opened another
   if (S.settings.autoplay) setTimeout(() => { if (OV.root && OV.root === root) speak(cheer, lang, false, mascot()); }, 900);
 }

@@ -1137,6 +1137,60 @@ async function main(){
       ok(R.errors.length === 0, 'speed: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }
+    // streak milestones and new badges (P4 WP3)
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, rl = () => R.P.S.langs.es;
+      const OLD = ['first', 'streak3', 'streak7', 'streak30', 'words50', 'words250', 'words1000', 'flawless', 'combo10', 'review100', 'story1', 'stories8', 'talk', 'chest7', 'friend', 'rival', 'levelA1', 'levelB1', 'levelC2', 'checkpoint1', 'checkpoint5', 'checkpoint100', 'fixer', 'forms50', 'both', 'early', 'night'];
+      const NEW = ['streak14', 'streak50', 'streak100', 'streak365', 'stickers50', 'shiny25', 'speed20'];
+      const ids = R.E('BADGES.map(b => b.id)');
+      ok(ids.length === 34 && new Set(ids).size === 34 && JSON.stringify(ids.filter(i => !NEW.includes(i))) === JSON.stringify(OLD) && NEW.every(i => ids.includes(i)), 'badges: 34 badges, the old ones unchanged');
+      const at = i => ids.indexOf(i);
+      ok(at('streak7') < at('streak14') && at('streak14') < at('streak30') && at('streak30') + 1 === at('streak50') && at('streak50') + 1 === at('streak100') && at('streak100') + 1 === at('streak365') && at('forms50') + 1 === at('stickers50') && at('stickers50') + 1 === at('shiny25') && at('shiny25') + 1 === at('speed20'), 'badges: the new ones sit where the plan puts them');
+      ok(R.E('BADGES.every(b => typeof BADGE_ART[b.icon] === "string" && b.name && b.desc)'), 'badges: every badge has a drawn icon, a name and a description');
+      R.E('UI.tab = "me"; render()');
+      ok(rd.querySelectorAll('#app .badge-cell').length === 34 && /0 of 34/.test(rd.querySelector('#app .badge-grid').previousElementSibling.textContent), 'badges: Me lists all 34');
+      // streak milestones
+      R.E('S.days = {}; for (let i = 0; i < 14; i++) S.days[addDays(today(), -i)] = { xp: 25, met: true }');
+      const got = R.E('checkBadges({})');
+      ok(got.includes('streak14') && got.includes('streak7') && R.P.S.badges.streak14 && !R.P.S.badges.streak30 && !R.P.S.badges.streak50, 'badges: streak milestones: 14 days earns streak14 and not streak50: ' + got.join());
+      ok(R.E('checkBadges({})').length === 0, 'badges: a badge is earned once');
+      R.E('S.days = {}; for (let i = 0; i < 365; i++) S.days[addDays(today(), -i)] = { xp: 25, met: true }');
+      const big = R.E('checkBadges({})');
+      ok(['streak30', 'streak50', 'streak100', 'streak365'].every(i => big.includes(i)), 'badges: a year earns every streak badge: ' + big.join());
+      // stickers and speed
+      const learnPics = n => R.E('(() => { const L = S.langs.es; for (const l of coreOrder("es")) for (let i = 0; i < l.vocab.length; i++){ if (stickerBook("es").got >= ' + n + ') return stickerBook("es").got; if (picFor(l.vocab[i], "es")){ const k = itemKey(l, "v", i); if (!L.cards[k]) L.cards[k] = { ef: 2.5, n: 0, iv: 0, due: addDays(today(), 1), last: today(), ts: 1 }; } } return stickerBook("es").got; })()');
+      ok(learnPics(49) === 49 && !R.E('checkBadges({})').includes('stickers50'), 'badges: 49 stickers is not enough');
+      learnPics(50);
+      ok(R.E('stickerBook("es").got') === 50 && R.E('checkBadges({})').includes('stickers50') && !R.P.S.badges.shiny25 && !R.P.S.badges.speed20, 'badges: stickers and speed: 50 pictured Spanish words earn stickers50');
+      R.E('(() => { let n = 0; for (const k of Object.keys(S.langs.es.cards)) if (n < 24){ S.langs.es.cards[k].n = 3; n++; } })()');
+      const shinyNow = R.E('stickerBook("es").shiny');
+      ok(shinyNow === 24 && !R.E('checkBadges({})').includes('shiny25'), 'badges: 24 shiny stickers is not enough: ' + shinyNow);
+      R.E('(() => { for (const k of Object.keys(S.langs.es.cards)) S.langs.es.cards[k].n = 3; })()');
+      ok(R.E('stickerBook("es").shiny') >= 25 && R.E('checkBadges({})').includes('shiny25'), 'badges: 25 shiny stickers earn shiny25');
+      R.E('S.stats["speed-es"] = 19');
+      ok(!R.E('checkBadges({})').includes('speed20'), 'badges: a speed score of 19 is not enough');
+      R.E('S.stats["speed-es"] = 20');
+      ok(R.E('checkBadges({})').includes('speed20'), 'badges: stickers and speed: a speed score of 20 earns speed20');
+      // the milestone moment
+      R.E('S.days = {}; for (let i = 0; i < 7; i++) S.days[addDays(today(), -i)] = { xp: 25, met: true }; window.__cf = []; confetti = (host, n) => { window.__cf.push(n); }');
+      const finish = badges => { R.E('openOverlay("run"); showComplete({ lang: "es", top: "Lesson complete", title: "Hola", xp: 5, acc: 0.5, h1: "Good practice.", sub: null, third: [1, "day streak"], badges: ' + JSON.stringify(badges) + ', quests: [], onDone: () => {} })'); return rd.querySelector('.overlay:not(.out) .complete'); };
+      let c = finish(['streak7']);
+      ok(c.querySelector('h1').textContent === '7 days in a row!' && !!c.querySelector('.stamp.gold') && !!c.querySelector('.complete-pip.fly') && c.querySelector('.complete-pip').rig.home === 'fly' && /Good practice\./.test(c.querySelector('h1').nextElementSibling.textContent) && c.textContent.includes('One week strong') && R.E('window.__cf.pop()') === 180, 'milestone: a new streak badge is a moment');
+      R.E('closeOverlay(true)');
+      R.E('openOverlay("run"); showComplete({ lang: "es", top: "Lesson complete", title: "Hola", xp: 5, acc: 1, h1: "Flawless.", sub: "Next on your route.", third: [1, "day streak"], badges: ["streak3", "streak7"], quests: [], onDone: () => {} })');
+      c = rd.querySelector('.overlay:not(.out) .complete');
+      ok(c.querySelector('h1').textContent === '7 days in a row!' && c.querySelector('h1').nextElementSibling.textContent === 'Next on your route.' && c.querySelectorAll('.badge-new').length === 2, 'milestone: an existing sub line is kept');
+      R.E('closeOverlay(true)');
+      c = finish(['streak3']);
+      ok(c.querySelector('h1').textContent === 'Good practice.' && !c.querySelector('.stamp.gold') && !c.querySelector('.complete-pip.fly') && R.E('window.__cf.pop()') === 110, 'milestone: the 3-day badge is not a milestone');
+      R.E('closeOverlay(true)');
+      c = finish([]);
+      ok(c.querySelector('h1').textContent === 'Good practice.' && !c.querySelector('.stamp.gold') && c.querySelector('.complete-pip.cheer'), 'milestone: no badge, the finish screen is as before');
+      R.E('closeOverlay(true)');
+      ok(R.errors.length === 0, 'milestone: no page errors ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
