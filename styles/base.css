@@ -43,7 +43,7 @@ p{margin:0}
 .btn.busy{overflow:hidden}
 .btn.busy::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgb(255 255 255 / .28) 50%,transparent 80%);animation:sheen 1.2s linear infinite}
 @keyframes sheen{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-.linkish{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:8px 2px;color:var(--line-text);font:800 15px var(--body);text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.linkish{display:inline-flex;align-items:center;gap:6px;min-height:44px;background:none;border:0;padding:8px 2px;color:var(--line-text);font:800 15px var(--body);text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
 .linkish.small{font-size:14px}
 .linkish.danger{color:var(--bad)}
 .icon-btn{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;border:0;background:var(--line-soft);color:var(--line-text);flex:none;box-shadow:0 3px 0 var(--line-soft-edge);transition:transform var(--dur-fast) var(--ease),background-color var(--dur-quick)}
@@ -186,7 +186,7 @@ mark.miss,.w.miss{background:color-mix(in srgb, var(--bad) 18%, transparent);col
 .sheet-back.out{animation:fade .16s ease reverse both}
 .sheet{width:100%;max-width:560px;background:var(--surface);border-radius:24px 24px 0 0;padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;max-height:88%;overflow-y:auto;animation:sheetin .32s var(--ease) both;box-shadow:var(--shadow-lg)}
 .grip{width:40px;height:5px;border-radius:5px;background:var(--hair);align-self:center;margin-bottom:6px;position:relative;touch-action:none;cursor:grab}
-.grip::before{content:"";position:absolute;inset:-14px -60px -14px -60px}
+.grip::before{content:"";position:absolute;inset:-20px -60px}
 .sheet.drag{transition:none}
 .sheet.back{transition:transform var(--dur-quick) var(--ease)}
 .sheet h3{font-size:22px}
@@ -214,4 +214,14 @@ mark.miss,.w.miss{background:color-mix(in srgb, var(--bad) 18%, transparent);col
   .fb-ic .draw{stroke-dashoffset:0!important}
   .spark-p{display:none}
 }
-.boot-msg{padding:40px 0;text-align:center;color:var(--muted)}
+/* the first paint, before the scripts have run: the shape of Learn in soft blocks */
+.boot{display:flex;flex-direction:column;gap:18px;padding-top:4px}
+.sk{display:block;border-radius:var(--r-md);background:var(--hair-2);position:relative;overflow:hidden}
+.sk::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,var(--surface) 50%,transparent 80%);opacity:.55;animation:sheen 1.4s linear infinite}
+.sk-top{height:44px;border-radius:var(--r-pill)}
+.sk-h1{height:38px;width:58%}
+.sk-p{height:18px;width:82%;margin-top:-8px}
+.sk-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sk-row .sk{height:106px;border-radius:var(--r)}
+.sk-card{height:262px;border-radius:var(--r)}
+.sk-card.short{height:150px}

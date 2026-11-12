@@ -906,6 +906,11 @@ async function main(){
       R.E('setLang("es")');
       ok(R.E('Object.keys(UI.scroll).length') === 0, 'tabs: a tab remembers its scroll (a new language forgets it)');
       ok(bcss.includes('.view.enter>*{animation:rise var(--dur-enter)') && bcss.includes('* 30ms'), 'tabs: the entrance is short');
+      R.E('UI.scroll.review = 640; UI.scroll.talk = 640; UI.tab = "learn"; render()');
+      R.E('goTab("review")');
+      const viaGo = R.E('UI.scroll.review');
+      R.E('UI.tab = "learn"; render()'); const due = rd.querySelector('.stat.due'); R.E('UI.scroll.review = 640'); if (due) due.click();
+      ok(viaGo === 0 && due && R.E('UI.scroll.review') === 0 && R.E('UI.tab') === 'review', 'tabs: an in-app jump forgets the old position');
       R.w.close();
     }
     // haptics with names and a switch (WP3)
@@ -929,6 +934,81 @@ async function main(){
       delete R.w.navigator.vibrate; R.E('render()');
       ok(withIt && !R.w.document.querySelector('#set-haptics'), 'haptics: the switch shows only where the phone can vibrate');
       old.w.close(); R.w.close();
+    }
+    // a better first look (WP1): no "null" under a short word list, the streak tile's own colors, an honest retake message, a true tile count, a full tap target
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, rl = () => R.P.S.langs.es, rfoot = l => [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === l);
+      const answer = async (right) => {
+        let g = 0;
+        while (R.E('Run.active && !Run.finished') && g++ < 200){
+          const ex = R.E('Run.cur'); let ans;
+          if (ex.type === 'teach'){ rfoot('Continue').click(); continue; }
+          if (!right){
+            if (ex.type === 'match'){ R.E('Run.pos++; nextEx()'); continue; }
+            ans = ex.options ? (ex.options.find(o => o !== ex.correct) || 'zzz') : 'zzz';
+          } else switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = R.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = R.P.tileTokens(ex.item.e[0]).join(' '); break;
+            case 'match': R.E('Run.pos++; nextEx()'); continue; default: ans = ex.correct; }
+          R.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()'); rfoot('Continue').click();
+        }
+      };
+      R.E('startLesson(COURSE.es.units[0].lessons[0].id)');
+      R.E('Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx()');
+      await answer(true);
+      rfoot('Continue') && rfoot('Continue').click();
+      R.E('endRun && Run.active && endRun()');
+      R.E('UI.wordFilter = "v"; UI.wordQuery = ""; UI.wordLimit = 0; UI.tab = "review"; render()');
+      const wl = rd.querySelector('#word-list'), cardCount = Object.keys(rl().cards).length;
+      ok(cardCount > 0 && cardCount < 150 && wl && wl.querySelectorAll('.wrow').length > 0 && ![...wl.childNodes].some(n => n.nodeType === 3 && n.textContent === 'null') && !wl.textContent.includes('null'), 'review: no "null" under a short word list');
+      R.E('UI.wordFilter = "all"; UI.wordLimit = 0; render()');
+      const lastEl = rd.querySelector('#word-list').lastElementChild;
+      ok(lastEl && lastEl.tagName === 'BUTTON' && lastEl.textContent.startsWith('Show more ('), 'review: Show more still appears on a long list');
+      const tk = fs.readFileSync(path.join(ROOT, 'styles', 'tokens.css'), 'utf8'), cc = fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8');
+      const streakRule = (cc.match(/\.stat\.streak\{[^}]*\}/) || [''])[0];
+      ok((tk.match(/--streak-bg:/g) || []).length === 3 && (tk.match(/--streak-text:/g) || []).length === 3 && streakRule.includes('var(--streak-bg)') && !streakRule.includes('--bad'), 'learn: the streak tile has its own colors');
+      // a failed retake of a passed unit
+      const units = R.P.COURSE.es.units, u2 = units[1];
+      rl().cp[u2.title] = { at: '2026-10-01', acc: 0.9, pass: true }; rl().outs = rl().outs || {}; rl().outs[u2.title] = '2026-10-01';
+      R.E('startCheckpoint(COURSE.es.units[1], true)');
+      await answer(false);
+      const said = rd.querySelector('.overlay:not(.out)') ? rd.querySelector('.overlay:not(.out)').textContent : '';
+      ok(said.includes('to pass') && !said.includes('to test out'), 'checkpoint: a failed retake of a passed unit says "to pass"');
+      rfoot('Continue') && rfoot('Continue').click();
+      // the weakest tile counts what there is
+      const keys = Object.keys(rl().cards); for (const k of keys.slice(8)) delete rl().cards[k];
+      const tile = R.E('practiceTiles("es")').find(t => t.id === 'weak');
+      ok(Object.keys(rl().cards).length === 8 && tile && tile.sub === 'Your 8 shakiest', 'review: the weakest tile counts what there is');
+      ok(/\.linkish\{[^}]*min-height:44px/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'links: .linkish is a full tap target');
+      R.w.close();
+    }
+    // a loading screen with shape (WP2): the page starts with a skeleton that the first render replaces
+    {
+      const raw = fs.readFileSync(INDEX, 'utf8'), probe = new JSDOM(raw).window.document;
+      ok(raw.includes('<div class="boot" role="status" aria-label="Loading Parlance">') && probe.querySelectorAll('.sk, .sk-row').length >= 6 && !raw.includes('boot-msg') && !/<script(?![^>]*\bsrc=)[^>]*>/i.test(raw) && !/<style/i.test(raw), 'boot: the page starts with a skeleton, not a sentence');
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      ok(R.w.document.querySelector('#app .boot') === null && !!R.w.document.querySelector('#app .view'), 'boot: the first render replaces the skeleton');
+      R.w.close();
+      ok(/\.sk\{[^}]*var\(--hair-2\)/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'boot: the skeleton is styled from tokens');
+    }
+    // Me, easier to get around (WP3): chips that jump to its cards
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document;
+      R.E('UI.tab = "me"; render()');
+      const jump = rd.querySelector('#app .view > .me-jump'), heads = [...rd.querySelectorAll('#app .view > section h3')].map(x => x.textContent.trim());
+      const want = [['Badges', 'Badges'], ['Last 7 days', 'This week'], ['Your bird', 'Your bird'], ['Sound', 'Sound'], ['Practice', 'Practice'], ['Your progress is saved', 'Backup']].filter(([t]) => heads.includes(t)).map(x => x[1]);
+      const labels = jump ? [...jump.querySelectorAll('button.chip')].map(b => b.textContent) : [];
+      ok(jump && jump.previousElementSibling && jump.previousElementSibling.classList.contains('profile') && want.length >= 5 && JSON.stringify(labels) === JSON.stringify(want), 'me: jump chips list the cards that exist: ' + JSON.stringify(labels));
+      const missing = R.E('(() => { const v = viewMe(); v.querySelector(".me-jump").remove(); [...v.querySelectorAll("section")].find(s => s.querySelector("h3") && s.querySelector("h3").textContent === "Practice").remove(); meJump(v); return [...v.querySelectorAll(".me-jump .chip")].map(b => b.textContent); })()');
+      ok(!missing.includes('Practice') && missing.includes('Sound') && missing.length === want.length - 1, 'me: jump chips list the cards that exist (a missing card gets no chip)');
+      const seen = []; R.w.Element.prototype.scrollIntoView = function(){ seen.push(this); };
+      [...jump.querySelectorAll('button.chip')].find(b => b.textContent === 'Sound').click();
+      ok(seen.length === 1 && seen[0].tagName === 'SECTION' && seen[0].querySelector('h3').textContent === 'Sound', 'me: a chip scrolls to its card');
+      const same = R.E('(() => { const v = viewMe(), withIt = [...v.querySelectorAll("section h3")].map(x => x.textContent.trim()); const keep = meJump; meJump = () => {}; const w = viewMe(); meJump = keep; return JSON.stringify(withIt) === JSON.stringify([...w.querySelectorAll("section h3")].map(x => x.textContent.trim())) && !w.querySelector(".me-jump") && !!v.querySelector(".me-jump"); })()');
+      ok(same, 'me: the cards are unchanged');
+      ok(/\.me-jump\{[^}]*overflow-x:auto/.test(fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8')), 'me: the chip row scrolls inside itself');
+      ok(/\.me-jump \.chip\{[^}]*min-height:44px/.test(fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8')), 'me: each jump chip is a full tap target');
+      R.w.close();
     }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
