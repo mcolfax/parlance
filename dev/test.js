@@ -996,7 +996,7 @@ async function main(){
       const rd = R.w.document;
       R.E('UI.tab = "me"; render()');
       const jump = rd.querySelector('#app .view > .me-jump'), heads = [...rd.querySelectorAll('#app .view > section h3')].map(x => x.textContent.trim());
-      const want = [['Badges', 'Badges'], ['Last 7 days', 'This week'], ['Your bird', 'Your bird'], ['Sound', 'Sound'], ['Practice', 'Practice'], ['Your progress is saved', 'Backup']].filter(([t]) => heads.includes(t)).map(x => x[1]);
+      const want = [['Badges', 'Badges'], ['Last 7 days', 'This week'], ['Your bird', 'Your bird'], ['Sticker book', 'Stickers'], ['Sound', 'Sound'], ['Practice', 'Practice'], ['Your progress is saved', 'Backup']].filter(([t]) => heads.includes(t)).map(x => x[1]);
       const labels = jump ? [...jump.querySelectorAll('button.chip')].map(b => b.textContent) : [];
       ok(jump && jump.previousElementSibling && jump.previousElementSibling.classList.contains('profile') && want.length >= 5 && JSON.stringify(labels) === JSON.stringify(want), 'me: jump chips list the cards that exist: ' + JSON.stringify(labels));
       const missing = R.E('(() => { const v = viewMe(); v.querySelector(".me-jump").remove(); [...v.querySelectorAll("section")].find(s => s.querySelector("h3") && s.querySelector("h3").textContent === "Practice").remove(); meJump(v); return [...v.querySelectorAll(".me-jump .chip")].map(b => b.textContent); })()');
@@ -1008,6 +1008,46 @@ async function main(){
       ok(same, 'me: the cards are unchanged');
       ok(/\.me-jump\{[^}]*overflow-x:auto/.test(fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8')), 'me: the chip row scrolls inside itself');
       ok(/\.me-jump \.chip\{[^}]*min-height:44px/.test(fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8')), 'me: each jump chip is a full tap target');
+      R.w.close();
+    }
+    // the sticker book (P4 WP1): every pictured course word is a sticker; learning collects it, a strong card shines
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, rl = () => R.P.S.langs.es;
+      for (const lg of LANG_IDS){
+        const want = R.E('(() => { const t = new Set(); for (const u of COURSE.' + lg + '.units) for (const l of u.lessons) for (const v of l.vocab) if (picFor(v, "' + lg + '")) t.add(v.t); return t.size; })()');
+        const got = R.E('stickerBook("' + lg + '").total');
+        ok(want > 100 && got === want, 'stickers: one sticker per pictured course word (' + lg + '): ' + got + ' of ' + want);
+      }
+      ok(R.E('stickerBook("es").got') === 0 && R.E('stickerBook("es").shiny') === 0, 'stickers: a new learner has none yet');
+      const lessons = R.E('coreOrder("es").slice(0, 3).map(l => l.id)');
+      const learnNow = ids => R.E('(() => { for (const id of ' + JSON.stringify(ids) + '){ const l = getLesson(id); l.vocab.forEach((_, i) => { S.langs.es.cards[itemKey(l, "v", i)] = { ef: 2.5, n: 0, iv: 0, due: addDays(today(), 1), last: today(), ts: 1 }; }); } })()');
+      learnNow(lessons);
+      const learned = R.E('(() => { const t = new Set(); for (const id of ' + JSON.stringify(lessons) + ') for (const v of getLesson(id).vocab) if (picFor(v, "es")) t.add(v.t); return t.size; })()');
+      ok(learned > 0 && R.E('stickerBook("es").got') === learned && R.E('stickerBook("es").shiny') === 0, 'stickers: learning a word collects it: ' + learned);
+      const one = R.E('(() => { for (const id of ' + JSON.stringify(lessons) + '){ const l = getLesson(id), i = l.vocab.findIndex(v => picFor(v, "es")); if (i >= 0) return { key: itemKey(l, "v", i), t: l.vocab[i].t }; } })()');
+      const shinyOf = () => R.E('stickerBook("es").units.flatMap(x => x.items).find(s => s.v.t === ' + JSON.stringify(one.t) + ').shiny');
+      rl().cards[one.key].n = 3;
+      const shiny3 = shinyOf(); rl().cards[one.key].n = 2;
+      ok(shiny3 === true && shinyOf() === false && R.E('STICKERS.shinyAt') === 3, 'stickers: a strong word shines');
+      rl().cards[one.key].n = 3;
+      const before = JSON.stringify(rl());
+      R.E('UI.tab = "me"; render()');
+      const card = rd.querySelector('#app .stickers'), sb = R.E('stickerBook("es")');
+      ok(!!card && /Sticker book/.test(card.textContent) && card.querySelectorAll('.sticker-strip .sticker').length === Math.min(learned, R.E('STICKERS.recent')) && card.textContent.includes(sb.got + ' of ' + sb.total) && !!card.querySelector('.sticker.shiny'), 'stickers: Me shows the card');
+      const open = [...card.querySelectorAll('button')].find(b => b.textContent === 'Open the sticker book'); open.click();
+      const ov = rd.querySelector('.overlay.stickers');
+      ok(!!ov && ov.querySelectorAll('.sticker').length === sb.total && ov.querySelectorAll('.sticker:not([disabled])').length === sb.got && ov.querySelectorAll('.sticker.shiny').length === sb.shiny && sb.shiny === 1 && ov.querySelectorAll('.sticker.empty').length === sb.total - sb.got, 'stickers: Me shows the book and it opens: ' + (ov && ov.querySelectorAll('.sticker').length) + ' of ' + sb.total);
+      ov.querySelector('.ov-head button').click(); await sleep(300);
+      ok(!rd.querySelector('.overlay.stickers:not(.out)') && JSON.stringify(rl()) === before, 'stickers: nothing is saved');
+      // the finish screen shows the stickers just earned
+      R.E('UI.tab = "learn"; render()');
+      R.E('startLesson("es-3-1"); finishRun()');
+      const fin = rd.querySelector('.overlay:not(.out) .complete'), learnedBlocks = fin ? [...fin.querySelectorAll('.learned')] : [];
+      const newSt = learnedBlocks.find(x => /New stickers?/.test(x.textContent));
+      ok(!!newSt && newSt.querySelectorAll('.sticker').length >= 1 && newSt.querySelectorAll('.sticker').length <= R.E('STICKERS.recent') && learnedBlocks.some(x => x.textContent.includes('Added to your review deck')), 'stickers: the finish screen shows new stickers');
+      R.E('endRun()');
+      ok(R.errors.length === 0, 'stickers: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }
     // placement: all right goes to the top, all wrong stays at A1

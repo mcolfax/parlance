@@ -627,6 +627,7 @@ function finishRun(){
   const quests = questDiff(before); touch('core');
   const nextLv = levelUp ? LEVELS[LEVELS.indexOf(levelUp) + 1] : null;
   const vocabChips = newItems.filter(Boolean).slice(0, 10);
+  const stick = newItems.filter(Boolean).map(v => ({ v, id: picFor(v, lang) })).filter(x => x.id).slice(0, STICKERS.recent);
   const st = streakInfo();
   let more = null, unitSub = null;
   if (Run.mode === 'lesson'){
@@ -646,7 +647,9 @@ function finishRun(){
     sub: subo || unitSub || (levelUp ? (nextLv ? 'Next on your route: ' + nextLv + ' · ' + LEVEL_NAME[nextLv] + '.' : 'You’ve reached the end of the route. Your tutor can keep writing lessons for you.') : null),
     third: Run.bestCombo >= 3 ? [Run.bestCombo, 'best run in a row'] : st.count > 0 ? [st.count, plural(st.count, 'day') + ' streak'] : nNew > 0 ? [nNew, plural(nNew, 'new word')] : [uniq.length, plural(uniq.length, 'question') + ' answered'],
     more,
-    extra: vocabChips.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'Added to your review deck'), h('div', { class: 'chips' }, vocabChips.map((v, i) => h('span', { class: 'chip static', style: '--i:' + i }, itemText(v, lang))))) : null,
+    extra: stick.length || vocabChips.length ? h('div', null,
+      stick.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'New ' + plural(stick.length, 'sticker')), h('div', { class: 'sticker-strip center' }, stick.map((x, i) => stickerTile({ id: x.id, v: x.v, got: true, shiny: false }, 48, i)))) : null,
+      vocabChips.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'Added to your review deck'), h('div', { class: 'chips' }, vocabChips.map((v, i) => h('span', { class: 'chip static', style: '--i:' + i }, itemText(v, lang))))) : null) : null,
     badges, quests, onDone: () => endRun(),
     rate: Run.mode === 'lesson' ? { lessonId: Run.lesson.id } : null
   });
