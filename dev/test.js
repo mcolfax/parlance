@@ -766,6 +766,47 @@ async function main(){
       ok(note && /Friends needs a connection/.test(note.textContent) && note.previousElementSibling && note.previousElementSibling.matches('header.top'), 'offline: Friends says it needs a connection');
       R.w.close();
     }
+    // the finish screen leads somewhere: Next lesson, the unit's checkpoint, a third tile that is never zero
+    {
+      const fin = async (setup, steps) => {
+        const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+        const rd = R.w.document, rl = () => R.P.S.langs.es;
+        if (setup) setup(R, rl);
+        R.E('startLesson("' + steps.id + '")');
+        R.E((steps.first || '') + 'Run.pos = Run.queue.length; nextEx()');
+        return { R, rd, rl, foot: () => [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')] };
+      };
+      const A1 = Q.P.COURSE.es.units[0], firstId = A1.lessons[0].id, lastId = A1.lessons[A1.lessons.length - 1].id;
+      {
+        const F = await fin(null, { id: firstId });
+        const nx = F.R.E('nextLesson("es")'), nb = F.rd.querySelector('.overlay:not(.out) .ov-foot [data-more="next"]'), btns = F.foot();
+        ok(nb && nb.textContent === 'Next: ' + nx.title && nx.id !== firstId && btns.length === 2 && btns[1].textContent === 'Continue' && !F.rd.querySelector('[data-more="checkpoint"]'), 'finish: Next starts the next lesson (button)');
+        nb.click();
+        await sleep(320);
+        ok(F.R.E('Run.active') === true && F.R.E('Run.mode') === 'lesson' && F.R.E('Run.lesson.id') === nx.id && F.rd.querySelectorAll('.overlay').length === 1, 'finish: Next starts the next lesson');
+        F.R.w.close();
+      }
+      {
+        const F = await fin((R, rl) => { for (const l of A1.lessons) if (l.id !== lastId) rl().done[l.id] = { at: '2026-10-01', acc: 1, times: 1 }; }, { id: lastId });
+        const text = F.rd.querySelector('.overlay:not(.out)').textContent, cb = F.rd.querySelector('.overlay:not(.out) .ov-foot [data-more="checkpoint"]');
+        ok(text.includes('Its checkpoint is open') && text.includes(A1.title) && cb && cb.textContent === 'Take the unit checkpoint' && !F.rd.querySelector('[data-more="next"]'), 'finish: the last lesson of a unit offers its checkpoint');
+        cb.click();
+        await sleep(320);
+        ok(F.R.E('Run.active') === true && F.R.E('Run.mode') === 'checkpoint' && F.rd.querySelectorAll('.overlay').length === 1, 'finish: the checkpoint button starts the checkpoint');
+        F.R.w.close();
+      }
+      {
+        const F = await fin(null, { id: firstId, first: 'Run.first = new Map([[1, "wrong"], [2, "exact"], [3, "wrong"], [4, "exact"]]); Run.bestCombo = 0; ' });
+        const tile = [...F.rd.querySelectorAll('.overlay:not(.out) .tiles3 .stat')][2], tx = tile ? tile.querySelector('.num').textContent + ' ' + tile.querySelector('.lbl').textContent : '';
+        ok(/^[1-9]\d* new words$/.test(tx) && !/streak/.test(tx), 'finish: no zero streak tile: ' + tx);
+        F.R.w.close();
+      }
+      {
+        const F = await fin((R, rl) => { for (const l of A1.lessons) rl().done[l.id] = { at: '2026-10-01', acc: 1, times: 1 }; }, { id: lastId });
+        ok(F.rd.querySelector('.overlay:not(.out) .complete') && !F.rd.querySelector('[data-more="checkpoint"]') && !F.rd.querySelector('.overlay:not(.out)').textContent.includes('Its checkpoint is open'), 'finish: a repeated lesson shows no unit moment');
+        F.R.w.close();
+      }
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
