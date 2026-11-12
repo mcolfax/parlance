@@ -611,7 +611,7 @@ function finishRun(){
     if (out && pass){ L.outs = L.outs || {}; if (!L.outs[u.title]) L.outs[u.title] = today(); UI.openLang = null; }
     title = u.title; top = out ? (pass ? 'Tested out' : 'Checkpoint') : pass ? 'Checkpoint passed' : 'Checkpoint'; cpPass = pass;
     h1o = out ? (pass ? 'Unit tested out.' : 'Not quite yet.') : pass ? 'Checkpoint passed.' : 'Not quite yet.';
-    subo = out ? (pass ? 'Your route moves past “' + u.title + '”. Its lessons stay open whenever you want them.' : 'You need ' + Math.round(CHECKPOINT.pass * 100) + '% to test out. Its lessons will get you there, and you can try again any time.')
+    subo = out ? (pass ? 'Your route moves past “' + u.title + '”. Its lessons stay open whenever you want them.' : (prev && prev.pass ? 'You need ' + Math.round(CHECKPOINT.pass * 100) + '% to pass. Look back at the unit’s lessons and try again whenever you like.' : 'You need ' + Math.round(CHECKPOINT.pass * 100) + '% to test out. Its lessons will get you there, and you can try again any time.'))
       : pass ? 'You know this unit. The mistakes you made are on your “Fix my mistakes” list.' : 'You need ' + Math.round(CHECKPOINT.pass * 100) + '% to pass. Look back at the unit’s lessons and try again whenever you like.';
     bumpQuest('reviews', uniq.length);
   } else {

@@ -41,7 +41,7 @@ function greetBlock(){
     h('div', { class: 'stats' },
       h('div', { class: 'stat streak' + (st.todayMet ? ' hot' : ' cold') }, h('span', { class: 'num' }, ic('flame', 'flame'), st.count), h('span', { class: 'lbl' }, 'day streak', h('br'), h('span', { class: 'sub' }, st.freezeUsed ? 'Freeze used this week' : 'Freeze ready'))),
       h('div', { class: 'stat xp' }, h('span', { class: 'num' }, ring(xp / goal, 30, 5), xp), h('span', { class: 'lbl' }, 'of ' + goal + ' XP', h('br'), h('span', { class: 'sub' }, 'today'))),
-      h('button', { class: 'stat due', type: 'button', onclick: () => { UI.tab = 'review'; UI.animate = true; render(); window.scrollTo(0, 0); } }, h('span', { class: 'num' }, dueCount(lang)), h('span', { class: 'lbl' }, plural(dueCount(lang), 'review', 'reviews'), h('br'), h('span', { class: 'sub' }, 'due now')))));
+      h('button', { class: 'stat due', type: 'button', onclick: () => { UI.tab = 'review'; if (UI.scroll) UI.scroll.review = 0; UI.animate = true; render(); window.scrollTo(0, 0); } }, h('span', { class: 'num' }, dueCount(lang)), h('span', { class: 'lbl' }, plural(dueCount(lang), 'review', 'reviews'), h('br'), h('span', { class: 'sub' }, 'due now')))));
 }
 function minutesFor(l){ return Math.max(4, Math.round((l.vocab.length + l.sentences.length + l.blanks.length) * 0.4)); }
 function pipMoodNow(){
@@ -193,7 +193,7 @@ function levelSection(lang, lv){
 const FW_KEY = 'parlance.firstweek';
 function fwGet(k){ try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
 function fwSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
-function goTab(t){ UI.tab = t; UI.animate = true; render(); window.scrollTo(0, 0); }
+function goTab(t){ UI.tab = t; if (UI.scroll) UI.scroll[t] = 0; UI.animate = true; render(); window.scrollTo(0, 0); }
 function firstWeekSteps(){
   const lang = S.settings.lang, days = Object.values(S.days).filter(d => d && d.xp > 0);
   const toNext = () => { const nx = nextLesson(lang); if (nx) startLesson(nx.id); };

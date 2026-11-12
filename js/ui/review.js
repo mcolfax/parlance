@@ -5,7 +5,7 @@ function practiceTiles(lang){
   const fix = mistakeEntries(lang).length, all = learnedEntries(lang).length, forms = formLessons(lang).length, arts = genderEntries(lang).length >= GENDER_DRILL.min;
   return [
     { id: 'mistakes', icon: 'flag', label: 'Fix my mistakes', sub: fix + ' to fix', show: fix > 0, run: () => startMistakes() },
-    { id: 'weak', icon: 'review', label: 'Weakest items', sub: 'Your 12 shakiest', show: all > 0, run: () => startReview(true) },
+    { id: 'weak', icon: 'review', label: 'Weakest items', sub: 'Your ' + Math.min(12, all) + ' shakiest', show: all > 0, run: () => startReview(true) },
     { id: 'forms', icon: 'bulb', label: 'Verb forms', sub: 'Endings from your tables', show: forms > 0, run: () => startForms() },
     { id: 'articles', icon: 'words', label: 'Articles', sub: GENDER_DRILL[lang].label, show: arts, run: () => startGenders() }
   ].filter(t => t.show);
@@ -73,6 +73,6 @@ function fillWords(list){
         h('span', { class: 'w-meta' }, ' · ' + r.lesson.level + (meta ? ' · ' + meta : '')),
         r.card ? h('span', { class: 'strength', title: 'Strength', 'aria-label': 'Strength ' + Math.min(4, n + 1) + ' of 4' }, [0, 1, 2, 3].map(i => h('i', { class: i <= Math.min(3, n) ? 'on' : '' }))) : null)),
       speakBtn(r.item.t, lang));
-  }), more);
+  }), ...(more ? [more] : []));
 }
 

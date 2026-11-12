@@ -906,6 +906,11 @@ async function main(){
       R.E('setLang("es")');
       ok(R.E('Object.keys(UI.scroll).length') === 0, 'tabs: a tab remembers its scroll (a new language forgets it)');
       ok(bcss.includes('.view.enter>*{animation:rise var(--dur-enter)') && bcss.includes('* 30ms'), 'tabs: the entrance is short');
+      R.E('UI.scroll.review = 640; UI.scroll.talk = 640; UI.tab = "learn"; render()');
+      R.E('goTab("review")');
+      const viaGo = R.E('UI.scroll.review');
+      R.E('UI.tab = "learn"; render()'); const due = rd.querySelector('.stat.due'); R.E('UI.scroll.review = 640'); if (due) due.click();
+      ok(viaGo === 0 && due && R.E('UI.scroll.review') === 0 && R.E('UI.tab') === 'review', 'tabs: an in-app jump forgets the old position');
       R.w.close();
     }
     // haptics with names and a switch (WP3)
@@ -929,6 +934,51 @@ async function main(){
       delete R.w.navigator.vibrate; R.E('render()');
       ok(withIt && !R.w.document.querySelector('#set-haptics'), 'haptics: the switch shows only where the phone can vibrate');
       old.w.close(); R.w.close();
+    }
+    // a better first look (WP1): no "null" under a short word list, the streak tile's own colors, an honest retake message, a true tile count, a full tap target
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, rl = () => R.P.S.langs.es, rfoot = l => [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === l);
+      const answer = async (right) => {
+        let g = 0;
+        while (R.E('Run.active && !Run.finished') && g++ < 200){
+          const ex = R.E('Run.cur'); let ans;
+          if (!right){
+            if (ex.type === 'match'){ R.E('Run.pos++; nextEx()'); continue; }
+            ans = ex.options ? (ex.options.find(o => o !== ex.correct) || 'zzz') : 'zzz';
+          } else switch (ex.type){ case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break; case 'bank-e2t': case 'listen': ans = R.P.tileTokens(ex.item.t).join(' '); break; case 'bank-t2e': ans = R.P.tileTokens(ex.item.e[0]).join(' '); break;
+            case 'match': R.E('Run.pos++; nextEx()'); continue; default: ans = ex.correct; }
+          R.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()'); rfoot('Continue').click();
+        }
+      };
+      R.E('startLesson(COURSE.es.units[0].lessons[0].id)');
+      R.E('Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx()');
+      await answer(true);
+      rfoot('Continue') && rfoot('Continue').click();
+      R.E('endRun && Run.active && endRun()');
+      R.E('UI.wordFilter = "v"; UI.wordQuery = ""; UI.wordLimit = 0; UI.tab = "review"; render()');
+      const wl = rd.querySelector('#word-list'), cardCount = Object.keys(rl().cards).length;
+      ok(cardCount > 0 && cardCount < 150 && wl && wl.querySelectorAll('.wrow').length > 0 && ![...wl.childNodes].some(n => n.nodeType === 3 && n.textContent === 'null') && !wl.textContent.includes('null'), 'review: no "null" under a short word list');
+      R.E('UI.wordFilter = "all"; UI.wordLimit = 0; render()');
+      const lastEl = rd.querySelector('#word-list').lastElementChild;
+      ok(lastEl && lastEl.tagName === 'BUTTON' && lastEl.textContent.startsWith('Show more ('), 'review: Show more still appears on a long list');
+      const tk = fs.readFileSync(path.join(ROOT, 'styles', 'tokens.css'), 'utf8'), cc = fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8');
+      const streakRule = (cc.match(/\.stat\.streak\{[^}]*\}/) || [''])[0];
+      ok((tk.match(/--streak-bg:/g) || []).length === 3 && (tk.match(/--streak-text:/g) || []).length === 3 && streakRule.includes('var(--streak-bg)') && !streakRule.includes('--bad'), 'learn: the streak tile has its own colors');
+      // a failed retake of a passed unit
+      const units = R.P.COURSE.es.units, u2 = units[1];
+      rl().cp[u2.title] = { at: '2026-10-01', acc: 0.9, pass: true }; rl().outs = rl().outs || {}; rl().outs[u2.title] = '2026-10-01';
+      R.E('startCheckpoint(COURSE.es.units[1], true)');
+      await answer(false);
+      const said = rd.querySelector('.overlay:not(.out)') ? rd.querySelector('.overlay:not(.out)').textContent : '';
+      ok(said.includes('to pass') && !said.includes('to test out'), 'checkpoint: a failed retake of a passed unit says "to pass"');
+      rfoot('Continue') && rfoot('Continue').click();
+      // the weakest tile counts what there is
+      const keys = Object.keys(rl().cards); for (const k of keys.slice(8)) delete rl().cards[k];
+      const tile = R.E('practiceTiles("es")').find(t => t.id === 'weak');
+      ok(Object.keys(rl().cards).length === 8 && tile && tile.sub === 'Your 8 shakiest', 'review: the weakest tile counts what there is');
+      ok(/\.linkish\{[^}]*min-height:44px/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'links: .linkish is a full tap target');
+      R.w.close();
     }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {

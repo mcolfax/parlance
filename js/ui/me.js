@@ -126,7 +126,7 @@ function viewMe(){
     AI.denied ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: manageAccess }, 'Manage permissions') : null,
     Web.on ? tutorOptions('Conversations, new lessons and grading need the tutor.', null) : null,
     Web.on ? h('p', { class: 'small muted' }, 'You can also practice any Talk scene in Claude, ChatGPT or Gemini: open Talk, pick a scene and choose your app.') : null,
-    Web.on ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => { UI.tab = 'talk'; UI.animate = true; render(); window.scrollTo(0, 0); } }, ic('talk'), 'Go to Talk') : null));
+    Web.on ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => { UI.tab = 'talk'; if (UI.scroll) UI.scroll.talk = 0; UI.animate = true; render(); window.scrollTo(0, 0); } }, ic('talk'), 'Go to Talk') : null));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Your progress is saved'),
     Web.on ? webAccountRow() : null,
     h('p', { class: 'sync-line small', id: 'sync-status' }, ...syncLine()),

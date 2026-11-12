@@ -14,7 +14,7 @@ button.stat:active{transform:scale(.97)}
 .stat .num{font:var(--type-num);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
 .stat .lbl{font:700 13px/1.3 var(--body);color:var(--muted)}
 /* Learn's three tiles each get their own color: streak, today's XP, reviews due */
-.stat.streak{background:var(--bad-bg);box-shadow:none;color:var(--bad)}
+.stat.streak{background:var(--streak-bg);box-shadow:none;color:var(--streak-text)}
 .stat.xp{background:var(--warn-bg);box-shadow:none;color:var(--warn)}
 .stat.due{background:var(--line-soft);box-shadow:none;color:var(--line-text)}
 .stat.streak .lbl,.stat.xp .lbl,.stat.due .lbl{color:inherit}
@@ -22,7 +22,7 @@ button.stat:active{transform:scale(.97)}
 .stat.xp .ring .fill{stroke:var(--warn)}
 .stat .sub{font-size:12px;opacity:.85}
 .flame{color:var(--flame)}
-.stat.cold .flame{color:var(--hair)}
+.stat.cold .flame{color:var(--streak-text);opacity:.35}
 .stat.hot .flame{animation:flicker 2.4s ease-in-out infinite;transform-origin:50% 90%}
 @keyframes flicker{0%,100%{transform:scale(1) rotate(0)}30%{transform:scale(1.08,1.12) rotate(-3deg)}60%{transform:scale(.97,1.03) rotate(2deg)}}
 .ring{display:inline-flex;flex:none}
