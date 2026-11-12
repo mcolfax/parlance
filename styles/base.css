@@ -214,4 +214,14 @@ mark.miss,.w.miss{background:color-mix(in srgb, var(--bad) 18%, transparent);col
   .fb-ic .draw{stroke-dashoffset:0!important}
   .spark-p{display:none}
 }
-.boot-msg{padding:40px 0;text-align:center;color:var(--muted)}
+/* the first paint, before the scripts have run: the shape of Learn in soft blocks */
+.boot{display:flex;flex-direction:column;gap:18px;padding-top:4px}
+.sk{display:block;border-radius:var(--r-md);background:var(--hair-2);position:relative;overflow:hidden}
+.sk::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,var(--surface) 50%,transparent 80%);opacity:.55;animation:sheen 1.4s linear infinite}
+.sk-top{height:44px;border-radius:var(--r-pill)}
+.sk-h1{height:38px;width:58%}
+.sk-p{height:18px;width:82%;margin-top:-8px}
+.sk-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sk-row .sk{height:106px;border-radius:var(--r)}
+.sk-card{height:262px;border-radius:var(--r)}
+.sk-card.short{height:150px}

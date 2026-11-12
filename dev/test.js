@@ -980,6 +980,15 @@ async function main(){
       ok(/\.linkish\{[^}]*min-height:44px/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'links: .linkish is a full tap target');
       R.w.close();
     }
+    // a loading screen with shape (WP2): the page starts with a skeleton that the first render replaces
+    {
+      const raw = fs.readFileSync(INDEX, 'utf8'), probe = new JSDOM(raw).window.document;
+      ok(raw.includes('<div class="boot" role="status" aria-label="Loading Parlance">') && probe.querySelectorAll('.sk, .sk-row').length >= 6 && !raw.includes('boot-msg') && !/<script(?![^>]*\bsrc=)[^>]*>/i.test(raw) && !/<style/i.test(raw), 'boot: the page starts with a skeleton, not a sentence');
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      ok(R.w.document.querySelector('#app .boot') === null && !!R.w.document.querySelector('#app .view'), 'boot: the first render replaces the skeleton');
+      R.w.close();
+      ok(/\.sk\{[^}]*var\(--hair-2\)/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'boot: the skeleton is styled from tokens');
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
