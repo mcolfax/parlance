@@ -235,7 +235,7 @@ function openEnterCode(prefill){
         msg.textContent = 'Adding…';
         const r = await socialAccept(ta.value);
         if (r.error){ msg.textContent = r.error; return true; }
-        clearInvite(); sfx('quest'); haptic([10, 30, 10]);
+        clearInvite(); sfx('quest'); haptic('done');
         toast('You and ' + r.name + ' are friends now!');
         if (!busy()) render();
       } }]);
@@ -283,7 +283,7 @@ function openFriend(id){
       week.map((k, i) => h('div', { class: 'fr-wbar' + ((c.days[k] || [])[2] ? ' met' : '') }, h('i', { style: 'height:' + Math.max(3, Math.round(vals[i] / max * 64)) + 'px' }), h('span', null, names[parseDay(k).getDay()])))),
     past.length ? h('p', { class: 'small muted' }, 'Your duels: ' + won + ' won, ' + lost + ' lost' + (past.length - won - lost ? ', ' + (past.length - won - lost) + ' tied' : '') + '.') : null,
     h('button', { class: 'linkish danger small', type: 'button', style: 'align-self:flex-start', onclick: () => confirmRemove(id) }, 'Remove ' + who));
-  const acts = [{ label: cheeredToday(id) ? 'Cheered today' : 'Cheer', run: async () => { if (cheeredToday(id)) return true; await socialCheer(id); sfx('pop'); haptic(8); toast('Cheer sent to ' + who); render(); } },
+  const acts = [{ label: cheeredToday(id) ? 'Cheered today' : 'Cheer', run: async () => { if (cheeredToday(id)) return true; await socialCheer(id); sfx('pop'); haptic('select'); toast('Cheer sent to ' + who); render(); } },
     { label: 'Challenge', primary: true, run: () => { setTimeout(() => openChallenge(id), 200); } }];
   sheet(who, body, acts);
 }

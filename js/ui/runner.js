@@ -263,8 +263,8 @@ function showFeedback(ex, res){
   const fbPip = pip(!res.ok ? 'oops' : run ? 'dance' : res.level === 'exact' ? 'cheer' : 'happy', 58, { cls: 'fb-pip', tap: false, moveFor: run ? 2000 : 0 });
   if (res.ok && res.level !== 'exact') fbPip.rig.play('nod');
   OV.footIn.replaceChildren(fbPip, fb, cont);
-  if (res.ok){ haptic(12); requestAnimationFrame(() => burstAt(fb.querySelector('.fb-ic'), { n: res.level === 'exact' ? 12 : 7, dist: 44 })); if (OV.prog){ OV.prog.classList.remove('glint'); void OV.prog.offsetWidth; OV.prog.classList.add('glint'); } }
-  else haptic([18, 40, 18]);
+  if (res.ok){ haptic('ok'); requestAnimationFrame(() => burstAt(fb.querySelector('.fb-ic'), { n: res.level === 'exact' ? 12 : 7, dist: 44 })); if (OV.prog){ OV.prog.classList.remove('glint'); void OV.prog.offsetWidth; OV.prog.classList.add('glint'); } }
+  else haptic('bad');
   OV.bodyIn.querySelectorAll('button, input, textarea').forEach(el => { if (!el.classList.contains('icon-btn')) el.disabled = true; });
   if (!res.ok){ OV.bodyIn.classList.remove('shake'); void OV.bodyIn.offsetWidth; OV.bodyIn.classList.add('shake'); }
   setTimeout(() => cont.focus(), 30);
@@ -372,13 +372,13 @@ function tileBoard(tokens, lang, onChange){
   const label = t => lang === 'en' ? t : plainTarget(t, lang);
   const tiles = tokens.map((t, i) => {
     const b = h('button', { class: 'tile', type: 'button', style: '--i:' + i }, label(t));
-    b.addEventListener('click', () => { if (picked.includes(i)) return; const from = b.getBoundingClientRect(); picked.push(i); b.classList.add('used'); b.setAttribute('aria-hidden', 'true'); draw(true); flyFrom(answer.lastChild, from); sfx('pick'); haptic(5); if (lang !== 'en' && S.settings.autoplay) speak(t, lang); });
+    b.addEventListener('click', () => { if (picked.includes(i)) return; const from = b.getBoundingClientRect(); picked.push(i); b.classList.add('used'); b.setAttribute('aria-hidden', 'true'); draw(true); flyFrom(answer.lastChild, from); sfx('pick'); haptic('tap'); if (lang !== 'en' && S.settings.autoplay) speak(t, lang); });
     return b;
   });
   function draw(added){
     answer.replaceChildren(...picked.map((j, k) => {
       const tb = h('button', { class: 'tile' + (added && k === picked.length - 1 && !Element.prototype.animate ? ' drop' : ''), type: 'button' }, label(tokens[j]));
-      tb.addEventListener('click', () => { const from = tb.getBoundingClientRect(); const before = [...answer.children].map(x => x.getBoundingClientRect()); picked.splice(k, 1); tiles[j].classList.remove('used'); tiles[j].removeAttribute('aria-hidden'); draw(false); flyFrom(tiles[j], from); [...answer.children].forEach((x, n) => flyFrom(x, before[n >= k ? n + 1 : n])); sfx('drop'); haptic(5); });
+      tb.addEventListener('click', () => { const from = tb.getBoundingClientRect(); const before = [...answer.children].map(x => x.getBoundingClientRect()); picked.splice(k, 1); tiles[j].classList.remove('used'); tiles[j].removeAttribute('aria-hidden'); draw(false); flyFrom(tiles[j], from); [...answer.children].forEach((x, n) => flyFrom(x, before[n >= k ? n + 1 : n])); sfx('drop'); haptic('tap'); });
       return tb;
     }));
     onChange(picked.map(j => tokens[j]));
@@ -505,9 +505,9 @@ const RENDER = {
       const a = left[selL], b = right[selR], lbtn = lb[selL], rbtn = rb[selR];
       if (a === b){
         [lbtn, rbtn].forEach(x => { x.classList.remove('sel'); x.classList.add('m-hit'); burstAt(x, { n: 6, dist: 30, vars: ['--ok', '--line'] }); setTimeout(() => { x.classList.remove('m-hit'); x.classList.add('m-ok'); }, 420); });
-        done++; sfx('pop'); haptic(10);
+        done++; sfx('pop'); haptic('pair');
         if (done === ex.items.length) setTimeout(() => api.complete({ ok: true, level: misses ? 'near' : 'exact', note: misses ? misses + ' ' + plural(misses, 'mismatch', 'mismatches') + ' along the way.' : 'Every pair on the first try.' }), 260);
-      } else { misses++; haptic([15, 30, 15]); [lbtn, rbtn].forEach(x => { x.classList.add('m-bad'); x.classList.remove('sel'); setTimeout(() => x.classList.remove('m-bad'), 380); }); }
+      } else { misses++; haptic('miss'); [lbtn, rbtn].forEach(x => { x.classList.add('m-bad'); x.classList.remove('sel'); setTimeout(() => x.classList.remove('m-bad'), 380); }); }
       selL = selR = null;
     };
     const gone = b => b.classList.contains('m-hit') || b.classList.contains('m-ok');
@@ -676,7 +676,7 @@ function showComplete(o){
   const btn = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => o.onDone() }, 'Continue');
   const more = (o.more || []).map(m => h('button', { class: 'btn btn-quiet btn-wide', type: 'button', 'data-more': m.id, onclick: m.run }, m.label));
   OV.footIn.replaceChildren(...more, btn); setTimeout(() => btn.focus(), 30);
-  sfx(o.gold || (o.badges && o.badges.length) ? 'level' : 'done'); haptic([10, 50, 10]);
+  sfx(o.gold || (o.badges && o.badges.length) ? 'level' : 'done'); haptic('done');
   countUp(xpEl, o.xp);
   if (o.quests && o.quests.length) setTimeout(() => sfx('quest'), 700);
   if (o.badges && o.badges.length) setTimeout(() => sfx('badge'), 1100);

@@ -31,7 +31,7 @@ function openBirdPicker(){
     const art = ready ? pip('happy', 72, { def, tap: false }) : h('span', { class: 'bo-ph' + (failed.has(id) ? ' off' : '') });
     const b = h('button', { class: 'bird-opt', type: 'button', role: 'radio', 'data-bird': id, 'aria-checked': String(id === pick), 'aria-label': m.name + ', ' + aKind(m.kind), disabled: !ready,
       onclick: () => {
-        pick = id; sfx('select'); haptic(8);
+        pick = id; sfx('select'); haptic('select');
         for (const k in opts) opts[k].setAttribute('aria-checked', String(k === pick));
         if (!art.rig) return;
         pipBriefly(art.rig, 'cheer', 1600);
@@ -96,6 +96,7 @@ function viewMe(){
     S.settings.sfx ? h('div', { class: 'field vol' }, h('label', { for: 'sfx-vol' }, 'Effects volume'),
       h('div', { class: 'row' }, h('span', { class: 'small muted' }, 'Soft'), h('input', { type: 'range', id: 'sfx-vol', class: 'f-range grow', min: '0.1', max: '1', step: '0.05', value: String(S.settings.sfxVol),
         oninput: e => { S.settings.sfxVol = +e.target.value; clearTimeout(viewMe.t); viewMe.t = setTimeout(() => { touchSettings(); sfx('ok'); }, 180); } }), h('span', { class: 'small muted' }, 'Loud'))) : null,
+    typeof navigator.vibrate === 'function' ? toggleRow('Vibration', 'haptics', 'A light tap for right answers, pairs and finishes.', on => { if (on) haptic('ok'); }) : null,
     MEDIA.song ? toggleRow('Theme song', 'homeMusic', 'Our theme song, “' + MEDIA.song.title + '”, plays softly as you move between tabs. It pauses for lessons, reviews, stories and Talk.', on => { if (on){ songPrefetch(); songUnlock(); } render(); }) : null,
     MEDIA.song ? h('div', { class: 'field vol' }, h('label', { for: 'music-vol' }, 'Music volume'),
       h('div', { class: 'row' }, h('span', { class: 'small muted' }, 'Soft'), h('input', { type: 'range', id: 'music-vol', class: 'f-range grow', min: '0', max: '1', step: '0.05', value: String(musicVol()),

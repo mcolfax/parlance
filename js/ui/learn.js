@@ -21,7 +21,7 @@ function musicBtn(){
     onclick: () => {
       S.settings.homeMusic = !on;
       if (S.settings.homeMusic && musicVol() < 0.05) S.settings.musicVol = 0.6;
-      touchSettings(); haptic(6);
+      touchSettings(); haptic('tap');
       if (S.settings.homeMusic){ songPrefetch(); songUnlock(); songSyncNow(); }
       toast(S.settings.homeMusic ? 'Music on: “' + MEDIA.song.title + '”' : 'Music off. Tap the note to bring it back.');
       render();
@@ -87,7 +87,7 @@ function questCard(){
   const ids = questIds(); const done = ids.filter(questDone).length; const d = dayRec();
   const ready = done === 3 && !d.chest;
   const chest = h('button', { class: 'chest' + (ready ? ' ready' : '') + (d.chest ? ' opened' : ''), type: 'button', 'aria-label': ready ? 'Open today’s chest' : d.chest ? 'Chest opened' : 'Chest: finish all three quests to open it', html: chestSVG(),
-    onclick: () => { if (ready) openChest(); else { haptic(6); toast(d.chest ? 'You’ve opened today’s chest. A new one arrives tomorrow.' : 'Finish all three quests to open the chest.'); } } });
+    onclick: () => { if (ready) openChest(); else { haptic('tap'); toast(d.chest ? 'You’ve opened today’s chest. A new one arrives tomorrow.' : 'Finish all three quests to open the chest.'); } } });
   return h('section', { class: 'card quests' },
     h('div', { class: 'row' }, h('div', { class: 'grow' }, h('h3', null, 'Daily quests'), h('p', { class: 'small muted' }, d.chest ? 'Chest opened. New quests tomorrow.' : ready ? 'All done. Tap the chest!' : done + ' of 3 done · new quests every day')), chest),
     h('ul', { class: 'q-list' }, ids.map((id, i) => {
@@ -106,7 +106,7 @@ function openChest(){
   const big = h('div', { class: 'chest big', html: chestSVG() });
   const xp = h('p', { class: 'chest-xp' }, '+' + bonus + ' XP');
   sheet('Today’s chest', h('div', { class: 'chest-sheet' }, big, xp, h('p', { class: 'small muted center' }, 'Three quests, one chest. ' + mascot().name + ' will have new ones for you tomorrow.'), badgeStrip(got)), [{ label: 'Collect', primary: true }]);
-  setTimeout(() => { big.classList.add('open'); burstAt(big, { n: 22, dist: 90, vars: ['--gold', '--line', '--gold', '--ok'] }); sfx('chest'); haptic([12, 40, 12]); }, 420);
+  setTimeout(() => { big.classList.add('open'); burstAt(big, { n: 22, dist: 90, vars: ['--gold', '--line', '--gold', '--ok'] }); sfx('chest'); haptic('done'); }, 420);
   UI.animate = false; render();
 }
 function stripArticle(item, lang){ const p = item.t.split(' '); return item.g && LANGS[lang].articles.includes(p[0].toLowerCase()) && p.length > 1 ? p.slice(1).join(' ') : item.t; }

@@ -3,11 +3,11 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.35.0';
+const APP_VERSION = '4.36.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
-const SCHEMA_VERSION = 11;         // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
+const SCHEMA_VERSION = 12;         // bump when the saved-state shape changes; add a step to MIGRATIONS in state.js
 /* The web version, for people without Claude (js/core/host.js, built by dev/web.js). Its accounts and database are
    our Supabase project. The key is Supabase's public, low-privilege one: every read and write goes through SQL
    functions that apply the same access rules as the artifact (dev/supabase.sql).
@@ -15,6 +15,10 @@ const SCHEMA_VERSION = 11;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.36.0', date: '2026-11-12', title: 'Smooth moves', notes: [
+    'Switching tabs is quicker, and each tab remembers where you were.',
+    'Messages and sheets now slide away instead of vanishing, and you can drag a sheet down by its grip.',
+    'Don’t like the vibration? Turn it off in Me → Sound.'] },
   { v: '4.35.0', date: '2026-11-12', title: 'Keep going', notes: [
     'When you finish a lesson, the next one is one tap away. Finish a unit and its checkpoint is offered right there.',
     'Right answers in a row now sound brighter each time, and the progress bar lights up from five in a row.',

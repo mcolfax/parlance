@@ -15,7 +15,7 @@ function newLang(){ return { done: {}, cards: {}, xp: 0, custom: {}, stories: {}
    friends: { uid: { code, cAt, at, gone } }; duels: { id: duel }; past: { id: finished duel }; cheers: { uid: day you cheered them };
    seen: { uid: day of their latest cheer you've seen } */
 function newSocial(){ return { on: false, secret: '', since: 0, home: '', name: '', bird: 'pip', friends: {}, duels: {}, past: {}, cheers: {}, seen: {}, ts: 0 }; }
-function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, natural: true, sfx: true, sfxVol: 0.8, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, mascot: 'pip', hints: 'auto', onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
+function defaultSettings(){ return { lang: 'de', goal: 20, speaking: true, aiGrade: true, autoplay: true, natural: true, sfx: true, sfxVol: 0.8, haptics: true, homeMusic: true, musicVol: 0.6, speed: 'normal', voices: {}, mascot: 'pip', hints: 'auto', onboarded: false, seenVersion: '', seenAnnounce: '', filmSeen: false, ts: 0 }; }
 function defaultState(){ return { v: SCHEMA_VERSION, owner: null, settings: defaultSettings(), days: {}, badges: {}, stats: {}, langs: Object.fromEntries(LANG_IDS.map(l => [l, newLang()])), gen: Object.fromEntries(LANG_IDS.map(l => [l, []])), social: newSocial() }; }
 function validLesson(l){ return l && typeof l.id === 'string' && typeof l.title === 'string' && Array.isArray(l.vocab) && Array.isArray(l.sentences) && Array.isArray(l.blanks); }
 function cleanLang(x){
@@ -34,6 +34,7 @@ function cleanSettings(x){
   s.sfxVol = Math.max(0, Math.min(1, isFinite(+s.sfxVol) ? +s.sfxVol : 0.8));
   s.musicVol = Math.max(0, Math.min(1, isFinite(+s.musicVol) ? +s.musicVol : 0.6));
   s.homeMusic = s.homeMusic !== false;
+  s.haptics = s.haptics !== false;
   if (!['auto', 'always', 'off'].includes(s.hints)) s.hints = 'auto';
   if (typeof s.mascot !== 'string' || !s.mascot) s.mascot = 'pip';   // a bird this version doesn't know is kept, and drawn as Pip
   return s;
@@ -58,7 +59,8 @@ const MIGRATIONS = [
   { to: 8, run: st => { for (const l of LANG_IDS) if (st.langs[l]) st.langs[l] = cleanLang(st.langs[l]); } },   // mistakes (miss) and checkpoints (cp)
   { to: 9, run: st => { st.langs = obj(st.langs); st.gen = obj(st.gen); for (const l of LANG_IDS){ st.langs[l] = cleanLang(st.langs[l]); if (!Array.isArray(st.gen[l])) st.gen[l] = []; } } },   // Italian: a language of its own beside German and Spanish
   { to: 10, run: st => { st.days = obj(st.days); for (const d of Object.values(st.days)) if (d && typeof d === 'object' && 'bonus' in d){ if (+d.bonus > 0) d.bonus = +d.bonus; else delete d.bonus; } } },   // days[k].bonus: a duel win's XP, which doesn't count toward the daily goal (goalXP, engine.js)
-  { to: 11, run: st => { for (const l of LANG_IDS) if (st.langs[l]) st.langs[l] = cleanLang(st.langs[l]); } }   // outs: units tested out of (testedOut, engine.js)
+  { to: 11, run: st => { for (const l of LANG_IDS) if (st.langs[l]) st.langs[l] = cleanLang(st.langs[l]); } },   // outs: units tested out of (testedOut, engine.js)
+  { to: 12, run: st => { st.settings = cleanSettings(st.settings); } }   // vibration can be switched off (settings.haptics)
 ];
 function migrate(st){
   const from = +st.v || 1;

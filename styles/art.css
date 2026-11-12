@@ -50,7 +50,7 @@ li.just .station{animation:flashbg 1.6s ease both}
 .medal.on .md-rib.r{fill:var(--der)}
 .medal:not(.on){opacity:.5}
 .badge-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 6px}
-.badge-cell{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:4px 0;font:inherit;color:inherit;border-radius:12px;animation:rise .4s var(--ease) both;animation-delay:calc(var(--i,0) * 25ms);transition:transform .12s var(--ease)}
+.badge-cell{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:4px 0;font:inherit;color:inherit;border-radius:12px;animation:rise .4s var(--ease) both;animation-delay:calc(var(--i,0) * 25ms);transition:transform var(--dur-press) var(--ease)}
 .badge-cell:active{transform:scale(.94)}
 .bc-name{font:var(--type-eyebrow);text-align:center;color:var(--muted)}
 .badge-cell.on .bc-name{color:var(--ink)}
