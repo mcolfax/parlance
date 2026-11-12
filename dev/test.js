@@ -807,6 +807,37 @@ async function main(){
         F.R.w.close();
       }
     }
+    // a chime that climbs with a run, a bar that glows from five in a row
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0', sfx: true } } } });
+      const rd = R.w.document, calls = [];
+      R.w.__calls = calls; R.E('window.__playSound0 = window.playSound; window.playSound = (n, v, p) => window.__calls.push([n, p])');
+      R.E('startLesson("es-1-1")'); [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click();
+      const answer = right => {
+        R.E('Run.queue = [makeEx("type-e2t", Run.lesson, "s", 0)]; Run.pos = 0; nextEx()');
+        R.E('Run.value = ' + (right ? 'Run.cur.accepted[0]' : '"zzz nope"') + '; Run.canCheck = true; doCheck()');
+        return calls[calls.length - 1];
+      };
+      const near = (a, b) => Math.abs(a - b) < 1e-4;
+      const c1 = answer(true), c2 = answer(true), c3 = answer(true);
+      ok(c1[0] === 'ok' && near(c1[1], 1) && near(c2[1], Math.pow(2, 1 / 12)) && near(c3[1], Math.pow(2, 2 / 12)), 'juice: the chime climbs with a run: ' + [c1, c2, c3].map(c => c[1]).join(', '));
+      const cb = answer(false), c4 = answer(true);
+      ok(cb[0] === 'bad' && near(c4[1], 1) && c4[0] === 'ok', 'juice: a miss resets the climb');
+      let last = null;
+      for (let i = 0; i < 8; i++) last = answer(true);   // nine in a row since the miss, then the tenth
+      const tenth = answer(true);
+      ok(R.E('Run.combo') === 10 && near(tenth[1], Math.pow(2, 7 / 12)) && near(last[1], Math.pow(2, 7 / 12)), 'juice: the climb stops at seven semitones: ' + tenth[1]);
+      ok(R.E('OV.prog.classList.contains("hot")') === true, 'juice: the bar glows from five in a row');
+      answer(false);
+      ok(R.E('OV.prog.classList.contains("hot")') === false, 'juice: a miss puts the glow out');
+      R.E('Run.combo = 0; OV.prog.classList.remove("hot")');
+      for (let i = 0; i < 4; i++) answer(true);
+      ok(!R.E('OV.prog.classList.contains("hot")'), 'juice: four in a row do not glow yet');
+      R.E('window.playSound = window.__playSound0');
+      ok(R.E('SOUNDS.bad.length') === 1 && R.E('SOUNDS.done.length') === 1 && R.E('SOUNDS.ok.length') === 2, 'juice: other sounds are unchanged');
+      ok(/\.progress i\.hot\{[^}]*var\(--flame\)/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'juice: the glow is a style rule');
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

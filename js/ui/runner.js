@@ -231,6 +231,7 @@ function showFeedback(ex, res){
   if (first && res.ok && res.level === 'exact' && ex.type === 'form') S.stats.formsRight = (S.stats.formsRight || 0) + 1;
   if (first && res.ok && Run.mode === 'review') Run.reviewsRight = (Run.reviewsRight || 0) + 1;
   else if (!res.ok) Run.combo = 0;
+  if (OV.prog) OV.prog.classList.toggle('hot', Run.combo >= 5);   // the bar glows from five in a row
   if (!res.ok){
     const tries = (Run.tries.get(ex.id) || 0) + 1; Run.tries.set(ex.id, tries);
     if (tries <= 3 && Run.mode !== 'checkpoint' && Run.mode !== 'placement'){ const again = { ...ex, peeked: false }; if (again.options) again.options = shuffle(again.options); if (again.tiles) again.tiles = shuffle(again.tiles); Run.queue.push(again); }
@@ -267,7 +268,7 @@ function showFeedback(ex, res){
   OV.bodyIn.querySelectorAll('button, input, textarea').forEach(el => { if (!el.classList.contains('icon-btn')) el.disabled = true; });
   if (!res.ok){ OV.bodyIn.classList.remove('shake'); void OV.bodyIn.offsetWidth; OV.bodyIn.classList.add('shake'); }
   setTimeout(() => cont.focus(), 30);
-  sfx(res.ok ? 'ok' : 'bad');
+  sfx(res.ok ? 'ok' : 'bad', 1, res.ok && first && res.level === 'exact' ? Math.pow(2, Math.min(Math.max(Run.combo - 1, 0), 7) / 12) : 1);   // a semitone higher for each answer in a run, up to seven
   if (res.ok && first && res.level === 'exact' && [3, 5, 8, 12, 16].includes(Run.combo)) setTimeout(() => showCombo(Run.combo), 280);
   clearTimeout(Run.sayTimer);
   // the answer is read on its own question: never after Continue, and never over the next question
