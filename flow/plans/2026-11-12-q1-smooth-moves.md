@@ -1,7 +1,7 @@
 # Smooth moves: one timing system, things that leave as well as arrive, quicker tabs
 
 - **Cycle:** 2026-11-12-2 (polish program Q1, `flow/POLISH.md`)
-- **Status:** building
+- **Status:** shipped (4.36.0)
 - **Release:** 4.36.0
 - **Base:** `main` at e6b0f53 (4.35.0)
 - **Proposals built:** none
@@ -204,5 +204,5 @@ They share `styles/base.css` and `dev/test.js`, so they run **one after another*
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.36.0, `71f5e1e` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**

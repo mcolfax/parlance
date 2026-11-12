@@ -1,9 +1,9 @@
 # A better first look: small things fixed, a loading screen with shape, Me easier to get around
 
-- **Cycle:** set when promoted (polish program Q2, `flow/POLISH.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-q2-first-look.md`, set Release, Base and `approved`)
-- **Release:** the next free minor when promoted
-- **Base:** `main` at promotion time (nothing below depends on line numbers)
+- **Cycle:** 2026-11-12-3 (polish program Q2, `flow/POLISH.md`)
+- **Status:** building
+- **Release:** 4.37.0
+- **Base:** `main` at 71f5e1e (4.36.0)
 - **Proposals built:** none
 - **Roadmap items:** R-38, R-39, new R-44, R-45, R-46
 - **Needs:** nothing. If Q1 has shipped, new transitions use its duration tokens (`npm test` says so); if it hasn't, write `var(--dur-fast)` and `var(--dur)`, which exist either way.
