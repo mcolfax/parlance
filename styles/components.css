@@ -503,7 +503,7 @@ li.locked .st-title{color:var(--muted)}
 .bird-opt .bo-ph.off{animation:none;opacity:.5}
 .bird-opt .small{display:block;margin-top:2px}
 /* Me: a row of chips that jump to its cards */
-.me-jump{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:-6px -16px;padding:2px 16px}
+.me-jump{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:-10px -16px;padding:6px 16px}
 .me-jump::-webkit-scrollbar{display:none}
-.me-jump .chip{flex:none}
+.me-jump .chip{flex:none;min-height:44px}
 .view>section{scroll-margin-top:12px}

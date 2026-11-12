@@ -1007,6 +1007,7 @@ async function main(){
       const same = R.E('(() => { const v = viewMe(), withIt = [...v.querySelectorAll("section h3")].map(x => x.textContent.trim()); const keep = meJump; meJump = () => {}; const w = viewMe(); meJump = keep; return JSON.stringify(withIt) === JSON.stringify([...w.querySelectorAll("section h3")].map(x => x.textContent.trim())) && !w.querySelector(".me-jump") && !!v.querySelector(".me-jump"); })()');
       ok(same, 'me: the cards are unchanged');
       ok(/\.me-jump\{[^}]*overflow-x:auto/.test(fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8')), 'me: the chip row scrolls inside itself');
+      ok(/\.me-jump \.chip\{[^}]*min-height:44px/.test(fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8')), 'me: each jump chip is a full tap target');
       R.w.close();
     }
     // placement: all right goes to the top, all wrong stays at A1
