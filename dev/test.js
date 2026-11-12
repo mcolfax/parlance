@@ -873,6 +873,41 @@ async function main(){
       const bcss = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8');
       ok(bcss.split('prefers-reduced-motion').length === 2 && bcss.slice(bcss.indexOf('prefers-reduced-motion')).includes('.spark-p{display:none}'), 'motion: one reduced-motion block in base.css');
     }
+    // exits, sheets and quick tabs (WP2)
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, bcss = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8');
+      R.E('toast("x")');
+      const tt = rd.querySelector('#toast');
+      ok(!tt.hidden && tt.classList.contains('in') && bcss.includes('.toast.out{') && bcss.includes('@keyframes toastout'), 'toast: leaves with an exit');
+      ok(bcss.includes('.sheet-back.out .sheet{') && bcss.includes('@keyframes sheetout'), 'sheet: the sheet itself leaves');
+      const drag = async to => {
+        R.E('sheet("T", h("p", null, "x"), [])');
+        const g = rd.querySelector('.sheet .grip'), fire = (type, y) => g.dispatchEvent(new R.w.MouseEvent(type, { clientY: y, bubbles: true }));
+        fire('pointerdown', 100); fire('pointermove', to); fire('pointerup', to);
+        const inline = rd.querySelector('.sheet') ? rd.querySelector('.sheet').style.transform : null;
+        await sleep(250);
+        return { open: !!rd.querySelector('.sheet-back'), inline };
+      };
+      const far = await drag(230);
+      ok(!far.open, 'sheet: dragging the grip down closes it');
+      const near = await drag(140);
+      ok(near.open && near.inline === '', 'sheet: dragging the grip down closes it (a short drag springs back)');
+      rd.querySelector('.sheet-back').remove();
+      const calls = []; let sy = 0;
+      R.w.scrollTo = (...a) => calls.push(a); Object.defineProperty(R.w, 'scrollY', { configurable: true, get: () => sy });
+      const tap = label => [...rd.querySelectorAll('#tabs .tab')].find(b => b.textContent.startsWith(label)).click();
+      R.E('UI.tab = "learn"; render()');
+      sy = 640; tap('Stories'); sy = 0; tap('Learn');
+      const last = calls[calls.length - 1];
+      ok(last && last[0] === 0 && last[1] === 640, 'tabs: a tab remembers its scroll');
+      calls.length = 0; tap('Learn');
+      ok(calls.length && calls[calls.length - 1][0] && calls[calls.length - 1][0].top === 0 && R.E('UI.scroll.learn') === 0, 'tabs: a tab remembers its scroll (tapping the current tab goes to the top)');
+      R.E('setLang("es")');
+      ok(R.E('Object.keys(UI.scroll).length') === 0, 'tabs: a tab remembers its scroll (a new language forgets it)');
+      ok(bcss.includes('.view.enter>*{animation:rise var(--dur-enter)') && bcss.includes('* 30ms'), 'tabs: the entrance is short');
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

@@ -1,9 +1,17 @@
 "use strict";
 /* ===================== UI SHELL ===================== */
-const UI = { tab: 'learn', justDone: null, wordFilter: 'v', wordQuery: '', talkLevel: null, genLevel: null, genTopic: '', genBusy: false, genStatus: '', genCtl: null, open: new Set(), openLang: null, animate: true, helloAt: 0 };
+const UI = { tab: 'learn', justDone: null, wordFilter: 'v', wordQuery: '', talkLevel: null, genLevel: null, genTopic: '', genBusy: false, genStatus: '', genCtl: null, open: new Set(), openLang: null, animate: true, helloAt: 0, scroll: {} };
 function applyLang(){ document.documentElement.setAttribute('data-lang', S.settings.lang); }
-function setLang(lang){ if (S.settings.lang === lang) return; S.settings.lang = lang; UI.talkLevel = null; UI.genLevel = null; UI.openLang = null; touchSettings(); applyLang(); if (recOn()) recIndex(lang); UI.animate = true; render(); window.scrollTo(0, 0); }
-function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; t.classList.remove('in'); void t.offsetWidth; t.classList.add('in'); clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2800); }
+function setLang(lang){ if (S.settings.lang === lang) return; S.settings.lang = lang; UI.talkLevel = null; UI.genLevel = null; UI.openLang = null; UI.scroll = {}; touchSettings(); applyLang(); if (recOn()) recIndex(lang); UI.animate = true; render(); window.scrollTo(0, 0); }
+function toast(msg){
+  const t = $('#toast'); clearTimeout(toast.t); clearTimeout(toast.h);
+  t.textContent = msg; t.hidden = false; t.classList.remove('in', 'out'); void t.offsetWidth; t.classList.add('in');
+  toast.t = setTimeout(() => {
+    if (reduced()){ t.hidden = true; return; }
+    t.classList.remove('in'); t.classList.add('out');
+    toast.h = setTimeout(() => { t.hidden = true; t.classList.remove('out'); }, 180);
+  }, 2800);
+}
 function sheet(title, body, actions){
   const back = h('div', { class: 'sheet-back', role: 'dialog', 'aria-modal': 'true', 'aria-label': title });
   const close = () => { back.classList.add('out'); setTimeout(() => back.remove(), 160); document.removeEventListener('keydown', onKey); };
@@ -12,6 +20,11 @@ function sheet(title, body, actions){
   const acts = h('div', { class: 'sheet-actions' }, (actions || []).map(a => h('button', { class: 'btn ' + (a.primary ? 'btn-primary' : 'btn-quiet'), type: 'button', onclick: async () => { const keep = a.run && await a.run(close); if (!keep) close(); } }, a.label)));
   const box = h('div', { class: 'sheet' }, h('div', { class: 'grip', 'aria-hidden': 'true' }), h('h3', null, title), body, acts);
   back.append(box);
+  const grip = box.firstChild; let y0 = null, dy = 0;
+  grip.addEventListener('pointerdown', e => { y0 = e.clientY; dy = 0; box.classList.remove('back'); box.classList.add('drag'); try { grip.setPointerCapture(e.pointerId); } catch (err) {} });
+  grip.addEventListener('pointermove', e => { if (y0 == null) return; dy = Math.max(0, e.clientY - y0); box.style.transform = 'translateY(' + dy + 'px)'; });
+  const drop = () => { if (y0 == null) return; y0 = null; box.classList.remove('drag'); if (dy > 90){ box.style.animation = 'none'; box.style.transition = 'opacity var(--dur-exit) var(--ease-in)'; box.style.opacity = '0'; close(); return; } box.classList.add('back'); box.style.transform = ''; };
+  grip.addEventListener('pointerup', drop); grip.addEventListener('pointercancel', drop);
   back.addEventListener('click', e => { if (e.target === back) close(); });
   document.body.append(back);
   const f = box.querySelector('textarea,input,button:not(.danger)'); if (f) setTimeout(() => { try { f.focus({ preventScroll: true }); } catch (e) { f.focus(); } box.scrollTop = 0; }, 40);
@@ -23,7 +36,7 @@ function renderTabs(){
   const cl = LEVELS.indexOf(currentLevel(lang));
   const freshStories = allStories().some(s => s.lang === lang && LEVELS.indexOf(s.level) <= cl && !S.langs[lang].stories[s.id]);
   $('#tabs').replaceChildren(h('div', { class: 'tabs-in' }, tabs.map(([id, label]) =>
-    h('button', { class: 'tab', type: 'button', 'aria-current': UI.tab === id ? 'page' : null, onclick: () => { if (UI.tab === id){ window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); return; } UI.tab = id; UI.animate = true; haptic(6); render(); window.scrollTo(0, 0); } },
+    h('button', { class: 'tab', type: 'button', 'aria-current': UI.tab === id ? 'page' : null, onclick: () => { if (UI.tab === id){ UI.scroll[id] = 0; window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); return; } UI.scroll[UI.tab] = window.scrollY || 0; UI.tab = id; UI.animate = true; haptic(6); render(); window.scrollTo(0, UI.scroll[id] || 0); } },
       h('span', { class: 'tab-ic', html: IC[id], 'aria-hidden': 'true' }), h('span', null, label),
       id === 'review' && due ? h('span', { class: 'badge' }, due > 99 ? '99+' : due) : null,
       id === 'stories' && freshStories ? h('span', { class: 'badge dot', 'aria-label': 'New stories' }) : null,
@@ -35,7 +48,7 @@ function render(){
   closeGloss();
   const views = { learn: viewLearn, stories: viewStories, review: viewReview, talk: viewTalk, friends: viewFriends, me: viewMe };
   const v = (views[UI.tab] || viewLearn)();
-  if (UI.animate && !reduced()){ v.classList.add('enter'); [...v.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 8))); }
+  if (UI.animate && !reduced()){ v.classList.add('enter'); [...v.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 5))); }
   UI.animate = false;
   $('#app').replaceChildren(v);
   renderTabs();
