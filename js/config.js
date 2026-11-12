@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.34.0';
+const APP_VERSION = '4.35.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,10 @@ const SCHEMA_VERSION = 11;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.35.0', date: '2026-11-12', title: 'Keep going', notes: [
+    'When you finish a lesson, the next one is one tap away. Finish a unit and its checkpoint is offered right there.',
+    'Right answers in a row now sound brighter each time, and the progress bar lights up from five in a row.',
+    'Your bird keeps you company on new words and ideas, with a tip or two.'] },
   { v: '4.34.0', date: '2026-11-11', title: 'Works offline', notes: [
     'The web version now works without a connection. Lessons, reviews, stories and practice all open offline, and your progress syncs when you’re back.',
     'Save a language’s voices for offline in Me, so every word and story is read aloud even on a plane.'] },

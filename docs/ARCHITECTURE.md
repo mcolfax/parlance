@@ -220,6 +220,7 @@ A lesson opens with a short overview (`showIntro()` in `runner.js`: the idea's t
 - **Phrases**: a sentence or blank is never asked cold. Before its first question a `phrases` card shows it with its meaning and audio, plus the meaning of any form or extra word in it that `lessonForms()` found and no idea card has covered. A phrase also waits until every lesson word it uses has been taught (`ready()` in `buildLesson`), so a concept bite can move later in the lesson. The harder practice (typing, listening, speaking, form drills) closes the lesson.
 - Every word and phrase is shown before it is asked, and every example and table is shown; `dev/test.js` checks this for every lesson. Authors change nothing: tips are still `T(title, body, examples, tables)` and live packs use the same shape. Write a tip as short sentences, with each bold phrase near the example or table it belongs to; for a beginner tip, give each idea its own paragraph.
 - The Words button in the header lists the words met so far (`Run.taught`).
+- The finish screen offers the next lesson (**Next: …**), or the unit's checkpoint when the lesson finished a unit. The right-answer chime rises a semitone with each answer in a run (up to seven), and the progress bar glows from five in a row. Teach cards end with the learner's bird (`teachPip()` in `runner.js`), with a tip in its bubble on the words and phrases cards.
 
 ## Resuming a lesson
 

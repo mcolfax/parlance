@@ -231,6 +231,7 @@ function showFeedback(ex, res){
   if (first && res.ok && res.level === 'exact' && ex.type === 'form') S.stats.formsRight = (S.stats.formsRight || 0) + 1;
   if (first && res.ok && Run.mode === 'review') Run.reviewsRight = (Run.reviewsRight || 0) + 1;
   else if (!res.ok) Run.combo = 0;
+  if (OV.prog) OV.prog.classList.toggle('hot', Run.combo >= 5);   // the bar glows from five in a row
   if (!res.ok){
     const tries = (Run.tries.get(ex.id) || 0) + 1; Run.tries.set(ex.id, tries);
     if (tries <= 3 && Run.mode !== 'checkpoint' && Run.mode !== 'placement'){ const again = { ...ex, peeked: false }; if (again.options) again.options = shuffle(again.options); if (again.tiles) again.tiles = shuffle(again.tiles); Run.queue.push(again); }
@@ -267,7 +268,7 @@ function showFeedback(ex, res){
   OV.bodyIn.querySelectorAll('button, input, textarea').forEach(el => { if (!el.classList.contains('icon-btn')) el.disabled = true; });
   if (!res.ok){ OV.bodyIn.classList.remove('shake'); void OV.bodyIn.offsetWidth; OV.bodyIn.classList.add('shake'); }
   setTimeout(() => cont.focus(), 30);
-  sfx(res.ok ? 'ok' : 'bad');
+  sfx(res.ok ? 'ok' : 'bad', 1, res.ok && first && res.level === 'exact' ? Math.pow(2, Math.min(Math.max(Run.combo - 1, 0), 7) / 12) : 1);   // a semitone higher for each answer in a run, up to seven
   if (res.ok && first && res.level === 'exact' && [3, 5, 8, 12, 16].includes(Run.combo)) setTimeout(() => showCombo(Run.combo), 280);
   clearTimeout(Run.sayTimer);
   // the answer is read on its own question: never after Continue, and never over the next question
@@ -387,6 +388,8 @@ function tileBoard(tokens, lang, onChange){
 }
 
 /* ----- renderers ----- */
+/* the learner's bird at the foot of a teach card, with a tip in its bubble (tap it and it talks, as everywhere) */
+function teachPip(mood, say){ return h('div', { class: 'teach-pip' }, pip(mood, 64, say ? { say, lang: Run.lang } : { lang: Run.lang })); }
 const RENDER = {
   teach(ex){
     const l = ex.lesson, lang = ex.lang;
@@ -397,18 +400,20 @@ const RENDER = {
       return h('div', { class: 'ex teach' }, h('span', { class: 'eyebrow' }, items.length > 1 ? 'New words' : 'New word'),
         h('div', { class: 'wordlist teach-words' }, items.map((v, n) => h('div', { class: 'wl-row' + (anyPic ? ' has-pic' : '') }, anyPic ? (pics[n] ? wordPic(pics[n], 56, 'wl-pic') : h('span', { class: 'wl-pic', 'aria-hidden': 'true' })) : null, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang)))),
         lang === 'de' && items.some(v => v.g) ? h('div', { class: 'legend g small' }, h('span', { class: 'g-m' }, 'der'), h('span', { class: 'g-f' }, 'die'), h('span', { class: 'g-n' }, 'das'), h('span', { class: 'g-pl' }, 'plural')) : null,
-        h('p', { class: 'hint' }, 'Tap a word to hear it.'));
+        teachPip('point', 'Tap a word to hear it.'));
     }
     if (ex.mode === 'phrases'){
       if (S.settings.autoplay) speak(ex.lines[0].t, lang);
       return h('div', { class: 'ex teach' }, h('span', { class: 'eyebrow' }, ex.lines.length > 1 ? 'New phrases' : 'New phrase'),
         h('div', { class: 'tip' }, ex.lines.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e)))),
-        ex.more.length ? h('div', null, h('p', { class: 'muted small' }, 'Also in these phrases'), formRows(ex.more, lang)) : null);
+        ex.more.length ? h('div', null, h('p', { class: 'muted small' }, 'Also in these phrases'), formRows(ex.more, lang)) : null,
+        teachPip('listen', 'Say each one out loud.'));
     }
     const b = ex.bite;
     return h('div', { class: 'ex teach' }, h('div', { class: 'tip' }, h('span', { class: 'eyebrow' }, ic('bulb'), b.of > 1 ? 'Good to know · ' + (b.i + 1) + ' of ' + b.of : 'Good to know'), b.i === 0 ? h('h3', null, b.title) : null, h('p', { html: rich(b.body) }),
       b.tables.map(t => formsTable(t)),
-      b.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e)))));
+      b.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e)))),
+      teachPip('think'));
   },
   'mc-t2e'(ex, api){
     return h('div', { class: 'ex' }, qLabel('What does this mean?'), targetPrompt(ex.item, ex.lang, true, ex),
@@ -582,7 +587,7 @@ function finishRun(){
   const firstOk = uniq.filter(x => x !== 'wrong').length;
   const acc = uniq.length ? firstOk / uniq.length : 1;
   const flawless = uniq.length > 0 && uniq.every(x => x === 'exact');
-  let newItems = [], xp = Run.xp, title, top, levelUp = null, h1o = null, subo = null, cpPass = false;
+  let newItems = [], xp = Run.xp, title, top, levelUp = null, h1o = null, subo = null, cpPass = false, unit = null, unitNow = false, cpOpen = false;
   const before = questSnapshot();
   if (Run.mode === 'lesson'){
     const l = Run.lesson; const cards = cardsFor(lang);
@@ -591,7 +596,10 @@ function finishRun(){
     add('v', l.vocab.length); add('s', l.sentences.length);
     xp += XP.lesson + (acc === 1 ? XP.perfectBonus : 0);
     const prev = S.langs[lang].done[l.id];
+    unit = l.core ? COURSE[lang].units[l.unit] : null; const unitWas = unit ? unitDone(lang, unit) : true;
     S.langs[lang].done[l.id] = { at: today(), acc: Math.max(acc, prev && prev.acc || 0), times: (prev && prev.times || 0) + 1 };
+    unitNow = !!unit && !unitWas && unitDone(lang, unit);
+    cpOpen = unitNow && !(S.langs[lang].cp[unit.title] && S.langs[lang].cp[unit.title].pass);
     if (l.core && !wasComplete && levelComplete(lang, l.level)) levelUp = l.level;
     title = l.title; top = levelUp ? levelUp + ' complete' : 'Lesson complete';
     bumpQuest('lessons', 1); if (acc >= 0.9) bumpQuest('acc', 1);
@@ -620,12 +628,24 @@ function finishRun(){
   const nextLv = levelUp ? LEVELS[LEVELS.indexOf(levelUp) + 1] : null;
   const vocabChips = newItems.filter(Boolean).slice(0, 10);
   const st = streakInfo();
+  let more = null, unitSub = null;
+  if (Run.mode === 'lesson'){
+    const l = Run.lesson, nx = nextLesson(lang), next = nx && nx.id !== l.id ? nx : null;
+    if (cpOpen && !levelUp){
+      more = [{ id: 'checkpoint', label: 'Take the unit checkpoint', run: () => { endRun(); startCheckpoint(unit); } }];
+      unitSub = 'Unit ' + (l.unit + 1) + ' done: “' + unit.title + '”. Its checkpoint is open: ' + CHECKPOINT.questions + ' questions to lock it in.';
+    } else if (next && !levelUp){
+      more = [{ id: 'next', label: 'Next: ' + next.title, run: () => { endRun(); startLesson(next.id); } }];
+    }
+  }
+  const nNew = newItems.filter(Boolean).length;
   runHead(LANGS[lang].name);
   showComplete({
     lang, top, title, gold: !!levelUp || cpPass, xp, acc,
     h1: h1o || (levelUp ? 'Level ' + levelUp + ' complete.' : acc === 1 ? 'Flawless.' : acc >= 0.8 ? 'Great work.' : 'Good practice.'),
-    sub: subo || (levelUp ? (nextLv ? 'Next on your route: ' + nextLv + ' · ' + LEVEL_NAME[nextLv] + '.' : 'You’ve reached the end of the route. Your tutor can keep writing lessons for you.') : null),
-    third: Run.bestCombo >= 3 ? [Run.bestCombo, 'best run in a row'] : [st.count, plural(st.count, 'day') + ' streak'],
+    sub: subo || unitSub || (levelUp ? (nextLv ? 'Next on your route: ' + nextLv + ' · ' + LEVEL_NAME[nextLv] + '.' : 'You’ve reached the end of the route. Your tutor can keep writing lessons for you.') : null),
+    third: Run.bestCombo >= 3 ? [Run.bestCombo, 'best run in a row'] : st.count > 0 ? [st.count, plural(st.count, 'day') + ' streak'] : nNew > 0 ? [nNew, plural(nNew, 'new word')] : [uniq.length, plural(uniq.length, 'question') + ' answered'],
+    more,
     extra: vocabChips.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'Added to your review deck'), h('div', { class: 'chips' }, vocabChips.map((v, i) => h('span', { class: 'chip static', style: '--i:' + i }, itemText(v, lang))))) : null,
     badges, quests, onDone: () => endRun(),
     rate: Run.mode === 'lesson' ? { lessonId: Run.lesson.id } : null
@@ -654,13 +674,15 @@ function showComplete(o){
     h('p', { class: 'muted small' }, (todayXP() >= S.settings.goal ? 'Daily goal reached · streak ' + st.count + ' ' + plural(st.count, 'day') : (S.settings.goal - todayXP()) + ' XP to go for today’s goal') + ' · ' + (Remote.db && !Remote.readOnly ? 'saved to your account' : 'saved on this device'))));
   OV.foot.className = 'ov-foot';
   const btn = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => o.onDone() }, 'Continue');
-  OV.footIn.replaceChildren(btn); setTimeout(() => btn.focus(), 30);
+  const more = (o.more || []).map(m => h('button', { class: 'btn btn-quiet btn-wide', type: 'button', 'data-more': m.id, onclick: m.run }, m.label));
+  OV.footIn.replaceChildren(...more, btn); setTimeout(() => btn.focus(), 30);
   sfx(o.gold || (o.badges && o.badges.length) ? 'level' : 'done'); haptic([10, 50, 10]);
   countUp(xpEl, o.xp);
   if (o.quests && o.quests.length) setTimeout(() => sfx('quest'), 700);
   if (o.badges && o.badges.length) setTimeout(() => sfx('badge'), 1100);
   confetti(OV.root, o.gold ? 180 : 110);
-  if (S.settings.autoplay) setTimeout(() => { if (OV.root) speak(cheer, lang, false, mascot()); }, 900);
+  const root = OV.root;   // the cheer belongs to this finish screen: Next or the checkpoint button may already have opened another
+  if (S.settings.autoplay) setTimeout(() => { if (OV.root && OV.root === root) speak(cheer, lang, false, mascot()); }, 900);
 }
 
 function countUp(el, to, ms){

@@ -766,6 +766,101 @@ async function main(){
       ok(note && /Friends needs a connection/.test(note.textContent) && note.previousElementSibling && note.previousElementSibling.matches('header.top'), 'offline: Friends says it needs a connection');
       R.w.close();
     }
+    // the finish screen leads somewhere: Next lesson, the unit's checkpoint, a third tile that is never zero
+    {
+      const fin = async (setup, steps) => {
+        const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+        const rd = R.w.document, rl = () => R.P.S.langs.es;
+        if (setup) setup(R, rl);
+        R.E('startLesson("' + steps.id + '")');
+        R.E((steps.first || '') + 'Run.pos = Run.queue.length; nextEx()');
+        return { R, rd, rl, foot: () => [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')] };
+      };
+      const A1 = Q.P.COURSE.es.units[0], firstId = A1.lessons[0].id, lastId = A1.lessons[A1.lessons.length - 1].id;
+      {
+        const F = await fin(null, { id: firstId });
+        const nx = F.R.E('nextLesson("es")'), nb = F.rd.querySelector('.overlay:not(.out) .ov-foot [data-more="next"]'), btns = F.foot();
+        ok(nb && nb.textContent === 'Next: ' + nx.title && nx.id !== firstId && btns.length === 2 && btns[1].textContent === 'Continue' && !F.rd.querySelector('[data-more="checkpoint"]'), 'finish: Next starts the next lesson (button)');
+        F.R.E('S.settings.autoplay = true; window.__said = []; speak = function(t){ window.__said.push(String(t)); return Promise.resolve(true); }');
+        nb.click();
+        await sleep(320);
+        ok(F.R.E('Run.active') === true && F.R.E('Run.mode') === 'lesson' && F.R.E('Run.lesson.id') === nx.id && F.rd.querySelectorAll('.overlay').length === 1, 'finish: Next starts the next lesson');
+        await sleep(800);
+        ok(F.R.E('S.settings.autoplay') === true && !F.R.E('window.__said.some(t => PIP_SAYS.es.cheer.includes(t))'), 'finish: the cheer stays on the finish screen');
+        F.R.w.close();
+      }
+      {
+        const F = await fin((R, rl) => { for (const l of A1.lessons) if (l.id !== lastId) rl().done[l.id] = { at: '2026-10-01', acc: 1, times: 1 }; }, { id: lastId });
+        const text = F.rd.querySelector('.overlay:not(.out)').textContent, cb = F.rd.querySelector('.overlay:not(.out) .ov-foot [data-more="checkpoint"]');
+        ok(text.includes('Its checkpoint is open') && text.includes(A1.title) && cb && cb.textContent === 'Take the unit checkpoint' && !F.rd.querySelector('[data-more="next"]'), 'finish: the last lesson of a unit offers its checkpoint');
+        cb.click();
+        await sleep(320);
+        ok(F.R.E('Run.active') === true && F.R.E('Run.mode') === 'checkpoint' && F.rd.querySelectorAll('.overlay').length === 1, 'finish: the checkpoint button starts the checkpoint');
+        F.R.w.close();
+      }
+      {
+        const F = await fin(null, { id: firstId, first: 'Run.first = new Map([[1, "wrong"], [2, "exact"], [3, "wrong"], [4, "exact"]]); Run.bestCombo = 0; ' });
+        const tile = [...F.rd.querySelectorAll('.overlay:not(.out) .tiles3 .stat')][2], tx = tile ? tile.querySelector('.num').textContent + ' ' + tile.querySelector('.lbl').textContent : '';
+        ok(/^[1-9]\d* new words$/.test(tx) && !/streak/.test(tx), 'finish: no zero streak tile: ' + tx);
+        F.R.w.close();
+      }
+      {
+        const F = await fin((R, rl) => { for (const l of A1.lessons) rl().done[l.id] = { at: '2026-10-01', acc: 1, times: 1 }; }, { id: lastId });
+        ok(F.rd.querySelector('.overlay:not(.out) .complete') && !F.rd.querySelector('[data-more="checkpoint"]') && !F.rd.querySelector('.overlay:not(.out)').textContent.includes('Its checkpoint is open'), 'finish: a repeated lesson shows no unit moment');
+        F.R.w.close();
+      }
+    }
+    // a chime that climbs with a run, a bar that glows from five in a row
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0', sfx: true } } } });
+      const rd = R.w.document, calls = [];
+      R.w.__calls = calls; R.E('window.__playSound0 = window.playSound; window.playSound = (n, v, p) => window.__calls.push([n, p])');
+      R.E('startLesson("es-1-1")'); [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click();
+      const answer = right => {
+        R.E('Run.queue = [makeEx("type-e2t", Run.lesson, "s", 0)]; Run.pos = 0; nextEx()');
+        R.E('Run.value = ' + (right ? 'Run.cur.accepted[0]' : '"zzz nope"') + '; Run.canCheck = true; doCheck()');
+        return calls[calls.length - 1];
+      };
+      const near = (a, b) => Math.abs(a - b) < 1e-4;
+      const c1 = answer(true), c2 = answer(true), c3 = answer(true);
+      ok(c1[0] === 'ok' && near(c1[1], 1) && near(c2[1], Math.pow(2, 1 / 12)) && near(c3[1], Math.pow(2, 2 / 12)), 'juice: the chime climbs with a run: ' + [c1, c2, c3].map(c => c[1]).join(', '));
+      const cb = answer(false), c4 = answer(true);
+      ok(cb[0] === 'bad' && near(c4[1], 1) && c4[0] === 'ok', 'juice: a miss resets the climb');
+      let last = null;
+      for (let i = 0; i < 8; i++) last = answer(true);   // nine in a row since the miss, then the tenth
+      const tenth = answer(true);
+      ok(R.E('Run.combo') === 10 && near(tenth[1], Math.pow(2, 7 / 12)) && near(last[1], Math.pow(2, 7 / 12)), 'juice: the climb stops at seven semitones: ' + tenth[1]);
+      ok(R.E('OV.prog.classList.contains("hot")') === true, 'juice: the bar glows from five in a row');
+      answer(false);
+      ok(R.E('OV.prog.classList.contains("hot")') === false, 'juice: a miss puts the glow out');
+      R.E('Run.combo = 0; OV.prog.classList.remove("hot")');
+      for (let i = 0; i < 4; i++) answer(true);
+      ok(!R.E('OV.prog.classList.contains("hot")'), 'juice: four in a row do not glow yet');
+      R.E('window.playSound = window.__playSound0');
+      ok(R.E('SOUNDS.bad.length') === 1 && R.E('SOUNDS.done.length') === 1 && R.E('SOUNDS.ok.length') === 2, 'juice: other sounds are unchanged');
+      ok(/\.progress i\.hot\{[^}]*var\(--flame\)/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'juice: the glow is a style rule');
+      R.w.close();
+    }
+    // company on teach cards: the bird at the foot, with a tip in its bubble
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, cur = () => rd.querySelector('.overlay:not(.out) .ex.teach');
+      R.E('startLesson("es-1-1")'); [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click();
+      const w1 = cur(), say1 = w1 && w1.querySelector('.teach-pip .pip .pip-say');
+      ok(R.E('Run.cur.mode') === 'words' && w1.querySelector('.teach-pip .pip') && say1 && say1.textContent === 'Tap a word to hear it.' && !w1.querySelector('p.hint'), 'teach: the bird keeps you company (words)');
+      for (const [mode, say] of [['phrases', 'Say each one out loud.']]){
+        const i = R.E('Run.queue.findIndex(e => e.type === "teach" && e.mode === "' + mode + '")');
+        R.E('Run.pos = ' + i + '; nextEx()');
+        const c = cur(), sy = c && c.querySelector('.teach-pip .pip .pip-say');
+        ok(i >= 0 && sy && sy.textContent === say, 'teach: the bird keeps you company (' + mode + ')');
+      }
+      let ci = R.E('Run.queue.findIndex(e => e.type === "teach" && e.mode === "concept")');
+      if (ci < 0){ R.E('endRun(); startLesson("es-1-2")'); [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click(); ci = R.E('Run.queue.findIndex(e => e.type === "teach" && e.mode === "concept")'); }
+      R.E('Run.pos = ' + ci + '; nextEx()');
+      const cc = cur();
+      ok(ci >= 0 && cc.querySelector('.teach-pip .pip') && !cc.querySelector('.teach-pip .pip-say'), 'teach: a concept card has the bird without a bubble');
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

@@ -1,7 +1,7 @@
 # Keep going: a lesson loop that flows, sounds good and keeps you company
 
 - **Cycle:** 2026-11-12 (premium program P3, `flow/PREMIUM.md`)
-- **Status:** approved
+- **Status:** building
 - **Release:** 4.35.0
 - **Base:** `main` at d04d314 (4.34.0)
 - **Proposals built:** none

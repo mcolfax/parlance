@@ -322,7 +322,7 @@ const SOUNDS = {
   select: c => { tone(c, 640, 0, 0.07, 'triangle', 0.035); tone(c, 960, 0.025, 0.08, 'sine', 0.025); },
   pick: c => { tone(c, 520, 0, 0.09, 'sine', 0.05, { to: 820, glide: 0.06 }); hiss(c, 0, 0.03, 0.012, { f: 4000 }); },
   drop: c => tone(c, 760, 0, 0.1, 'sine', 0.04, { to: 440, glide: 0.08 }),
-  ok: c => { bell(c, 1046.5, 0, 0.55, 0.05); bell(c, 1568, 0.075, 0.7, 0.045); hiss(c, 0.06, 0.25, 0.008, { type: 'highpass', f: 6000 }); },
+  ok: (c, p) => { const k = p || 1; bell(c, 1046.5 * k, 0, 0.55, 0.05); bell(c, 1568 * k, 0.075, 0.7, 0.045); hiss(c, 0.06, 0.25, 0.008, { type: 'highpass', f: 6000 }); },
   bad: c => { tone(c, 233, 0, 0.26, 'triangle', 0.07, { to: 175, glide: 0.24 }); tone(c, 117, 0.01, 0.22, 'sine', 0.05); },
   combo: c => [880, 1109, 1319, 1760].forEach((f, i) => bell(c, f, i * 0.055, 0.35, 0.035)),
   done: c => { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => bell(c, f, i * 0.09, 0.9, 0.04)); tone(c, 261.6, 0.3, 1.1, 'sine', 0.03, { attack: 0.08 }); },
@@ -342,14 +342,14 @@ const SOUNDS = {
   open: c => { hiss(c, 0, 0.3, 0.022, { f: 600, to: 2200, attack: 0.08 }); tone(c, 392, 0.02, 0.18, 'sine', 0.028, { to: 587, glide: 0.15 }); },
   close: c => hiss(c, 0, 0.22, 0.018, { f: 1800, to: 500, attack: 0.04 })
 };
-function playSound(name, vol){
+function playSound(name, vol, p){
   try {
     const c = sfxCtx(); if (!c || !SOUNDS[name]) return;
     SFX.master.gain.setValueAtTime(Math.max(0.0001, (vol == null ? 1 : vol) * 1.2), c.currentTime);
-    SOUNDS[name](c);
+    SOUNDS[name](c, p);
   } catch (e) {}
 }
-function sfx(name, vol){ if (S.settings.sfx) playSound(name, (S.settings.sfxVol == null ? 0.8 : S.settings.sfxVol) * (vol || 1)); }
+function sfx(name, vol, p){ if (S.settings.sfx) playSound(name, (S.settings.sfxVol == null ? 0.8 : S.settings.sfxVol) * (vol || 1), p); }
 
 /* ----- music: a tiny sequencer (used by the intro film) ----- */
 const Music = { nodes: [], bus: null };
