@@ -861,6 +861,18 @@ async function main(){
       ok(ci >= 0 && cc.querySelector('.teach-pip .pip') && !cc.querySelector('.teach-pip .pip-say'), 'teach: a concept card has the bird without a bubble');
       R.w.close();
     }
+    // motion: one timing system (WP1)
+    {
+      const tok = fs.readFileSync(path.join(ROOT, 'styles', 'tokens.css'), 'utf8');
+      ok(['--dur-press:.12s', '--dur-quick:.2s', '--dur-settle:.5s', '--dur-enter:.32s', '--dur-exit:.18s', '--ease-in:cubic-bezier(.4,0,1,1)'].every(t => tok.includes(t)) && tok.includes('--dur-fast:.15s; --dur:.3s; --dur-slow:.6s;'), 'motion: the timing tokens exist');
+      for (const f of ['base', 'components', 'features', 'art']){
+        const css = fs.readFileSync(path.join(ROOT, 'styles', f + '.css'), 'utf8');
+        const bad = [...css.matchAll(/transition:([^;}]*)/g)].filter(m => !m[1].split(',').every(part => /^\s*none(!important)?\s*$/.test(part) || part.includes('var(--dur')));
+        ok(!bad.length, 'motion: every transition uses a duration token (' + f + '.css): ' + (bad[0] ? 'transition:' + bad[0][1] + ' - use a --dur-* token from styles/tokens.css' : ''));
+      }
+      const bcss = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8');
+      ok(bcss.split('prefers-reduced-motion').length === 2 && bcss.slice(bcss.indexOf('prefers-reduced-motion')).includes('.spark-p{display:none}'), 'motion: one reduced-motion block in base.css');
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

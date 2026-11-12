@@ -43,6 +43,8 @@
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px;
   /* motion */
   --dur-fast:.15s; --dur:.3s; --dur-slow:.6s;
+  --dur-press:.12s; --dur-quick:.2s; --dur-settle:.5s; --dur-enter:.32s; --dur-exit:.18s; --ease-in:cubic-bezier(.4,0,1,1);
+  --knob-shadow:0 1px 3px rgb(0 0 0 / .25);
   /* layers */
   --z-tabs:20; --z-overlay:50; --z-sheet:80; --z-toast:90; --z-pop:95; --z-banner:100; --z-fx:120;
   /* Pip the parrot: the colors of the model sheet. The rig (js/core/rig.js) fills each drawing with --pip-<role>.
