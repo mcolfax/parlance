@@ -1,9 +1,9 @@
 # Keep going: a lesson loop that flows, sounds good and keeps you company
 
-- **Cycle:** set when promoted (premium program P3, `flow/PREMIUM.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-p3-keep-going.md`, set Release, Base and `approved`)
-- **Release:** 4.35.0, or the next free minor when promoted
-- **Base:** `main` at promotion time (nothing below depends on line numbers)
+- **Cycle:** 2026-11-12 (premium program P3, `flow/PREMIUM.md`)
+- **Status:** approved
+- **Release:** 4.35.0
+- **Base:** `main` at d04d314 (4.34.0)
 - **Proposals built:** none
 - **Roadmap items:** new R-33, R-34, R-35
 - **Needs:** P1 shipped (`startCheckpoint(u, testOut)`); works without it too, since `startCheckpoint(u)` is called with one argument here.

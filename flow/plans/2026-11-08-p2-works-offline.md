@@ -1,7 +1,7 @@
 # Works offline: the web app opens and teaches without a connection
 
 - **Cycle:** 2026-11-08 (premium program P2, `flow/PREMIUM.md`)
-- **Status:** building
+- **Status:** shipped (4.34.0)
 - **Release:** 4.34.0
 - **Base:** `main` at a48b162 (4.33.0)
 - **Proposals built:** web `proposals/pfmw53mrwk`, "Make the web app work offline", approved by Matt himself in chat on 2026-11-06, on one condition: it must cost nothing. Check its status before building (POLICY "If Matt approved a Red proposal himself").
@@ -269,5 +269,5 @@ After WP3 (`parlance-chores`, Haiku):
 ## Outcome
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
-- **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:** Promote `flow/plans/queue/p3-keep-going.md`.
+- **Shipped:** 4.34.0, `d04d314` (all three packages) | **Dropped:** none | **Escalated:** none
+- **Notes for the next cycle:** Built on 2026-11-08, cut off during the first fix round, finished on 2026-11-11/12: the reviewer's second FIX list (the kill switch now deletes the cache itself; Me says offline that voices are saved; one docs sentence) was applied and passed. The intro films are left out of the precache on purpose (videos load in byte ranges, which the worker passes to the network). P3 is promoted next.
