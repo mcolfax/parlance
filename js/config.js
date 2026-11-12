@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.37.0';
+const APP_VERSION = '4.38.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,10 @@ const SCHEMA_VERSION = 12;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.38.0', date: '2026-11-12', title: 'Time to play', notes: [
+    'Collect stickers: every word with a picture you learn goes into your sticker book in Me, and words you know well shine.',
+    'New in Review: Speed round. Sixty seconds, your own words, and a best score to beat.',
+    'Streaks of 7, 14, 30, 50, 100 and 365 days now get a moment of their own, with seven new badges to earn.'] },
   { v: '4.37.0', date: '2026-11-12', title: 'A better first look', notes: [
     'Parlance opens with the shape of your Learn screen instead of a loading message.',
     'Me has a row of shortcuts at the top: jump straight to Sound, Practice, your badges or your backup.',
