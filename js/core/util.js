@@ -34,7 +34,7 @@ function hashStr(s){ let x = 2166136261; for (let i = 0; i < s.length; i++){ x ^
 /* every vibration has a name; screens call haptic('ok'), never a pattern */
 const HAPTICS = { tap: 6, select: 8, pair: 10, ok: 12, heavy: 30, miss: [15, 30, 15], bad: [18, 40, 18], done: [10, 50, 10] };
 function haptic(p){ try { if (S && S.settings && S.settings.haptics === false) return; const v = typeof p === 'string' ? HAPTICS[p] : p; if (v != null && navigator.vibrate) navigator.vibrate(v); } catch (e) {} }
-function busy(){ return !!(Run.active || Talk.open || Onb.open || Story.open || Film.open || Studio.open); }
+function busy(){ return !!(Run.active || Talk.open || Onb.open || Story.open || Film.open || Studio.open || (typeof Speed !== 'undefined' && Speed.open)); }
 /* little particle bursts for right answers, pairs, chests */
 function burst(x, y, opts = {}){
   if (reduced() || !document.body) return;
@@ -88,6 +88,7 @@ const IC = {
   wand: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 15 9M14 4v3M19 9h-3M17.5 5.5l-2 2M7 4l.6 1.6L9 6l-1.4.4L7 8l-.6-1.6L5 6l1.4-.4z"/></svg>',
   stories: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c3-1 6-1 9 1 3-2 6-2 9-1v13c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6.5v13"/></svg>',
   bookmark: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 4h11v16.5l-5.5-3.8-5.5 3.8z"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></svg>',
   translate: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h9M8.5 3v2M6 5c.8 3.5 3 6 6 7.5M11 5c-.8 3.5-3 6.5-7 8"/><path d="M13 21l4-9 4 9M14.5 18h5"/></svg>'
 };
 function ic(name, cls){ return h('span', { class: 'ic' + (cls ? ' ' + cls : ''), html: IC[name], 'aria-hidden': 'true' }); }

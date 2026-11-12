@@ -1050,6 +1050,93 @@ async function main(){
       ok(R.errors.length === 0, 'stickers: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }
+    // the speed round (P4 WP2): 60 seconds of word questions from your own words, a best per language, capped XP, no card changes
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, rl = () => R.P.S.langs.es, tile = () => rd.querySelector('#app [data-practice="speed"]');
+      // learn words one at a time, as many as asked, each adding a new distinct word
+      const learnTo = n => R.E('(() => { const L = S.langs.es; for (const l of coreOrder("es")) for (let i = 0; i < l.vocab.length; i++){ if (speedPool("es").length >= ' + n + ') return speedPool("es").length; const k = itemKey(l, "v", i); if (!L.cards[k]) L.cards[k] = { ef: 2.5, n: 1, iv: 1, due: addDays(today(), 3), last: today(), ts: 1 }; } return speedPool("es").length; })()');
+      R.E('UI.tab = "review"; render()');
+      ok(R.E('speedPool("es").length') === 0 && !tile(), 'speed: needs 8 learned words (none yet, no tile)');
+      R.E('startSpeed()');
+      ok(R.E('Speed.open') === false && !rd.querySelector('.overlay.speed') && R.E('busy()') === false, 'speed: startSpeed with too few words does nothing');
+      ok(learnTo(7) === 7, 'speed: seven words');
+      R.E('render()');
+      ok(!tile(), 'speed: needs 8 learned words (seven, no tile)');
+      R.E('startSpeed()');
+      ok(R.E('Speed.open') === false, 'speed: needs 8 learned words (seven, startSpeed leaves it closed)');
+      ok(learnTo(8) === 8, 'speed: eight words');
+      R.E('render()');
+      ok(!!tile() && /60 seconds\. Go!/.test(tile().textContent) && R.E('practiceTiles("es").map(t => t.id).slice(0, 2).join()') === 'weak,speed', 'speed: needs 8 learned words (eight, the tile shows after Weakest items)');
+      learnTo(30);
+      // every question is fair
+      let fair = true, why = '';
+      const pool = R.E('speedPool("es")'), enOf = Object.fromEntries(pool.map(x => [x.t, x.en]));
+      for (let i = 0; i < 50 && fair; i++){
+        const q = R.E('speedQ(speedPool("es"), ' + i + ', [])');
+        const ens = q.options.map(o => q.toEn ? o : enOf[o]);
+        const folded = ens.map(e => R.E('fold(norm(' + JSON.stringify(e) + ', "en"))'));
+        if (q.options.length !== 4 || new Set(q.options).size !== 4 || !q.options.includes(q.correct) || new Set(folded).size !== 4 || q.toEn !== (i % 2 === 0)){ fair = false; why = JSON.stringify(q); }
+      }
+      ok(fair, 'speed: every question is fair ' + why);
+      ok(R.E('(() => { const p = speedPool("es"), seen = []; for (let i = 0; i < 40; i++){ const q = speedQ(p, i, seen); seen.push(q.it.t); if (seen.length > 5) seen.shift(); if (seen.slice(0, -1).includes(q.it.t)) return false; } return true; })()'), 'speed: a word does not repeat within five questions');
+      const cardsBefore = JSON.stringify(rl().cards), missBefore = JSON.stringify(rl().miss), xp0 = rl().xp || 0;
+      // right answers score, a wrong one breaks the run
+      R.E('UI.tab = "review"; render()');
+      tile().click();
+      ok(R.E('Speed.open') === true && !!rd.querySelector('.overlay.speed') && R.E('busy()') === true && !!rd.querySelector('.overlay.speed .speed-score') && rd.querySelectorAll('.overlay.speed .opts.speed .opt').length === 4, 'speed: the tile starts a round');
+      const pick = text => { const b = [...rd.querySelectorAll('.overlay.speed .opts .opt')].find(x => x.textContent === text); b.click(); return b; };
+      const right = () => pick(R.E('Speed.q.correct'));
+      const first = right();
+      ok(first.classList.contains('right'), 'speed: a right answer turns green');
+      pick(R.E('Speed.q.options.find(o => o !== Speed.q.correct)'));
+      ok(R.E('Speed.score') === 1 && R.E('Speed.answered') === 1, 'speed: taps while the result shows are ignored');
+      await sleep(R.E('SPEED.rightMs') + 100);
+      right(); await sleep(R.E('SPEED.rightMs') + 100);
+      ok(R.E('Speed.score') === 2 && R.E('Speed.combo') === 2, 'speed: two right in a row');
+      const wrongBtn = pick(R.E('Speed.q.options.find(o => o !== Speed.q.correct)'));
+      ok(wrongBtn.classList.contains('wrong') && [...rd.querySelectorAll('.overlay.speed .opt.right')].length === 1, 'speed: a wrong answer shows the right one');
+      ok(R.E('Speed.score') === 2 && R.E('Speed.combo') === 0 && R.E('Speed.bestCombo') === 2, 'speed: right answers score, wrong ones break the run');
+      await sleep(R.E('SPEED.wrongMs') + 100);
+      // pausing in the background
+      const hide = v => { Object.defineProperty(rd, 'hidden', { configurable: true, get: () => v }); rd.dispatchEvent(new R.w.Event('visibilitychange')); };
+      const leftBefore = R.E('Speed.ends - Date.now()');
+      hide(true); await sleep(250);
+      ok(R.E('Speed.paused') === true, 'speed: the clock stops when the page goes to the background');
+      hide(false);
+      const resume = [...rd.querySelectorAll('.overlay.speed .speed.paused button')].find(b => b.textContent === 'Resume');
+      ok(!!resume && /Paused/.test(rd.querySelector('.overlay.speed').textContent), 'speed: coming back shows Paused and Resume');
+      resume.click();
+      const leftAfter = R.E('Speed.ends - Date.now()');
+      ok(R.E('Speed.paused') === false && !!rd.querySelector('.overlay.speed .opts.speed') && leftAfter > leftBefore - 400 && leftAfter <= leftBefore + 50, 'speed: Resume gives back the time that was left: ' + leftBefore + ' -> ' + leftAfter);
+      // the best is kept and XP is capped
+      R.E('Speed.score = 20; Speed.answered = 22; speedEnd()');
+      ok(R.E('S.stats["speed-es"]') === 20 && (rl().xp || 0) - xp0 === R.E('SPEED.xpCap + XP.review') && R.E('SPEED.xpCap + XP.review') <= 15, 'speed: the best is kept and XP is capped: ' + ((rl().xp || 0) - xp0));
+      const fin = rd.querySelector('.overlay.speed .complete');
+      ok(!!fin && /New best!/.test(fin.textContent) && fin.querySelector('.stamp.gold') && /20 right/.test(fin.textContent), 'speed: the finish screen celebrates a new best');
+      // Play again starts a fresh round
+      rd.querySelector('.overlay.speed [data-more="again"]').click();
+      ok(R.E('Speed.open') === true && R.E('Speed.score') === 0 && R.E('Speed.over') === false && !!rd.querySelector('.overlay.speed .opts.speed'), 'speed: Play again starts a new round');
+      const xp1 = rl().xp || 0;
+      R.E('Speed.score = 5; Speed.answered = 6; speedEnd()');
+      ok(R.E('S.stats["speed-es"]') === 20 && (rl().xp || 0) - xp1 === 5 + R.E('XP.review') && /Your best is 20/.test(rd.querySelector('.overlay.speed .complete').textContent), 'speed: a later, lower round leaves the best at 20');
+      const xp2 = rl().xp || 0;
+      R.E('speedEnd()');
+      ok((rl().xp || 0) === xp2, 'speed: ending twice pays once');
+      rd.querySelector('.overlay.speed [data-more="again"]').click();
+      R.E('Speed.score = 0; speedEnd()');
+      ok((rl().xp || 0) === xp2 && R.E('S.stats["speed-es"]') === 20, 'speed: a round with no right answers pays nothing');
+      ok(JSON.stringify(rl().cards) === cardsBefore && JSON.stringify(rl().miss) === missBefore, 'speed: no review card or mistake changes');
+      // Close ends it
+      const done = [...rd.querySelectorAll('.overlay.speed .ov-foot button')].find(b => b.textContent === 'Continue'); done.click(); await sleep(300);
+      ok(R.E('Speed.open') === false && R.E('busy()') === false && !rd.querySelector('.overlay.speed:not(.out)') && /Best: 20/.test(tile() ? tile().textContent : ''), 'speed: Continue closes it and the tile shows the best');
+      tile().click();
+      rd.querySelector('.overlay.speed .ov-head button[aria-label="Close"]').click(); await sleep(300);
+      ok(R.E('Speed.open') === false && R.E('busy()') === false && !rd.querySelector('.overlay.speed:not(.out)') && R.E('S.stats["speed-es"]') === 20, 'speed: Play again and Close (Close ends it)');
+      ok(R.E('mergeStats({ "speed-es": 20, a: 1 }, { "speed-es": 12, a: 4 })["speed-es"]') === 20, 'speed: a stats best merges by maximum');
+      ok(R.errors.length === 0, 'speed: no page errors ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

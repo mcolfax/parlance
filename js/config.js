@@ -314,6 +314,7 @@ const HINTS = { A1: 'full', A2: 'full', B1: 'tap', B2: 'tap', C1: 'off', C2: 'of
    Only words whose picture is safe to ask about are used (design/pictures/briefs-src.txt, quiz 1); see "Word pictures" in docs/ARCHITECTURE.md. */
 const PIC_EX = { A1: 'pic-pick', A2: 'pic-pick', B1: 'pic-name', B2: 'pic-name', C1: 'pic-type', C2: 'pic-type', perLesson: 2, perReview: 3 };
 const STICKERS = { shinyAt: 3, recent: 6 };   // sticker book (Me): a word right this many times running in Review shines; how many recent stickers Me shows
+const SPEED = { secs: 60, min: 8, xpCap: 12, rightMs: 220, wrongMs: 650 };   // speed round (Review): seconds, fewest learned words, most XP from answers, pause after a right and a wrong answer
 /* Practice articles (Review tab, startGenders()): nouns from finished lessons, shown without their article.
    sg and pl are the buttons for a singular and a plural noun; fits says which vocab genders an article can go with;
    gender is each article's own gender (mf: either), for telling a near miss; why is the Italian rule a near miss shows. */

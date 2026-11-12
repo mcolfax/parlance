@@ -6,6 +6,7 @@ function practiceTiles(lang){
   return [
     { id: 'mistakes', icon: 'flag', label: 'Fix my mistakes', sub: fix + ' to fix', show: fix > 0, run: () => startMistakes() },
     { id: 'weak', icon: 'review', label: 'Weakest items', sub: 'Your ' + Math.min(12, all) + ' shakiest', show: all > 0, run: () => startReview(true) },
+    { id: 'speed', icon: 'bolt', label: 'Speed round', sub: S.stats['speed-' + lang] ? 'Best: ' + S.stats['speed-' + lang] : SPEED.secs + ' seconds. Go!', show: speedPool(lang).length >= SPEED.min, run: () => startSpeed() },
     { id: 'forms', icon: 'bulb', label: 'Verb forms', sub: 'Endings from your tables', show: forms > 0, run: () => startForms() },
     { id: 'articles', icon: 'words', label: 'Articles', sub: GENDER_DRILL[lang].label, show: arts, run: () => startGenders() }
   ].filter(t => t.show);
