@@ -168,6 +168,7 @@ li.locked .st-title{color:var(--muted)}
 .plan-ic{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--line-soft);color:var(--line-text);flex:none}
 .plan-ic svg{width:22px;height:22px}
 .teach{gap:14px}
+.teach-pip{display:flex;justify-content:flex-end;padding:28px 8px 0}
 .teach-words .wl-row{padding:16px 0}
 .teach-words .wl-row .t{font-size:24px}
 .teach-words .wl-row .e{font-size:17px}

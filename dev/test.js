@@ -838,6 +838,26 @@ async function main(){
       ok(/\.progress i\.hot\{[^}]*var\(--flame\)/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'juice: the glow is a style rule');
       R.w.close();
     }
+    // company on teach cards: the bird at the foot, with a tip in its bubble
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, cur = () => rd.querySelector('.overlay:not(.out) .ex.teach');
+      R.E('startLesson("es-1-1")'); [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click();
+      const w1 = cur(), say1 = w1 && w1.querySelector('.teach-pip .pip .pip-say');
+      ok(R.E('Run.cur.mode') === 'words' && w1.querySelector('.teach-pip .pip') && say1 && say1.textContent === 'Tap a word to hear it.' && !w1.querySelector('p.hint'), 'teach: the bird keeps you company (words)');
+      for (const [mode, say] of [['phrases', 'Say each one out loud.']]){
+        const i = R.E('Run.queue.findIndex(e => e.type === "teach" && e.mode === "' + mode + '")');
+        R.E('Run.pos = ' + i + '; nextEx()');
+        const c = cur(), sy = c && c.querySelector('.teach-pip .pip .pip-say');
+        ok(i >= 0 && sy && sy.textContent === say, 'teach: the bird keeps you company (' + mode + ')');
+      }
+      let ci = R.E('Run.queue.findIndex(e => e.type === "teach" && e.mode === "concept")');
+      if (ci < 0){ R.E('endRun(); startLesson("es-1-2")'); [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Start lesson').click(); ci = R.E('Run.queue.findIndex(e => e.type === "teach" && e.mode === "concept")'); }
+      R.E('Run.pos = ' + ci + '; nextEx()');
+      const cc = cur();
+      ok(ci >= 0 && cc.querySelector('.teach-pip .pip') && !cc.querySelector('.teach-pip .pip-say'), 'teach: a concept card has the bird without a bubble');
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

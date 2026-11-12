@@ -388,6 +388,8 @@ function tileBoard(tokens, lang, onChange){
 }
 
 /* ----- renderers ----- */
+/* the learner's bird at the foot of a teach card, with a tip in its bubble (tap it and it talks, as everywhere) */
+function teachPip(mood, say){ return h('div', { class: 'teach-pip' }, pip(mood, 64, say ? { say, lang: Run.lang } : { lang: Run.lang })); }
 const RENDER = {
   teach(ex){
     const l = ex.lesson, lang = ex.lang;
@@ -398,18 +400,20 @@ const RENDER = {
       return h('div', { class: 'ex teach' }, h('span', { class: 'eyebrow' }, items.length > 1 ? 'New words' : 'New word'),
         h('div', { class: 'wordlist teach-words' }, items.map((v, n) => h('div', { class: 'wl-row' + (anyPic ? ' has-pic' : '') }, anyPic ? (pics[n] ? wordPic(pics[n], 56, 'wl-pic') : h('span', { class: 'wl-pic', 'aria-hidden': 'true' })) : null, h('div', { class: 't' }, itemText(v, lang)), h('div', { class: 'e' }, v.e.slice(0, 2).join(', ')), speakBtn(v.t, lang)))),
         lang === 'de' && items.some(v => v.g) ? h('div', { class: 'legend g small' }, h('span', { class: 'g-m' }, 'der'), h('span', { class: 'g-f' }, 'die'), h('span', { class: 'g-n' }, 'das'), h('span', { class: 'g-pl' }, 'plural')) : null,
-        h('p', { class: 'hint' }, 'Tap a word to hear it.'));
+        teachPip('point', 'Tap a word to hear it.'));
     }
     if (ex.mode === 'phrases'){
       if (S.settings.autoplay) speak(ex.lines[0].t, lang);
       return h('div', { class: 'ex teach' }, h('span', { class: 'eyebrow' }, ex.lines.length > 1 ? 'New phrases' : 'New phrase'),
         h('div', { class: 'tip' }, ex.lines.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e)))),
-        ex.more.length ? h('div', null, h('p', { class: 'muted small' }, 'Also in these phrases'), formRows(ex.more, lang)) : null);
+        ex.more.length ? h('div', null, h('p', { class: 'muted small' }, 'Also in these phrases'), formRows(ex.more, lang)) : null,
+        teachPip('listen', 'Say each one out loud.'));
     }
     const b = ex.bite;
     return h('div', { class: 'ex teach' }, h('div', { class: 'tip' }, h('span', { class: 'eyebrow' }, ic('bulb'), b.of > 1 ? 'Good to know · ' + (b.i + 1) + ' of ' + b.of : 'Good to know'), b.i === 0 ? h('h3', null, b.title) : null, h('p', { html: rich(b.body) }),
       b.tables.map(t => formsTable(t)),
-      b.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e)))));
+      b.examples.map(x => h('div', { class: 'ex-line' }, h('div', { class: 't' }, h('span', { class: 'grow' }, sayText(x.t, lang, { gloss: true, en: x.e })), speakBtn(x.t, lang)), h('div', { class: 'e' }, x.e)))),
+      teachPip('think'));
   },
   'mc-t2e'(ex, api){
     return h('div', { class: 'ex' }, qLabel('What does this mean?'), targetPrompt(ex.item, ex.lang, true, ex),
