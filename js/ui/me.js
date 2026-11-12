@@ -55,13 +55,56 @@ function openBirdPicker(){
     } }]);
 }
 /* a row of chips under the profile that jump to Me's cards; it lists only the cards this learner has */
-const ME_JUMP = [['Badges', 'Badges'], ['Last 7 days', 'This week'], ['Your bird', 'Your bird'], ['Sound', 'Sound'], ['Practice', 'Practice'], ['Your progress is saved', 'Backup']];
+const ME_JUMP = [['Badges', 'Badges'], ['Last 7 days', 'This week'], ['Your bird', 'Your bird'], ['Sticker book', 'Stickers'], ['Sound', 'Sound'], ['Practice', 'Practice'], ['Your progress is saved', 'Backup']];
 function meJump(v){
   const heads = [...v.querySelectorAll('section h3')];
   const chips = ME_JUMP.map(([title, label]) => { const h3 = heads.find(x => x.textContent.trim() === title); const sec = h3 && h3.closest('section'); return sec ? h('button', { class: 'chip', type: 'button', onclick: () => sec.scrollIntoView({ behavior: reduced() ? 'auto' : 'smooth', block: 'start' }) }, label) : null; }).filter(Boolean);
   if (chips.length < 3) return;
   const row = h('nav', { class: 'me-jump', 'aria-label': 'Jump to' }, chips);
   const anchor = v.querySelector('.profile'); if (anchor) anchor.after(row); else if (v.firstElementChild) v.firstElementChild.after(row);
+}
+/* ===================== STICKER BOOK =====================
+   Every course word with a picture is a sticker. Learning the word collects it; a word that's strong in Review (right
+   STICKERS.shinyAt times running, card.n) shines. Built from the course and your cards: nothing new is saved. */
+function stickerBook(lang){
+  const best = new Map();
+  for (const e of learnedEntries(lang, 'v')) best.set(e.item.t, Math.max(best.get(e.item.t) || 0, e.card.n || 0));
+  const seen = new Set(), units = [];
+  COURSE[lang].units.forEach((u, ui) => {
+    const items = [];
+    for (const l of u.lessons) for (const v of l.vocab){
+      const id = picFor(v, lang); if (!id || seen.has(v.t)) continue; seen.add(v.t);
+      const got = best.has(v.t); items.push({ id, v, got, shiny: got && best.get(v.t) >= STICKERS.shinyAt });
+    }
+    if (items.length) units.push({ u, ui, items });
+  });
+  const all = units.flatMap(x => x.items);
+  return { units, total: all.length, got: all.filter(s => s.got).length, shiny: all.filter(s => s.shiny).length };
+}
+function stickerTile(s, size, i){
+  return h('button', { class: 'sticker' + (s.got ? '' : ' empty') + (s.shiny ? ' shiny' : ''), type: 'button', style: '--i:' + (i || 0), disabled: !s.got,
+    'aria-label': s.got ? s.v.t + ', ' + s.v.e[0] + (s.shiny ? ', shiny' : '') : 'Not collected yet',
+    onclick: () => { speak(s.v.t, S.settings.lang); toast(s.v.t + ' · ' + s.v.e[0]); } }, wordPic(s.id, size));
+}
+function stickerCard(){
+  const lang = S.settings.lang, b = stickerBook(lang); if (!b.total) return null;
+  const recent = b.units.flatMap(x => x.items).filter(s => s.got).slice(-STICKERS.recent);
+  return h('section', { class: 'card stickers' },
+    h('div', { class: 'row' }, h('h3', null, 'Sticker book'), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, b.got + ' of ' + b.total)),
+    recent.length ? h('div', { class: 'sticker-strip' }, recent.map((s, i) => stickerTile(s, 48, i))) : h('p', { class: 'small muted' }, 'Learn a word that has a picture, and its sticker lands here.'),
+    h('p', { class: 'small muted' }, b.shiny + ' shiny. A sticker shines once you get its word right ' + STICKERS.shinyAt + ' times in a row in Review.'),
+    h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => openStickers() }, 'Open the sticker book'));
+}
+function openStickers(){
+  const lang = S.settings.lang, b = stickerBook(lang);
+  openOverlay('stickers');
+  OV.head.replaceChildren(h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'Close', html: IC.close, onclick: () => { closeOverlay(); UI.animate = true; render(); } }),
+    h('div', { class: 'ov-title grow' }, 'Sticker book · ' + b.got + ' of ' + b.total), h('span', { class: 'icon-spacer' }));
+  swapBody(h('div', { class: 'sticker-book' }, b.units.map(x => h('section', { class: 'sb-unit' },
+    h('div', { class: 'row' }, h('span', { class: 'eyebrow' }, 'Unit ' + (x.ui + 1) + ' · ' + x.u.level), h('span', { class: 'spacer' }), h('span', { class: 'small muted' }, x.items.filter(s => s.got).length + '/' + x.items.length)),
+    h('h3', null, x.u.title),
+    h('div', { class: 'sticker-grid' }, x.items.map((s, i) => stickerTile(s, 52, i)))))));
+  OV.foot.className = 'ov-foot'; OV.footIn.replaceChildren();
 }
 function viewMe(){
   const lang = S.settings.lang; const st = streakInfo(); const L = S.langs[lang];
@@ -80,6 +123,7 @@ function viewMe(){
     h('div', { class: 'stat' }, h('span', { class: 'num' }, storiesRead), h('span', { class: 'lbl' }, plural(storiesRead, 'story', 'stories') + ' read'))));
   v.append(streakCalendar(st));
   v.append(badgesCard());
+  const stk = stickerCard(); if (stk) v.append(stk);
   const t = today(); const days = [...Array(7)].map((_, i) => addDays(t, i - 6));
   const vals = days.map(k => goalXP(S.days[k])); const goal = S.settings.goal; const max = Math.max(goal * 1.25, ...vals, 1);
   const names = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];

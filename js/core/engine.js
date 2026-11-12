@@ -81,12 +81,15 @@ function checkBadges(ctx = {}){
   if (lessons.some(n => n > 0)) award('first');
   if (lessons.every(n => n > 0)) award('both');
   const st = streakInfo().count;
-  if (st >= 3) award('streak3'); if (st >= 7) award('streak7'); if (st >= 30) award('streak30');
+  if (st >= 3) award('streak3'); if (st >= 7) award('streak7'); if (st >= 14) award('streak14'); if (st >= 30) award('streak30');
+  if (st >= 50) award('streak50'); if (st >= 100) award('streak100'); if (st >= 365) award('streak365');
   const words = both.reduce((n, l) => n + wordCount(l), 0);
   if (words >= 50) award('words50'); if (words >= 250) award('words250'); if (words >= 1000) award('words1000');
   const passed = both.flatMap(l => Object.values(S.langs[l].cp || {})).filter(c => c && c.pass);
   if (passed.length >= 1) award('checkpoint1'); if (passed.length >= 5) award('checkpoint5'); if (passed.some(c => c.acc >= 1)) award('checkpoint100');
   if ((S.stats.fixed || 0) >= 25) award('fixer'); if ((S.stats.formsRight || 0) >= 50) award('forms50');
+  if (typeof stickerBook === 'function'){ const sb = both.map(l => stickerBook(l)); if (sb.some(b => b.got >= 50)) award('stickers50'); if (sb.some(b => b.shiny >= 25)) award('shiny25'); }
+  if (both.some(l => (S.stats['speed-' + l] || 0) >= 20)) award('speed20');
   if (ctx.flawless) award('flawless');
   if ((S.stats.bestCombo || 0) >= 10) award('combo10');
   if ((S.stats.reviewsRight || 0) >= 100) award('review100');

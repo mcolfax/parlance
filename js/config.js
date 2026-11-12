@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.37.0';
+const APP_VERSION = '4.38.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,10 @@ const SCHEMA_VERSION = 12;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.38.0', date: '2026-11-12', title: 'Time to play', notes: [
+    'Collect stickers: every word with a picture you learn goes into your sticker book in Me, and words you know well shine.',
+    'New in Review: Speed round. Sixty seconds, your own words, and a best score to beat.',
+    'Streaks of 7, 14, 30, 50, 100 and 365 days now get a moment of their own, with seven new badges to earn.'] },
   { v: '4.37.0', date: '2026-11-12', title: 'A better first look', notes: [
     'Parlance opens with the shape of your Learn screen instead of a loading message.',
     'Me has a row of shortcuts at the top: jump straight to Sound, Practice, your badges or your backup.',
@@ -313,6 +317,8 @@ const HINTS = { A1: 'full', A2: 'full', B1: 'tap', B2: 'tap', C1: 'off', C2: 'of
    pic-pick: hear and read the word, tap its picture. pic-name: see the picture, choose the word. pic-type: see the picture, type the word.
    Only words whose picture is safe to ask about are used (design/pictures/briefs-src.txt, quiz 1); see "Word pictures" in docs/ARCHITECTURE.md. */
 const PIC_EX = { A1: 'pic-pick', A2: 'pic-pick', B1: 'pic-name', B2: 'pic-name', C1: 'pic-type', C2: 'pic-type', perLesson: 2, perReview: 3 };
+const STICKERS = { shinyAt: 3, recent: 6 };   // sticker book (Me): a word right this many times running in Review shines; how many recent stickers Me shows
+const SPEED = { secs: 60, min: 8, xpCap: 12, rightMs: 220, wrongMs: 650 };   // speed round (Review): seconds, fewest learned words, most XP from answers, pause after a right and a wrong answer
 /* Practice articles (Review tab, startGenders()): nouns from finished lessons, shown without their article.
    sg and pl are the buttons for a singular and a plural noun; fits says which vocab genders an article can go with;
    gender is each article's own gender (mf: either), for telling a near miss; why is the Italian rule a near miss shows. */
@@ -354,7 +360,11 @@ const BADGES = [
   { id: 'first', icon: 'flag', name: 'First stop', desc: 'Finish your first lesson.' },
   { id: 'streak3', icon: 'flame', name: 'Warming up', desc: 'Keep a 3-day streak.' },
   { id: 'streak7', icon: 'flame', name: 'One week strong', desc: 'Keep a 7-day streak.' },
+  { id: 'streak14', icon: 'flame', name: 'Two weeks strong', desc: 'Keep a 14-day streak.' },
   { id: 'streak30', icon: 'flame', name: 'Monthly pass', desc: 'Keep a 30-day streak.' },
+  { id: 'streak50', icon: 'flame', name: 'Fifty days', desc: 'Keep a 50-day streak.' },
+  { id: 'streak100', icon: 'mountain', name: 'Hundred club', desc: 'Keep a 100-day streak.' },
+  { id: 'streak365', icon: 'sun', name: 'A whole year', desc: 'Keep a 365-day streak.' },
   { id: 'words50', icon: 'abc', name: 'Collector', desc: 'Learn 50 words.' },
   { id: 'words250', icon: 'abc', name: 'Word hoard', desc: 'Learn 250 words.' },
   { id: 'words1000', icon: 'abc', name: 'Walking dictionary', desc: 'Learn 1,000 words.' },
@@ -375,6 +385,9 @@ const BADGES = [
   { id: 'checkpoint100', icon: 'target', name: 'Top marks', desc: 'Score 100% on a unit checkpoint.' },
   { id: 'fixer', icon: 'stack', name: 'Fixer-upper', desc: 'Fix 25 mistakes in Fix my mistakes.' },
   { id: 'forms50', icon: 'abc', name: 'Form master', desc: 'Get 50 form questions right.' },
+  { id: 'stickers50', icon: 'star', name: 'Sticker collector', desc: 'Collect 50 stickers in one language.' },
+  { id: 'shiny25', icon: 'star', name: 'All that glitters', desc: 'Make 25 stickers shine in one language.' },
+  { id: 'speed20', icon: 'bolt', name: 'Quick thinker', desc: 'Score 20 in a speed round.' },
   { id: 'both', icon: 'globe', name: 'Bilingual', desc: 'Finish a lesson in two different languages.' },
   { id: 'early', icon: 'sun', name: 'Early bird', desc: 'Practice before 8 a.m.' },
   { id: 'night', icon: 'moon', name: 'Night owl', desc: 'Practice after 10 p.m.' }

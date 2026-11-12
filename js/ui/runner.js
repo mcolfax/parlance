@@ -627,6 +627,7 @@ function finishRun(){
   const quests = questDiff(before); touch('core');
   const nextLv = levelUp ? LEVELS[LEVELS.indexOf(levelUp) + 1] : null;
   const vocabChips = newItems.filter(Boolean).slice(0, 10);
+  const stick = newItems.filter(Boolean).map(v => ({ v, id: picFor(v, lang) })).filter(x => x.id).slice(0, STICKERS.recent);
   const st = streakInfo();
   let more = null, unitSub = null;
   if (Run.mode === 'lesson'){
@@ -646,7 +647,9 @@ function finishRun(){
     sub: subo || unitSub || (levelUp ? (nextLv ? 'Next on your route: ' + nextLv + ' · ' + LEVEL_NAME[nextLv] + '.' : 'You’ve reached the end of the route. Your tutor can keep writing lessons for you.') : null),
     third: Run.bestCombo >= 3 ? [Run.bestCombo, 'best run in a row'] : st.count > 0 ? [st.count, plural(st.count, 'day') + ' streak'] : nNew > 0 ? [nNew, plural(nNew, 'new word')] : [uniq.length, plural(uniq.length, 'question') + ' answered'],
     more,
-    extra: vocabChips.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'Added to your review deck'), h('div', { class: 'chips' }, vocabChips.map((v, i) => h('span', { class: 'chip static', style: '--i:' + i }, itemText(v, lang))))) : null,
+    extra: [
+      stick.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'New ' + plural(stick.length, 'sticker')), h('div', { class: 'sticker-strip center' }, stick.map((x, i) => stickerTile({ id: x.id, v: x.v, got: true, shiny: false }, 48, i)))) : null,
+      vocabChips.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'Added to your review deck'), h('div', { class: 'chips' }, vocabChips.map((v, i) => h('span', { class: 'chip static', style: '--i:' + i }, itemText(v, lang))))) : null],
     badges, quests, onDone: () => endRun(),
     rate: Run.mode === 'lesson' ? { lessonId: Run.lesson.id } : null
   });
@@ -657,12 +660,14 @@ function showComplete(o){
   const dateStr = new Date().toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
   const xpEl = h('span', { class: 'num' }, '+0');
   const cheer = pickSay(lang, 'cheer');
+  const ms = (o.badges || []).filter(id => /^streak\d+$/.test(id) && +id.slice(6) >= 7).pop();   // a new streak badge of 7, 14, 30 ... days is a moment of its own (the 3-day one isn't)
+  const gold = o.gold || !!ms, sub = ms ? (o.sub || o.h1) : o.sub;
   swapBody(h('div', { class: 'complete' },
     h('div', { class: 'stamp-wrap' },
-      h('div', { class: 'stamp' + (o.gold ? ' gold' : ''), 'aria-hidden': 'true' }, h('span', { class: 's-top' }, o.top), h('span', { class: 's-mid' }, o.title), h('span', { class: 's-bot' }, dateStr)),
-      pip(o.gold || o.acc === 1 ? 'dance' : 'cheer', 78, { cls: 'complete-pip', say: cheer, mouth: true, moveFor: 3200, lang })),
-    h('h1', null, o.h1),
-    o.sub ? h('p', { class: 'muted' }, o.sub) : null,
+      h('div', { class: 'stamp' + (gold ? ' gold' : ''), 'aria-hidden': 'true' }, h('span', { class: 's-top' }, o.top), h('span', { class: 's-mid' }, o.title), h('span', { class: 's-bot' }, dateStr)),
+      pip(ms ? 'fly' : gold || o.acc === 1 ? 'dance' : 'cheer', 78, { cls: 'complete-pip', say: cheer, mouth: true, moveFor: 3200, lang })),
+    h('h1', null, ms ? st.count + ' days in a row!' : o.h1),
+    sub ? h('p', { class: 'muted' }, sub) : null,
     h('div', { class: 'tiles3' },
       h('div', { class: 'stat' }, xpEl, h('span', { class: 'lbl' }, 'XP')),
       h('div', { class: 'stat' }, h('span', { class: 'num' }, Math.round(o.acc * 100) + '%'), h('span', { class: 'lbl' }, o.accLabel || 'first-try accuracy')),
@@ -680,7 +685,7 @@ function showComplete(o){
   countUp(xpEl, o.xp);
   if (o.quests && o.quests.length) setTimeout(() => sfx('quest'), 700);
   if (o.badges && o.badges.length) setTimeout(() => sfx('badge'), 1100);
-  confetti(OV.root, o.gold ? 180 : 110);
+  confetti(OV.root, gold ? 180 : 110);
   const root = OV.root;   // the cheer belongs to this finish screen: Next or the checkpoint button may already have opened another
   if (S.settings.autoplay) setTimeout(() => { if (OV.root && OV.root === root) speak(cheer, lang, false, mascot()); }, 900);
 }

@@ -996,7 +996,7 @@ async function main(){
       const rd = R.w.document;
       R.E('UI.tab = "me"; render()');
       const jump = rd.querySelector('#app .view > .me-jump'), heads = [...rd.querySelectorAll('#app .view > section h3')].map(x => x.textContent.trim());
-      const want = [['Badges', 'Badges'], ['Last 7 days', 'This week'], ['Your bird', 'Your bird'], ['Sound', 'Sound'], ['Practice', 'Practice'], ['Your progress is saved', 'Backup']].filter(([t]) => heads.includes(t)).map(x => x[1]);
+      const want = [['Badges', 'Badges'], ['Last 7 days', 'This week'], ['Your bird', 'Your bird'], ['Sticker book', 'Stickers'], ['Sound', 'Sound'], ['Practice', 'Practice'], ['Your progress is saved', 'Backup']].filter(([t]) => heads.includes(t)).map(x => x[1]);
       const labels = jump ? [...jump.querySelectorAll('button.chip')].map(b => b.textContent) : [];
       ok(jump && jump.previousElementSibling && jump.previousElementSibling.classList.contains('profile') && want.length >= 5 && JSON.stringify(labels) === JSON.stringify(want), 'me: jump chips list the cards that exist: ' + JSON.stringify(labels));
       const missing = R.E('(() => { const v = viewMe(); v.querySelector(".me-jump").remove(); [...v.querySelectorAll("section")].find(s => s.querySelector("h3") && s.querySelector("h3").textContent === "Practice").remove(); meJump(v); return [...v.querySelectorAll(".me-jump .chip")].map(b => b.textContent); })()');
@@ -1008,6 +1008,192 @@ async function main(){
       ok(same, 'me: the cards are unchanged');
       ok(/\.me-jump\{[^}]*overflow-x:auto/.test(fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8')), 'me: the chip row scrolls inside itself');
       ok(/\.me-jump \.chip\{[^}]*min-height:44px/.test(fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8')), 'me: each jump chip is a full tap target');
+      R.w.close();
+    }
+    // the sticker book (P4 WP1): every pictured course word is a sticker; learning collects it, a strong card shines
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, rl = () => R.P.S.langs.es;
+      for (const lg of LANG_IDS){
+        const want = R.E('(() => { const t = new Set(); for (const u of COURSE.' + lg + '.units) for (const l of u.lessons) for (const v of l.vocab) if (picFor(v, "' + lg + '")) t.add(v.t); return t.size; })()');
+        const got = R.E('stickerBook("' + lg + '").total');
+        ok(want > 100 && got === want, 'stickers: one sticker per pictured course word (' + lg + '): ' + got + ' of ' + want);
+      }
+      ok(R.E('stickerBook("es").got') === 0 && R.E('stickerBook("es").shiny') === 0, 'stickers: a new learner has none yet');
+      const lessons = R.E('coreOrder("es").slice(0, 3).map(l => l.id)');
+      const learnNow = ids => R.E('(() => { for (const id of ' + JSON.stringify(ids) + '){ const l = getLesson(id); l.vocab.forEach((_, i) => { S.langs.es.cards[itemKey(l, "v", i)] = { ef: 2.5, n: 0, iv: 0, due: addDays(today(), 1), last: today(), ts: 1 }; }); } })()');
+      learnNow(lessons);
+      const learned = R.E('(() => { const t = new Set(); for (const id of ' + JSON.stringify(lessons) + ') for (const v of getLesson(id).vocab) if (picFor(v, "es")) t.add(v.t); return t.size; })()');
+      ok(learned > 0 && R.E('stickerBook("es").got') === learned && R.E('stickerBook("es").shiny') === 0, 'stickers: learning a word collects it: ' + learned);
+      const one = R.E('(() => { for (const id of ' + JSON.stringify(lessons) + '){ const l = getLesson(id), i = l.vocab.findIndex(v => picFor(v, "es")); if (i >= 0) return { key: itemKey(l, "v", i), t: l.vocab[i].t }; } })()');
+      const shinyOf = () => R.E('stickerBook("es").units.flatMap(x => x.items).find(s => s.v.t === ' + JSON.stringify(one.t) + ').shiny');
+      rl().cards[one.key].n = 3;
+      const shiny3 = shinyOf(); rl().cards[one.key].n = 2;
+      ok(shiny3 === true && shinyOf() === false && R.E('STICKERS.shinyAt') === 3, 'stickers: a strong word shines');
+      rl().cards[one.key].n = 3;
+      const before = JSON.stringify(rl());
+      R.E('UI.tab = "me"; render()');
+      const card = rd.querySelector('#app .stickers'), sb = R.E('stickerBook("es")');
+      ok(!!card && /Sticker book/.test(card.textContent) && card.querySelectorAll('.sticker-strip .sticker').length === Math.min(learned, R.E('STICKERS.recent')) && card.textContent.includes(sb.got + ' of ' + sb.total) && !!card.querySelector('.sticker.shiny'), 'stickers: Me shows the card');
+      const open = [...card.querySelectorAll('button')].find(b => b.textContent === 'Open the sticker book'); open.click();
+      const ov = rd.querySelector('.overlay.stickers');
+      ok(!!ov && ov.querySelectorAll('.sticker').length === sb.total && ov.querySelectorAll('.sticker:not([disabled])').length === sb.got && ov.querySelectorAll('.sticker.shiny').length === sb.shiny && sb.shiny === 1 && ov.querySelectorAll('.sticker.empty').length === sb.total - sb.got, 'stickers: Me shows the book and it opens: ' + (ov && ov.querySelectorAll('.sticker').length) + ' of ' + sb.total);
+      ov.querySelector('.ov-head button').click(); await sleep(300);
+      ok(!rd.querySelector('.overlay.stickers:not(.out)') && JSON.stringify(rl()) === before, 'stickers: nothing is saved');
+      // the finish screen shows the stickers just earned
+      R.E('UI.tab = "learn"; render()');
+      R.E('startLesson("es-3-1"); finishRun()');
+      const fin = rd.querySelector('.overlay:not(.out) .complete'), learnedBlocks = fin ? [...fin.querySelectorAll('.learned')] : [];
+      const newSt = learnedBlocks.find(x => /New stickers?/.test(x.textContent));
+      ok(!!newSt && newSt.querySelectorAll('.sticker').length >= 1 && newSt.querySelectorAll('.sticker').length <= R.E('STICKERS.recent') && learnedBlocks.some(x => x.textContent.includes('Added to your review deck')), 'stickers: the finish screen shows new stickers');
+      R.E('endRun()');
+      ok(R.errors.length === 0, 'stickers: no page errors ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
+    // the speed round (P4 WP2): 60 seconds of word questions from your own words, a best per language, capped XP, no card changes
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, rl = () => R.P.S.langs.es, tile = () => rd.querySelector('#app [data-practice="speed"]');
+      // learn words one at a time, as many as asked, each adding a new distinct word
+      const learnTo = n => R.E('(() => { const L = S.langs.es; for (const l of coreOrder("es")) for (let i = 0; i < l.vocab.length; i++){ if (speedPool("es").length >= ' + n + ') return speedPool("es").length; const k = itemKey(l, "v", i); if (!L.cards[k]) L.cards[k] = { ef: 2.5, n: 1, iv: 1, due: addDays(today(), 3), last: today(), ts: 1 }; } return speedPool("es").length; })()');
+      R.E('UI.tab = "review"; render()');
+      ok(R.E('speedPool("es").length') === 0 && !tile(), 'speed: needs 8 learned words (none yet, no tile)');
+      R.E('startSpeed()');
+      ok(R.E('Speed.open') === false && !rd.querySelector('.overlay.speed') && R.E('busy()') === false, 'speed: startSpeed with too few words does nothing');
+      ok(learnTo(7) === 7, 'speed: seven words');
+      R.E('render()');
+      ok(!tile(), 'speed: needs 8 learned words (seven, no tile)');
+      R.E('startSpeed()');
+      ok(R.E('Speed.open') === false, 'speed: needs 8 learned words (seven, startSpeed leaves it closed)');
+      ok(learnTo(8) === 8, 'speed: eight words');
+      R.E('render()');
+      ok(!!tile() && /60 seconds\. Go!/.test(tile().textContent) && R.E('practiceTiles("es").map(t => t.id).slice(0, 2).join()') === 'weak,speed', 'speed: needs 8 learned words (eight, the tile shows after Weakest items)');
+      learnTo(30);
+      // every question is fair
+      let fair = true, why = '';
+      const pool = R.E('speedPool("es")'), enOf = Object.fromEntries(pool.map(x => [x.t, x.en]));
+      for (let i = 0; i < 50 && fair; i++){
+        const q = R.E('speedQ(speedPool("es"), ' + i + ', [])');
+        const ens = q.options.map(o => q.toEn ? o : enOf[o]);
+        const folded = ens.map(e => R.E('fold(norm(' + JSON.stringify(e) + ', "en"))'));
+        if (q.options.length !== 4 || new Set(q.options).size !== 4 || !q.options.includes(q.correct) || new Set(folded).size !== 4 || q.toEn !== (i % 2 === 0)){ fair = false; why = JSON.stringify(q); }
+      }
+      ok(fair, 'speed: every question is fair ' + why);
+      for (const lg of ['de', 'it']){
+        R.E('(() => { const L = S.langs.' + lg + '; for (const l of coreOrder("' + lg + '").slice(0, 2)) l.vocab.forEach((_, i) => { L.cards[itemKey(l, "v", i)] = { ef: 2.5, n: 1, iv: 1, due: addDays(today(), 3), last: today(), ts: 1 }; }); })()');
+        const bad = R.E('(() => { const f = s => fold(norm(s, "en")), pool = speedPool("' + lg + '"), byT = Object.fromEntries(pool.map(x => [x.t, x])); let n = 0; const fails = []; for (let i = 0; i < 300; i++){ const q = speedQ(pool, i, []); if (q.options.length !== 4 || new Set(q.options).size !== 4){ fails.push("count " + JSON.stringify(q.options)); continue; } const mine = q.it.item.e.map(f); for (const o of q.options){ if (o === q.correct) continue; if (q.toEn){ if (mine.includes(f(o))) fails.push(q.prompt + " / " + o); } else if (byT[o].item.e.map(f).includes(f(q.it.en))) fails.push(q.prompt + " / " + o); } } return fails.slice(0, 3).join(" | "); })()');
+        ok(bad === '', 'speed: no wrong option is also right (' + lg + '): ' + bad);
+      }
+      ok(R.E('(() => { const p = speedPool("es"), seen = []; for (let i = 0; i < 40; i++){ const q = speedQ(p, i, seen); seen.push(q.it.t); if (seen.length > 5) seen.shift(); if (seen.slice(0, -1).includes(q.it.t)) return false; } return true; })()'), 'speed: a word does not repeat within five questions');
+      const cardsBefore = JSON.stringify(rl().cards), missBefore = JSON.stringify(rl().miss), xp0 = rl().xp || 0;
+      // right answers score, a wrong one breaks the run
+      R.E('UI.tab = "review"; render()');
+      tile().click();
+      ok(R.E('Speed.open') === true && !!rd.querySelector('.overlay.speed') && R.E('busy()') === true && !!rd.querySelector('.overlay.speed .speed-score') && rd.querySelectorAll('.overlay.speed .opts.speed .opt').length === 4, 'speed: the tile starts a round');
+      const pick = text => { const b = [...rd.querySelectorAll('.overlay.speed .opts .opt')].find(x => x.textContent === text); b.click(); return b; };
+      const right = () => pick(R.E('Speed.q.correct'));
+      const first = right();
+      ok(first.classList.contains('right'), 'speed: a right answer turns green');
+      pick(R.E('Speed.q.options.find(o => o !== Speed.q.correct)'));
+      ok(R.E('Speed.score') === 1 && R.E('Speed.answered') === 1, 'speed: taps while the result shows are ignored');
+      await sleep(R.E('SPEED.rightMs') + 100);
+      right(); await sleep(R.E('SPEED.rightMs') + 100);
+      ok(R.E('Speed.score') === 2 && R.E('Speed.combo') === 2, 'speed: two right in a row');
+      const wrongBtn = pick(R.E('Speed.q.options.find(o => o !== Speed.q.correct)'));
+      ok(wrongBtn.classList.contains('wrong') && [...rd.querySelectorAll('.overlay.speed .opt.right')].length === 1, 'speed: a wrong answer shows the right one');
+      ok(R.E('Speed.score') === 2 && R.E('Speed.combo') === 0 && R.E('Speed.bestCombo') === 2, 'speed: right answers score, wrong ones break the run');
+      await sleep(R.E('SPEED.wrongMs') + 100);
+      // pausing in the background
+      const hide = v => { Object.defineProperty(rd, 'hidden', { configurable: true, get: () => v }); rd.dispatchEvent(new R.w.Event('visibilitychange')); };
+      const leftBefore = R.E('Speed.ends - Date.now()');
+      hide(true); await sleep(250);
+      ok(R.E('Speed.paused') === true, 'speed: the clock stops when the page goes to the background');
+      hide(false);
+      const resume = [...rd.querySelectorAll('.overlay.speed .speed.paused button')].find(b => b.textContent === 'Resume');
+      ok(!!resume && /Paused/.test(rd.querySelector('.overlay.speed').textContent), 'speed: coming back shows Paused and Resume');
+      resume.click();
+      const leftAfter = R.E('Speed.ends - Date.now()');
+      ok(R.E('Speed.paused') === false && !!rd.querySelector('.overlay.speed .opts.speed') && leftAfter > leftBefore - 400 && leftAfter <= leftBefore + 50, 'speed: Resume gives back the time that was left: ' + leftBefore + ' -> ' + leftAfter);
+      // the best is kept and XP is capped
+      R.E('Speed.score = 20; Speed.answered = 22; speedEnd()');
+      ok(R.E('S.stats["speed-es"]') === 20 && (rl().xp || 0) - xp0 === R.E('SPEED.xpCap + XP.review') && R.E('SPEED.xpCap + XP.review') <= 15, 'speed: the best is kept and XP is capped: ' + ((rl().xp || 0) - xp0));
+      const fin = rd.querySelector('.overlay.speed .complete');
+      ok(!!fin && /New best!/.test(fin.textContent) && fin.querySelector('.stamp.gold') && /20 right/.test(fin.textContent), 'speed: the finish screen celebrates a new best');
+      // Play again starts a fresh round
+      rd.querySelector('.overlay.speed [data-more="again"]').click();
+      ok(R.E('Speed.open') === true && R.E('Speed.score') === 0 && R.E('Speed.over') === false && !!rd.querySelector('.overlay.speed .opts.speed'), 'speed: Play again starts a new round');
+      const xp1 = rl().xp || 0;
+      R.E('Speed.score = 5; Speed.answered = 6; speedEnd()');
+      ok(R.E('S.stats["speed-es"]') === 20 && (rl().xp || 0) - xp1 === 5 + R.E('XP.review') && /Your best is 20/.test(rd.querySelector('.overlay.speed .complete').textContent), 'speed: a later, lower round leaves the best at 20');
+      const xp2 = rl().xp || 0;
+      R.E('speedEnd()');
+      ok((rl().xp || 0) === xp2, 'speed: ending twice pays once');
+      rd.querySelector('.overlay.speed [data-more="again"]').click();
+      R.E('Speed.score = 0; speedEnd()');
+      ok((rl().xp || 0) === xp2 && R.E('S.stats["speed-es"]') === 20, 'speed: a round with no right answers pays nothing');
+      ok(JSON.stringify(rl().cards) === cardsBefore && JSON.stringify(rl().miss) === missBefore, 'speed: no review card or mistake changes');
+      // Close ends it
+      const done = [...rd.querySelectorAll('.overlay.speed .ov-foot button')].find(b => b.textContent === 'Continue'); done.click(); await sleep(300);
+      ok(R.E('Speed.open') === false && R.E('busy()') === false && !rd.querySelector('.overlay.speed:not(.out)') && /Best: 20/.test(tile() ? tile().textContent : ''), 'speed: Continue closes it and the tile shows the best');
+      tile().click();
+      rd.querySelector('.overlay.speed .ov-head button[aria-label="Close"]').click(); await sleep(300);
+      ok(R.E('Speed.open') === false && R.E('busy()') === false && !rd.querySelector('.overlay.speed:not(.out)') && R.E('S.stats["speed-es"]') === 20, 'speed: Play again and Close (Close ends it)');
+      ok(R.E('mergeStats({ "speed-es": 20, a: 1 }, { "speed-es": 12, a: 4 })["speed-es"]') === 20, 'speed: a stats best merges by maximum');
+      ok(R.errors.length === 0, 'speed: no page errors ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
+    // streak milestones and new badges (P4 WP3)
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, rl = () => R.P.S.langs.es;
+      const OLD = ['first', 'streak3', 'streak7', 'streak30', 'words50', 'words250', 'words1000', 'flawless', 'combo10', 'review100', 'story1', 'stories8', 'talk', 'chest7', 'friend', 'rival', 'levelA1', 'levelB1', 'levelC2', 'checkpoint1', 'checkpoint5', 'checkpoint100', 'fixer', 'forms50', 'both', 'early', 'night'];
+      const NEW = ['streak14', 'streak50', 'streak100', 'streak365', 'stickers50', 'shiny25', 'speed20'];
+      const ids = R.E('BADGES.map(b => b.id)');
+      ok(ids.length === 34 && new Set(ids).size === 34 && JSON.stringify(ids.filter(i => !NEW.includes(i))) === JSON.stringify(OLD) && NEW.every(i => ids.includes(i)), 'badges: 34 badges, the old ones unchanged');
+      const at = i => ids.indexOf(i);
+      ok(at('streak7') < at('streak14') && at('streak14') < at('streak30') && at('streak30') + 1 === at('streak50') && at('streak50') + 1 === at('streak100') && at('streak100') + 1 === at('streak365') && at('forms50') + 1 === at('stickers50') && at('stickers50') + 1 === at('shiny25') && at('shiny25') + 1 === at('speed20'), 'badges: the new ones sit where the plan puts them');
+      ok(R.E('BADGES.every(b => typeof BADGE_ART[b.icon] === "string" && b.name && b.desc)'), 'badges: every badge has a drawn icon, a name and a description');
+      R.E('UI.tab = "me"; render()');
+      ok(rd.querySelectorAll('#app .badge-cell').length === 34 && /0 of 34/.test(rd.querySelector('#app .badge-grid').previousElementSibling.textContent), 'badges: Me lists all 34');
+      // streak milestones
+      R.E('S.days = {}; for (let i = 0; i < 14; i++) S.days[addDays(today(), -i)] = { xp: 25, met: true }');
+      const got = R.E('checkBadges({})');
+      ok(got.includes('streak14') && got.includes('streak7') && R.P.S.badges.streak14 && !R.P.S.badges.streak30 && !R.P.S.badges.streak50, 'badges: streak milestones: 14 days earns streak14 and not streak50: ' + got.join());
+      ok(R.E('checkBadges({})').length === 0, 'badges: a badge is earned once');
+      R.E('S.days = {}; for (let i = 0; i < 365; i++) S.days[addDays(today(), -i)] = { xp: 25, met: true }');
+      const big = R.E('checkBadges({})');
+      ok(['streak30', 'streak50', 'streak100', 'streak365'].every(i => big.includes(i)), 'badges: a year earns every streak badge: ' + big.join());
+      // stickers and speed
+      const learnPics = n => R.E('(() => { const L = S.langs.es; for (const l of coreOrder("es")) for (let i = 0; i < l.vocab.length; i++){ if (stickerBook("es").got >= ' + n + ') return stickerBook("es").got; if (picFor(l.vocab[i], "es")){ const k = itemKey(l, "v", i); if (!L.cards[k]) L.cards[k] = { ef: 2.5, n: 0, iv: 0, due: addDays(today(), 1), last: today(), ts: 1 }; } } return stickerBook("es").got; })()');
+      ok(learnPics(49) === 49 && !R.E('checkBadges({})').includes('stickers50'), 'badges: 49 stickers is not enough');
+      learnPics(50);
+      ok(R.E('stickerBook("es").got') === 50 && R.E('checkBadges({})').includes('stickers50') && !R.P.S.badges.shiny25 && !R.P.S.badges.speed20, 'badges: stickers and speed: 50 pictured Spanish words earn stickers50');
+      R.E('(() => { let n = 0; for (const k of Object.keys(S.langs.es.cards)) if (n < 24){ S.langs.es.cards[k].n = 3; n++; } })()');
+      const shinyNow = R.E('stickerBook("es").shiny');
+      ok(shinyNow === 24 && !R.E('checkBadges({})').includes('shiny25'), 'badges: 24 shiny stickers is not enough: ' + shinyNow);
+      R.E('(() => { for (const k of Object.keys(S.langs.es.cards)) S.langs.es.cards[k].n = 3; })()');
+      ok(R.E('stickerBook("es").shiny') >= 25 && R.E('checkBadges({})').includes('shiny25'), 'badges: 25 shiny stickers earn shiny25');
+      R.E('S.stats["speed-es"] = 19');
+      ok(!R.E('checkBadges({})').includes('speed20'), 'badges: a speed score of 19 is not enough');
+      R.E('S.stats["speed-es"] = 20');
+      ok(R.E('checkBadges({})').includes('speed20'), 'badges: stickers and speed: a speed score of 20 earns speed20');
+      // the milestone moment
+      R.E('S.days = {}; for (let i = 0; i < 7; i++) S.days[addDays(today(), -i)] = { xp: 25, met: true }; window.__cf = []; confetti = (host, n) => { window.__cf.push(n); }');
+      const finish = badges => { R.E('openOverlay("run"); showComplete({ lang: "es", top: "Lesson complete", title: "Hola", xp: 5, acc: 0.5, h1: "Good practice.", sub: null, third: [1, "day streak"], badges: ' + JSON.stringify(badges) + ', quests: [], onDone: () => {} })'); return rd.querySelector('.overlay:not(.out) .complete'); };
+      let c = finish(['streak7']);
+      ok(c.querySelector('h1').textContent === '7 days in a row!' && !!c.querySelector('.stamp.gold') && !!c.querySelector('.complete-pip.fly') && c.querySelector('.complete-pip').rig.home === 'fly' && /Good practice\./.test(c.querySelector('h1').nextElementSibling.textContent) && c.textContent.includes('One week strong') && R.E('window.__cf.pop()') === 180, 'milestone: a new streak badge is a moment');
+      R.E('closeOverlay(true)');
+      R.E('openOverlay("run"); showComplete({ lang: "es", top: "Lesson complete", title: "Hola", xp: 5, acc: 1, h1: "Flawless.", sub: "Next on your route.", third: [1, "day streak"], badges: ["streak3", "streak7"], quests: [], onDone: () => {} })');
+      c = rd.querySelector('.overlay:not(.out) .complete');
+      ok(c.querySelector('h1').textContent === '7 days in a row!' && c.querySelector('h1').nextElementSibling.textContent === 'Next on your route.' && c.querySelectorAll('.badge-new').length === 2, 'milestone: an existing sub line is kept');
+      R.E('closeOverlay(true)');
+      c = finish(['streak3']);
+      ok(c.querySelector('h1').textContent === 'Good practice.' && !c.querySelector('.stamp.gold') && !c.querySelector('.complete-pip.fly') && R.E('window.__cf.pop()') === 110, 'milestone: the 3-day badge is not a milestone');
+      R.E('closeOverlay(true)');
+      c = finish([]);
+      ok(c.querySelector('h1').textContent === 'Good practice.' && !c.querySelector('.stamp.gold') && c.querySelector('.complete-pip.cheer'), 'milestone: no badge, the finish screen is as before');
+      R.E('closeOverlay(true)');
+      ok(R.errors.length === 0, 'milestone: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }
     // placement: all right goes to the top, all wrong stays at A1

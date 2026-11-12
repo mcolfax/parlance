@@ -144,3 +144,16 @@ li.just .station{animation:flashbg 1.6s ease both}
 .pk-line{stroke:var(--pic-ink);stroke-width:2}.pk-line3{stroke:var(--pic-ink);stroke-width:3.2}.pk-linew{stroke:var(--pic-paper);stroke-width:3}.pk-linew.hd{fill:var(--pic-paper);stroke-width:1.6}
 .pk-hi{stroke:var(--pic-glint);stroke-opacity:.75;stroke-width:2.2}
 .pic [class*="pk-"]:not([class*="line"]):not(.pk-hi):not(.pk-shade):not(.pk-ink):not(.pk-blush){stroke:var(--pic-ink);stroke-width:2.3;stroke-linejoin:round}
+
+/* Sticker book (Me) and new stickers (finish screen) */
+.sticker{position:relative;display:inline-grid;place-items:center;padding:0;background:none;border:0;cursor:pointer;animation:pop .45s var(--spring) both;animation-delay:calc(var(--i, 0) * 50ms)}
+.sticker[disabled]{cursor:default}
+.sticker.empty .pic{filter:grayscale(1);opacity:.22}
+.sticker.shiny .pic{box-shadow:0 0 0 3px var(--gold),0 0 14px var(--gold)}
+.sticker.shiny::after{content:"";position:absolute;inset:0;border-radius:var(--r-md);background:linear-gradient(115deg,transparent 40%,var(--surface) 50%,transparent 60%);background-size:250% 100%;opacity:.7;pointer-events:none;animation:stickerShine 3.2s linear infinite}
+@keyframes stickerShine{from{background-position:150% 0}to{background-position:-100% 0}}
+.sticker-strip{display:flex;flex-wrap:wrap;gap:10px}
+.sticker-strip.center{justify-content:center}
+.sticker-book{display:flex;flex-direction:column;gap:22px}
+.sticker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:10px;justify-items:center}
+@media (prefers-reduced-motion:reduce){.sticker{animation:none}.sticker.shiny::after{animation:none}}
