@@ -1,7 +1,7 @@
 # A better first look: small things fixed, a loading screen with shape, Me easier to get around
 
 - **Cycle:** 2026-11-12-3 (polish program Q2, `flow/POLISH.md`)
-- **Status:** building
+- **Status:** shipped (4.37.0)
 - **Release:** 4.37.0
 - **Base:** `main` at 71f5e1e (4.36.0)
 - **Proposals built:** none
@@ -194,5 +194,5 @@ They share `dev/test.js` and two of them `styles/base.css`, so they run **one af
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.37.0, `88e69f4` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**
