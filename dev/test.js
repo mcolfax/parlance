@@ -943,6 +943,7 @@ async function main(){
         let g = 0;
         while (R.E('Run.active && !Run.finished') && g++ < 200){
           const ex = R.E('Run.cur'); let ans;
+          if (ex.type === 'teach'){ rfoot('Continue').click(); continue; }
           if (!right){
             if (ex.type === 'match'){ R.E('Run.pos++; nextEx()'); continue; }
             ans = ex.options ? (ex.options.find(o => o !== ex.correct) || 'zzz') : 'zzz';
