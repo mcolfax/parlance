@@ -781,9 +781,12 @@ async function main(){
         const F = await fin(null, { id: firstId });
         const nx = F.R.E('nextLesson("es")'), nb = F.rd.querySelector('.overlay:not(.out) .ov-foot [data-more="next"]'), btns = F.foot();
         ok(nb && nb.textContent === 'Next: ' + nx.title && nx.id !== firstId && btns.length === 2 && btns[1].textContent === 'Continue' && !F.rd.querySelector('[data-more="checkpoint"]'), 'finish: Next starts the next lesson (button)');
+        F.R.E('S.settings.autoplay = true; window.__said = []; speak = function(t){ window.__said.push(String(t)); return Promise.resolve(true); }');
         nb.click();
         await sleep(320);
         ok(F.R.E('Run.active') === true && F.R.E('Run.mode') === 'lesson' && F.R.E('Run.lesson.id') === nx.id && F.rd.querySelectorAll('.overlay').length === 1, 'finish: Next starts the next lesson');
+        await sleep(800);
+        ok(F.R.E('S.settings.autoplay') === true && !F.R.E('window.__said.some(t => PIP_SAYS.es.cheer.includes(t))'), 'finish: the cheer stays on the finish screen');
         F.R.w.close();
       }
       {

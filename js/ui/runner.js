@@ -633,7 +633,7 @@ function finishRun(){
     const l = Run.lesson, nx = nextLesson(lang), next = nx && nx.id !== l.id ? nx : null;
     if (cpOpen && !levelUp){
       more = [{ id: 'checkpoint', label: 'Take the unit checkpoint', run: () => { endRun(); startCheckpoint(unit); } }];
-      unitSub = 'Unit ' + (l.unit + 1) + ' done: “' + unit.title + '”. Its checkpoint is open, ' + CHECKPOINT.questions + ' questions to lock it in.';
+      unitSub = 'Unit ' + (l.unit + 1) + ' done: “' + unit.title + '”. Its checkpoint is open: ' + CHECKPOINT.questions + ' questions to lock it in.';
     } else if (next && !levelUp){
       more = [{ id: 'next', label: 'Next: ' + next.title, run: () => { endRun(); startLesson(next.id); } }];
     }
@@ -681,7 +681,8 @@ function showComplete(o){
   if (o.quests && o.quests.length) setTimeout(() => sfx('quest'), 700);
   if (o.badges && o.badges.length) setTimeout(() => sfx('badge'), 1100);
   confetti(OV.root, o.gold ? 180 : 110);
-  if (S.settings.autoplay) setTimeout(() => { if (OV.root) speak(cheer, lang, false, mascot()); }, 900);
+  const root = OV.root;   // the cheer belongs to this finish screen: Next or the checkpoint button may already have opened another
+  if (S.settings.autoplay) setTimeout(() => { if (OV.root && OV.root === root) speak(cheer, lang, false, mascot()); }, 900);
 }
 
 function countUp(el, to, ms){
