@@ -205,6 +205,7 @@ data/users/{self}  (platform default: private to each person)
 ## Conventions
 
 - Style through tokens: `font: var(--type-label)`, `border-radius: var(--r-md)`, `z-index: var(--z-sheet)`. Don't write new literal colors.
+- Durations are tokens too (`--dur-press`, `--dur-fast`, `--dur-quick`, `--dur`, `--dur-settle`, `--dur-slow`, `--dur-enter`, `--dur-exit`): `npm test` fails a transition with a literal time. Vibration goes through `haptic('<name>')` with a name from `HAPTICS` in `js/core/util.js`; `settings.haptics` (Me → Sound → Vibration) turns it off.
 - Every sound is a named entry in `SOUNDS`; call `sfx('name')`. Music goes through `Song` and `MEDIA.song`, never a new `<audio>`.
 - XP amounts, quests, badges and scenarios are data in `config.js`, not literals in screens.
 - Everything a learner reads is plain, warm English in sentence case.

@@ -21,6 +21,7 @@ Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and exp
   - Colors, type, spacing, radii, motion and layers live in `styles/tokens.css`. Don't write literal colors elsewhere.
   - Version, release notes, XP, quests, badges, Talk scenarios, the birds learners can pick and media live in `js/config.js`.
   - Sounds are entries in `SOUNDS` in `js/core/audio.js`; play them with `sfx('name')`.
+  - Vibration patterns are `HAPTICS` in `js/core/util.js`; call `haptic('name')`.
   - Music goes through `Song` and `MEDIA.song`.
   - Speech goes through `speak()`. Recorded voices are `MEDIA.voice` and `media/voice/`, made by `dev/voices.js`; see "Recorded voices" in `docs/ARCHITECTURE.md`.
   - Icons live in `IC` in `js/core/util.js`.
