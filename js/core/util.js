@@ -31,7 +31,9 @@ function plural(n, one, many){ return n === 1 ? one : (many || one + 's'); }
 function reduced(){ try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
 function same(a, b){ return JSON.stringify(a) === JSON.stringify(b); }
 function hashStr(s){ let x = 2166136261; for (let i = 0; i < s.length; i++){ x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); } return x >>> 0; }
-function haptic(p){ try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+/* every vibration has a name; screens call haptic('ok'), never a pattern */
+const HAPTICS = { tap: 6, select: 8, pair: 10, ok: 12, heavy: 30, miss: [15, 30, 15], bad: [18, 40, 18], done: [10, 50, 10] };
+function haptic(p){ try { if (S && S.settings && S.settings.haptics === false) return; const v = typeof p === 'string' ? HAPTICS[p] : p; if (v != null && navigator.vibrate) navigator.vibrate(v); } catch (e) {} }
 function busy(){ return !!(Run.active || Talk.open || Onb.open || Story.open || Film.open || Studio.open); }
 /* little particle bursts for right answers, pairs, chests */
 function burst(x, y, opts = {}){

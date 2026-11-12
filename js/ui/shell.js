@@ -36,7 +36,7 @@ function renderTabs(){
   const cl = LEVELS.indexOf(currentLevel(lang));
   const freshStories = allStories().some(s => s.lang === lang && LEVELS.indexOf(s.level) <= cl && !S.langs[lang].stories[s.id]);
   $('#tabs').replaceChildren(h('div', { class: 'tabs-in' }, tabs.map(([id, label]) =>
-    h('button', { class: 'tab', type: 'button', 'aria-current': UI.tab === id ? 'page' : null, onclick: () => { if (UI.tab === id){ UI.scroll[id] = 0; window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); return; } UI.scroll[UI.tab] = window.scrollY || 0; UI.tab = id; UI.animate = true; haptic(6); render(); window.scrollTo(0, UI.scroll[id] || 0); } },
+    h('button', { class: 'tab', type: 'button', 'aria-current': UI.tab === id ? 'page' : null, onclick: () => { if (UI.tab === id){ UI.scroll[id] = 0; window.scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); return; } UI.scroll[UI.tab] = window.scrollY || 0; UI.tab = id; UI.animate = true; haptic('tap'); render(); window.scrollTo(0, UI.scroll[id] || 0); } },
       h('span', { class: 'tab-ic', html: IC[id], 'aria-hidden': 'true' }), h('span', null, label),
       id === 'review' && due ? h('span', { class: 'badge' }, due > 99 ? '99+' : due) : null,
       id === 'stories' && freshStories ? h('span', { class: 'badge dot', 'aria-label': 'New stories' }) : null,
@@ -87,7 +87,7 @@ function closeGloss(){
   if (Gloss.anchor){ Gloss.anchor.classList.remove('on'); Gloss.anchor = null; }
 }
 function showGloss(span, word, lang, ctx = {}){
-  const again = Gloss.anchor === span; closeGloss(); speak(word, lang); flash(span); haptic(6); if (!again) sfx('tap');
+  const again = Gloss.anchor === span; closeGloss(); speak(word, lang); flash(span); haptic('tap'); if (!again) sfx('tap');
   if (again) return;
   const key = lang + '|' + fold(norm(word, lang));
   const g = glossLookup(word, lang) || Gloss.asked.get(key);

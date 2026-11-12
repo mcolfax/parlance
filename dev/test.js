@@ -520,7 +520,7 @@ async function main(){
     }
     // a save from before Italian (schema 8) has no Italian progress yet and still loads, keeping what it had
     const pre = await makeDom({ seed: { 'parlance.v2': { v: 8, settings: { onboarded: true, lang: 'es' }, days: {}, langs: { es: { done: { 'es-1-1': { at: '2026-10-01', acc: 1, times: 1 } }, cards: {}, xp: 40 } }, extra: { keep: 'me' } } } });
-    ok(pre.P.S.langs.it && Object.keys(pre.P.S.langs.it.done).length === 0 && pre.P.S.gen.it && pre.P.S.langs.es.done['es-1-1'] && pre.P.S.v === 11 && pre.P.S.extra && pre.P.S.extra.keep === 'me', 'an older save gets Italian and keeps everything else');
+    ok(pre.P.S.langs.it && Object.keys(pre.P.S.langs.it.done).length === 0 && pre.P.S.gen.it && pre.P.S.langs.es.done['es-1-1'] && pre.P.S.v === 12 && pre.P.S.extra && pre.P.S.extra.keep === 'me', 'an older save gets Italian and keeps everything else');
     pre.E('S.settings.lang = "it"; touchSettings(); S.langs.it.done["it-1-1"] = { at: "2026-10-02", acc: 1, times: 1 }; touch("it")');
     ok(JSON.parse(pre.w.localStorage.getItem('parlance.v2')).langs.it.done['it-1-1'] && ['de', 'es', 'it'].every(l => pre.E('SLICES').includes(l) && pre.E('SLICES').includes('gen-' + l)), 'Italian progress is saved, with its own synced slices');
     pre.dom.window.close();
@@ -702,7 +702,7 @@ async function main(){
     {
       const to = {};
       to.snap = JSON.stringify({ done: L().done, cp: L().cp, outs: L().outs, badges: Q.P.S.badges, stats: Q.P.S.stats });
-      ok(Q.E('SCHEMA_VERSION') === 11 && JSON.stringify(Q.E('cleanLang')({ done: {} }).outs) === '{}', 'test out: SCHEMA_VERSION is 11 and an old slice gets outs {}');
+      ok(Q.E('SCHEMA_VERSION') === 12 && JSON.stringify(Q.E('cleanLang')({ done: {} }).outs) === '{}', 'test out: SCHEMA_VERSION is 12 and an old slice gets outs {}');
       const mo = Q.E('mergeLang')({ outs: { A: '2026-11-01' } }, { outs: { B: '2026-11-02' } });
       ok(mo.outs.A === '2026-11-01' && mo.outs.B === '2026-11-02' && Q.E('mergeLang')({}, { outs: { B: 'x' } }).outs.B === 'x', 'test out: merges keep outs from both sides');
       ok(!(L().outs || {})[unit.title], 'test out: a normal checkpoint doesn\'t write outs');
@@ -907,6 +907,28 @@ async function main(){
       ok(R.E('Object.keys(UI.scroll).length') === 0, 'tabs: a tab remembers its scroll (a new language forgets it)');
       ok(bcss.includes('.view.enter>*{animation:rise var(--dur-enter)') && bcss.includes('* 30ms'), 'tabs: the entrance is short');
       R.w.close();
+    }
+    // haptics with names and a switch (WP3)
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+      const rec = []; R.w.navigator.vibrate = p => { rec.push(p); return true; };
+      const names = ['tap', 'select', 'pair', 'ok', 'heavy', 'miss', 'bad', 'done'], jsFiles = [];
+      const walk = d => { for (const e of fs.readdirSync(d, { withFileTypes: true })){ const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (e.name.endsWith('.js')) jsFiles.push(f); } };
+      walk(path.join(ROOT, 'js'));
+      ok(JSON.stringify(Object.keys(R.E('HAPTICS')).sort()) === JSON.stringify([...names].sort()) && !jsFiles.some(f => /haptic\(\s*[\d\[]/.test(fs.readFileSync(f, 'utf8'))), 'haptics: every pattern has a name');
+      R.E('haptic("ok")'); R.E('haptic("bad")'); R.E('haptic("nope")');
+      ok(rec.length === 2 && rec[0] === 12 && JSON.stringify(rec[1]) === '[18,40,18]', 'haptics: named calls vibrate');
+      rec.length = 0; R.E('S.settings.haptics = false'); R.E('haptic("ok")');
+      const offOk = rec.length === 0; R.E('S.settings.haptics = true'); R.E('haptic("ok")');
+      ok(offOk && rec.length === 1 && rec[0] === 12, 'haptics: the switch turns them off');
+      const old = await makeDom({ seed: { 'parlance.v2': { v: 11, settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' }, days: {}, langs: { es: { done: { 'es-1-1': { at: '2026-10-01', acc: 1, times: 1 } }, cards: {}, xp: 40 } }, extra: { keep: 'me' } } } });
+      const again = old.E('(() => { const st = JSON.parse(JSON.stringify(S)); const run = MIGRATIONS[MIGRATIONS.length - 1].run; run(st); const a = JSON.stringify(st.settings); run(st); return a === JSON.stringify(st.settings); })()');
+      ok(old.P.S.settings.haptics === true && old.P.S.v === old.E('SCHEMA_VERSION') && old.P.S.extra && old.P.S.extra.keep === 'me' && again, 'haptics: an older save loads with vibration on');
+      R.E('UI.tab = "me"; render()');
+      const withIt = !!R.w.document.querySelector('#set-haptics');
+      delete R.w.navigator.vibrate; R.E('render()');
+      ok(withIt && !R.w.document.querySelector('#set-haptics'), 'haptics: the switch shows only where the phone can vibrate');
+      old.w.close(); R.w.close();
     }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
@@ -1268,7 +1290,7 @@ async function main(){
     const cards = M.P.S.langs.de.cards;
     ok(cards['de-1-1|v|~hallo'] && cards['de-1-1|v|~hallo'].n === 3 && !cards['de-1-1|v|0'], 'legacy card key migrated ' + JSON.stringify(Object.keys(cards)));
     ok(Object.keys(cards).some(k => k.startsWith('de-1-1|s|~')), 'sentence key migrated');
-    ok(M.P.S.v === 11 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
+    ok(M.P.S.v === 12 && M.P.S.social && M.P.S.social.friends && M.P.S.settings.mascot === 'pip', 'schema version ' + M.P.S.v);
     ok(M.E('dueEntries("de").length + learnedEntries("de").length') >= 2, 'migrated cards resolve');
     // stable keys are unique within every lesson
     for (const lang of LANG_IDS) for (const l of M.E('coreOrder(' + JSON.stringify(lang) + ')')){ const vk = l.vocab.map((_, i) => M.P.itemKey(l, 'v', i)), sk = l.sentences.map((_, i) => M.P.itemKey(l, 's', i)); ok(new Set(vk).size === vk.length && new Set(sk).size === sk.length, 'unique item keys ' + l.id); }

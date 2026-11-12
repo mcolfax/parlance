@@ -102,13 +102,13 @@ function storyQuestion(it){
     if (picked === it.o[0]){
       if (!tries) Story.firstTry++;
       btn.classList.remove('sel'); btn.classList.add('right'); btns.forEach(b => { b.disabled = true; });
-      sfx('ok'); haptic(12); burstAt(btn, { n: 10, dist: 40 });
+      sfx('ok'); haptic('ok'); burstAt(btn, { n: 10, dist: 40 });
       box.classList.add('solved');
       box.append(h('div', { class: 'squiz-ok' }, pip('cheer', 40, { tap: false }), h('b', null, pickSay(Story.lang, 'cheer')), tries ? h('span', { class: 'small muted' }, ' Got it on try ' + (tries + 1) + '.') : null));
       storyFoot(Story.pos >= Story.st.items.length ? 'Finish' : 'Continue', () => storyNext(), false, 'ok');
     } else {
       tries++; btn.classList.remove('sel'); btn.classList.add('wrong'); btn.disabled = true; picked = null; checkBtn.disabled = true;
-      sfx('bad'); haptic([18, 40, 18]);
+      sfx('bad'); haptic('bad');
       box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
     }
   };

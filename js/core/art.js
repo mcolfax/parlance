@@ -119,8 +119,8 @@ function pip(mood, size, opts = {}){
       const b = el.querySelector('.pip-say') || h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : '') });
       b.textContent = dizzy ? (PIP_DIZZY[lang] || PIP_DIZZY.de) : line; if (!b.parentNode) el.append(b);
       b.classList.remove('pop'); void b.getBoundingClientRect(); b.classList.add('pop');
-      if (dizzy){ sfx('dizzy'); haptic(30); return; }
-      sfx('chirp'); haptic(8);
+      if (dizzy){ sfx('dizzy'); haptic('heavy'); return; }
+      sfx('chirp'); haptic('select');
       setTimeout(() => { rig.talking(true); speak(line, lang, false, MASCOTS[def.id]).then(() => rig.talking(false)); }, 180);
     });
   }
