@@ -1079,6 +1079,11 @@ async function main(){
         if (q.options.length !== 4 || new Set(q.options).size !== 4 || !q.options.includes(q.correct) || new Set(folded).size !== 4 || q.toEn !== (i % 2 === 0)){ fair = false; why = JSON.stringify(q); }
       }
       ok(fair, 'speed: every question is fair ' + why);
+      for (const lg of ['de', 'it']){
+        R.E('(() => { const L = S.langs.' + lg + '; for (const l of coreOrder("' + lg + '").slice(0, 2)) l.vocab.forEach((_, i) => { L.cards[itemKey(l, "v", i)] = { ef: 2.5, n: 1, iv: 1, due: addDays(today(), 3), last: today(), ts: 1 }; }); })()');
+        const bad = R.E('(() => { const f = s => fold(norm(s, "en")), pool = speedPool("' + lg + '"), byT = Object.fromEntries(pool.map(x => [x.t, x])); let n = 0; const fails = []; for (let i = 0; i < 300; i++){ const q = speedQ(pool, i, []); if (q.options.length !== 4 || new Set(q.options).size !== 4){ fails.push("count " + JSON.stringify(q.options)); continue; } const mine = q.it.item.e.map(f); for (const o of q.options){ if (o === q.correct) continue; if (q.toEn){ if (mine.includes(f(o))) fails.push(q.prompt + " / " + o); } else if (byT[o].item.e.map(f).includes(f(q.it.en))) fails.push(q.prompt + " / " + o); } } return fails.slice(0, 3).join(" | "); })()');
+        ok(bad === '', 'speed: no wrong option is also right (' + lg + '): ' + bad);
+      }
       ok(R.E('(() => { const p = speedPool("es"), seen = []; for (let i = 0; i < 40; i++){ const q = speedQ(p, i, seen); seen.push(q.it.t); if (seen.length > 5) seen.shift(); if (seen.slice(0, -1).includes(q.it.t)) return false; } return true; })()'), 'speed: a word does not repeat within five questions');
       const cardsBefore = JSON.stringify(rl().cards), missBefore = JSON.stringify(rl().miss), xp0 = rl().xp || 0;
       // right answers score, a wrong one breaks the run

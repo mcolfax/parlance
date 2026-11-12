@@ -10,9 +10,14 @@ function speedPool(lang){
   return out;
 }
 function speedQ(pool, n, recent){
-  const fresh = pool.filter(x => !recent.includes(x.t)), it = (fresh.length ? fresh : pool)[Math.floor(Math.random() * (fresh.length || pool.length))];
-  const toEn = n % 2 === 0, k = x => fold(norm(x.en, 'en'));
-  const others = []; for (const x of shuffle(pool.slice())){ if (others.length === 3) break; if (x.t !== it.t && k(x) !== k(it) && !others.some(o => k(o) === k(x))) others.push(x); }
+  const k = x => fold(norm(x.en, 'en')), acc = x => (x.item.e || []).map(e => fold(norm(e, 'en')));
+  const fresh = pool.filter(x => !recent.includes(x.t)), from = shuffle((fresh.length ? fresh : pool).slice()), toEn = n % 2 === 0;
+  let it = from[0], others = [];
+  for (const cand of from){   // a word that can't get three fair distractors gives way to another
+    const mine = acc(cand), got = [];
+    for (const x of shuffle(pool.slice())){ if (got.length === 3) break; if (x.t !== cand.t && k(x) !== k(cand) && !mine.includes(k(x)) && !acc(x).includes(k(cand)) && !got.some(o => k(o) === k(x))) got.push(x); }
+    it = cand; others = got; if (got.length === 3) break;
+  }
   const opts = shuffle([it, ...others]);
   return { it, toEn, prompt: toEn ? it.t : it.en, options: opts.map(o => toEn ? o.en : o.t), correct: toEn ? it.en : it.t };
 }

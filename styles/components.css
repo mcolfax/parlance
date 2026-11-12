@@ -509,7 +509,7 @@ li.locked .st-title{color:var(--muted)}
 .view>section{scroll-margin-top:12px}
 
 /* Speed round */
-.speed{display:flex;flex-direction:column;gap:16px}
+.ov-body .speed{display:flex;flex-direction:column;gap:16px}
 .speed-top{justify-content:space-between}
 .speed-score{font:800 20px var(--display);color:var(--ink)}
 .speed-combo{font-weight:700;color:var(--flame)}
