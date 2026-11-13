@@ -1336,7 +1336,10 @@ async function main(){
       nameCheck('story first screen', top());
       foot('Start reading').click(); await sleep(60);
       nameCheck('story first line', top());
-      R.E('closeOverlay(true)');
+      R.E('endStory()');
+      R.E('openStory(' + JSON.stringify(st) + ')'); top().querySelector('.story-listen').click(); await sleep(60);
+      nameCheck('story listening footer', top());
+      R.E('endStory()'); await sleep(300);
       // the bird picker sheet
       R.E('UI.tab = "me"; render()'); R.E('openBirdPicker()');
       nameCheck('bird picker sheet', rd.querySelector('.sheet-back'));
@@ -1475,6 +1478,68 @@ async function main(){
       seed(40); ok(Q.E('listenItems("es").length') <= 20 && Q.E('listenItems("es").length') > 6, 'listen: a long list stops at ' + Q.E('listenItems("es").length'));
       ok(Q.errors.length === 0, 'listen: no page errors ' + Q.errors.slice(0, 2).join(' | '));
       Q.E('speak = window.__speak0; LISTEN.gapSay = ' + T0.gapSay + '; LISTEN.gapReveal = ' + T0.gapReveal + '; LISTEN.gapNext = ' + T0.gapNext + '; S.langs.es.cards = JSON.parse(' + JSON.stringify(cardsBefore) + '); closeOverlay(true); Onb.open = window.__onb; UI.tab = "learn"; render()');
+    }
+    // Listen first (P5 WP2): a story read aloud line by line, text hidden until tapped; finishing pays what reading pays
+    {
+      const keep = { es: JSON.stringify(Q.E('S.langs.es')), days: JSON.stringify(Q.E('S.days')), stats: JSON.stringify(Q.E('S.stats')), gap: Q.E('LISTEN.storyGap') };
+      Q.E('window.__onb = Onb.open; Onb.open = false; window.__said = []; window.__speak0 = speak; speak = function(t){ window.__said.push(String(t)); return new Promise(r => setTimeout(() => r(true), 5)); }; LISTEN.storyGap = 1; closeOverlay(true); S.settings.lang = "es"; delete S.langs.es.stories["es-s1"]');
+      Q.E('window.__wl = { n: 0, released: 0 }; Object.defineProperty(navigator, "wakeLock", { configurable: true, value: { request: async () => { window.__wl.n++; return { release: async () => { window.__wl.released++; }, addEventListener(){} }; } } })');
+      const items = Q.E('storyById("es-s1").items'), firstQ = [...items].findIndex(i => i.q), said = () => Q.E('window.__said.length');
+      const lines = () => qd.querySelectorAll('.overlay:not(.out) .sline'), sfoot = () => qd.querySelector('.overlay:not(.out) .ov-foot button');
+      const until = async (f, ms) => { for (let t = 0; t < (ms || 5000) && !f(); t += 20) await sleep(20); return f(); };
+      const answer = async () => {   // the right answer, first try
+        const q = Q.E('Story.st.items[Story.pos - 1]'), opt = [...qd.querySelectorAll('.overlay:not(.out) .squiz:not(.solved) .opt')].find(b => b.textContent === q.o[0]);
+        opt.click(); qfoot('Check').click(); (qfoot('Continue') || qfoot('Finish')).click();
+      };
+      // the choice is under the cast tags
+      Q.E('openStory("es-s1")');
+      ok(!!qd.querySelector('.overlay .story-head .story-listen') && /Listen first/.test(qd.querySelector('.story-listen').textContent) && sfoot().textContent === 'Start reading', 'story listening: Listen first sits under the cast tags beside Start reading');
+      qd.querySelector('.story-listen').click();
+      ok(!qd.querySelector('.story-listen') && Q.E('Story.listen') === true, 'story listening: tapping it hides the button and starts listening');
+      ok(await until(() => Q.E('Story.st.items[Story.pos - 1].q')) && lines().length === firstQ && firstQ > 0, 'story listening: Listen first plays lines on its own up to the first question: ' + lines().length + ' of ' + firstQ);
+      const spoken = Q.E('window.__said.slice()');
+      ok(spoken.length === firstQ && [...items].slice(0, firstQ).every((it, i) => spoken[i] === it.t), 'story listening: every line is spoken, in order: ' + spoken.length);
+      await sleep(100); ok(lines().length === firstQ && said() === firstQ, 'story listening: a question stops it');
+      // lines start hidden behind Show text
+      { const ls = [...lines()];
+        ok(ls.length > 0 && ls.every(l => l.querySelector('.sl-reveal') && !l.querySelector('.t')) && ls.every(l => l.querySelector('.sl-reveal').getAttribute('aria-label') || /Show text/.test(l.querySelector('.sl-reveal').textContent)), 'story listening: lines start hidden behind Show text');
+        ls[0].querySelector('.sl-reveal').click();
+        ok(!ls[0].querySelector('.sl-reveal') && ls[0].querySelector('.t') && ls[0].querySelector('.t').textContent === items[0].t && ls[1].querySelector('.sl-reveal'), 'story listening: Show text shows that line'); }
+      ok(!!lines()[0].querySelector('.sl-act button[aria-label="Play line"]') && [...lines()[0].querySelectorAll('.chip-btn')].some(b => b.textContent === 'Translate') && [...lines()[0].querySelectorAll('.chip-btn')].some(b => b.textContent === 'Save'), 'story listening: Translate, Save and Play line are there in listen mode');
+      // Pause stops it, Play goes on
+      await answer();
+      ok(sfoot().textContent === 'Pause' && Q.E('Story.listen') === true, 'story listening: Continue goes on listening (the footer says Pause)');
+      const p = Q.E('Story.pos'); sfoot().click();
+      ok(Q.E('Story.paused') === true && sfoot().textContent === 'Play', 'story listening: Pause shows Play');
+      { const n0 = said(); await sleep(200);
+        ok(Q.E('Story.pos') === p && said() === n0, 'story listening: Pause stops it: ' + p + ' then ' + Q.E('Story.pos')); }
+      sfoot().click();
+      ok(await until(() => Q.E('Story.pos') > p, 2000), 'story listening: Play moves it on again');
+      // leaving in the middle: nothing plays afterwards
+      { const n0 = said(); qd.querySelector('.overlay .ov-head button').click(); await sleep(60);
+        const leave = [...qd.querySelectorAll('.sheet-back .sheet-actions button')].find(b => b.textContent === 'Leave'); ok(!!leave, 'story listening: leaving asks first'); leave.click(); const n1 = said(); await sleep(300);
+        ok(Q.E('Story.open') === false && Q.E('Story.listen') === false && said() === n1 && !qd.querySelector('.overlay.story') && Q.E('busy()') === false, 'story listening: nothing plays after leaving: ' + n0 + ' ' + n1 + ' ' + said());
+        ok(Q.E('__wl.n') >= 1 && Q.E('__wl.released') === Q.E('__wl.n'), 'story listening: the screen is held while it plays and let go on leaving: ' + Q.E('__wl.n') + '/' + Q.E('__wl.released')); }
+      // finishing pays what reading pays
+      Q.E('window.__said.length = 0; delete S.langs.es.stories["es-s1"]');
+      const xp0 = Q.E('S.langs.es.xp'), xpStory = Q.E('XP.story + XP.storyPerfect');
+      Q.E('openStory("es-s1")'); qd.querySelector('.story-listen').click();
+      for (let g = 0; g < 600 && !Q.E('Story.finished'); g++){
+        if (qfoot('Check') && Q.E('Story.st.items[Story.pos - 1].q')) await answer(); else await sleep(20);
+      }
+      await sleep(50);
+      ok(Q.E('Story.finished') === true && !!qd.querySelector('.overlay .complete, .overlay [class*="complete"]'), 'story listening: it finishes with the complete screen');
+      ok(Q.E('S.langs.es.xp') - xp0 === xpStory && !!Q.E('S.langs.es.stories["es-s1"]') && Q.E('S.langs.es.stories["es-s1"].score') === 1 && Q.E('S.langs.es.stories["es-s1"].times') === 1, 'story listening: finishing pays what reading pays: ' + (Q.E('S.langs.es.xp') - xp0) + ' of ' + xpStory);
+      ok(said() === items.filter(i => i.who).length, 'story listening: every line was spoken once: ' + said());
+      { const n1 = said(); await sleep(150); ok(said() === n1 && Q.E('__wl.released') === Q.E('__wl.n'), 'story listening: nothing plays after the end and the screen is let go'); }
+      Q.E('endStory()'); await sleep(300);
+      // reading mode is unchanged
+      Q.E('openStory("es-s1")'); sfoot().click();
+      ok(lines().length === 1 && !qd.querySelector('.sl-reveal') && !!lines()[0].querySelector('.t') && sfoot().textContent === 'Continue' && !qd.querySelector('.story-listen') && Q.E('Story.listen') === false, 'story listening: reading mode is unchanged');
+      { const n0 = said(); await sleep(120); ok(lines().length === 1 && said() === n0, 'story listening: reading mode waits for Continue'); }
+      Q.E('endStory()'); await sleep(300);
+      ok(Q.errors.length === 0, 'story listening: no page errors ' + Q.errors.slice(0, 2).join(' | '));
+      Q.E('speak = window.__speak0; LISTEN.storyGap = ' + keep.gap + '; delete navigator.wakeLock; S.langs.es = JSON.parse(' + JSON.stringify(keep.es) + '); S.days = JSON.parse(' + JSON.stringify(keep.days) + '); S.stats = JSON.parse(' + JSON.stringify(keep.stats) + '); closeOverlay(true); Onb.open = window.__onb; UI.tab = "learn"; render()');
     }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
