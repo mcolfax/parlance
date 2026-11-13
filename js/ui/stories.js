@@ -31,21 +31,24 @@ function confirmStory(st){
 }
 function openStory(id){
   const st = storyById(id); if (!st) return;
-  Object.assign(Story, { open: true, st, lang: st.lang, pos: 0, qs: 0, firstTry: 0, finished: false, saved: new Set() });
+  Object.assign(Story, { open: true, st, lang: st.lang, pos: 0, qs: 0, firstTry: 0, finished: false, saved: new Set(), listen: false, paused: false, lgen: (Story.lgen || 0) + 1 });   // lgen only counts up, so a timer left from an earlier story can't match
   openOverlay('story'); recWarm(st.lang, st.items.filter(it => it.t).map(it => it.t));
   const close = h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'Close', html: IC.close, onclick: () => {
     if (Story.finished || Story.pos === 0) return endStory();
-    sheet('Leave this story?', h('p', null, 'You can come back to it any time.'), [{ label: 'Keep reading', primary: true }, { label: 'Leave', run: () => { endStory(); } }]);
+    const cur = Story.st.items[Story.pos - 1], wasPlaying = !!(Story.listen && !Story.paused && cur && cur.who);   // listening pauses behind the sheet, and goes on only from its main button
+    if (wasPlaying) storyListenPause();
+    sheet('Leave this story?', h('p', null, 'You can come back to it any time.'), [{ label: Story.listen ? 'Keep listening' : 'Keep reading', primary: true, run: () => { if (wasPlaying && Story.open && !Story.finished) storyListenPlay(); } }, { label: 'Leave', run: () => { endStory(); } }]);
   } });
   OV.prog = h('i');
   OV.head.replaceChildren(close, h('div', { class: 'progress', role: 'progressbar', 'aria-label': 'Story progress' }, OV.prog), h('span', { class: 'icon-spacer' }));
   Story.list = h('div', { class: 'story-lines', 'aria-live': 'polite' });
   swapBody([h('div', { class: 'story-head' }, storyArt(st, 'big'), h('span', { class: 'eyebrow' }, st.level + ' · ' + LANGS[st.lang].name + ' story'), h('h1', { lang: LANGS[st.lang].tts }, st.title), h('p', { class: 'muted' }, st.en),
-    h('div', { class: 'tags' }, st.cast.map(cid => h('span', { class: 'cast-tag' }, avatar(cid, 26), CAST[cid].name)))), Story.list]);
+    h('div', { class: 'tags' }, st.cast.map(cid => h('span', { class: 'cast-tag' }, avatar(cid, 26), CAST[cid].name))),
+    h('button', { class: 'btn btn-quiet btn-wide story-listen', type: 'button', onclick: e => { e.currentTarget.remove(); storyListenStart(); } }, ic('headphones'), 'Listen first')), Story.list]);
   storyFoot('Start reading', () => storyNext());
   setStoryProgress();
 }
-function endStory(){ Story.open = false; closeOverlay(); UI.animate = true; render(); }
+function endStory(){ Story.lgen = (Story.lgen || 0) + 1; Story.listen = false; Story.paused = false; wakeHold(false); Story.open = false; closeOverlay(); UI.animate = true; render(); }
 function setStoryProgress(){ if (OV.prog && Story.st) OV.prog.style.width = (Story.pos / Story.st.items.length * 100).toFixed(1) + '%'; }
 function storyFoot(label, run, disabled, cls){
   OV.foot.className = 'ov-foot' + (cls ? ' ' + cls : '');
@@ -58,23 +61,40 @@ function storyNext(){
   const st = Story.st; if (!st) return;
   if (Story.pos >= st.items.length) return finishStory();
   const it = st.items[Story.pos]; Story.pos++; setStoryProgress();
+  const lb = OV.body && OV.body.querySelector('.story-listen'); if (lb) lb.remove();   // once it has begun, the choice between reading and listening is made
   if (it.q) return storyQuestion(it);
   const node = storyLine(it, st);
   Story.list.append(node); scrollStory(node); sfx('page');
-  if (S.settings.autoplay) speak(it.t, st.lang, false, CAST[it.who]);
-  storyFoot(Story.pos >= st.items.length ? 'Finish' : 'Continue', () => storyNext());
+  if (Story.listen){ storyChain(it, st); storyListenFoot(); }
+  else { if (S.settings.autoplay) speak(it.t, st.lang, false, CAST[it.who]); storyFoot(Story.pos >= st.items.length ? 'Finish' : 'Continue', () => storyNext()); }
 }
+/* Listen first: each line is spoken in its speaker's voice and, LISTEN.storyGap ms after it ends, the next one follows on its own.
+   A question stops the chain (its Check and Continue work as in reading, and Continue goes on listening). lgen is the
+   generation every timer checks, so nothing plays after Pause, a finished story or leaving. */
+function storyListenStart(){ Story.listen = true; Story.paused = false; wakeHold(true); storyNext(); }
+function storyChain(it, st){
+  const my = ++Story.lgen;
+  speak(it.t, st.lang, false, CAST[it.who]).then(() => {
+    if (my !== Story.lgen || !Story.open || !Story.listen || Story.paused) return;
+    setTimeout(() => { if (my === Story.lgen && Story.open && Story.listen && !Story.paused) storyNext(); }, LISTEN.storyGap);
+  });
+}
+function storyListenPause(){ Story.paused = true; Story.lgen++; speakStop(); wakeHold(false); storyListenFoot(); }
+function storyListenPlay(){ Story.paused = false; wakeHold(true); const it = Story.st.items[Story.pos - 1]; storyListenFoot(); if (it && it.who) storyChain(it, Story.st); else storyNext(); }
+function storyListenFoot(){ storyFoot(Story.paused ? 'Play' : 'Pause', () => Story.paused ? storyListenPlay() : storyListenPause()); }
 function storyLine(it, st){
   const side = st.cast.indexOf(it.who) % 2 === 0 ? 'l' : 'r';
   const vo = CAST[it.who];
   const en = h('div', { class: 'sl-en' }, it.e); en.hidden = true;
+  const text = h('div', { class: 't' }, sayText(it.t, st.lang, { gloss: true, en: it.e }));
+  const shown = Story.listen ? h('button', { class: 'chip-btn sl-reveal', type: 'button', onclick: e => e.currentTarget.replaceWith(text) }, ic('words'), 'Show text') : text;   // listening: the text waits until you want it
   const tr = h('button', { class: 'chip-btn', type: 'button', 'aria-pressed': 'false', onclick: () => { en.hidden = !en.hidden; tr.setAttribute('aria-pressed', String(!en.hidden)); sfx('flip'); } }, ic('translate'), 'Translate');
   const key = st.id + '|' + st.items.indexOf(it);
   const save = h('button', { class: 'chip-btn', type: 'button', disabled: Story.saved.has(key), onclick: () => { saveStoryLine(it, st, key); save.disabled = true; save.replaceChildren(ic('check'), 'Saved'); toast('Saved to your review deck'); } }, ic('bookmark'), Story.saved.has(key) ? 'Saved' : 'Save');
   return h('div', { class: 'sline ' + side },
     avatar(it.who, 40, 'sl-av'),
     h('div', { class: 'bubble' }, h('span', { class: 'who' }, vo.name),
-      h('div', { class: 't' }, sayText(it.t, st.lang, { gloss: true, en: it.e })), en,
+      shown, en,
       h('div', { class: 'sl-act' }, speakBtn(it.t, st.lang, 'Play line', vo), slowBtn(it.t, st.lang, vo), tr, save)));
 }
 function saveStoryLine(it, st, key){
@@ -115,6 +135,7 @@ function storyQuestion(it){
   checkBtn = storyFoot('Check', check, true);
 }
 function finishStory(){
+  Story.lgen++; wakeHold(false);
   const st = Story.st, lang = st.lang; Story.finished = true;
   const L = S.langs[lang]; const prev = L.stories[st.id];
   const score = Story.qs ? Story.firstTry / Story.qs : 1;

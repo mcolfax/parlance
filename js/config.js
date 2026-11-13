@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.40.0';
+const APP_VERSION = '4.41.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,9 @@ const SCHEMA_VERSION = 12;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.41.0', date: '2026-11-13', title: 'Listen hands-free', notes: [
+    'New in Review: Listen hands-free. Parlance reads your words and phrases aloud, twice each, with a pause to say them yourself and the meaning on screen.',
+    'Stories can now be heard first. Tap Listen first and the cast reads the story to you line by line, with the text hidden until you want it.'] },
   { v: '4.40.0', date: '2026-11-13', title: 'Feels like an app', notes: [
     'On your Home Screen, pulling down at the top no longer reloads Parlance, and holding a button no longer selects its text.',
     'The Learn route scrolls more lightly on long courses.',
@@ -283,6 +286,8 @@ const XP = { perAnswer: 1, lesson: 5, perfectBonus: 5, review: 3, story: 8, stor
 /* Unit checkpoints (a short test once a unit's lessons are done) and the placement test (Me → Starting level). */
 const RESUME = { maxAgeDays: 7 };   // how long a lesson left half-done can be picked up again
 const CHECKPOINT = { questions: 12, pass: 0.8 };
+/* Listen hands-free (Review) and Listen first (Stories): items per session, the fewest learned items to offer it, and the pauses in ms */
+const LISTEN = { max: 20, min: 6, gapSay: 1800, gapReveal: 1200, gapNext: 1500, storyGap: 700 };
 const PLACEMENT = { perLevel: 5, pass: 3 };
 /* Friends (js/core/social.js, js/ui/friends.js). Friends must use the same home: the Claude artifact and the web version
    keep separate databases. links: where an invite sends people. duel: days a duel runs. answer: days a challenge waits

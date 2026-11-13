@@ -149,6 +149,9 @@
 .sline{display:flex;align-items:flex-end;gap:10px;animation:rise .35s var(--ease) both}
 .sline.r{flex-direction:row-reverse}
 .sline .sl-av{align-self:flex-start}
+.story-listen{margin-top:4px}
+.sl-reveal{align-self:flex-start}
+.sl-reveal .ic svg{width:18px;height:18px}
 .bubble{max-width:calc(100% - 52px);display:flex;flex-direction:column;gap:6px;padding:12px 14px;background:var(--surface);box-shadow:var(--shadow);border-radius:var(--r-lg);border-bottom-left-radius:6px}
 .sline.r .bubble{background:var(--line-soft);border-bottom-left-radius:var(--r-lg);border-bottom-right-radius:6px}
 .bubble .who{font:var(--type-eyebrow);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
