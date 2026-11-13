@@ -1280,6 +1280,102 @@ async function main(){
       ok(bcss.replace(/\s+/g, '').includes('@media(display-mode:standalone){html{overscroll-behavior-y:none}}'), 'touch: no pull-to-reload in the Home Screen app');
       ok(ccss.replace(/\s+/g, '').includes('.unit{content-visibility:auto;contain-intrinsic-size:auto440px}'), 'learn: off-screen units are skipped');
     }
+    // every control has a name, and a sheet holds the keyboard focus and gives it back (Q3 WP2, R-10)
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, D = rd;
+      const named = el => !!((el.getAttribute('aria-label') || '').trim() || (el.getAttribute('title') || '').trim() || el.textContent.trim() || (el.id && D.querySelector('label[for="' + el.id + '"]')) || el.closest('label'));
+      const unnamed = root => [...root.querySelectorAll('button,a[href],input,select,textarea,[role="button"]')].filter(el => el.type !== 'hidden' && !named(el)).map(el => el.outerHTML.slice(0, 120));
+      const top = () => rd.querySelector('.overlay:not(.out)'), foot = l => [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === l);
+      const nameCheck = (place, ...roots) => {
+        const bad = roots.flatMap(r => r ? unnamed(r) : []);
+        ok(!bad.length, 'a11y: every control has a name (' + place + '): ' + bad.slice(0, 5).join(' | '));
+      };
+      ok(unnamed(R.E('(() => { const d = document.createElement("div"); d.innerHTML = "<button><svg></svg></button><button aria-label=\\"Close\\"></button><a href=\\"#\\">Go</a>"; return d; })()')).length === 1, 'a11y: the walker catches an icon button with no name');
+      // the six tabs
+      for (const t of ['learn', 'stories', 'review', 'talk', 'friends', 'me']){ R.E('UI.tab = ' + JSON.stringify(t) + '; render()'); nameCheck(t + ' tab', rd.querySelector('#app'), rd.querySelector('#tabs')); }
+      // lessons: the intro, the first teach card, then the first three exercises, each before and after it is answered
+      const walk = async (id, withTeach) => {
+        R.E('endRun(); startLesson(' + JSON.stringify(id) + ')');
+        nameCheck(id + ' intro', top());
+        foot('Start lesson').click();
+        if (withTeach) nameCheck(id + ' first teach card', top());
+        for (let n = 0, guard = 0; n < 3 && guard++ < 30;){
+          const ex = R.E('Run.cur');
+          if (ex.type === 'teach'){ foot('Continue').click(); continue; }
+          n++;
+          nameCheck(id + ' exercise ' + n + ' (' + ex.type + ')', top());
+          if (ex.type === 'match'){
+            const opts = [...rd.querySelectorAll('.overlay:not(.out) .match .opt')], left = opts.filter((_, i) => i % 2 === 0), right = opts.filter((_, i) => i % 2 === 1);
+            for (const it of ex.items){ const a = left.find(b => b.textContent === it.t), b = right.find(b => b.textContent === it.e[0]); if (a && b){ a.click(); b.click(); } }
+            await sleep(320);
+          } else {
+            let ans;
+            switch (ex.type){
+              case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break;
+              case 'bank-e2t': case 'listen': ans = R.P.tileTokens(ex.item.t).join(' '); break;
+              case 'bank-t2e': ans = R.P.tileTokens(ex.item.e[0]).join(' '); break;
+              default: ans = ex.correct;
+            }
+            R.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()');
+          }
+          nameCheck(id + ' exercise ' + n + ' feedback', top());
+          const c = foot('Continue'); if (c) c.click();
+        }
+      };
+      await walk('de-1-1', true);
+      await walk('es-3-1', false);
+      await walk('it-1-1', false);
+      // the finish screen
+      R.E('finishRun()'); await sleep(300);
+      nameCheck('finish screen', top());
+      R.E('endRun(); closeOverlay(true)');
+      // a story: its first screen and its first line
+      const st = R.E('STORIES.find(s => s.lang === "es").id');
+      R.E('openStory(' + JSON.stringify(st) + ')');
+      nameCheck('story first screen', top());
+      foot('Start reading').click(); await sleep(60);
+      nameCheck('story first line', top());
+      R.E('closeOverlay(true)');
+      // the bird picker sheet
+      R.E('UI.tab = "me"; render()'); R.E('openBirdPicker()');
+      nameCheck('bird picker sheet', rd.querySelector('.sheet-back'));
+      rd.querySelector('.sheet-back .sheet-actions button').click(); await sleep(250);
+      // onboarding's first step
+      R.E('S.settings.onboarded = false; openOnboarding(false)');
+      nameCheck('onboarding first step', top());
+      R.E('S.settings.onboarded = true; closeOverlay(true)');
+      // newer screens: the speed round and the Review tile, its finish screen with its extra buttons, the sticker book, the offline card
+      R.E('(() => { const L = S.langs.es; for (const l of coreOrder("es")) for (let i = 0; i < l.vocab.length; i++){ if (speedPool("es").length >= 12) return; const k = itemKey(l, "v", i); if (!L.cards[k]) L.cards[k] = { ef: 2.5, n: 1, iv: 1, due: addDays(today(), 3), last: today(), ts: 1 }; } })()');
+      R.E('UI.tab = "review"; render()');
+      nameCheck('review tab with the speed tile', rd.querySelector('#app'));
+      R.E('startSpeed()'); nameCheck('speed round', top());
+      R.E('Speed.score = 5; Speed.answered = 6; speedEnd()'); await sleep(200);
+      ok(!!rd.querySelector('.overlay [data-more="again"]'), 'a11y: the speed finish screen has its extra button');
+      nameCheck('speed finish screen (data-more buttons)', top());
+      R.E('endSpeed()');
+      R.E('openStickers()'); nameCheck('sticker book', top()); R.E('closeOverlay(true)');
+      { let card = null;
+        try { R.E('Offline.on = true; UI.tab = "me"; render()'); await sleep(300); card = rd.querySelector('.offline-card'); } catch (e) {}
+        if (card) nameCheck('Me offline card', card);
+        R.E('Offline.on = false'); }
+      // sheets: Tab stays inside, closing gives the focus back
+      R.E('UI.tab = "learn"; render()');
+      const opener = rd.querySelector('#tabs .tab'); opener.focus();
+      const close = R.E('sheet("Two actions", document.createElement("p"), [{ label: "First" }, { label: "Second" }])');
+      const acts = [...rd.querySelectorAll('.sheet-back .sheet-actions button')];
+      const tab = shiftKey => { const ev = new R.w.KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true }); rd.dispatchEvent(ev); return ev.defaultPrevented; };
+      await sleep(80);
+      acts[acts.length - 1].focus();
+      const fwd = tab(false) && rd.activeElement === acts[0];
+      const back = tab(true) && rd.activeElement === acts[acts.length - 1];
+      ok(acts.length === 2 && fwd && back, 'sheet: Tab stays inside: the last control wraps to the first, and Shift+Tab on the first goes to the last');
+      ok(rd.querySelector('.sheet-back .sheet').getAttribute('tabindex') === '-1', 'sheet: the box can take focus when it has no control of its own');
+      close(); await sleep(250);
+      ok(!rd.querySelector('.sheet-back') && rd.activeElement === opener, 'sheet: closing gives the focus back');
+      ok(R.errors.length === 0, 'a11y: no page errors ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
