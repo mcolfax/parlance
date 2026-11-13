@@ -159,7 +159,7 @@ function checkpointRow(u, lang){
       h('span', { class: 'st-state' }, passed ? 'Again' : ready ? 'Start' : 'Test out'))));
 }
 function confirmTestOut(u){
-  sheet('Test out of this unit?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('point', 56, { tap: false }),
+  sheet('Test out of this unit?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('ready', 56, { tap: false }),
     h('p', { class: 'grow' }, CHECKPOINT.questions + ' questions from “' + u.title + '”. Score ' + Math.round(CHECKPOINT.pass * 100) + '% and your route moves past this unit. Its lessons stay open, and their words join Review when you take them.')),
     [{ label: 'Not now' }, { label: 'Start the test', primary: true, run: () => { startCheckpoint(u, true); } }]);
 }

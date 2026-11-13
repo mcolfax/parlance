@@ -10,7 +10,7 @@ function viewTalk(){
       h('div', { class: 'av-stack big' }, castOf(lang).map(id => avatar(id, 38))))));
   if (!AI.ready){ v.append(h('p', { class: 'status' }, 'Checking tutor access…')); return v; }
   if (!aiOn() && Web.on) return webTalk(v, lang, lv);
-  if (!aiOn()){ v.append(h('div', { class: 'empty' }, pip('shrug', 72, { tap: false })), h('div', { class: 'notice' }, AI.denied ? 'Claude access is turned off for this page. ' : 'The tutor needs Claude. Open Parlance in the Claude app or on claude.ai while signed in. Lessons and reviews work without it. ', AI.denied ? h('button', { class: 'linkish', type: 'button', onclick: manageAccess }, 'Manage permissions') : null)); return v; }
+  if (!aiOn()){ v.append(h('div', { class: 'empty' }, pip('shrug', 72)), h('div', { class: 'notice' }, AI.denied ? 'Claude access is turned off for this page. ' : 'The tutor needs Claude. Open Parlance in the Claude app or on claude.ai while signed in. Lessons and reviews work without it. ', AI.denied ? h('button', { class: 'linkish', type: 'button', onclick: manageAccess }, 'Manage permissions') : null)); return v; }
   v.append(h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Level'), h('div', { class: 'chips' }, LEVELS.map(x => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(x === lv), onclick: () => { UI.talkLevel = x; render(); } }, x)))));
   const li = LEVELS.indexOf(lv);
   v.append(h('div', { class: 'scen-grid' }, SCENARIOS.map(sc => {

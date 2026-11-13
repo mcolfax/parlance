@@ -70,9 +70,9 @@ function pipBriefly(rig, mood, ms){
   rig.set(mood); clearTimeout(rig.settle);
   rig.settle = setTimeout(() => { if (rig.mood === mood) rig.set(rig.home); }, ms);
 }
-/* what Pip does when tapped, taking turns: a hop, a wave, a look round, a little dance, a bow, a nod.
+/* what Pip does when tapped, taking turns: a hop, a wave, a look round, a little dance, a bow, a laugh, a nod.
    A sleeping Pip wakes with a start, then nods off again. */
-const PIP_TAPS = [{ move: 'hop' }, { mood: 'wave', ms: 1800 }, { move: 'lookAround' }, { mood: 'dance', ms: 2000 }, { move: 'bow' }, { move: 'nod' }];
+const PIP_TAPS = [{ move: 'hop' }, { mood: 'wave', ms: 1800 }, { move: 'lookAround' }, { mood: 'dance', ms: 2000 }, { move: 'bow' }, { mood: 'laugh', ms: 1600 }, { move: 'nod' }];
 let pipTaps = 0;
 /* Easter egg: tap a bird six times in a row (each within 0.7s of the last) and it gets dizzy for a few seconds. */
 const PIP_DIZZY = { de: 'Mir dreht sich alles…', es: '¡Todo me da vueltas!', it: 'Che giramento…' };
@@ -85,6 +85,7 @@ function pipDizzy(rig){
 }
 function pipTap(rig){
   if (rig.home === 'sleep') return pipBriefly(rig, 'wow', 1600);
+  if (rig.home === 'shrug') return rig.play('shake');
   const t = PIP_TAPS[pipTaps++ % PIP_TAPS.length];
   if (t.mood && rig.mood === rig.home) pipBriefly(rig, t.mood, t.ms); else rig.play(t.move || 'hop');
 }
