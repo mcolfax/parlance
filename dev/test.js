@@ -1203,8 +1203,9 @@ async function main(){
       const uiDir = path.join(ROOT, 'js', 'ui');
       const screens = fs.readdirSync(uiDir).filter(f => f.endsWith('.js') && f !== 'film.js').map(f => fs.readFileSync(path.join(uiDir, f), 'utf8')).concat(fs.readFileSync(path.join(ROOT, 'js', 'core', 'art.js'), 'utf8')).join('\n');
       const moodNames = R.E('Object.keys(Bird.BIRD.moods)'), clipNames = R.E('Object.keys(Bird.BIRD.clips)'), moodClip = R.E('Object.fromEntries(Object.entries(Bird.BIRD.moods).map(([k, m]) => [k, m.clip || null]))');
-      ok(moodNames.length === 18 && clipNames.length >= 19, 'birds: the mood and clip tables were read from the app: ' + moodNames.length + ' moods, ' + clipNames.length + ' clips');
-      const moodUsed = m => screens.includes("'" + m + "'");
+      ok(moodNames.length >= 18 && clipNames.length >= 19, 'birds: the mood and clip tables were read from the app: ' + moodNames.length + ' moods, ' + clipNames.length + ' clips');
+      const moodLines = screens.split('\n').filter(l => /\b(pip|teachPip|pipBriefly|setPipMood)\(|\bmood\b/.test(l)).join('\n');   // only lines that ask a bird for a mood
+      const moodUsed = m => moodLines.includes("'" + m + "'");
       for (const m of moodNames) ok(moodUsed(m), 'birds: every mood has a moment: "' + m + '" is on no screen. Give it a screen or remove it from the plan that added it');
       for (const c of clipNames){
         const viaMood = Object.keys(moodClip).some(m => moodClip[m] === c && moodUsed(m));
@@ -1257,6 +1258,9 @@ async function main(){
       };
       const fl = finishLesson(1), mi = finishLesson(0.5);
       ok(/\bdance\b/.test(fl) && /\bcheer\b/.test(mi) && !/\bsad\b|\bproud\b/.test(fl + mi), 'finish: lessons are unchanged: ' + fl + ' / ' + mi);
+      R.E('window.__cf.length = 0; openOverlay("run"); showComplete({ lang: "es", top: "Checkpoint", title: "x", xp: 3, acc: 0, h1: "Not quite yet.", sub: "y", third: [7, "day streak"], badges: ["streak7"], quests: [], mood: "sad", calm: true, onDone: () => {} })');
+      { const p = rd.querySelector('.overlay:not(.out) .complete-pip'); ok(/\bfly\b/.test(p.className) && R.E('PIP_SAYS.es.cheer').includes(p.querySelector('.pip-say').textContent) && R.E('window.__cf.length') > 0, 'finish: a streak milestone still celebrates after a failed checkpoint: ' + p.className); }
+      R.E('closeOverlay(true)');
       // before a test
       const readyBefore = rd.querySelectorAll('.pip.ready').length;
       R.E('confirmTestOut(COURSE.es.units[0])');

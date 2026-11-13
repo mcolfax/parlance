@@ -660,8 +660,9 @@ function showComplete(o){
   const lang = o.lang; const st = streakInfo();
   const dateStr = new Date().toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
   const xpEl = h('span', { class: 'num' }, '+0');
-  const cheer = pickSay(lang, o.calm ? 'oops' : 'cheer');   // a failed checkpoint gets a kind word, not a cheer
   const ms = (o.badges || []).filter(id => /^streak\d+$/.test(id) && +id.slice(6) >= 7).pop();   // a new streak badge of 7, 14, 30 ... days is a moment of its own (the 3-day one isn't)
+  const calm = o.calm && !ms;   // a streak milestone is still a celebration, even after a failed checkpoint
+  const cheer = pickSay(lang, calm ? 'oops' : 'cheer');   // a failed checkpoint gets a kind word, not a cheer
   const gold = o.gold || !!ms, sub = ms ? (o.sub || o.h1) : o.sub;
   swapBody(h('div', { class: 'complete' },
     h('div', { class: 'stamp-wrap' },
@@ -682,11 +683,11 @@ function showComplete(o){
   const btn = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => o.onDone() }, 'Continue');
   const more = (o.more || []).map(m => h('button', { class: 'btn btn-quiet btn-wide', type: 'button', 'data-more': m.id, onclick: m.run }, m.label));
   OV.footIn.replaceChildren(...more, btn); setTimeout(() => btn.focus(), 30);
-  sfx(!o.calm && (o.gold || (o.badges && o.badges.length)) ? 'level' : 'done'); haptic('done');
+  sfx(!calm && (o.gold || (o.badges && o.badges.length)) ? 'level' : 'done'); haptic('done');
   countUp(xpEl, o.xp);
   if (o.quests && o.quests.length) setTimeout(() => sfx('quest'), 700);
   if (o.badges && o.badges.length) setTimeout(() => sfx('badge'), 1100);
-  if (!o.calm) confetti(OV.root, gold ? 180 : 110);
+  if (!calm) confetti(OV.root, gold ? 180 : 110);
   const root = OV.root;   // the cheer belongs to this finish screen: Next or the checkpoint button may already have opened another
   if (S.settings.autoplay) setTimeout(() => { if (OV.root && OV.root === root) speak(cheer, lang, false, mascot()); }, 900);
 }
