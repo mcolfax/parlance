@@ -1978,7 +1978,7 @@ async function main(){
     { const r = G.E('(() => { pipTaps = 0; const e = pip("happy", 60, { lang: "de" }); document.body.append(e); e.click(); const hop = e.rig.playing("hop"); e.click(); return [hop, e.rig.mood, e.rig.home]; })()');
       ok(r[0] && r[1] === 'wave' && r[2] === 'happy', 'tapping Pip takes turns: a hop, then a wave ' + JSON.stringify(r)); }
     { const r = G.E('(() => { const e = pip("sleep", 60, { lang: "de" }); document.body.append(e); e.click(); return e.rig.mood; })()'); ok(r === 'wow', 'a sleeping Pip wakes with a start when tapped: ' + r); }
-    { const r = G.E('(() => { const e = pip("dance", 60, { tap: false, moveFor: 1 }); document.body.append(e); return e.rig.playing("dance"); })()'); await sleep(40);
+    { const r = G.E('(() => { const e = pip("dance", 60, { tap: false, moveFor: 1 }); document.body.append(e); e.rig._frame(0, 0.05); return e.rig.playing("dance"); })()'); await sleep(40);   // one frame first: the rig's clock starts at 0, and a stop stamped at 0 reads as "not stopped"
       ok(r && !G.E('[...document.querySelectorAll(".pip")].pop().rig.playing("dance")'), 'moveFor ends a looping move'); }
     // a mood's looping clip ends with the mood: after the hello wave the bird rests, its wing still, not waving on
     { const r = G.E('(() => { const e = pip("happy", 60, { tap: false }); document.body.append(e); const R = e.rig, wr = R.def.bones.findIndex(b => b.id === "wingR");' +
