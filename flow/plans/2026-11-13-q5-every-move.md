@@ -1,7 +1,7 @@
 # Every move has a moment: the birds use everything they were given
 
 - **Cycle:** 2026-11-13 (polish program Q5, `flow/POLISH.md`)
-- **Status:** building
+- **Status:** shipped (4.39.0)
 - **Release:** 4.39.0
 - **Base:** `main` at 65c1b15 (4.38.0)
 - **Proposals built:** none
@@ -109,5 +109,5 @@ This release gives `laugh` and `shake` their first moments, gives `sad`, `proud`
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.39.0, `5553dc6` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**

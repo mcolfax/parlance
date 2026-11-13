@@ -1,9 +1,9 @@
 # Feels like an app: touch that behaves, a route that scrolls lightly, every control named
 
-- **Cycle:** set when promoted (polish program Q3, `flow/POLISH.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-q3-feels-like-an-app.md`, set Release, Base and `approved`)
-- **Release:** the next free minor when promoted
-- **Base:** `main` at promotion time (nothing below depends on line numbers)
+- **Cycle:** 2026-11-13-2 (polish program Q3, `flow/POLISH.md`)
+- **Status:** building
+- **Release:** 4.40.0
+- **Base:** `main` at 5553dc6 (4.39.0)
 - **Proposals built:** none
 - **Roadmap items:** R-10, new R-47
 - **Needs:** nothing. Works with or without Q1 and Q2.
