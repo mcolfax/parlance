@@ -1,9 +1,9 @@
 # Every move has a moment: the birds use everything they were given
 
-- **Cycle:** set when promoted (polish program Q5, `flow/POLISH.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-q5-every-move.md`, set Release, Base and `approved`)
-- **Release:** the next free minor when promoted
-- **Base:** `main` at promotion time (nothing below depends on line numbers)
+- **Cycle:** 2026-11-13 (polish program Q5, `flow/POLISH.md`)
+- **Status:** building
+- **Release:** 4.39.0
+- **Base:** `main` at 65c1b15 (4.38.0)
 - **Proposals built:** none
 - **Roadmap items:** new R-51
 - **Needs:** nothing. Promote after P4, which also edits `showComplete()` (its streak-milestone moment); this plan says how the two fit.
