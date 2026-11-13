@@ -1434,6 +1434,11 @@ async function main(){
       Q.E('startListen()');
       ok(song0 === false && Q.E('busy()') === true && !!qd.querySelector('.overlay.listen'), 'listen: the song is held while it\'s open');
       ok(Q.E('Listen.playing') === true && qd.querySelector('.overlay.listen .ls-t').textContent === Q.E('Listen.items[0].t') && Q.E('window.__said[0]') === Q.E('Listen.items[0].t'), 'listen: it starts at once with the first line');
+      { const e0 = qd.querySelector('.overlay.listen .ls-e'), pb = qd.querySelector('.overlay.listen [data-ls="play"]'); pb.focus();
+        Q.E('Listen.reveal = true; listenDraw()'); const a1 = qd.activeElement.dataset.ls, same = qd.querySelector('.overlay.listen .ls-e') === e0 && e0.classList.contains('on');
+        Q.E('listenPause()');
+        ok(a1 === 'play' && qd.activeElement.dataset.ls === 'play' && qd.activeElement.textContent === 'Play', 'listen: a redraw keeps focus on the button you were on: ' + a1 + ' ' + (qd.activeElement.dataset || {}).ls);
+        ok(same, 'listen: the meaning fades in on the node that is already there'); }
       ok(Q.E('Object.keys(__ms.h).length') === 4 && Q.E('Object.values(__ms.h).every(f => typeof f === "function")') && Q.E('__ms.metadata.title') === Q.E('Listen.items[0].t') && Q.E('__ms.metadata.album').startsWith('Parlance'), 'listen: the lock screen gets the line and four buttons');
       // pause, next and previous
       Q.E('listenPause()');
@@ -1482,7 +1487,7 @@ async function main(){
     // Listen first (P5 WP2): a story read aloud line by line, text hidden until tapped; finishing pays what reading pays
     {
       const keep = { es: JSON.stringify(Q.E('S.langs.es')), days: JSON.stringify(Q.E('S.days')), stats: JSON.stringify(Q.E('S.stats')), gap: Q.E('LISTEN.storyGap') };
-      Q.E('window.__onb = Onb.open; Onb.open = false; window.__said = []; window.__speak0 = speak; speak = function(t){ window.__said.push(String(t)); return new Promise(r => setTimeout(() => r(true), 5)); }; LISTEN.storyGap = 1; closeOverlay(true); S.settings.lang = "es"; delete S.langs.es.stories["es-s1"]');
+      Q.E('window.__onb = Onb.open; Onb.open = false; window.__said = []; window.__sd = 5; window.__speak0 = speak; speak = function(t){ window.__said.push(String(t)); return new Promise(r => setTimeout(() => r(true), window.__sd)); }; LISTEN.storyGap = 1; closeOverlay(true); S.settings.lang = "es"; delete S.langs.es.stories["es-s1"]');
       Q.E('window.__wl = { n: 0, released: 0 }; Object.defineProperty(navigator, "wakeLock", { configurable: true, value: { request: async () => { window.__wl.n++; return { release: async () => { window.__wl.released++; }, addEventListener(){} }; } } })');
       const items = Q.E('storyById("es-s1").items'), firstQ = [...items].findIndex(i => i.q), said = () => Q.E('window.__said.length');
       const lines = () => qd.querySelectorAll('.overlay:not(.out) .sline'), sfoot = () => qd.querySelector('.overlay:not(.out) .ov-foot button');
@@ -1513,8 +1518,18 @@ async function main(){
       ok(Q.E('Story.paused') === true && sfoot().textContent === 'Play', 'story listening: Pause shows Play');
       { const n0 = said(); await sleep(200);
         ok(Q.E('Story.pos') === p && said() === n0, 'story listening: Pause stops it: ' + p + ' then ' + Q.E('Story.pos')); }
-      sfoot().click();
+      Q.E('window.__sd = 120'); sfoot().click();   // slower lines, so there is a moment to leave in the middle of one
       ok(await until(() => Q.E('Story.pos') > p, 2000), 'story listening: Play moves it on again');
+      // the leave sheet pauses it, and only Keep listening goes on
+      ok(await until(() => Q.E('Story.st.items[Story.pos - 1].who'), 2000), 'story listening: a line is playing');
+      qd.querySelector('.overlay .ov-head button').click(); await sleep(60);
+      { const pp = Q.E('Story.pos'), n0 = said(), keepBtn = [...qd.querySelectorAll('.sheet-back:not(.out) .sheet-actions button')].find(b => b.textContent === 'Keep listening');
+        await sleep(200);
+        ok(Q.E('Story.paused') === true && !!keepBtn && sfoot().textContent === 'Play' && Q.E('Story.pos') === pp && said() === n0, 'story listening: the leave sheet pauses it: ' + pp + ' then ' + Q.E('Story.pos'));
+        keepBtn.click();
+        ok(Q.E('Story.paused') === false && await until(() => Q.E('Story.pos') > pp, 2000), 'story listening: Keep listening goes on');
+        await sleep(250); }
+      Q.E('window.__sd = 5');
       // leaving in the middle: nothing plays afterwards
       { const n0 = said(); qd.querySelector('.overlay .ov-head button').click(); await sleep(60);
         const leave = [...qd.querySelectorAll('.sheet-back .sheet-actions button')].find(b => b.textContent === 'Leave'); ok(!!leave, 'story listening: leaving asks first'); leave.click(); const n1 = said(); await sleep(300);

@@ -70,19 +70,23 @@ function listenDraw(){
   const lang = Listen.lang, n = Listen.items.length, pos = Math.min(Listen.pos, n - 1), it = Listen.items[pos];
   if (!it) return;
   if (OV.prog) OV.prog.style.width = (Listen.pos / n * 100).toFixed(1) + '%';
-  swapBody(h('div', { class: 'listen' },
+  const e = OV.bodyIn.querySelector('.ls-e');
+  if (Listen.drawn === pos && e) e.classList.toggle('on', Listen.reveal);   // same item: the meaning fades in on the node that is already there
+  else swapBody(h('div', { class: 'listen' },
     h('span', { class: 'eyebrow' }, 'Listen hands-free · ' + LANGS[lang].name),
     h('div', { class: 'ls-card' },
       h('div', { class: 'ls-t', lang: LANGS[lang].tts }, it.item.g ? itemText(it.item, lang, { noTap: true }) : it.t),
       h('div', { class: 'ls-e' + (Listen.reveal ? ' on' : '') }, it.e)),
     h('p', { class: 'ls-count small muted' }, (pos + 1) + ' of ' + n),
-    h('p', { class: 'small muted' }, 'Say it after the voice. The meaning shows in the pause.')), Listen.drawn === pos);
+    h('p', { class: 'small muted' }, 'Say it after the voice. The meaning shows in the pause.')));
   Listen.drawn = pos;
-  const prev = h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Previous', html: IC.prev, onclick: () => listenStep(-1) });
-  const play = h('button', { class: 'btn btn-primary', type: 'button', onclick: () => Listen.playing ? listenPause() : listenPlay() }, ic(Listen.playing ? 'pause' : 'play'), Listen.playing ? 'Pause' : 'Play');
-  const next = h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Next', html: IC.next, onclick: () => listenStep(1) });
+  const prev = h('button', { class: 'icon-btn', type: 'button', 'data-ls': 'prev', 'aria-label': 'Previous', html: IC.prev, onclick: () => listenStep(-1) });
+  const play = h('button', { class: 'btn btn-primary', type: 'button', 'data-ls': 'play', onclick: () => Listen.playing ? listenPause() : listenPlay() }, ic(Listen.playing ? 'pause' : 'play'), Listen.playing ? 'Pause' : 'Play');
+  const next = h('button', { class: 'icon-btn', type: 'button', 'data-ls': 'next', 'aria-label': 'Next', html: IC.next, onclick: () => listenStep(1) });
+  const had = OV.footIn.contains(document.activeElement) && document.activeElement.dataset ? document.activeElement.dataset.ls : null;   // a rebuilt footer must not drop the keyboard or TalkBack focus
   OV.foot.className = 'ov-foot';
   OV.footIn.replaceChildren(h('div', { class: 'ls-controls' }, prev, play, next));
+  if (had){ const b = OV.footIn.querySelector('[data-ls="' + had + '"]'); if (b) try { b.focus({ preventScroll: true }); } catch (err) {} }
 }
 /* Media Session: the line on the lock screen and the headphone buttons, where the phone has it; silent where it doesn't */
 function listenMeta(it){

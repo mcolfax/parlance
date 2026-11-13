@@ -35,7 +35,9 @@ function openStory(id){
   openOverlay('story'); recWarm(st.lang, st.items.filter(it => it.t).map(it => it.t));
   const close = h('button', { class: 'icon-btn plain', type: 'button', 'aria-label': 'Close', html: IC.close, onclick: () => {
     if (Story.finished || Story.pos === 0) return endStory();
-    sheet('Leave this story?', h('p', null, 'You can come back to it any time.'), [{ label: 'Keep reading', primary: true }, { label: 'Leave', run: () => { endStory(); } }]);
+    const cur = Story.st.items[Story.pos - 1], wasPlaying = !!(Story.listen && !Story.paused && cur && cur.who);   // listening pauses behind the sheet, and goes on only from its main button
+    if (wasPlaying) storyListenPause();
+    sheet('Leave this story?', h('p', null, 'You can come back to it any time.'), [{ label: Story.listen ? 'Keep listening' : 'Keep reading', primary: true, run: () => { if (wasPlaying && Story.open && !Story.finished) storyListenPlay(); } }, { label: 'Leave', run: () => { endStory(); } }]);
   } });
   OV.prog = h('i');
   OV.head.replaceChildren(close, h('div', { class: 'progress', role: 'progressbar', 'aria-label': 'Story progress' }, OV.prog), h('span', { class: 'icon-spacer' }));
@@ -77,12 +79,9 @@ function storyChain(it, st){
     setTimeout(() => { if (my === Story.lgen && Story.open && Story.listen && !Story.paused) storyNext(); }, LISTEN.storyGap);
   });
 }
-function storyListenFoot(){
-  storyFoot(Story.paused ? 'Play' : 'Pause', () => {
-    if (Story.paused){ Story.paused = false; wakeHold(true); const it = Story.st.items[Story.pos - 1]; storyListenFoot(); if (it && it.who) storyChain(it, Story.st); else storyNext(); }
-    else { Story.paused = true; Story.lgen++; speakStop(); wakeHold(false); storyListenFoot(); }
-  });
-}
+function storyListenPause(){ Story.paused = true; Story.lgen++; speakStop(); wakeHold(false); storyListenFoot(); }
+function storyListenPlay(){ Story.paused = false; wakeHold(true); const it = Story.st.items[Story.pos - 1]; storyListenFoot(); if (it && it.who) storyChain(it, Story.st); else storyNext(); }
+function storyListenFoot(){ storyFoot(Story.paused ? 'Play' : 'Pause', () => Story.paused ? storyListenPlay() : storyListenPause()); }
 function storyLine(it, st){
   const side = st.cast.indexOf(it.who) % 2 === 0 ? 'l' : 'r';
   const vo = CAST[it.who];
