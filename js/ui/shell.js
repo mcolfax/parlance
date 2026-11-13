@@ -14,10 +14,14 @@ function toast(msg){
 }
 function sheet(title, body, actions){
   const back = h('div', { class: 'sheet-back', role: 'dialog', 'aria-modal': 'true', 'aria-label': title });
-  const opener = document.activeElement;
+  const act = document.activeElement, from = act && act.closest ? act.closest('.sheet-back') : null;
+  const opener = from && from._opener ? from._opener : act;   // a sheet opened from a sheet gives focus back to the first opener
+  back._opener = opener;
   const close = () => {
     back.classList.add('out'); setTimeout(() => back.remove(), 160); document.removeEventListener('keydown', onKey);
-    if (opener && opener.isConnected && opener.focus) try { opener.focus({ preventScroll: true }); } catch (e) {}
+    const ov = [...document.querySelectorAll('.overlay:not(.out)')].pop();
+    const covered = !!document.querySelector('.sheet-back:not(.out)') || (ov && !ov.contains(opener));   // another sheet or a lesson is on top now
+    if (!covered && opener && opener.isConnected && opener.focus) try { opener.focus({ preventScroll: true }); } catch (e) {}
   };
   const onKey = e => {
     if (e.key === 'Escape'){ close(); return; }

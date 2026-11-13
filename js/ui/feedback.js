@@ -73,7 +73,7 @@ function openFeedback(opts = {}){
   const chips = h('div', { class: 'chips' });
   const drawChips = () => chips.replaceChildren(...FB_TYPES.map(([k, label]) => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(type === k), onclick: () => { type = k; sfx('select'); drawChips(); } }, label)));
   drawChips();
-  const ta = h('textarea', { class: 'input', rows: '4', maxlength: '1000', placeholder: opts.placeholder || 'What happened, or what would make Parlance better for you?' });
+  const ta = h('textarea', { class: 'input', rows: '4', maxlength: '1000', 'aria-label': 'Your note', placeholder: opts.placeholder || 'What happened, or what would make Parlance better for you?' });
   let withCtx = true;
   const ctxLine = h('label', { class: 'fb-ctx small muted' }, h('input', { type: 'checkbox', checked: true, onchange: e => { withCtx = e.target.checked; } }),
     ' Include where I was: ' + [LANGS[ctx.lang].name, ctx.lessonId || ctx.storyId || ctx.screen, ctx.exType, 'v' + APP_VERSION].filter(Boolean).join(' · '));

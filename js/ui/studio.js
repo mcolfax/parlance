@@ -173,7 +173,7 @@ function studioProposals(){
   const list = Studio.props.filter(p => p.status === Studio.filter);
   if (!list.length) wrap.append(h('p', { class: 'muted center', style: 'padding:18px 0' }, Studio.filter === 'pending' ? 'Nothing to review. New feedback shows up under Feedback.' : 'None yet.'));
   for (const p of list) wrap.append(proposalCard(p));
-  const idea = h('textarea', { class: 'input', rows: '3', placeholder: 'Your own idea: what should change?' });
+  const idea = h('textarea', { class: 'input', rows: '3', 'aria-label': 'Your own idea', placeholder: 'Your own idea: what should change?' });
   wrap.append(h('section', { class: 'card' }, h('h3', null, 'Add your own'), idea, h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => {
     const text = idea.value.trim(); if (!text) return;
     const now = Date.now(); await Live.db.doc('proposals/p' + now.toString(36) + 'o').set({ title: text.slice(0, 60), kind: 'code', summary: text.slice(0, 400), problem: '', change: text, evidence: [], impact: 2, effort: 2, areas: [], status: 'approved', createdAt: now, updatedAt: now, decidedAt: now, source: 'owner' });
@@ -183,9 +183,9 @@ function studioProposals(){
 }
 function proposalCard(p){
   const dots = n => h('span', { class: 'dots3' }, [1, 2, 3].map(i => h('i', { class: i <= n ? 'on' : '' })));
-  const note = h('textarea', { class: 'input', rows: '2', placeholder: 'Notes for the builder (optional)' }, p.note || '');
+  const note = h('textarea', { class: 'input', rows: '2', 'aria-label': 'Notes for the builder', placeholder: 'Notes for the builder (optional)' }, p.note || '');
   const ev = (p.evidence || []).map(id => Studio.fb.find(f => f.id === id)).filter(Boolean);
-  const thanksBox = h('textarea', { class: 'input', rows: '2', maxlength: '500', placeholder: 'What you tell the ' + (ev.length ? new Set(ev.map(f => f.uid)).size + ' ' + plural(new Set(ev.map(f => f.uid)).size, 'person who asked', 'people who asked') : 'people who asked') + ', e.g. “You can now swipe between cards.”' }, p.thanks || '');
+  const thanksBox = h('textarea', { class: 'input', rows: '2', maxlength: '500', 'aria-label': 'What you tell the people who asked', placeholder: 'What you tell the ' + (ev.length ? new Set(ev.map(f => f.uid)).size + ' ' + plural(new Set(ev.map(f => f.uid)).size, 'person who asked', 'people who asked') : 'people who asked') + ', e.g. “You can now swipe between cards.”' }, p.thanks || '');
   const ver = h('input', { class: 'input', value: APP_VERSION, maxlength: '20', 'aria-label': 'Version it shipped in', style: 'max-width:96px' });
   const set = async (status) => {
     const now = Date.now();
@@ -230,8 +230,8 @@ function studioContent(){
       h('div', null, h('div', { class: 'set-l' }, p.title), h('div', { class: 'small muted' }, LANGS[p.lang].name + ' · ' + p.units.reduce((n, u) => n + u.lessons.length, 0) + ' new lessons · ' + p.lessons.length + ' fixes · ' + p.stories.length + ' stories')),
       h('span', { class: 'toggle' }, h('input', { type: 'checkbox', checked: p.enabled !== false, 'aria-label': 'Enable ' + p.title, onchange: async e => { try { await Live.db.doc('content/' + p.id).update({ enabled: e.target.checked, updatedAt: Date.now() }); toast(e.target.checked ? 'Pack on for everyone' : 'Pack off for everyone'); } catch (er) { toast('Couldn’t change it. Try again.'); } } }), h('span'))))) : h('p', { class: 'small muted' }, 'No packs yet. Share a tutor-written lesson from its intro screen, or ask Claude to write a pack.'),
     Packs.errors.length ? h('details', null, h('summary', null, Packs.errors.length + ' content ' + plural(Packs.errors.length, 'problem') + ' skipped'), h('ul', { class: 'ev-list' }, Packs.errors.slice(0, 20).map(e => h('li', { class: 'small' }, e)))) : null));
-  const t = h('input', { class: 'input', placeholder: 'Title, e.g. New stories are here', maxlength: '80' });
-  const b = h('textarea', { class: 'input', rows: '3', placeholder: 'Message', maxlength: '700' });
+  const t = h('input', { class: 'input', 'aria-label': 'Title', placeholder: 'Title, e.g. New stories are here', maxlength: '80' });
+  const b = h('textarea', { class: 'input', rows: '3', 'aria-label': 'Message', placeholder: 'Message', maxlength: '700' });
   wrap.append(h('section', { class: 'card' }, h('h3', null, 'Announce something'), h('p', { class: 'small muted' }, 'Everyone sees it once, the next time they open Parlance.'), t, b,
     h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: async () => {
       if (!t.value.trim()) return toast('Add a title');

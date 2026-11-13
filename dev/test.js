@@ -1276,9 +1276,9 @@ async function main(){
       const rules = css => [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(m => ({ sel: m[1].split(',').map(x => x.trim()), body: m[2].replace(/\s+/g, '') }));
       const ctl = rules(bcss).find(r => r.sel.join(',').startsWith('button,.btn,.chip,.tab'));
       const noSelect = fs.readdirSync(path.join(ROOT, 'styles')).filter(f => f.endsWith('.css')).flatMap(f => rules(cssOf(f)).filter(r => /user-select:none/.test(r.body)).flatMap(r => r.sel.filter(x => ['*', 'html', 'body', '.say', '.w', 'p', '.view'].includes(x)).map(x => f + ' ' + x)));
-      ok(!!ctl && /touch-action:manipulation/.test(ctl.body) && /(^|[;{])user-select:none/.test(ctl.body) && !noSelect.length, 'touch: controls don\'t select or wait ' + (ctl ? '' : '(no rule starts button,.btn,.chip,.tab) ') + noSelect.join(', '));
+      ok(!!ctl && /touch-action:manipulation/.test(ctl.body) && /(^|[;{])user-select:none/.test(ctl.body) && !noSelect.length && /\.chip\.static\{[^}]*user-select:text/.test(bcss), 'touch: controls don\'t select or wait ' + (ctl ? '' : '(no rule starts button,.btn,.chip,.tab) ') + noSelect.join(', '));
       ok(bcss.replace(/\s+/g, '').includes('@media(display-mode:standalone){html{overscroll-behavior-y:none}}'), 'touch: no pull-to-reload in the Home Screen app');
-      ok(ccss.replace(/\s+/g, '').includes('.unit{content-visibility:auto;contain-intrinsic-size:auto440px}'), 'learn: off-screen units are skipped');
+      ok(ccss.replace(/\s+/g, '').includes('.unit{content-visibility:auto;contain-intrinsic-size:auto380px}'), 'learn: off-screen units are skipped');
     }
     // every control has a name, and a sheet holds the keyboard focus and gives it back (Q3 WP2, R-10)
     {
@@ -1341,6 +1341,13 @@ async function main(){
       R.E('UI.tab = "me"; render()'); R.E('openBirdPicker()');
       nameCheck('bird picker sheet', rd.querySelector('.sheet-back'));
       rd.querySelector('.sheet-back .sheet-actions button').click(); await sleep(250);
+      // the feedback sheet and the restore sheet (fields with only a placeholder used to have no name)
+      for (const [place, open] of [['feedback sheet', 'openFeedback({})'], ['restore sheet', 'restoreBackup()']]){
+        R.E(open); const sb = rd.querySelector('.sheet-back');
+        ok(!!sb && !!sb.querySelector('textarea'), 'a11y: ' + place + ' opened with its field');
+        nameCheck(place, sb);
+        sb.querySelector('.sheet-actions button').click(); await sleep(250);
+      }
       // onboarding's first step
       R.E('S.settings.onboarded = false; openOnboarding(false)');
       nameCheck('onboarding first step', top());
@@ -1373,6 +1380,23 @@ async function main(){
       ok(rd.querySelector('.sheet-back .sheet').getAttribute('tabindex') === '-1', 'sheet: the box can take focus when it has no control of its own');
       close(); await sleep(250);
       ok(!rd.querySelector('.sheet-back') && rd.activeElement === opener, 'sheet: closing gives the focus back');
+      { // a sheet that starts a lesson must not hand the focus to the route behind the lesson
+        R.E('UI.tab = "learn"; render()');
+        const st = [...rd.querySelectorAll('#app .station')][2]; st.focus();
+        R.E('confirmLocked(coreOrder("es")[2])'); await sleep(80);
+        [...rd.querySelectorAll('.sheet-back .sheet-actions button')].find(b => b.textContent === 'Start lesson').click(); await sleep(250);
+        ok(!!rd.querySelector('.overlay:not(.out)') && !rd.activeElement.closest('#app'), 'sheet: a sheet that starts a lesson leaves the focus off the route');
+        R.E('endRun(); closeOverlay(true)'); await sleep(50);
+        // a sheet opened from a sheet: the focus goes back to the first opener
+        R.E('UI.tab = "learn"; render()');
+        const tab = rd.querySelector('#tabs .tab'); tab.focus();
+        R.E('window.__B = null; sheet("A", document.createElement("p"), [{ label: "Open B", run: () => { window.__B = sheet("B", document.createElement("p"), [{ label: "Done" }]); } }])'); await sleep(80);
+        [...rd.querySelectorAll('.sheet-back .sheet-actions button')].find(b => b.textContent === 'Open B').click(); await sleep(250);
+        const bs = [...rd.querySelectorAll('.sheet-back:not(.out)')];
+        ok(bs.length === 1 && bs[0].getAttribute('aria-label') === 'B' && rd.activeElement.closest('.sheet-back') === bs[0], 'sheet: opening B from A leaves the focus in B: ' + bs.length);
+        R.E('window.__B()'); await sleep(250);
+        ok(!rd.querySelector('.sheet-back') && rd.activeElement === tab, 'sheet: a sheet opened from a sheet gives the focus back to the first opener');
+      }
       ok(R.errors.length === 0, 'a11y: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }

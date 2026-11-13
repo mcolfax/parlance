@@ -70,7 +70,7 @@ button.stat:active{transform:scale(.97)}
 .cefr.ai{border:0;background:var(--line-soft)}
 .unit{display:flex;flex-direction:column;gap:4px;padding:6px 14px 10px;border-top:1px solid var(--hair-2);animation:rise .4s var(--ease) both}
 /* the route is long: a unit that is off screen isn't laid out or painted until it comes near */
-.unit{content-visibility:auto;contain-intrinsic-size:auto 440px}
+.unit{content-visibility:auto;contain-intrinsic-size:auto 380px}
 .unit-head{display:flex;align-items:center;gap:12px;padding-top:10px}
 .unit-head .eyebrow{display:block;margin-bottom:2px}
 .unit h2{font-size:20px}
