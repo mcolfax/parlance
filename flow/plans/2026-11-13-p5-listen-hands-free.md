@@ -1,7 +1,7 @@
 # Listen hands-free: your words read aloud, and stories you can listen to
 
 - **Cycle:** 2026-11-13-3 (premium program P5, `flow/PREMIUM.md`)
-- **Status:** building
+- **Status:** shipped (4.41.0)
 - **Release:** 4.41.0
 - **Base:** `main` at a69d0b6 (4.40.0)
 - **Proposals built:** none
@@ -239,5 +239,5 @@ After WP2 is merged (`parlance-chores`, Haiku):
 ## Outcome
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.41.0, `a41cd72` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:** Promote `flow/plans/queue/p6-conversation-practice.md`.

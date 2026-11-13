@@ -1,9 +1,9 @@
 # Easier to read: a contrast check for every color pair, gold text and field edges fixed
 
-- **Cycle:** set when promoted (polish program Q4, `flow/POLISH.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-q4-easier-to-read.md`, set Release, Base and `approved`)
-- **Release:** the next free minor when promoted (a patch if only WP1 ships)
-- **Base:** `main` at promotion time (nothing below depends on line numbers)
+- **Cycle:** 2026-11-13-4 (polish program Q4, `flow/POLISH.md`)
+- **Status:** building
+- **Release:** 4.42.0
+- **Base:** `main` at a41cd72 (4.41.0)
 - **Proposals built:** none
 - **Roadmap items:** new R-48, R-49
 - **Needs:** nothing. If Q2 has shipped, `--streak-bg` and `--streak-text` exist and are checked too; if not, WP1 leaves that pair out.
