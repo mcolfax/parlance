@@ -9,6 +9,10 @@ body{background:var(--bg);color:var(--ink);font:400 17px/1.5 var(--body);-webkit
 body.locked{overflow:hidden}
 button,input,select,textarea{font-family:inherit;color:inherit}
 button{cursor:pointer;-webkit-appearance:none;appearance:none}
+/* controls behave like an app's: no double-tap zoom wait, no label selected or copy menu on a long press. Text you read stays selectable. */
+button,.btn,.chip,.tab,[role="button"],summary{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* in the Home Screen app, a pull at the top doesn't reload Parlance */
+@media (display-mode:standalone){html{overscroll-behavior-y:none}}
 :focus-visible{outline:3px solid var(--line);outline-offset:2px}
 h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:0;text-wrap:balance;margin:0;line-height:1.12}
 p{margin:0}

@@ -1269,6 +1269,17 @@ async function main(){
       ok(R.errors.length === 0, 'every move: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }
+    // touch and scrolling (Q3): controls behave like an app's, text you read stays selectable, the long route skips what is off screen
+    {
+      const cssOf = f => fs.readFileSync(path.join(ROOT, 'styles', f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      const bcss = cssOf('base.css'), ccss = cssOf('components.css');
+      const rules = css => [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(m => ({ sel: m[1].split(',').map(x => x.trim()), body: m[2].replace(/\s+/g, '') }));
+      const ctl = rules(bcss).find(r => r.sel.join(',').startsWith('button,.btn,.chip,.tab'));
+      const noSelect = fs.readdirSync(path.join(ROOT, 'styles')).filter(f => f.endsWith('.css')).flatMap(f => rules(cssOf(f)).filter(r => /user-select:none/.test(r.body)).flatMap(r => r.sel.filter(x => ['*', 'html', 'body', '.say', '.w', 'p', '.view'].includes(x)).map(x => f + ' ' + x)));
+      ok(!!ctl && /touch-action:manipulation/.test(ctl.body) && /(^|[;{])user-select:none/.test(ctl.body) && !noSelect.length, 'touch: controls don\'t select or wait ' + (ctl ? '' : '(no rule starts button,.btn,.chip,.tab) ') + noSelect.join(', '));
+      ok(bcss.replace(/\s+/g, '').includes('@media(display-mode:standalone){html{overscroll-behavior-y:none}}'), 'touch: no pull-to-reload in the Home Screen app');
+      ok(ccss.replace(/\s+/g, '').includes('.unit{content-visibility:auto;contain-intrinsic-size:auto440px}'), 'learn: off-screen units are skipped');
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
