@@ -210,7 +210,7 @@ li.locked .st-title{color:var(--muted)}
 .stamp{width:224px;height:224px;border-radius:50%;border:6px double var(--line-text);color:var(--line-text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:28px;transform:rotate(-8deg);animation:stamp .7s var(--spring) both;position:relative}
 .stamp::before{content:"";position:absolute;inset:11px;border-radius:50%;border:1.5px dashed currentColor;opacity:.55}
 .stamp::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:2px solid currentColor;opacity:0;animation:ripple .9s .25s var(--ease)}
-.stamp.gold{color:var(--gold);border-color:var(--gold)}
+.stamp.gold{color:var(--gold-text);border-color:var(--gold)}
 .stamp .s-top{font:800 12px/1 var(--body);letter-spacing:.18em;text-transform:uppercase}
 .stamp .s-mid{font:800 23px/1.1 var(--display);text-wrap:balance}
 .stamp .s-bot{font:700 13px/1 var(--body);letter-spacing:.08em;font-variant-numeric:tabular-nums}

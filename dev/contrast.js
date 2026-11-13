@@ -18,7 +18,9 @@ const PAIRS = [
   ['--der', '--surface', 4.5, 'der nouns on a card'], ['--die', '--surface', 4.5, 'die nouns on a card'], ['--das', '--surface', 4.5, 'das nouns on a card'], ['--pl', '--surface', 4.5, 'plural nouns on a card'],
   ['--der', '--bg', 4.5, 'der nouns on the page'], ['--die', '--bg', 4.5, 'die nouns on the page'], ['--das', '--bg', 4.5, 'das nouns on the page'], ['--pl', '--bg', 4.5, 'plural nouns on the page'],
   ['--de', '--bg', 3, 'German accent shapes'], ['--it', '--bg', 3, 'Italian accent shapes'],
-  ['--streak-text', '--streak-bg', 4.5, 'the streak tile']
+  ['--streak-text', '--streak-bg', 4.5, 'the streak tile'],
+  ['--gold-text', '--surface', 4.5, 'gold lettering on a card'], ['--gold-text', '--bg', 4.5, 'gold lettering on the page'],
+  ['--hair-strong', '--surface', 3, 'the edge of a field on a card'], ['--surface', '--hair-strong', 3, 'the switch knob on its track when off']
 ];
 // accepted exceptions. (--es on --bg is deliberately not in PAIRS: mango is a fill with dark ink on it, never a thin shape on the page.)
 const KNOWN = {};

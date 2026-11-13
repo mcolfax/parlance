@@ -1564,6 +1564,14 @@ async function main(){
       ok(R.drift.length === 0, 'contrast: the two dark blocks agree. Differing tokens: ' + R.drift.join(', '));
       ok(Object.keys(CT.KNOWN).length === 0, 'contrast: there are no known exceptions');
     }
+    // colors: gold lettering and a field's edge have their own tokens, and the rules use them
+    { const css = n => fs.readFileSync(path.join(ROOT, 'styles', n), 'utf8'), tk = css('tokens.css'), rule = (f, sel) => { const i = f.indexOf(sel); return i < 0 ? '' : f.slice(i, f.indexOf('}', i)); };
+      ok((tk.match(/--gold-text:/g) || []).length === 3 && (tk.match(/--hair-strong:/g) || []).length === 3 && /--gold:#B8860B;/.test(tk) && /--hair:#D6E3CF;/.test(tk), "colors: gold lettering and field edges have their own tokens");
+      const g = rule(css('components.css'), '.stamp.gold{'), lr = rule(css('features.css'), '.fr-league li.first .fr-rank{');
+      ok(g.includes('color:var(--gold-text)') && g.includes('border-color:var(--gold)') && lr.includes('color:var(--gold-text)'), "colors: the gold stamp's lettering is readable");
+      const bs = css('base.css'), inp = rule(bs, '.input{'), tg = rule(bs, '.toggle span{');
+      ok(inp.includes('border:2px solid var(--hair-strong)') && tg.includes('background:var(--hair-strong)'), 'colors: fields have a visible edge');
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

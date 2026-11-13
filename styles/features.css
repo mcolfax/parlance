@@ -83,7 +83,7 @@
 .fr-row{display:flex;align-items:center;gap:10px;width:100%;min-height:64px;padding:10px 12px;border:0;background:none;border-radius:inherit;text-align:left;font:inherit;color:inherit}
 .fr-row:active{transform:scale(.99)}
 .fr-rank{flex:none;width:22px;text-align:center;font:var(--type-title-s);color:var(--muted)}
-.fr-league li.first .fr-rank{color:var(--gold)}
+.fr-league li.first .fr-rank{color:var(--gold-text)}
 .fr-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .fr-name{display:flex;align-items:center;gap:6px;font:var(--type-title-s);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fr-you{flex:none;font:var(--type-eyebrow);background:var(--line);color:var(--line-ink);border-radius:var(--r-pill);padding:3px 8px}
