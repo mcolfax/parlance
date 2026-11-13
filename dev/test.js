@@ -1556,6 +1556,14 @@ async function main(){
       ok(Q.errors.length === 0, 'story listening: no page errors ' + Q.errors.slice(0, 2).join(' | '));
       Q.E('speak = window.__speak0; LISTEN.storyGap = ' + keep.gap + '; delete navigator.wakeLock; S.langs.es = JSON.parse(' + JSON.stringify(keep.es) + '); S.days = JSON.parse(' + JSON.stringify(keep.days) + '); S.stats = JSON.parse(' + JSON.stringify(keep.stats) + '); closeOverlay(true); Onb.open = window.__onb; UI.tab = "learn"; render()');
     }
+    // contrast: every color pair the app reads text or a control's edge with passes, in both themes (dev/contrast.js)
+    { const CT = require(path.join(ROOT, 'dev', 'contrast.js')), R = CT.report();
+      const r1 = CT.ratio('#15301F', '#F3F7EC');
+      ok(CT.ratio('#000000', '#FFFFFF') === 21 && CT.ratio('#FFFFFF', '#FFFFFF') === 1 && r1 > 13 && r1 < 13.3 && CT.ratio('var(--x)', '#FFFFFF') === null, 'contrast: the math is right');
+      ok(R.failures.length === 0, 'contrast: every pair passes or is a known exception. Fix the color, or if the pair is wrong add it to KNOWN in dev/contrast.js with a reason (Matt decides): ' + R.failures.map(f => f.theme + ' ' + f.fg + ' on ' + f.bg + ' ' + f.ratio + ' < ' + f.min).join('; '));
+      ok(R.drift.length === 0, 'contrast: the two dark blocks agree. Differing tokens: ' + R.drift.join(', '));
+      ok(Object.keys(CT.KNOWN).length === 0, 'contrast: there are no known exceptions');
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

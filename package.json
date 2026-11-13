@@ -10,7 +10,8 @@
     "snapshot": "node dev/flow.js snapshot",
     "guard": "node dev/flow.js guard",
     "shots": "node dev/flow.js shots",
-    "offline-check": "node dev/offline.js"
+    "offline-check": "node dev/offline.js",
+    "contrast": "node dev/contrast.js"
   },
   "devDependencies": {
     "jsdom": "24.1.3"
