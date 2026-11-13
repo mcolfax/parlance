@@ -1269,6 +1269,137 @@ async function main(){
       ok(R.errors.length === 0, 'every move: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }
+    // touch and scrolling (Q3): controls behave like an app's, text you read stays selectable, the long route skips what is off screen
+    {
+      const cssOf = f => fs.readFileSync(path.join(ROOT, 'styles', f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      const bcss = cssOf('base.css'), ccss = cssOf('components.css');
+      const rules = css => [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(m => ({ sel: m[1].split(',').map(x => x.trim()), body: m[2].replace(/\s+/g, '') }));
+      const ctl = rules(bcss).find(r => r.sel.join(',').startsWith('button,.btn,.chip,.tab'));
+      const noSelect = fs.readdirSync(path.join(ROOT, 'styles')).filter(f => f.endsWith('.css')).flatMap(f => rules(cssOf(f)).filter(r => /user-select:none/.test(r.body)).flatMap(r => r.sel.filter(x => ['*', 'html', 'body', '.say', '.w', 'p', '.view'].includes(x)).map(x => f + ' ' + x)));
+      ok(!!ctl && /touch-action:manipulation/.test(ctl.body) && /(^|[;{])user-select:none/.test(ctl.body) && !noSelect.length && /\.chip\.static\{[^}]*user-select:text/.test(bcss), 'touch: controls don\'t select or wait ' + (ctl ? '' : '(no rule starts button,.btn,.chip,.tab) ') + noSelect.join(', '));
+      ok(bcss.replace(/\s+/g, '').includes('@media(display-mode:standalone){html{overscroll-behavior-y:none}}'), 'touch: no pull-to-reload in the Home Screen app');
+      ok(ccss.replace(/\s+/g, '').includes('.unit{content-visibility:auto;contain-intrinsic-size:auto380px}'), 'learn: off-screen units are skipped');
+    }
+    // every control has a name, and a sheet holds the keyboard focus and gives it back (Q3 WP2, R-10)
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document, D = rd;
+      const named = el => !!((el.getAttribute('aria-label') || '').trim() || (el.getAttribute('title') || '').trim() || el.textContent.trim() || (el.id && D.querySelector('label[for="' + el.id + '"]')) || el.closest('label'));
+      const unnamed = root => [...root.querySelectorAll('button,a[href],input,select,textarea,[role="button"]')].filter(el => el.type !== 'hidden' && !named(el)).map(el => el.outerHTML.slice(0, 120));
+      const top = () => rd.querySelector('.overlay:not(.out)'), foot = l => [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === l);
+      const nameCheck = (place, ...roots) => {
+        const bad = roots.flatMap(r => r ? unnamed(r) : []);
+        ok(!bad.length, 'a11y: every control has a name (' + place + '): ' + bad.slice(0, 5).join(' | '));
+      };
+      ok(unnamed(R.E('(() => { const d = document.createElement("div"); d.innerHTML = "<button><svg></svg></button><button aria-label=\\"Close\\"></button><a href=\\"#\\">Go</a>"; return d; })()')).length === 1, 'a11y: the walker catches an icon button with no name');
+      // the six tabs
+      for (const t of ['learn', 'stories', 'review', 'talk', 'friends', 'me']){ R.E('UI.tab = ' + JSON.stringify(t) + '; render()'); nameCheck(t + ' tab', rd.querySelector('#app'), rd.querySelector('#tabs')); }
+      // lessons: the intro, the first teach card, then the first three exercises, each before and after it is answered
+      const walk = async (id, withTeach) => {
+        R.E('endRun(); startLesson(' + JSON.stringify(id) + ')');
+        nameCheck(id + ' intro', top());
+        foot('Start lesson').click();
+        if (withTeach) nameCheck(id + ' first teach card', top());
+        for (let n = 0, guard = 0; n < 3 && guard++ < 30;){
+          const ex = R.E('Run.cur');
+          if (ex.type === 'teach'){ foot('Continue').click(); continue; }
+          n++;
+          nameCheck(id + ' exercise ' + n + ' (' + ex.type + ')', top());
+          if (ex.type === 'match'){
+            const opts = [...rd.querySelectorAll('.overlay:not(.out) .match .opt')], left = opts.filter((_, i) => i % 2 === 0), right = opts.filter((_, i) => i % 2 === 1);
+            for (const it of ex.items){ const a = left.find(b => b.textContent === it.t), b = right.find(b => b.textContent === it.e[0]); if (a && b){ a.click(); b.click(); } }
+            await sleep(320);
+          } else {
+            let ans;
+            switch (ex.type){
+              case 'type-t2e': case 'type-e2t': case 'pic-type': case 'speak': ans = ex.accepted[0]; break;
+              case 'bank-e2t': case 'listen': ans = R.P.tileTokens(ex.item.t).join(' '); break;
+              case 'bank-t2e': ans = R.P.tileTokens(ex.item.e[0]).join(' '); break;
+              default: ans = ex.correct;
+            }
+            R.E('Run.value = ' + JSON.stringify(ans) + '; Run.canCheck = true; doCheck()');
+          }
+          nameCheck(id + ' exercise ' + n + ' feedback', top());
+          const c = foot('Continue'); if (c) c.click();
+        }
+      };
+      await walk('de-1-1', true);
+      await walk('es-3-1', false);
+      await walk('it-1-1', false);
+      // the finish screen
+      R.E('finishRun()'); await sleep(300);
+      nameCheck('finish screen', top());
+      R.E('endRun(); closeOverlay(true)');
+      // a story: its first screen and its first line
+      const st = R.E('STORIES.find(s => s.lang === "es").id');
+      R.E('openStory(' + JSON.stringify(st) + ')');
+      nameCheck('story first screen', top());
+      foot('Start reading').click(); await sleep(60);
+      nameCheck('story first line', top());
+      R.E('closeOverlay(true)');
+      // the bird picker sheet
+      R.E('UI.tab = "me"; render()'); R.E('openBirdPicker()');
+      nameCheck('bird picker sheet', rd.querySelector('.sheet-back'));
+      rd.querySelector('.sheet-back .sheet-actions button').click(); await sleep(250);
+      // the feedback sheet and the restore sheet (fields with only a placeholder used to have no name)
+      for (const [place, open] of [['feedback sheet', 'openFeedback({})'], ['restore sheet', 'restoreBackup()']]){
+        R.E(open); const sb = rd.querySelector('.sheet-back');
+        ok(!!sb && !!sb.querySelector('textarea'), 'a11y: ' + place + ' opened with its field');
+        nameCheck(place, sb);
+        sb.querySelector('.sheet-actions button').click(); await sleep(250);
+      }
+      // onboarding's first step
+      R.E('S.settings.onboarded = false; openOnboarding(false)');
+      nameCheck('onboarding first step', top());
+      R.E('S.settings.onboarded = true; closeOverlay(true)');
+      // newer screens: the speed round and the Review tile, its finish screen with its extra buttons, the sticker book, the offline card
+      R.E('(() => { const L = S.langs.es; for (const l of coreOrder("es")) for (let i = 0; i < l.vocab.length; i++){ if (speedPool("es").length >= 12) return; const k = itemKey(l, "v", i); if (!L.cards[k]) L.cards[k] = { ef: 2.5, n: 1, iv: 1, due: addDays(today(), 3), last: today(), ts: 1 }; } })()');
+      R.E('UI.tab = "review"; render()');
+      nameCheck('review tab with the speed tile', rd.querySelector('#app'));
+      R.E('startSpeed()'); nameCheck('speed round', top());
+      R.E('Speed.score = 5; Speed.answered = 6; speedEnd()'); await sleep(200);
+      ok(!!rd.querySelector('.overlay [data-more="again"]'), 'a11y: the speed finish screen has its extra button');
+      nameCheck('speed finish screen (data-more buttons)', top());
+      R.E('endSpeed()');
+      R.E('openStickers()'); nameCheck('sticker book', top()); R.E('closeOverlay(true)');
+      { let card = null;
+        try { R.E('Offline.on = true; UI.tab = "me"; render()'); await sleep(300); card = rd.querySelector('.offline-card'); } catch (e) {}
+        if (card) nameCheck('Me offline card', card);
+        R.E('Offline.on = false'); }
+      // sheets: Tab stays inside, closing gives the focus back
+      R.E('UI.tab = "learn"; render()');
+      const opener = rd.querySelector('#tabs .tab'); opener.focus();
+      const close = R.E('sheet("Two actions", document.createElement("p"), [{ label: "First" }, { label: "Second" }])');
+      const acts = [...rd.querySelectorAll('.sheet-back .sheet-actions button')];
+      const tab = shiftKey => { const ev = new R.w.KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true }); rd.dispatchEvent(ev); return ev.defaultPrevented; };
+      await sleep(80);
+      acts[acts.length - 1].focus();
+      const fwd = tab(false) && rd.activeElement === acts[0];
+      const back = tab(true) && rd.activeElement === acts[acts.length - 1];
+      ok(acts.length === 2 && fwd && back, 'sheet: Tab stays inside: the last control wraps to the first, and Shift+Tab on the first goes to the last');
+      ok(rd.querySelector('.sheet-back .sheet').getAttribute('tabindex') === '-1', 'sheet: the box can take focus when it has no control of its own');
+      close(); await sleep(250);
+      ok(!rd.querySelector('.sheet-back') && rd.activeElement === opener, 'sheet: closing gives the focus back');
+      { // a sheet that starts a lesson must not hand the focus to the route behind the lesson
+        R.E('UI.tab = "learn"; render()');
+        const st = [...rd.querySelectorAll('#app .station')][2]; st.focus();
+        R.E('confirmLocked(coreOrder("es")[2])'); await sleep(80);
+        [...rd.querySelectorAll('.sheet-back .sheet-actions button')].find(b => b.textContent === 'Start lesson').click(); await sleep(250);
+        ok(!!rd.querySelector('.overlay:not(.out)') && !rd.activeElement.closest('#app'), 'sheet: a sheet that starts a lesson leaves the focus off the route');
+        R.E('endRun(); closeOverlay(true)'); await sleep(50);
+        // a sheet opened from a sheet: the focus goes back to the first opener
+        R.E('UI.tab = "learn"; render()');
+        const tab = rd.querySelector('#tabs .tab'); tab.focus();
+        R.E('window.__B = null; sheet("A", document.createElement("p"), [{ label: "Open B", run: () => { window.__B = sheet("B", document.createElement("p"), [{ label: "Done" }]); } }])'); await sleep(80);
+        [...rd.querySelectorAll('.sheet-back .sheet-actions button')].find(b => b.textContent === 'Open B').click(); await sleep(250);
+        const bs = [...rd.querySelectorAll('.sheet-back:not(.out)')];
+        ok(bs.length === 1 && bs[0].getAttribute('aria-label') === 'B' && rd.activeElement.closest('.sheet-back') === bs[0], 'sheet: opening B from A leaves the focus in B: ' + bs.length);
+        R.E('window.__B()'); await sleep(250);
+        ok(!rd.querySelector('.sheet-back') && rd.activeElement === tab, 'sheet: a sheet opened from a sheet gives the focus back to the first opener');
+      }
+      ok(R.errors.length === 0, 'a11y: no page errors ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
@@ -1967,7 +2098,7 @@ async function main(){
     { const r = G.E('(() => { pipTaps = 0; const e = pip("happy", 60, { lang: "de" }); document.body.append(e); e.click(); const hop = e.rig.playing("hop"); e.click(); return [hop, e.rig.mood, e.rig.home]; })()');
       ok(r[0] && r[1] === 'wave' && r[2] === 'happy', 'tapping Pip takes turns: a hop, then a wave ' + JSON.stringify(r)); }
     { const r = G.E('(() => { const e = pip("sleep", 60, { lang: "de" }); document.body.append(e); e.click(); return e.rig.mood; })()'); ok(r === 'wow', 'a sleeping Pip wakes with a start when tapped: ' + r); }
-    { const r = G.E('(() => { const e = pip("dance", 60, { tap: false, moveFor: 1 }); document.body.append(e); return e.rig.playing("dance"); })()'); await sleep(40);
+    { const r = G.E('(() => { const e = pip("dance", 60, { tap: false, moveFor: 1 }); document.body.append(e); e.rig._frame(0, 0.05); return e.rig.playing("dance"); })()'); await sleep(40);   // one frame first: the rig's clock starts at 0, and a stop stamped at 0 reads as "not stopped"
       ok(r && !G.E('[...document.querySelectorAll(".pip")].pop().rig.playing("dance")'), 'moveFor ends a looping move'); }
     // a mood's looping clip ends with the mood: after the hello wave the bird rests, its wing still, not waving on
     { const r = G.E('(() => { const e = pip("happy", 60, { tap: false }); document.body.append(e); const R = e.rig, wr = R.def.bones.findIndex(b => b.id === "wingR");' +

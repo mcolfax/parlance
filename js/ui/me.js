@@ -250,8 +250,8 @@ async function downloadBackup(){
   DL.save.save({ filename: 'parlance-backup-' + today() + '.txt', data: code }).then(() => toast('Backup saved'), e => { if (!e || e.code !== 'declined') showBackup(); });
 }
 function restoreBackup(){
-  const ta = h('textarea', { class: 'input code', rows: '5', placeholder: 'Paste your backup code' });
-  const file = h('input', { type: 'file', accept: '.txt,.json,text/plain,application/json', class: 'input', onchange: e => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { ta.value = String(rd.result || ''); }; rd.readAsText(f); } });
+  const ta = h('textarea', { class: 'input code', rows: '5', 'aria-label': 'Backup code', placeholder: 'Paste your backup code' });
+  const file = h('input', { type: 'file', accept: '.txt,.json,text/plain,application/json', class: 'input', 'aria-label': 'Backup file', onchange: e => { const f = e.target.files && e.target.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { ta.value = String(rd.result || ''); }; rd.readAsText(f); } });
   sheet('Restore progress', h('div', { class: 'field' }, h('p', { class: 'small muted' }, 'Paste a backup code or choose a backup file. It’s merged with what’s here, so nothing you’ve done on this device is lost.'), ta, file),
     [{ label: 'Cancel' }, { label: 'Restore', primary: true, run: async () => {
       let d; try { d = await readBackup(ta.value); } catch (e) { toast('That code doesn’t look right. Check it and try again.'); return true; }

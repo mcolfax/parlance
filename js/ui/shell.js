@@ -14,11 +14,27 @@ function toast(msg){
 }
 function sheet(title, body, actions){
   const back = h('div', { class: 'sheet-back', role: 'dialog', 'aria-modal': 'true', 'aria-label': title });
-  const close = () => { back.classList.add('out'); setTimeout(() => back.remove(), 160); document.removeEventListener('keydown', onKey); };
-  const onKey = e => { if (e.key === 'Escape') close(); };
+  const act = document.activeElement, from = act && act.closest ? act.closest('.sheet-back') : null;
+  const opener = from && from._opener ? from._opener : act;   // a sheet opened from a sheet gives focus back to the first opener
+  back._opener = opener;
+  const close = () => {
+    back.classList.add('out'); setTimeout(() => back.remove(), 160); document.removeEventListener('keydown', onKey);
+    const ov = [...document.querySelectorAll('.overlay:not(.out)')].pop();
+    const covered = !!document.querySelector('.sheet-back:not(.out)') || (ov && !ov.contains(opener));   // another sheet or a lesson is on top now
+    if (!covered && opener && opener.isConnected && opener.focus) try { opener.focus({ preventScroll: true }); } catch (e) {}
+  };
+  const onKey = e => {
+    if (e.key === 'Escape'){ close(); return; }
+    if (e.key !== 'Tab') return;
+    const f = [...box.querySelectorAll('button,a[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && !x.hidden);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  };
   document.addEventListener('keydown', onKey);
   const acts = h('div', { class: 'sheet-actions' }, (actions || []).map(a => h('button', { class: 'btn ' + (a.primary ? 'btn-primary' : 'btn-quiet'), type: 'button', onclick: async () => { const keep = a.run && await a.run(close); if (!keep) close(); } }, a.label)));
-  const box = h('div', { class: 'sheet' }, h('div', { class: 'grip', 'aria-hidden': 'true' }), h('h3', null, title), body, acts);
+  const box = h('div', { class: 'sheet', tabindex: '-1' }, h('div', { class: 'grip', 'aria-hidden': 'true' }), h('h3', null, title), body, acts);
   back.append(box);
   const grip = box.firstChild; let y0 = null, dy = 0;
   grip.addEventListener('pointerdown', e => { y0 = e.clientY; dy = 0; box.classList.remove('back'); box.classList.add('drag'); try { grip.setPointerCapture(e.pointerId); } catch (err) {} });
