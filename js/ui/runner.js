@@ -258,9 +258,9 @@ function showFeedback(ex, res){
   }
   OV.foot.className = 'ov-foot ' + (res.ok ? 'ok' : 'bad');
   const cont = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => { clearTimeout(Run.sayTimer); speakStop(); Run.pos++; nextEx(); } }, 'Continue');
-  // Pip cheers a right answer, dances on a run of them, nods at one that counts but isn't word for word, and worries at a miss
+  // Pip cheers a right answer, dances on a run of them, laughs with delight from eight in a row, nods at one that counts but isn't word for word, and worries at a miss
   const run = res.ok && first && res.level === 'exact' && Run.combo >= 3;
-  const fbPip = pip(!res.ok ? 'oops' : run ? 'dance' : res.level === 'exact' ? 'cheer' : 'happy', 58, { cls: 'fb-pip', tap: false, moveFor: run ? 2000 : 0 });
+  const fbPip = pip(!res.ok ? 'oops' : run && Run.combo >= 8 ? 'laugh' : run ? 'dance' : res.level === 'exact' ? 'cheer' : 'happy', 58, { cls: 'fb-pip', tap: false, moveFor: run ? 2000 : 0 });
   if (res.ok && res.level !== 'exact') fbPip.rig.play('nod');
   OV.footIn.replaceChildren(fbPip, fb, cont);
   if (res.ok){ haptic('ok'); requestAnimationFrame(() => burstAt(fb.querySelector('.fb-ic'), { n: res.level === 'exact' ? 12 : 7, dist: 44 })); if (OV.prog){ OV.prog.classList.remove('glint'); void OV.prog.offsetWidth; OV.prog.classList.add('glint'); } }
@@ -651,7 +651,8 @@ function finishRun(){
       stick.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'New ' + plural(stick.length, 'sticker')), h('div', { class: 'sticker-strip center' }, stick.map((x, i) => stickerTile({ id: x.id, v: x.v, got: true, shiny: false }, 48, i)))) : null,
       vocabChips.length ? h('div', { class: 'learned' }, h('span', { class: 'eyebrow' }, 'Added to your review deck'), h('div', { class: 'chips' }, vocabChips.map((v, i) => h('span', { class: 'chip static', style: '--i:' + i }, itemText(v, lang))))) : null],
     badges, quests, onDone: () => endRun(),
-    rate: Run.mode === 'lesson' ? { lessonId: Run.lesson.id } : null
+    rate: Run.mode === 'lesson' ? { lessonId: Run.lesson.id } : null,
+    mood: Run.mode === 'checkpoint' ? (cpPass ? 'proud' : 'sad') : null, calm: Run.mode === 'checkpoint' && !cpPass
   });
 }
 /* shared "you did it" screen for lessons, reviews and stories */
@@ -659,13 +660,13 @@ function showComplete(o){
   const lang = o.lang; const st = streakInfo();
   const dateStr = new Date().toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
   const xpEl = h('span', { class: 'num' }, '+0');
-  const cheer = pickSay(lang, 'cheer');
+  const cheer = pickSay(lang, o.calm ? 'oops' : 'cheer');   // a failed checkpoint gets a kind word, not a cheer
   const ms = (o.badges || []).filter(id => /^streak\d+$/.test(id) && +id.slice(6) >= 7).pop();   // a new streak badge of 7, 14, 30 ... days is a moment of its own (the 3-day one isn't)
   const gold = o.gold || !!ms, sub = ms ? (o.sub || o.h1) : o.sub;
   swapBody(h('div', { class: 'complete' },
     h('div', { class: 'stamp-wrap' },
       h('div', { class: 'stamp' + (gold ? ' gold' : ''), 'aria-hidden': 'true' }, h('span', { class: 's-top' }, o.top), h('span', { class: 's-mid' }, o.title), h('span', { class: 's-bot' }, dateStr)),
-      pip(ms ? 'fly' : gold || o.acc === 1 ? 'dance' : 'cheer', 78, { cls: 'complete-pip', say: cheer, mouth: true, moveFor: 3200, lang })),
+      pip(ms ? 'fly' : o.mood || (gold || o.acc === 1 ? 'dance' : 'cheer'), 78, { cls: 'complete-pip', say: cheer, mouth: true, moveFor: 3200, lang })),
     h('h1', null, ms ? st.count + ' days in a row!' : o.h1),
     sub ? h('p', { class: 'muted' }, sub) : null,
     h('div', { class: 'tiles3' },
@@ -681,11 +682,11 @@ function showComplete(o){
   const btn = h('button', { class: 'btn btn-primary btn-wide', type: 'button', onclick: () => o.onDone() }, 'Continue');
   const more = (o.more || []).map(m => h('button', { class: 'btn btn-quiet btn-wide', type: 'button', 'data-more': m.id, onclick: m.run }, m.label));
   OV.footIn.replaceChildren(...more, btn); setTimeout(() => btn.focus(), 30);
-  sfx(o.gold || (o.badges && o.badges.length) ? 'level' : 'done'); haptic('done');
+  sfx(!o.calm && (o.gold || (o.badges && o.badges.length)) ? 'level' : 'done'); haptic('done');
   countUp(xpEl, o.xp);
   if (o.quests && o.quests.length) setTimeout(() => sfx('quest'), 700);
   if (o.badges && o.badges.length) setTimeout(() => sfx('badge'), 1100);
-  confetti(OV.root, gold ? 180 : 110);
+  if (!o.calm) confetti(OV.root, gold ? 180 : 110);
   const root = OV.root;   // the cheer belongs to this finish screen: Next or the checkpoint button may already have opened another
   if (S.settings.autoplay) setTimeout(() => { if (OV.root && OV.root === root) speak(cheer, lang, false, mascot()); }, 900);
 }

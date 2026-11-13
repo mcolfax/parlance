@@ -1196,6 +1196,74 @@ async function main(){
       ok(R.errors.length === 0, 'milestone: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }
+    // every move has a moment (Q5): no mood or clip of the birds goes unused, and the new moments show up
+    {
+      const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+      const rd = R.w.document;
+      const uiDir = path.join(ROOT, 'js', 'ui');
+      const screens = fs.readdirSync(uiDir).filter(f => f.endsWith('.js') && f !== 'film.js').map(f => fs.readFileSync(path.join(uiDir, f), 'utf8')).concat(fs.readFileSync(path.join(ROOT, 'js', 'core', 'art.js'), 'utf8')).join('\n');
+      const moodNames = R.E('Object.keys(Bird.BIRD.moods)'), clipNames = R.E('Object.keys(Bird.BIRD.clips)'), moodClip = R.E('Object.fromEntries(Object.entries(Bird.BIRD.moods).map(([k, m]) => [k, m.clip || null]))');
+      ok(moodNames.length === 18 && clipNames.length >= 19, 'birds: the mood and clip tables were read from the app: ' + moodNames.length + ' moods, ' + clipNames.length + ' clips');
+      const moodUsed = m => screens.includes("'" + m + "'");
+      for (const m of moodNames) ok(moodUsed(m), 'birds: every mood has a moment: "' + m + '" is on no screen. Give it a screen or remove it from the plan that added it');
+      for (const c of clipNames){
+        const viaMood = Object.keys(moodClip).some(m => moodClip[m] === c && moodUsed(m));
+        const direct = new RegExp("play\\('" + c + "'\\)|move: '" + c + "'").test(screens);
+        ok(viaMood || direct, 'birds: every clip has a moment: "' + c + '" is played by no screen. Give it a screen or remove it from the plan that added it');
+      }
+      ok(R.E('PIP_TAPS.some(t => t.mood === "laugh")'), 'birds: a tap can make the bird laugh');
+      // a shrugging bird shakes its head
+      R.E('window.__plays = []; window.__shrug = pip("shrug", 40); document.body.append(window.__shrug); { const p = window.__shrug.rig.play.bind(window.__shrug.rig); window.__shrug.rig.play = n => { window.__plays.push(n); return p(n); }; }');
+      R.E('window.__shrug.click()');
+      ok(JSON.stringify(R.E('window.__plays')) === '["shake"]', 'birds: a shrugging bird shakes its head: ' + JSON.stringify(R.E('window.__plays')));
+      R.E('window.__shrug.remove()');
+      // eight in a row laughs, four dances
+      R.E('startLesson(COURSE.es.units[0].lessons[0].id)');
+      R.E('Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx()');
+      const fbMood = combo => {
+        let g = 0;
+        while (g++ < 60){
+          const ex = R.E('Run.cur');
+          if (ex && ex.options && ex.correct !== undefined && ex.type !== 'match' && !R.E('Run.first.has(Run.cur.id)')) break;
+          R.E('Run.pos++; nextEx()');
+        }
+        R.E('Run.combo = ' + (combo - 1) + '; Run.value = ' + JSON.stringify(R.E('Run.cur.correct')) + '; Run.canCheck = true; doCheck()');
+        const el = rd.querySelector('.overlay:not(.out) .fb-pip');
+        const cls = el ? el.className : '';
+        [...rd.querySelectorAll('.overlay:not(.out) .ov-foot button')].find(b => b.textContent === 'Continue').click();
+        return cls;
+      };
+      const c8 = fbMood(8), c4 = fbMood(4);
+      ok(/\blaugh\b/.test(c8) && !/\bdance\b/.test(c8), 'feedback: eight in a row laughs: ' + c8);
+      ok(/\bdance\b/.test(c4) && !/\blaugh\b/.test(c4), 'feedback: four in a row still dances: ' + c4);
+      R.E('closeOverlay(true)');
+      // the finish screen
+      R.E('window.__cf = []; confetti = (host, n) => { window.__cf.push(n); }');   // jsdom has no canvas: count the calls instead
+      const finishCp = pass => {
+        R.E('window.__cf.length = 0; startCheckpoint(COURSE.es.units[0], true)');
+        R.E(pass ? 'Run.first.set("a", "exact"); Run.first.set("b", "exact"); finishRun()' : 'Run.first.set("a", "wrong"); Run.first.set("b", "wrong"); finishRun()');
+        const c = rd.querySelector('.overlay:not(.out) .complete');
+        const out = { cls: c.querySelector('.complete-pip').className, say: c.querySelector('.complete-pip .pip-say').textContent, confetti: R.E('window.__cf.length') > 0 || !!rd.querySelector('.overlay:not(.out) canvas.confetti'), h1: c.querySelector('h1').textContent };
+        R.E('closeOverlay(true)');
+        return out;
+      };
+      const bad = finishCp(false), good = finishCp(true);
+      ok(/\bsad\b/.test(bad.cls) && R.E('PIP_SAYS.es.oops').includes(bad.say) && !bad.confetti && bad.h1 === 'Not quite yet.', 'finish: a failed checkpoint is gentle: ' + JSON.stringify(bad));
+      ok(/\bproud\b/.test(good.cls) && good.confetti, 'finish: a passed checkpoint is proud, with confetti: ' + JSON.stringify(good));
+      const finishLesson = acc => {
+        R.E('openOverlay("run"); showComplete({ lang: "es", top: "Lesson complete", title: "Hola", xp: 5, acc: ' + acc + ', h1: "x", sub: null, third: [1, "day streak"], badges: [], quests: [], onDone: () => {} })');
+        const cls = rd.querySelector('.overlay:not(.out) .complete-pip').className; R.E('closeOverlay(true)'); return cls;
+      };
+      const fl = finishLesson(1), mi = finishLesson(0.5);
+      ok(/\bdance\b/.test(fl) && /\bcheer\b/.test(mi) && !/\bsad\b|\bproud\b/.test(fl + mi), 'finish: lessons are unchanged: ' + fl + ' / ' + mi);
+      // before a test
+      const readyBefore = rd.querySelectorAll('.pip.ready').length;
+      R.E('confirmTestOut(COURSE.es.units[0])');
+      const readyNow = [...rd.querySelectorAll('.pip.ready')];
+      ok(readyNow.length === readyBefore + 1 && /Test out of this unit\?/.test(rd.body.textContent), 'test out: the bird is ready');
+      ok(R.errors.length === 0, 'every move: no page errors ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');

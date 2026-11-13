@@ -37,7 +37,7 @@ From screenshots of every tab, a lesson, the finish screen, a story and setup at
 | 9 | **It can still behave like a web page.** In the Home Screen app a pull at the top reloads it; a long press on a button selects its label; the 11,000px Learn route is laid out and painted in full. | `styles/base.css` has no `touch-action`, `user-select` or `content-visibility` | Q3 WP1 |
 | 10 | **No accessibility audit has been done** (R-10): no check that every control has a name, sheets don't hold or return focus. | `sheet()` in `js/ui/shell.js` | Q3 WP2 |
 | 11 | **Nothing checks contrast.** Measured from the tokens: light-theme gold text is 3.0 to 3.3:1 (needs 4.5); field borders are 1.3:1 (a control's edge needs 3); white on the German green button is 4.38:1, just under 4.5. Everything else passes, most of it comfortably, and dark mode passes everywhere. | Computed 11 Nov from `styles/tokens.css` | Q4 |
-| 12 | **Two of the birds' animations are never shown, and three are shown once.** The `laugh` mood and the head-`shake` clip appear on no screen; `sad`, `proud` and `ready` appear in one place each. After a failed checkpoint the bird cheers under confetti. | Counted 11 Nov across `js/ui/*.js` and `js/core/art.js` (the film aside) | Q5 (P3 and P4 use more of them too) |
+| 12 | **Two of the birds' animations are never shown, and three are shown once.** The `laugh` mood and the head-`shake` clip appear on no screen; `sad`, `proud` and `ready` appear in one place each. After a failed checkpoint the bird cheers under confetti. | Counted 11 Nov across `js/ui/*.js` and `js/core/art.js` (the film aside) | Q5 |
 
 Looked at and left alone, on purpose:
 
