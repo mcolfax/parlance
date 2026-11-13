@@ -34,7 +34,7 @@ function hashStr(s){ let x = 2166136261; for (let i = 0; i < s.length; i++){ x ^
 /* every vibration has a name; screens call haptic('ok'), never a pattern */
 const HAPTICS = { tap: 6, select: 8, pair: 10, ok: 12, heavy: 30, miss: [15, 30, 15], bad: [18, 40, 18], done: [10, 50, 10] };
 function haptic(p){ try { if (S && S.settings && S.settings.haptics === false) return; const v = typeof p === 'string' ? HAPTICS[p] : p; if (v != null && navigator.vibrate) navigator.vibrate(v); } catch (e) {} }
-function busy(){ return !!(Run.active || Talk.open || Onb.open || Story.open || Film.open || Studio.open || (typeof Speed !== 'undefined' && Speed.open)); }
+function busy(){ return !!(Run.active || Talk.open || Onb.open || Story.open || Film.open || Studio.open || (typeof Speed !== 'undefined' && Speed.open) || (typeof Listen !== 'undefined' && Listen.open)); }
 /* little particle bursts for right answers, pairs, chests */
 function burst(x, y, opts = {}){
   if (reduced() || !document.body) return;
@@ -84,6 +84,10 @@ const IC = {
   copy: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6A2.5 2.5 0 0 0 13 3.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></svg>',
   flag: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21V4M6 4.5h11l-2.5 4 2.5 4H6"/></svg>',
   play: '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>',
+  headphones: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><path d="M4 15h3v5H5a1 1 0 0 1-1-1zM20 15h-3v5h2a1 1 0 0 0 1-1z" fill="currentColor"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" width="20" height="20"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>',
+  next: '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 5.5v13l9-6.5zM16 5h2.5v14H16z" fill="currentColor"/></svg>',
+  prev: '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M18 5.5v13l-9-6.5zM8 5H5.5v14H8z" fill="currentColor"/></svg>',
   heart: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg>',
   wand: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 15 9M14 4v3M19 9h-3M17.5 5.5l-2 2M7 4l.6 1.6L9 6l-1.4.4L7 8l-.6-1.6L5 6l1.4-.4z"/></svg>',
   stories: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5c3-1 6-1 9 1 3-2 6-2 9-1v13c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6.5v13"/></svg>',

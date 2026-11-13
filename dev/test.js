@@ -1067,7 +1067,7 @@ async function main(){
       ok(R.E('Speed.open') === false, 'speed: needs 8 learned words (seven, startSpeed leaves it closed)');
       ok(learnTo(8) === 8, 'speed: eight words');
       R.E('render()');
-      ok(!!tile() && /60 seconds\. Go!/.test(tile().textContent) && R.E('practiceTiles("es").map(t => t.id).slice(0, 2).join()') === 'weak,speed', 'speed: needs 8 learned words (eight, the tile shows after Weakest items)');
+      ok(!!tile() && /60 seconds\. Go!/.test(tile().textContent) && R.E('practiceTiles("es").map(t => t.id).slice(0, 3).join()') === 'weak,listen,speed', 'speed: needs 8 learned words (eight, the tile shows after Weakest items; Listen hands-free sits between)');
       learnTo(30);
       // every question is fair
       let fair = true, why = '';
@@ -1361,6 +1361,9 @@ async function main(){
       ok(!!rd.querySelector('.overlay [data-more="again"]'), 'a11y: the speed finish screen has its extra button');
       nameCheck('speed finish screen (data-more buttons)', top());
       R.E('endSpeed()');
+      R.E('startListen()'); nameCheck('listen hands-free screen', top());
+      R.E('listenEnd()'); nameCheck('listen hands-free finish screen', top());
+      R.E('endListen()'); await sleep(300);
       R.E('openStickers()'); nameCheck('sticker book', top()); R.E('closeOverlay(true)');
       { let card = null;
         try { R.E('Offline.on = true; UI.tab = "me"; render()'); await sleep(300); card = rd.querySelector('.offline-card'); } catch (e) {}
@@ -1399,6 +1402,79 @@ async function main(){
       }
       ok(R.errors.length === 0, 'a11y: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
+    }
+    // Listen hands-free (P5 WP1): your words read aloud in Review. It changes no card, XP or quest, and nothing plays after it is closed
+    {
+      const T0 = { gapSay: Q.E('LISTEN.gapSay'), gapReveal: Q.E('LISTEN.gapReveal'), gapNext: Q.E('LISTEN.gapNext') };
+      const cardsBefore = JSON.stringify(L().cards);
+      Q.E('window.__speak0 = speak; window.__onb = Onb.open; Onb.open = false; window.__said = []; speak = function(t){ window.__said.push(String(t)); return new Promise(r => setTimeout(() => r(true), 5)); }; LISTEN.gapSay = LISTEN.gapReveal = LISTEN.gapNext = 1; closeOverlay(true)');
+      const seed = n => Q.E('(() => { const L = S.langs.es; L.cards = {}; let k = 0; for (const l of coreOrder("es")) for (let i = 0; i < l.vocab.length && k < ' + n + '; i++, k++) L.cards[itemKey(l, "v", i)] = { ef: 2.5 - k * 0.01, n: 1, iv: 1, due: k < 3 ? today() : addDays(today(), 4), last: today(), ts: 1 }; })()');
+      const said = () => Q.E('window.__said.length'), listenTile = () => Q.E('practiceTiles("es").some(t => t.id === "listen")');
+      // offered from 6 learned items
+      Q.E('S.settings.lang = "es"');
+      seed(5); ok(Q.E('learnedEntries("es").length') === 5 && !listenTile(), 'listen: no tile under 6 learned items');
+      Q.E('startListen()'); ok(Q.E('Listen.open') === false && !qd.querySelector('.overlay.listen'), 'listen: startListen does nothing under 6 learned items');
+      seed(10);
+      ok(listenTile() === (Q.E('learnedEntries("es").length') >= 6) && listenTile(), 'listen: offered from 6 learned items');
+      Q.E('UI.tab = "review"; render()');
+      ok(!!qd.querySelector('[data-practice="listen"]') && /Listen hands-free/.test(qd.querySelector('[data-practice="listen"]').textContent), 'listen: the Review tile is there');
+      // due items first, no repeats, at most 20
+      { const items = Q.E('listenItems("es")'), texts = [...items].map(i => i.t), due = Q.E('dueEntries("es")');
+        ok(new Set(texts).size === texts.length && texts.length <= 20 && texts.length >= 6 && (!due.length || texts[0] === due[0].item.t), 'listen: due items first, no repeats, at most 20: ' + texts.length);
+        ok(texts.length === 10 && Q.E('listenItems("es").slice(0, 3).every(i => dueEntries("es").some(e => e.item.t === i.t))'), 'listen: the due ones come before the shaky ones'); }
+      const snap = () => JSON.stringify([L().cards, L().xp, L().miss, Q.E('S.days[today()]')]);
+      const before = snap();
+      // the lock screen and the screen lock, where the phone has them
+      Q.E('window.__ms = { metadata: null, playbackState: "none", h: {}, setActionHandler(a, f){ this.h[a] = f; } }; Object.defineProperty(navigator, "mediaSession", { configurable: true, value: window.__ms }); window.MediaMetadata = function(o){ Object.assign(this, o); }; window.__wl = { n: 0, released: 0 }; Object.defineProperty(navigator, "wakeLock", { configurable: true, value: { request: async () => { window.__wl.n++; return { release: async () => { window.__wl.released++; }, addEventListener(){} }; } } })');
+      // the song is held while it's open
+      const song0 = Q.E('busy()');
+      Q.E('startListen()');
+      ok(song0 === false && Q.E('busy()') === true && !!qd.querySelector('.overlay.listen'), 'listen: the song is held while it\'s open');
+      ok(Q.E('Listen.playing') === true && qd.querySelector('.overlay.listen .ls-t').textContent === Q.E('Listen.items[0].t') && Q.E('window.__said[0]') === Q.E('Listen.items[0].t'), 'listen: it starts at once with the first line');
+      ok(Q.E('Object.keys(__ms.h).length') === 4 && Q.E('Object.values(__ms.h).every(f => typeof f === "function")') && Q.E('__ms.metadata.title') === Q.E('Listen.items[0].t') && Q.E('__ms.metadata.album').startsWith('Parlance'), 'listen: the lock screen gets the line and four buttons');
+      // pause, next and previous
+      Q.E('listenPause()');
+      ok(Q.E('Listen.playing') === false && /Play/.test(qd.querySelector('.overlay.listen .ls-controls .btn').textContent), 'listen: pause, next and previous (paused, the button says Play)');
+      Q.E('listenStep(1)'); const p1 = Q.E('Listen.pos');
+      Q.E('listenStep(-1)'); const p0 = Q.E('Listen.pos');
+      Q.E('listenStep(-1)');
+      ok(p1 === 1 && p0 === 0 && Q.E('Listen.pos') === 0 && Q.E('Listen.playing') === false, 'listen: pause, next and previous: ' + p1 + ' ' + p0);
+      { const n0 = said(); await sleep(150); ok(said() === n0, 'listen: nothing plays while paused'); }
+      // the headphone buttons
+      Q.E('__ms.h.nexttrack()'); ok(Q.E('Listen.pos') === 1, 'listen: the next button on the headphones skips');
+      Q.E('__ms.h.previoustrack()');
+      // plays to the end on its own
+      Q.E('window.__said.length = 0; __ms.h.play()');
+      ok(Q.E('Listen.playing') === true, 'listen: the play button on the headphones starts it again');
+      let g = 0; while (!/heard\./.test(qd.querySelector('.overlay.listen') ? qd.querySelector('.overlay.listen').textContent : '') && g++ < 200) await sleep(50);
+      const n = Q.E('Listen.items.length');
+      ok(/heard\./.test(qd.querySelector('.overlay.listen').textContent) && Q.E('Listen.pos') === n && n === 10, 'listen: plays to the end on its own: ' + Q.E('Listen.pos') + ' of ' + n);
+      ok(said() === 2 * n && Q.E('window.__said.every((t, i) => t === Listen.items[i >> 1].t)'), 'listen: every item twice, in order: ' + said());
+      ok(/All 10 heard\./.test(qd.querySelector('.overlay.listen h1').textContent) && /still waiting in Review/.test(qd.querySelector('.overlay.listen').textContent), 'listen: the end says what it didn\'t do while reviews are due');
+      ok(Q.E('__ms.metadata') === null && Object.values(Q.E('__ms.h')).every(f => f === null), 'listen: the lock screen is cleared when it ends');
+      await sleep(30); ok(Q.E('__wl.n') >= 1 && Q.E('__wl.released') === Q.E('__wl.n'), 'listen: the screen is held while it plays and let go at the end: ' + Q.E('__wl.n') + '/' + Q.E('__wl.released'));
+      // Again plays it again, Done closes it and nothing is open
+      qfoot('Again').click();
+      ok(Q.E('Listen.playing') === true && Q.E('Listen.pos') === 0 && !/heard\./.test(qd.querySelector('.overlay.listen').textContent), 'listen: Again starts over');
+      Q.E('listenStep(1000)'); ok(/heard\./.test(qd.querySelector('.overlay.listen').textContent), 'listen: skipping past the last item ends it');
+      qfoot('Done').click(); await sleep(350);
+      ok(Q.E('Listen.open') === false && !qd.querySelector('.overlay.listen') && Q.E('busy()') === false, 'listen: Done closes it and nothing is open');
+      ok(snap() === before, 'listen: changes no card, XP or quest');
+      // closing in the middle of a line: nothing plays afterwards
+      Q.E('window.__said.length = 0; startListen()'); await sleep(40);
+      qd.querySelector('.overlay.listen .ov-head button').click(); const n1 = said(); await sleep(300);
+      ok(Q.E('Listen.open') === false && !qd.querySelector('.overlay.listen') && said() === n1 && n1 > 0 && n1 < 20 && Q.E('busy()') === false, 'listen: nothing plays after closing: ' + n1 + ' then ' + said());
+      ok(Q.E('__ms.metadata') === null && Q.E('__wl.released') === Q.E('__wl.n'), 'listen: closing clears the lock screen and lets go of the screen');
+      ok(snap() === before, 'listen: closing early changes no card, XP or quest');
+      // a phone with neither Media Session nor Wake Lock, and a line that can't play
+      Q.E('delete navigator.mediaSession; delete navigator.wakeLock; speak = function(t){ window.__said.push(String(t)); return Promise.resolve(false); }; window.__said.length = 0; startListen()');
+      g = 0; while (!/heard\./.test(qd.querySelector('.overlay.listen').textContent) && g++ < 200) await sleep(50);
+      ok(/heard\./.test(qd.querySelector('.overlay.listen').textContent), 'listen: without Media Session, Wake Lock or a voice it still runs to the end');
+      Q.E('endListen()'); await sleep(300);
+      // the ten-minute worry: a long list stops at 20
+      seed(40); ok(Q.E('listenItems("es").length') <= 20 && Q.E('listenItems("es").length') > 6, 'listen: a long list stops at ' + Q.E('listenItems("es").length'));
+      ok(Q.errors.length === 0, 'listen: no page errors ' + Q.errors.slice(0, 2).join(' | '));
+      Q.E('speak = window.__speak0; LISTEN.gapSay = ' + T0.gapSay + '; LISTEN.gapReveal = ' + T0.gapReveal + '; LISTEN.gapNext = ' + T0.gapNext + '; S.langs.es.cards = JSON.parse(' + JSON.stringify(cardsBefore) + '); closeOverlay(true); Onb.open = window.__onb; UI.tab = "learn"; render()');
     }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {

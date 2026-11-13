@@ -524,3 +524,14 @@ li.locked .st-title{color:var(--muted)}
 .speed-time i{transition:width var(--dur-fast) linear}
 .speed-secs{min-width:28px;text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
 .speed.paused{align-items:center;text-align:center;padding-top:40px}
+
+/* Listen hands-free (overlay). Scoped to the body: the overlay itself carries the class listen too. */
+.ov-body .listen{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding-top:8px}
+.ov-body .listen.done{padding-top:32px}
+.ls-card{width:100%;min-height:180px;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:28px 18px;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--shadow)}
+.ls-t{font:800 clamp(22px,7vw,32px)/1.2 var(--display);color:var(--ink);overflow-wrap:anywhere}
+.ls-e{font-size:18px;color:var(--muted);opacity:0;transition:opacity var(--dur) var(--ease)}
+.ls-e.on{opacity:1}
+.ls-controls{display:flex;align-items:center;justify-content:center;gap:16px;width:100%}
+.ls-controls .btn{flex:1;max-width:220px}
+@media (prefers-reduced-motion:reduce){.ls-e{transition:none}}
