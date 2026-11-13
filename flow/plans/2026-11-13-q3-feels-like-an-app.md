@@ -1,7 +1,7 @@
 # Feels like an app: touch that behaves, a route that scrolls lightly, every control named
 
 - **Cycle:** 2026-11-13-2 (polish program Q3, `flow/POLISH.md`)
-- **Status:** building
+- **Status:** shipped (4.40.0)
 - **Release:** 4.40.0
 - **Base:** `main` at 5553dc6 (4.39.0)
 - **Proposals built:** none
@@ -147,5 +147,5 @@ Both edit `dev/test.js`, so they run **one after another**: WP1, then WP2.
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.40.0, `a69d0b6` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**

@@ -1,9 +1,9 @@
 # Listen hands-free: your words read aloud, and stories you can listen to
 
-- **Cycle:** set when promoted (premium program P5, `flow/PREMIUM.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-p5-listen-hands-free.md`, set Release, Base and `approved`)
-- **Release:** 4.37.0, or the next free minor when promoted
-- **Base:** `main` at promotion time (nothing below depends on line numbers)
+- **Cycle:** 2026-11-13-3 (premium program P5, `flow/PREMIUM.md`)
+- **Status:** building
+- **Release:** 4.41.0
+- **Base:** `main` at a69d0b6 (4.40.0)
 - **Proposals built:** none
 - **Roadmap items:** R-7, new R-25
 - **Needs:** P1 shipped (`practiceTiles()` in `js/ui/review.js`). If P1's WP3 was dropped, WP1 adds its Review button the old way: a `btn btn-ghost btn-wide` in the Review hero, labelled `Listen hands-free`.
