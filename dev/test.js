@@ -1216,6 +1216,7 @@ async function main(){
       R.E('window.__plays = []; window.__shrug = pip("shrug", 40); document.body.append(window.__shrug); { const p = window.__shrug.rig.play.bind(window.__shrug.rig); window.__shrug.rig.play = n => { window.__plays.push(n); return p(n); }; }');
       R.E('window.__shrug.click()');
       ok(JSON.stringify(R.E('window.__plays')) === '["shake"]', 'birds: a shrugging bird shakes its head: ' + JSON.stringify(R.E('window.__plays')));
+      ok(['talk.js', 'review.js'].every(f => { const src = fs.readFileSync(path.join(ROOT, 'js', 'ui', f), 'utf8'); return /'shrug'/.test(src) && !/'shrug'[^\n;]{0,40}tap: false/.test(src); }), 'birds: the shrugging birds on Talk and Review can be tapped');
       R.E('window.__shrug.remove()');
       // eight in a row laughs, four dances
       R.E('startLesson(COURSE.es.units[0].lessons[0].id)');
