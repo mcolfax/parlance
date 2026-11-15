@@ -1,7 +1,7 @@
 # Easier to read: a contrast check for every color pair, gold text and field edges fixed
 
 - **Cycle:** 2026-11-13-4 (polish program Q4, `flow/POLISH.md`)
-- **Status:** building
+- **Status:** shipped (4.42.0)
 - **Release:** 4.42.0
 - **Base:** `main` at a41cd72 (4.41.0)
 - **Proposals built:** none
@@ -147,5 +147,5 @@ They share `dev/test.js` and `dev/contrast.js`, so they run **one after another*
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.42.0, `16d53ec` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**

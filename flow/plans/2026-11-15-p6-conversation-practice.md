@@ -1,9 +1,9 @@
 # Conversation practice: choose the reply, and put a conversation in order
 
-- **Cycle:** set when promoted (premium program P6, `flow/PREMIUM.md`)
-- **Status:** queued (promote: move to `flow/plans/<cycle date>-p6-conversation-practice.md`, set Release, Base and `approved`)
-- **Release:** 4.38.0, or the next free minor when promoted
-- **Base:** `main` at promotion time
+- **Cycle:** 2026-11-15 (premium program P6, `flow/PREMIUM.md`)
+- **Status:** building
+- **Release:** 4.43.0
+- **Base:** `main` at 16d53ec (4.42.0)
 - **Proposals built:** none. Answers idea note fmv58xfx9pqsf (tutor features outside Claude) in a way that needs no tutor.
 - **Roadmap items:** R-4, R-8
 - **Needs:** P1's `practiceTiles()` for the Review tile. If it isn't there, WP2 skips the Review tile and says so in its report.
