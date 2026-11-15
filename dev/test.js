@@ -2422,6 +2422,9 @@ async function main(){
     { const r = G.E('(() => { const e = pip("sleep", 60, { lang: "de" }); document.body.append(e); e.click(); return e.rig.mood; })()'); ok(r === 'wow', 'a sleeping Pip wakes with a start when tapped: ' + r); }
     { const r = G.E('(() => { const e = pip("dance", 60, { tap: false, moveFor: 1 }); document.body.append(e); e.rig._frame(0, 0.05); return e.rig.playing("dance"); })()'); await sleep(40);   // one frame first: the rig's clock starts at 0, and a stop stamped at 0 reads as "not stopped"
       ok(r && !G.E('[...document.querySelectorAll(".pip")].pop().rig.playing("dance")'), 'moveFor ends a looping move'); }
+    // a move stopped before the rig's first frame (clock at 0) must still stop
+    { const r = G.E('(() => { const e = pip("happy", 60, { tap: false }); document.body.append(e); e.rig.play("dance", { loop: true }); e.rig.stop("dance"); e.rig._frame(0, 0.05); return e.rig.playing("dance"); })()');
+      ok(r === false, 'rig: a move stopped before the first frame stops'); }
     // a mood's looping clip ends with the mood: after the hello wave the bird rests, its wing still, not waving on
     { const r = G.E('(() => { const e = pip("happy", 60, { tap: false }); document.body.append(e); const R = e.rig, wr = R.def.bones.findIndex(b => b.id === "wingR");' +
         ' R.set("wave"); const a = R.playing("wave"); let flap = 0; for (let i = 0; i < 20; i++){ R._frame(0, 0.05); flap = Math.max(flap, Math.abs(R.frame.chans[wr].r)); }' +
