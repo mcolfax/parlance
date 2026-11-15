@@ -74,6 +74,17 @@ button.stat:active{transform:scale(.97)}
 .unit-head{display:flex;align-items:center;gap:12px;padding-top:10px}
 .unit-head .eyebrow{display:block;margin-bottom:2px}
 .unit h2{font-size:20px}
+/* a finished unit folds into one row; the row is a button, so it has to look like the plain head */
+.unit-toggle{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:10px 0 0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.lvl-sec.open .unit-toggle .chev{transform:none}
+.lvl-sec.open .unit-toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.unit.compact{padding-top:6px;padding-bottom:6px;contain-intrinsic-size:auto 128px}
+.unit.compact h2{font-size:18px}
+.unit.compact .unit-head{padding-top:0}
+/* a finished level also matches the finish screen's .complete rule (centered column that shrinks to fit): keep its route rows full width and left aligned */
+.lvl-sec.complete{align-items:stretch;gap:0;padding-top:0;text-align:left}
+.unit-done{display:grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:var(--line);color:var(--surface)}
+.unit-done svg{width:15px;height:15px}
 .stations{list-style:none;margin:4px 0 0;padding:0;position:relative}
 .stations::before{content:"";position:absolute;left:13px;top:26px;bottom:26px;width:4px;border-radius:4px;background:var(--hair-2)}
 .stations li{position:relative}
@@ -400,6 +411,12 @@ li.locked .st-title{color:var(--muted)}
 .first-week li.done .fw-step{color:var(--muted);cursor:default}
 .first-week .fw-go{color:var(--muted);transform:rotate(-90deg)}
 .first-week .linkish{align-self:flex-start}
+/* Your week (recap) */
+.recap-card h3{margin:2px 0 4px}
+.recap-card .linkish{align-self:flex-start}
+.recap{display:flex;flex-direction:column;gap:14px}
+.recap-top{align-items:center;gap:12px}
+.recap-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
 .chest{width:70px;height:63px;border:0;background:none;padding:0;flex:none;transition:transform var(--dur-fast) var(--ease)}
 .chest:active{transform:scale(.92)}
 .chest svg{width:100%;height:100%;display:block;overflow:visible}

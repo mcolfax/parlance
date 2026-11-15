@@ -1344,6 +1344,18 @@ async function main(){
       R.E('UI.tab = "me"; render()'); R.E('openBirdPicker()');
       nameCheck('bird picker sheet', rd.querySelector('.sheet-back'));
       rd.querySelector('.sheet-back .sheet-actions button').click(); await sleep(250);
+      // a folded unit on Learn (one button with its name and state)
+      const keepEsDone = R.E('JSON.stringify(S.langs.es.done)');
+      R.E('S.langs.es.done = {}; for (const l of COURSE.es.units[0].lessons) S.langs.es.done[l.id] = { at: "2026-10-01", acc: 1, times: 1 }; UI.units = new Set(); UI.tab = "learn"; UI.open = new Set(["A1"]); UI.openLang = "es"; render()');
+      ok(!!rd.querySelector('#app .unit.compact .unit-toggle'), 'a11y: a finished unit is folded');
+      nameCheck('folded unit on Learn', rd.querySelector('#app'));
+      R.E('S.langs.es.done = JSON.parse(' + JSON.stringify(keepEsDone) + '); render()');
+      // the weekly recap sheet
+      R.E('S.days[addDays("2026-10-26", 0)] = { xp: 10, met: false }; S.days[addDays("2026-10-26", 2)] = { xp: 25, met: true }; openRecap("2026-10-26")');
+      ok(!!rd.querySelector('.sheet-back .recap'), 'a11y: the recap sheet opened');
+      nameCheck('recap sheet', rd.querySelector('.sheet-back'));
+      [...rd.querySelectorAll('.sheet-back .sheet-actions button')].find(b => b.textContent === 'Done').click(); await sleep(250);
+      R.E('delete S.days["2026-10-26"]; delete S.days["2026-10-28"]; localStorage.removeItem("parlance.recap")');
       // the feedback sheet and the restore sheet (fields with only a placeholder used to have no name)
       for (const [place, open] of [['feedback sheet', 'openFeedback({})'], ['restore sheet', 'restoreBackup()']]){
         R.E(open); const sb = rd.querySelector('.sheet-back');
@@ -1651,6 +1663,64 @@ async function main(){
       ok(!!tile && tile.textContent.includes('Conversations'), 'conversation entry: Review has a Conversations tile once a story is read');
       tile.click(); ok(Q.E('Run.mode') === 'convo', 'conversation entry: the Review tile starts a convo session');
       Q.E('endRun(); closeOverlay(true)'); SL.es.stories = keep; Q.E('UI.tab = "learn"; render()');
+    }
+    // your week: the recap (P7 WP1)
+    { const d = Q.w.document, wk = (arr, mon) => arr.map((x, i) => 'S.days[addDays(' + JSON.stringify(mon) + ', ' + i + ')] = ' + (x ? '{ xp: ' + x + ', met: ' + (x >= 20) + ' }' : 'undefined') + ';').join(' ');
+      const keepDays = Q.E('JSON.stringify(S.days)'), keepLang = Q.E('S.settings.lang'), keepGoal = Q.E('S.settings.goal');
+      Q.E('localStorage.removeItem("parlance.recap"); S.settings.lang = "es"; S.settings.goal = 20; S.days = {}');
+      Q.E(wk([10, 0, 25, 0, 0, 30, 5], '2026-10-26'));
+      const r = Q.E('weekRecap("es", "2026-10-26")');
+      ok(r.xp === 70 && r.goalDays === 2 && r.activeDays === 4 && r.bestDay === '2026-10-31' && r.bestXp === 30, 'your week: the recap adds up the week');
+      Q.E('S.days["2026-10-27"] = { xp: 30, bonus: 30, met: false }'); const rb = Q.E('weekRecap("es", "2026-10-26")');
+      ok(rb.xp === 100 && rb.goalDays === 2 && rb.activeDays === 4 && rb.xps[1] === 0, 'your week: a duel bonus counts in the total, not in goal days');
+      Q.E('delete S.days["2026-10-27"]');
+      ok(Q.E('mondayOf("2026-11-01")') === '2026-10-26' && Q.E('mondayOf("2026-10-26")') === '2026-10-26' && Q.E('lastMonday("2026-11-02")') === '2026-10-26', 'your week: weeks run Monday to Sunday');
+      const cmp = prev => { Q.E('for (let i = 0; i < 7; i++) delete S.days[addDays("2026-10-19", i)]; ' + (prev ? 'S.days["2026-10-20"] = { xp: ' + prev + ' }' : '')); return Q.E('recapCompare(weekRecap("es", "2026-10-26"))'); };
+      Q.E('S.days["2026-10-05"] = { xp: 10 }');
+      ok(cmp(35) === 'Up 100% on the week before.' && cmp(140) === 'Down 50% on the week before. A short lesson today gets you going again.' && cmp(0) === 'A fresh start after a quiet week.', 'your week: compared with the week before');
+      Q.E('delete S.days["2026-10-05"]');
+      ok(cmp(0) === 'Your first week. A great start.', 'your week: a first week is called a first week');
+      ok(Q.E('recapDue("es", "2026-11-02")') === '2026-10-26' && Q.E('recapDue("es", "2026-11-04")') === '2026-10-26' && Q.E('recapDue("es", "2026-11-05")') === null, 'your week: shown Monday to Wednesday, once (days)');
+      Q.E('recapSet("2026-10-26")'); ok(Q.E('recapDue("es", "2026-11-03")') === null, 'your week: shown Monday to Wednesday, once');
+      Q.E('localStorage.removeItem("parlance.recap"); S.days = {}');
+      ok(Q.E('recapDue("es", "2026-11-02")') === null, 'your week: no card after a quiet week');
+      ok(Q.E('recapShareText({ lang: "es", xp: 70, goalDays: 2, streak: 3 })') === 'My week learning Spanish on Parlance: 70 XP, 2 of 7 goal days, and a 3-day streak.' && Q.E('recapShareText({ lang: "it", xp: 5, goalDays: 0, streak: 0 })') === 'My week learning Italian on Parlance: 5 XP, 0 of 7 goal days.', 'your week: the share text');
+      Q.E(wk([10, 0, 25, 0, 0, 30, 5], '2026-10-26')); Q.E('openRecap("2026-10-26")');
+      const sh = d.querySelector('.sheet-back .sheet');
+      ok(!!sh && sh.textContent.includes('Your week') && sh.textContent.includes('70') && sh.querySelector('.bars') && sh.textContent.includes('Share my week') && Q.E('localStorage.getItem("parlance.recap")') === '2026-10-26', 'your week: the sheet opens and marks the week seen');
+      ok(sh.textContent.includes('Best day: Saturday, 30 XP'), 'your week: the sheet names the best day');
+      if (sh) [...sh.querySelectorAll('.sheet-actions button')].find(b => b.textContent === 'Done').click();
+      // Learn shows the card on Monday to Wednesday only; Me offers last full week any time
+      Q.E('localStorage.removeItem("parlance.recap"); S.days = {}'); Q.E(wk([10, 0, 25, 0, 0, 30, 5], Q.E('lastMonday()')));
+      Q.E('UI.tab = "me"; render()'); ok([...d.querySelectorAll('#app .linkish')].some(b => b.textContent === 'Your last full week'), 'your week: Me offers last full week');
+      Q.E('UI.tab = "learn"; render()'); const dow = (Q.E('parseDay(today()).getDay()') + 6) % 7;
+      ok(!!d.querySelector('#app .recap-card') === (dow <= 2), 'your week: the Learn card shows only Monday to Wednesday');
+      if (dow <= 2){ [...d.querySelectorAll('#app .recap-card .linkish')].find(b => b.textContent === 'Not now').click(); ok(!d.querySelector('#app .recap-card') && Q.E('localStorage.getItem("parlance.recap")') === Q.E('lastMonday()'), 'your week: Not now hides the card for good'); }
+      Q.E('S.days = {}'); Q.E('UI.tab = "me"; render()'); ok(![...d.querySelectorAll('#app .linkish')].some(b => b.textContent === 'Your last full week'), 'your week: Me has no button after a quiet week');
+      Q.E('localStorage.removeItem("parlance.recap"); S.days = JSON.parse(' + JSON.stringify(keepDays) + '); S.settings.lang = ' + JSON.stringify(keepLang) + '; S.settings.goal = ' + keepGoal + '; UI.tab = "learn"; render()');
+    }
+    // route: finished units fold into one row (P7 WP2, R-11)
+    { const d = Q.w.document, keepDone = Q.E('JSON.stringify(S.langs.es.done)'), keepLang = Q.E('S.settings.lang'), keepCp = Q.E('JSON.stringify(S.langs.es.cp)'), keepOuts = Q.E('JSON.stringify(S.langs.es.outs || null)');
+      const u0 = Q.P.COURSE.es.units[0], u1 = Q.P.COURSE.es.units[1];
+      Q.E('S.settings.lang = "es"; S.langs.es.done = {}; S.langs.es.cp = {}; delete S.langs.es.outs; UI.justDone = null; UI.units = new Set()');
+      for (const l of u0.lessons) Q.E('S.langs.es.done[' + JSON.stringify(l.id) + '] = { at: "2026-10-01", acc: 1, times: 1 }');
+      const show = () => { Q.E('UI.tab = "learn"; UI.open = new Set(["A1"]); UI.openLang = "es"; render()'); return [...d.querySelectorAll('#app .unit')]; };
+      const named = (units, u) => units.find(el => el.querySelector('h2').textContent === u.title);
+      let units = show(), a = named(units, u0), b = named(units, u1);
+      ok(!!a && a.classList.contains('compact') && !a.querySelector('.stations:not(.checkpoint) .station') && !!a.querySelector('.stations.checkpoint'), 'route: a finished unit folds into one row');
+      ok(!!b && !b.classList.contains('compact') && b.querySelectorAll('.stations:not(.checkpoint) .station').length === u1.lessons.length, 'route: an unfinished unit stays open');
+      let tg = a.querySelector('.unit-toggle'); ok(!!tg && tg.getAttribute('aria-expanded') === 'false' && tg.textContent.includes('done'), 'route: a folded unit is one button, collapsed');
+      tg.click(); a = named(show(), u0);
+      ok(!a.classList.contains('compact') && a.querySelectorAll('.stations:not(.checkpoint) .station').length === u0.lessons.length && a.querySelector('.unit-toggle').getAttribute('aria-expanded') === 'true', 'route: tapping a folded unit opens it');
+      a.querySelector('.unit-toggle').click(); a = named(show(), u0);
+      ok(a.classList.contains('compact') && a.querySelector('.unit-toggle').getAttribute('aria-expanded') === 'false', 'route: tapping again folds it');
+      Q.E('UI.justDone = ' + JSON.stringify(u0.lessons[0].id)); a = named(show(), u0);
+      ok(!a.classList.contains('compact') && !!a.querySelector('li.just'), 'route: the lesson just finished keeps its unit open');
+      Q.E('UI.justDone = null; S.langs.es.cp[' + JSON.stringify(u0.title) + '] = { pass: true, acc: 1 }'); a = named(show(), u0);
+      ok(a.classList.contains('compact') && !a.querySelector('.stations'), 'route: a passed unit folds with no checkpoint row');
+      Q.E('delete S.langs.es.cp[' + JSON.stringify(u0.title) + ']; S.langs.es.done = {}; S.langs.es.outs = {}; S.langs.es.outs[' + JSON.stringify(u0.title) + '] = 1'); a = named(show(), u0);
+      ok(a.classList.contains('compact') && a.textContent.includes('tested out') && !!a.querySelector('.stations.checkpoint'), 'route: a tested-out unit folds and keeps its open checkpoint');
+      Q.E('S.langs.es.done = JSON.parse(' + JSON.stringify(keepDone) + '); S.langs.es.cp = JSON.parse(' + JSON.stringify(keepCp) + '); S.langs.es.outs = JSON.parse(' + JSON.stringify(keepOuts) + ') || undefined; if (!S.langs.es.outs) delete S.langs.es.outs; S.settings.lang = ' + JSON.stringify(keepLang) + '; UI.units = new Set(); UI.justDone = null; render()');
     }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {

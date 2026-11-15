@@ -131,7 +131,8 @@ function viewMe(){
     h('div', { class: 'bars', role: 'img', 'aria-label': 'XP per day for the last 7 days: ' + vals.join(', ') },
       h('span', { class: 'goal-line', style: 'bottom:' + (24 + Math.round(goal / max * 100)) + 'px' }, h('span', null, goal)),
       days.map((k, i) => h('div', { class: 'bar' + (vals[i] >= goal ? '' : ' miss') + (k === t ? ' today' : '') }, h('i', { style: 'height:' + Math.max(3, Math.round(vals[i] / max * 100)) + 'px;--d:' + i }), h('span', null, names[parseDay(k).getDay()])))),
-    h('p', { class: 'small muted' }, 'The dashed line is your daily goal. Miss one day a week and your streak freeze covers it.')));
+    h('p', { class: 'small muted' }, 'The dashed line is your daily goal. Miss one day a week and your streak freeze covers it.'),
+    typeof weekRecap === 'function' && weekRecap(lang, lastMonday()).activeDays > 0 ? h('button', { class: 'linkish small', type: 'button', style: 'align-self:flex-start', onclick: () => openRecap(lastMonday()) }, 'Your last full week') : null));
   v.append(birdCard());
   // settings
   const vs = voicesFor(lang);
