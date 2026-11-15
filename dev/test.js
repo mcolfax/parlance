@@ -2683,9 +2683,24 @@ async function main(){
     ok(fetched.includes('media/voice/de.json') && fetched.filter(u => u === 'media/voice/de-1-1.mp3').length === 1, 'the index and the pack are fetched once');
     await played('speak("guten  morgen", "de", false, CAST.lena)', [15, 10]);
     await played('speak("Guten Morgen", "de", false, CAST.weber)', [5, 10]);   // no recording of hers: the narrator's
-    E('S.settings.speed = "relaxed"'); await played('speak("Guten Morgen", "de")', [5, 10]); ok(E('Rec.el.playbackRate') === 0.85, 'relaxed speed plays it slower');
+    E('S.settings.speed = "relaxed"'); await played('speak("Guten Morgen", "de")', [5, 10]); ok(E('Rec.el.playbackRate') === 0.78, 'relaxed speed plays it slower');
     E('S.settings.speed = "normal"'); await played('speak("Guten Morgen", "de", true)', [5, 10]); ok(E('Rec.el.playbackRate') === 0.7 && E('Rec.el.preservesPitch') === true, 'the slow button slows it without lowering it');
     ok(E('__dev') === 0, 'none of that used the device voice');
+    // Relaxed has to be heard (follow-ups): a clip at 0.78 against 1, the device voice slower in step, a rate Chrome reset put back, and the Web Audio fallback slowed too
+    E('S.settings.speed = "normal"'); await played('speak("Guten Morgen", "de")', [5, 10]); ok(E('Rec.el.playbackRate') === 1, 'follow-ups: normal speed plays a clip at 1');
+    { const src = fs.readFileSync(path.join(ROOT, 'js', 'core', 'audio.js'), 'utf8'), m = /speed === 'relaxed' \? ([\d.]+) : ([\d.]+)\)\) \* \(\(vo/.exec(src);
+      ok(m && +m[2] === 0.96 && +m[1] / +m[2] <= 0.78, 'follow-ups: the device voice is slower on Relaxed in step with the clips: ' + (m && m[1] + ' vs ' + m[2])); }
+    E('S.settings.speed = "relaxed"');
+    { const pr = E('speak("Guten Morgen", "de")'); await sleep(40);
+      E('Rec.el.playbackRate = 1; Rec.el.dispatchEvent(new Event("playing"))');
+      ok(E('Rec.el.playbackRate') === 0.78, 'follow-ups: a rate Chrome reset when the source loaded is put back when it starts playing');
+      E('Rec.el.dispatchEvent(new Event("ended"))'); await pr; }
+    { const run = async rate => E('(async () => { const old = SFX.ctx, src = { connect(){}, start(){}, stop(){}, playbackRate: { value: 1 }, detune: { value: 0 } }; window.__bsrc = src;'
+        + ' SFX.ctx = { state: "running", destination: {}, decodeAudioData: (b, yes) => { yes({ duration: 1 }); }, createBufferSource: () => src };'
+        + ' const pr = recBuffer(new ArrayBuffer(4), ' + rate + ', Rec.gen); await new Promise(r => setTimeout(r, 20)); if (src.onended) src.onended(); const out = await pr; SFX.ctx = old; return out; })()');
+      ok(await run(0.78) === true && E('__bsrc.playbackRate.value') === 0.78 && E('__bsrc.detune.value') === 0, 'follow-ups: the Web Audio fallback plays Relaxed at 0.78 (detune stays 0: it would cancel the slowdown)');
+      ok(await run(0.7) === null && await run(1) === true && E('__bsrc.playbackRate.value') === 1, 'follow-ups: the Web Audio fallback leaves slow to the device voice and normal at full speed'); }
+    E('S.settings.speed = "normal"');
     let n = blobs.length;
     ok(await E('speak("Etwas ganz Neues", "de")') === false && E('__dev') === 1 && blobs.length === n, 'a line with no recording uses the device voice');
     ok(await E('speak("Kaputt", "de")') === false && E('__dev') === 2, 'a clip past the end of its pack uses the device voice');
