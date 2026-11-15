@@ -133,6 +133,11 @@ function startGenders(){
   const lang = S.settings.lang, es = genderEntries(lang); if (es.length < GENDER_DRILL.min) return;
   beginSession('genders', lang, shuffle(es).slice(0, GENDER_DRILL.perSession).map(genderEx));
 }
+function startConvo(){
+  const lang = S.settings.lang, q = convoSession(lang);
+  if (q.length < CONVO.min){ toast('Read a story first, then practice its conversations here.'); return; }
+  beginSession('convo', lang, q);
+}
 function startCheckpoint(u, testOut){
   const lang = S.settings.lang; if (!unitDone(lang, u) && !testOut) return;
   beginSession('checkpoint', lang, buildCheckpoint(u), { unit: u, testOut: !!testOut });
@@ -201,6 +206,8 @@ async function doCheck(){
   showFeedback(ex, res);
 }
 function feedbackAnswer(ex){
+  if (ex.type === 'order') return null;
+  if (ex.type === 'reply') return { t: ex.item.t, en: ex.item.e[0], target: true };
   if (ex.type === 'form') return { t: ex.correct, en: ex.cap + ' · ' + ex.label, target: true };
   if (ex.type === 'blank') return { t: blankSaid(ex.blank), en: ex.blank.e, target: true };
   if (ex.type === 'match') return null;
@@ -240,6 +247,7 @@ function showFeedback(ex, res){
   Run.pos++; resumeSave(); Run.pos--;   // answered: a lesson picked up from here starts at the next card
   const ans = feedbackAnswer(ex);
   const lang = ex.lang;
+  const vo = ex.type === 'reply' ? CAST[ex.item.who] : undefined;
   const glossOpts = a => S.settings.hints === 'off' ? {} : { gloss: true, en: a.en };
   const titles = res.ok ? (res.level === 'exact' ? ['Correct!', 'Nice!', 'Exactly.', 'Well done.', 'Spot on.'][Math.floor(Math.random() * 5)] : res.level === 'ai' ? 'Accepted' : res.level === 'form' ? 'Close enough' : 'Correct') : res.level === 'article' || res.level === 'form' ? 'Almost' : 'Not quite';
   const cmp = acceptedCompare(ex, res);
@@ -249,11 +257,12 @@ function showFeedback(ex, res){
     res.heard && !cmp ? h('div', { class: 'heard' }, 'Heard: “' + res.heard + '”') : null,
     cmp ? compareView(ex, cmp) : null,
     res.diffs && res.diffs.length && (cmp || !res.ok || res.level === 'form') ? diffList(res.diffs) : null);
+  if (ex.type === 'order' && !res.ok) fb.append(h('ol', { class: 'co-answer' }, ex.lines.map(l => h('li', null, h('b', null, CAST[l.who].name + ': '), h('span', { lang: LANGS[lang].tts }, l.t)))));
   if (!res.ok || res.level === 'ai') fb.append(reportLink(ex));
   const userWords = !res.ok && typeof Run.value === 'string' ? new Set(fold(norm(Run.value, ans && ans.target ? lang : 'en')).split(' ')) : null;
   if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank', 'pic-pick', 'gender'].includes(ex.type))){
     if (!res.ok) fb.append(h('div', { class: 'fb-label' }, 'Correct answer'));
-    if (ans.target) fb.append(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, ex.type === 'blank' ? sayText(ans.t, lang, glossOpts(ans)) : (ex.item.g && ex.kind === 'v' ? itemText(ex.item, lang) : sayText(ans.t, lang, { ...(userWords ? { miss: userWords } : {}), ...glossOpts(ans) }))), speakBtn(ans.t, lang)), h('div', { class: 'fb-sub' }, ans.en));
+    if (ans.target) fb.append(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, ex.type === 'blank' ? sayText(ans.t, lang, glossOpts(ans)) : (ex.item.g && ex.kind === 'v' ? itemText(ex.item, lang) : sayText(ans.t, lang, { ...(userWords ? { miss: userWords } : {}), ...glossOpts(ans) }))), speakBtn(ans.t, lang, null, vo)), h('div', { class: 'fb-sub' }, ans.en));
     else fb.append(h('div', { class: 'fb-ans' }, userWords ? markMissing(ans.en, userWords) : ans.en), h('div', { class: 'fb-sub row' }, h('span', { class: 'grow' }, itemText(ex.item, lang)), speakBtn(ans.t, lang)));
   }
   OV.foot.className = 'ov-foot ' + (res.ok ? 'ok' : 'bad');
@@ -272,7 +281,7 @@ function showFeedback(ex, res){
   if (res.ok && first && res.level === 'exact' && [3, 5, 8, 12, 16].includes(Run.combo)) setTimeout(() => showCombo(Run.combo), 280);
   clearTimeout(Run.sayTimer);
   // the answer is read on its own question: never after Continue, and never over the next question
-  if (S.settings.autoplay && ans && ex.type !== 'speak' && ex.type !== 'match') Run.sayTimer = setTimeout(() => { if (Run.cur === ex && Run.active) speak(cmp && ex.ansLang !== 'en' ? cmp.shown : ans.t, lang); }, S.settings.sfx ? 380 : 0);
+  if (S.settings.autoplay && ans && ex.type !== 'speak' && ex.type !== 'match') Run.sayTimer = setTimeout(() => { if (Run.cur === ex && Run.active) speak(cmp && ex.ansLang !== 'en' ? cmp.shown : ans.t, lang, false, vo); }, S.settings.sfx ? 380 : 0);
 }
 /* an answer that counts without matching word for word: set it beside the answer it was matched to */
 function acceptedCompare(ex, res){
@@ -533,6 +542,29 @@ const RENDER = {
         return b;
       })));
   },
+  reply(ex, api){
+    const lang = ex.lang, vo = CAST[ex.prompt.who];
+    if (S.settings.autoplay) Run.sayTimer = setTimeout(() => { if (Run.cur === ex) speak(ex.prompt.t, lang, false, vo); }, 250);
+    return h('div', { class: 'ex' }, qLabel('Choose the reply'),
+      h('div', { class: 'sline l co-prompt' }, avatar(ex.prompt.who, 40, 'sl-av'),
+        h('div', { class: 'bubble' }, h('span', { class: 'who' }, vo.name), h('div', { class: 't' }, sayText(ex.prompt.t, lang, { gloss: true, en: ex.prompt.e })),
+          h('div', { class: 'sl-act' }, speakBtn(ex.prompt.t, lang, 'Play line', vo)))),
+      h('p', { class: 'muted' }, 'What does ' + CAST[ex.item.who].name + ' say next?'),
+      options(ex.options, o => { api.set(o); api.ready(true); speak(o, lang, false, CAST[ex.item.who]); }, o => h('span', { lang: LANGS[lang].tts }, o)));
+  },
+  order(ex, api){
+    const lang = ex.lang, placed = [];
+    const line = l => h('span', { class: 'co-line' }, avatar(l.who, 28), h('span', { class: 'co-t', lang: LANGS[lang].tts }, l.t));
+    const list = h('ol', { class: 'co-list' }), pool = h('div', { class: 'co-pool' });
+    const draw = () => {
+      list.replaceChildren(h('li', { class: 'co-fixed' }, line(ex.lines[0])), ...placed.map(i => h('li', null,
+        h('button', { class: 'co-btn placed', type: 'button', 'aria-label': 'Take back: ' + ex.lines[i].t, onclick: () => { placed.splice(placed.indexOf(i), 1); sfx('drop'); draw(); } }, line(ex.lines[i])))));
+      pool.replaceChildren(...ex.tiles.filter(i => !placed.includes(i)).map(i => h('button', { class: 'co-btn', type: 'button', onclick: () => { placed.push(i); sfx('pick'); speak(ex.lines[i].t, lang, false, CAST[ex.lines[i].who]); draw(); } }, line(ex.lines[i]))));
+      api.set(placed.join(',')); api.ready(placed.length === ex.lines.length - 1);
+    };
+    draw();
+    return h('div', { class: 'ex' }, qLabel('Put the conversation in order'), h('p', { class: 'muted' }, 'Tap the lines in the order they’re said.'), list, pool);
+  },
   speak(ex, api){
     const wrap = h('div', { class: 'ex' }, qLabel('Say this out loud'), targetPrompt(ex.item, ex.lang, false, ex), h('p', { class: 'muted' }, ex.item.e[0]));
     const heard = h('p', { class: 'heard', 'aria-live': 'polite' });
@@ -616,7 +648,7 @@ function finishRun(){
     bumpQuest('reviews', uniq.length);
   } else {
     xp += XP.review; title = uniq.length + ' ' + plural(uniq.length, 'item') + ' ' + (Run.mode === 'review' ? 'reviewed' : Run.mode === 'mistakes' ? 'fixed up' : 'practiced');
-    top = Run.mode === 'review' ? 'Review complete' : Run.mode === 'mistakes' ? 'Mistakes practiced' : Run.mode === 'forms' ? 'Forms practiced' : Run.mode === 'genders' ? 'Articles practiced' : 'Practice complete';
+    top = Run.mode === 'review' ? 'Review complete' : Run.mode === 'mistakes' ? 'Mistakes practiced' : Run.mode === 'forms' ? 'Forms practiced' : Run.mode === 'genders' ? 'Articles practiced' : Run.mode === 'convo' ? 'Conversation practiced' : 'Practice complete';
     bumpQuest('reviews', uniq.length);
   }
   bumpQuest('combo', Run.bestCombo, true);

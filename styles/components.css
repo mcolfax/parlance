@@ -140,6 +140,19 @@ li.locked .st-title{color:var(--muted)}
 .gap-opts{gap:10px}
 .gender-noun{overflow-wrap:anywhere;hyphens:auto}
 .gender-opts .tile{min-width:56px}
+/* Conversation practice */
+.co-prompt{margin:4px 0 6px}
+.co-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;counter-reset:co}
+.co-list li{display:flex;align-items:flex-start;gap:8px;counter-increment:co}
+.co-list li::before{content:counter(co);flex:none;width:22px;padding-top:12px;font-weight:700;color:var(--muted);text-align:right}
+.co-pool{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding-top:14px;border-top:2px dashed var(--hair)}
+.co-btn,.co-fixed .co-line{display:flex;width:100%;padding:10px 12px;border-radius:var(--r-md);background:var(--surface);border:2px solid var(--hair);color:var(--ink);font:inherit;text-align:left}
+.co-btn{cursor:pointer;box-shadow:0 3px 0 var(--hair)}
+.co-btn.placed{border-color:var(--line)}
+.co-fixed .co-line{background:var(--bg)}
+.co-line{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.co-t{flex:1;min-width:0;line-height:1.35;overflow-wrap:anywhere}
+.co-answer{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px;text-align:left}
 .hint{font-size:14px;color:var(--muted)}
 .hint-row{display:flex;flex-direction:column;gap:4px}
 .prompt-wrap{display:flex;flex-direction:column;gap:6px}

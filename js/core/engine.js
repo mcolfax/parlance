@@ -401,6 +401,53 @@ function genderGrade(ex, value){
   if (ex.lang === 'de' && ex.plural) return { ok: false, level: 'wrong', note: 'In the plural, every noun takes die.' };
   return { ok: false, level: 'wrong' };
 }
+/* ===================== CONVERSATION PRACTICE =====================
+   Built from the built-in stories a learner has read (live-pack stories aren't used). No review key and no srs:
+   like article practice, it never moves a review card or lands on "Fix my mistakes". */
+function convoLines(st){ return st.items.filter(it => it.who); }
+function convoWords(t){ return String(t).trim().split(/\s+/).length; }
+function convoReadStories(lang){ const read = S.langs[lang].stories || {}; return STORIES.filter(s => s.lang === lang && read[s.id]); }
+/* a line and the next one, said by someone else */
+function convoReplies(st){
+  const ls = convoLines(st), out = [];
+  for (let i = 0; i + 1 < ls.length; i++) if (ls[i].who !== ls[i + 1].who && convoWords(ls[i + 1].t) >= CONVO.minWords) out.push({ st, a: ls[i], b: ls[i + 1] });
+  return out;
+}
+/* "Choose the reply": the real reply and two lines from other stories (never the same text or the same first word) */
+function replyEx(p, lang){
+  const key = t => fold(norm(t, lang)), right = key(p.b.t), first = right.split(' ')[0];
+  const pool = shuffle(STORIES.filter(s => s.lang === lang && s.id !== p.st.id).flatMap(convoLines)
+    .filter(l => convoWords(l.t) >= CONVO.minWords && key(l.t) !== right && key(l.t).split(' ')[0] !== first));
+  const ds = [];
+  for (const l of pool){ if (ds.length === 2) break; if (!ds.some(d => key(d.t) === key(l.t))) ds.push(l); }
+  if (ds.length < 2) return null;
+  const opts = shuffle([p.b, ...ds]);
+  return { id: ++EXID, type: 'reply', lang, lesson: null, story: p.st.id, prompt: p.a, item: { t: p.b.t, e: [p.b.e], alt: [], who: p.b.who },
+    correct: p.b.t, options: opts.map(o => o.t), en: Object.fromEntries(opts.map(o => [o.t, o.e])) };
+}
+/* "Put the conversation in order": n lines in a row, with at least two speakers; the first stays put, the rest are shuffled (never already in order) */
+function orderEx(st, start, n, lang){
+  const ls = convoLines(st).slice(start, start + n);
+  if (ls.length < n || new Set(ls.map(l => l.who)).size < 2) return null;
+  const want = ls.slice(1).map((_, i) => i + 1);
+  let tiles = shuffle(want.slice());
+  if (tiles.join() === want.join()) tiles = tiles.slice(1).concat(tiles[0]);
+  return { id: ++EXID, type: 'order', lang, lesson: null, story: st.id, lines: ls, tiles, correct: want.join(',') };
+}
+/* a session: two replies, then an order, and so on */
+function convoSession(lang){
+  const sts = convoReadStories(lang); if (!sts.length) return [];
+  const replies = shuffle(sts.flatMap(convoReplies)).slice(0, CONVO.replies * 3).map(p => replyEx(p, lang)).filter(Boolean).slice(0, CONVO.replies);
+  const orders = [];
+  for (const st of shuffle(sts.slice())){
+    if (orders.length >= CONVO.orders) break;
+    const n = LEVELS.indexOf(st.level) <= 1 ? 4 : 5, max = convoLines(st).length - n; if (max < 0) continue;
+    const ex = orderEx(st, Math.floor(Math.random() * (max + 1)), n, lang); if (ex) orders.push(ex);
+  }
+  const out = []; let r = 0, o = 0;
+  while (r < replies.length || o < orders.length){ for (let k = 0; k < 2 && r < replies.length; k++) out.push(replies[r++]); if (o < orders.length) out.push(orders[o++]); }
+  return out;
+}
 /* a short test over one unit: a mix of its words, phrases, blanks and forms, favouring what you got wrong */
 function buildCheckpoint(unit){
   const typed = LEVELS.indexOf(unit.level) >= 2, lang = unit.lessons[0].lang, miss = S.langs[lang].miss;
@@ -552,6 +599,8 @@ function evaluate(ex, value){
     }
     case 'match': return { ok: true, level: 'exact' };
     case 'gender': return genderGrade(ex, value);
+    case 'reply': { const ok = value === ex.correct; return { ok, level: ok ? 'exact' : 'wrong' }; }
+    case 'order': { const ok = value === ex.correct; return ok ? { ok, level: 'exact' } : { ok, level: 'wrong', note: 'Here’s how the conversation goes.' }; }
     default: {
       const tiles = ex.type.startsWith('bank') || (ex.type === 'listen' && ex.mode === 'tiles');
       let r = check(value, ex.accepted, ex.ansLang, { typo: !tiles });

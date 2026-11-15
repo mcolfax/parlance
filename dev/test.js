@@ -1367,6 +1367,19 @@ async function main(){
       R.E('startListen()'); nameCheck('listen hands-free screen', top());
       R.E('listenEnd()'); nameCheck('listen hands-free finish screen', top());
       R.E('endListen()'); await sleep(300);
+      // conversation practice: a reply question, an order question, the feedback of each and the finish screen
+      R.E('S.langs.es.stories["es-s1"] = { at: today(), score: 1, times: 1 }; S.langs.es.stories["es-s2"] = { at: today(), score: 1, times: 1 }; S.settings.lang = "es"; UI.tab = "review"; render()');
+      R.E('startConvo()');
+      for (let n = 0, seen = new Set(), guard = 0; R.E('Run.active && !Run.finished') && guard++ < 20;){
+        const ex = R.E('Run.cur'), first = !seen.has(ex.type); seen.add(ex.type);
+        if (first) nameCheck('conversation ' + ex.type + ' question', top());
+        if (ex.type === 'order'){ for (const i of ex.correct.split(',')) [...rd.querySelectorAll('.overlay:not(.out) .co-pool .co-btn')].find(b => b.textContent === ex.lines[+i].t).click(); if (first) nameCheck('conversation order, lines placed', top()); }
+        R.E('Run.value = ' + JSON.stringify(ex.correct) + '; Run.canCheck = true; doCheck()');
+        if (first) nameCheck('conversation ' + ex.type + ' feedback', top());
+        const c = foot('Continue'); if (c) c.click();
+      }
+      await sleep(300); nameCheck('conversation finish screen', top());
+      R.E('endRun(); closeOverlay(true)');
       R.E('openStickers()'); nameCheck('sticker book', top()); R.E('closeOverlay(true)');
       { let card = null;
         try { R.E('Offline.on = true; UI.tab = "me"; render()'); await sleep(300); card = rd.querySelector('.offline-card'); } catch (e) {}
@@ -1571,6 +1584,58 @@ async function main(){
       ok(g.includes('color:var(--gold-text)') && g.includes('border-color:var(--gold)') && lr.includes('color:var(--gold-text)'), "colors: the gold stamp's lettering is readable");
       const bs = css('base.css'), inp = rule(bs, '.input{'), tg = rule(bs, '.toggle span{');
       ok(inp.includes('border:2px solid var(--hair-strong)') && tg.includes('background:var(--hair-strong)'), 'colors: fields have a visible edge');
+    }
+    // conversation practice (P6): choose the reply and put a conversation in order, from stories you have read
+    { const SL = Q.P.S.langs, saved = { es: SL.es.stories, it: SL.it.stories }, read = ids => Object.fromEntries(ids.map(i => [i, { at: '2026-01-01', score: 1, times: 1 }]));
+      SL.it.stories = {}; ok(Q.E('convoSession("it")').length === 0, 'conversation: no stories read, no session');
+      SL.es.stories = read(['es-s1', 'es-s2']);
+      const lineOf = (id, t) => Q.E('STORIES.find(s => s.id === ' + JSON.stringify(id) + ')').items.some(i => i.t === t);
+      const fromOther = (id, t) => Q.E('STORIES.some(s => s.lang === "es" && s.id !== ' + JSON.stringify(id) + ' && s.items.some(i => i.t === ' + JSON.stringify(t) + '))');
+      let sess = [], badRep = 0, badOrd = 0;
+      for (let n = 0; n < 12; n++){
+        const q = [...Q.E('convoSession("es")')]; if (!sess.length) sess = q;
+        for (const ex of q){
+          if (ex.type === 'reply'){
+            if (new Set(ex.options).size !== 3 || !ex.options.includes(ex.correct) || !lineOf(ex.story, ex.correct) || ex.options.some(o => o !== ex.correct && (!fromOther(ex.story, o) || lineOf(ex.story, o)))) badRep++;
+          } else if (ex.type === 'order'){
+            const want = ex.lines.slice(1).map((_, i) => i + 1);
+            if (ex.tiles.join() === want.join() || ex.correct !== want.join(',') || new Set(ex.lines.map(l => l.who)).size < 2 || [...ex.tiles].sort().join() !== want.join()) badOrd++;
+          } else badRep++;
+        }
+      }
+      ok(sess.length >= 4 && badRep === 0, 'conversation: replies come from read stories, with two options from other stories (' + sess.length + ' questions, ' + badRep + ' bad)');
+      ok(sess.some(x => x.type === 'order') && badOrd === 0, 'conversation: an order question starts out of order, with two speakers (' + badOrd + ' bad)');
+      const cnt = Q.E('(() => { let bad = 0, n = 0; for (const s of STORIES) for (const p of convoReplies(s)){ const ex = replyEx(p, s.lang); if (!ex) continue; n++; const k = t => fold(norm(t, s.lang)), r = k(ex.correct); for (const o of ex.options) if (o !== ex.correct && (k(o) === r || k(o).split(" ")[0] === r.split(" ")[0])) bad++; } return bad + "/" + n; })()').split('/');
+      ok(cnt[0] === '0' && +cnt[1] > 50, 'conversation: no wrong option matches the reply (' + cnt[1] + ' questions in every language)');
+      const few = Q.E('(() => { const bad = []; const keep = {}; for (const l of LANG_IDS) keep[l] = S.langs[l].stories; for (const s of STORIES){ S.langs[s.lang].stories = { [s.id]: { at: "x" } }; if (convoSession(s.lang).length < CONVO.min) bad.push(s.id); } for (const l of LANG_IDS) S.langs[l].stories = keep[l]; return bad.join(","); })()');
+      ok(few === '', 'conversation: any one story read gives a session of ' + 4 + '+ questions' + (few ? ' (not: ' + few + ')' : ''));
+      const rep = sess.find(x => x.type === 'reply'), ord = sess.find(x => x.type === 'order');
+      const wrongOpt = rep.options.find(o => o !== rep.correct), wrongOrd = ord.tiles.join(',');
+      const gOrd = Q.E('evaluate(' + JSON.stringify(ord) + ', ' + JSON.stringify(wrongOrd) + ')');
+      ok(Q.E('evaluate(' + JSON.stringify(rep) + ', ' + JSON.stringify(rep.correct) + ')').ok && !Q.E('evaluate(' + JSON.stringify(rep) + ', ' + JSON.stringify(wrongOpt) + ')').ok
+        && Q.E('evaluate(' + JSON.stringify(ord) + ', ' + JSON.stringify(ord.correct) + ')').ok && !gOrd.ok && gOrd.note === 'Here’s how the conversation goes.', 'conversation: grading');
+      // a session: runs to the end, moves no cards
+      Q.E('S.settings.lang = "es"'); const before = JSON.stringify(SL.es.cards) + JSON.stringify(SL.es.miss);
+      Q.E('startConvo()'); const qd2 = qd;
+      ok(Q.E('Run.mode') === 'convo' && Q.E('Run.queue.length') >= 4, 'conversation: startConvo opens a session');
+      // the screens: a reply shows its prompt and three options; an order shows the fixed line and its tiles, and tapping fills the answer
+      ok(!!qov().querySelector('.co-prompt .bubble') && qov().querySelectorAll('.opts .opt').length === 3, 'conversation: a reply question shows the line and three options');
+      Q.E('Run.pos = Run.queue.findIndex(x => x.type === "order"); nextEx()');
+      { const oex = Q.E('Run.cur'), tiles = () => [...qov().querySelectorAll('.co-pool .co-btn')];
+        ok(qov().querySelectorAll('.co-list .co-fixed').length === 1 && tiles().length === oex.lines.length - 1, 'conversation: an order question shows the first line and one tile for each of the rest');
+        for (const i of oex.correct.split(',')){ const t = tiles().find(b => b.textContent === oex.lines[+i].t); t.click(); }
+        ok(Q.E('Run.value') === oex.correct && Q.E('Run.canCheck') === true && qov().querySelectorAll('.co-list li').length === oex.lines.length && tiles().length === 0, 'conversation: tapping the lines in order builds the answer'); }
+      // a wrong order shows the right one
+      { const oex = Q.E('Run.cur'); Q.E('Run.value = ' + JSON.stringify(oex.tiles.join(',')) + '; Run.canCheck = true; doCheck()');
+        ok(qov().querySelectorAll('.co-answer li').length === oex.lines.length && qov().querySelector('.ov-foot').classList.contains('bad'), 'conversation: a wrong order shows the right one'); qfoot('Continue').click(); }
+      Q.E('Run.pos = 0; nextEx()');
+      let guard = 0;
+      while (Q.E('Run.active && !Run.finished') && guard++ < 40){ const ex = Q.E('Run.cur'); Q.E('Run.value = ' + JSON.stringify(ex.correct) + '; Run.canCheck = true; doCheck()'); const c = qfoot('Continue'); if (c) c.click(); }
+      ok(Q.E('Run.mode') === 'convo' && Q.E('Run.finished') && qov().querySelector('.stamp').textContent.includes('Conversation practiced'), 'conversation: a session runs to the end and moves no cards (finish screen)');
+      ok(JSON.stringify(SL.es.cards) + JSON.stringify(SL.es.miss) === before, 'conversation: a session runs to the end and moves no cards');
+      Q.E('endRun(); closeOverlay(true)');
+      SL.es.stories = {}; Q.E('startConvo()'); ok(!Q.E('Run.active') && /Read a story first/.test(qd2.body.textContent), 'conversation: with no story read, a toast says what to do');
+      SL.es.stories = saved.es; SL.it.stories = saved.it; Q.E('S.settings.lang = "es"');
     }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {

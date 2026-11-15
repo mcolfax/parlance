@@ -289,6 +289,9 @@ const XP = { perAnswer: 1, lesson: 5, perfectBonus: 5, review: 3, story: 8, stor
 /* Unit checkpoints (a short test once a unit's lessons are done) and the placement test (Me → Starting level). */
 const RESUME = { maxAgeDays: 7 };   // how long a lesson left half-done can be picked up again
 const CHECKPOINT = { questions: 12, pass: 0.8 };
+/* Conversation practice (Stories, Review, Talk on the web): from the built-in stories you’ve read. replies and orders per session;
+   minWords: shortest line used as a reply or a wrong option; min: fewest questions for a session */
+const CONVO = { replies: 6, orders: 2, minWords: 3, min: 4 };
 /* Listen hands-free (Review) and Listen first (Stories): items per session, the fewest learned items to offer it, and the pauses in ms */
 const LISTEN = { max: 20, min: 6, gapSay: 1800, gapReveal: 1200, gapNext: 1500, storyGap: 700 };
 const PLACEMENT = { perLevel: 5, pass: 3 };
