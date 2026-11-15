@@ -838,7 +838,7 @@ async function main(){
       ok(!R.E('OV.prog.classList.contains("hot")'), 'juice: four in a row do not glow yet');
       R.E('window.playSound = window.__playSound0');
       ok(R.E('SOUNDS.bad.length') === 1 && R.E('SOUNDS.done.length') === 1 && R.E('SOUNDS.ok.length') === 2, 'juice: other sounds are unchanged');
-      { const peak = p => R.E('(() => { const peaks = [], prm = () => ({ value: 1, setValueAtTime(){}, exponentialRampToValueAtTime(v){ peaks.push(v); } }), nd = () => ({ connect(){}, start(){}, stop(){}, frequency: prm(), gain: prm(), Q: prm(), type: "" }); const c = { currentTime: 0, sampleRate: 8000, createBuffer: () => ({ getChannelData: () => new Float32Array(8) }), createOscillator: nd, createBufferSource: nd, createBiquadFilter: nd, createGain: nd }; SFX.noise = SFX.noise || {}; SOUNDS.ok(c, ' + p + '); return Math.max(...peaks); })()');
+      { const peak = p => R.E('(() => { const peaks = [], prm = () => ({ value: 1, setValueAtTime(){}, exponentialRampToValueAtTime(v){ peaks.push(v); } }), nd = () => ({ connect(){}, start(){}, stop(){}, frequency: prm(), gain: prm(), Q: prm(), type: "" }); const c = { currentTime: 0, sampleRate: 8000, createBuffer: () => ({ getChannelData: () => new Float32Array(8) }), createOscillator: nd, createBufferSource: nd, createBiquadFilter: nd, createGain: nd }; SFX.noise = SFX.noise || {}; SOUNDS.ok(c, ' + p + '); return Math.max(...peaks.filter(v => v < 1)); })()');   // gains only: the bell’s modulator ramps in hertz
         const p0 = peak('undefined'), p1 = peak('1'), p7 = peak('Math.pow(2, 7 / 12)'), p3 = peak('Math.pow(2, 3 / 12)');
         ok(Math.abs(p0 - 0.05) < 1e-9 && p1 === p0, 'juice: the first chime keeps its loudness: ' + p0 + ' / ' + p1);
         ok(Math.abs(p7 / p0 - 1 / Math.sqrt(1 + 7 / 2)) < 0.01 && p3 < p0 && p7 < p3, 'juice: the chime climbs brighter, not louder (peak at +7 semitones is ' + (p7 / p0).toFixed(3) + ' of the first)'); }
@@ -983,7 +983,7 @@ async function main(){
       ok(lastEl && lastEl.tagName === 'BUTTON' && lastEl.textContent.startsWith('Show more ('), 'review: Show more still appears on a long list');
       const tk = fs.readFileSync(path.join(ROOT, 'styles', 'tokens.css'), 'utf8'), cc = fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8');
       const streakRule = (cc.match(/\.stat\.streak\{[^}]*\}/) || [''])[0];
-      ok((tk.match(/--streak-bg:/g) || []).length === 3 && (tk.match(/--streak-text:/g) || []).length === 3 && streakRule.includes('var(--streak-bg)') && !streakRule.includes('--bad'), 'learn: the streak tile has its own colors');
+      ok((tk.match(/--streak-bg:/g) || []).length === 3 && (tk.match(/--streak-text:/g) || []).length === 3 && streakRule.includes('var(--surface)') && !streakRule.includes('--bad') && !streakRule.includes('--streak-bg'), 'learn: the streak tile is a plain card like Me’s (the --streak-* tokens stay, unused by the tile)');
       // a failed retake of a passed unit
       const units = R.P.COURSE.es.units, u2 = units[1];
       rl().cp[u2.title] = { at: '2026-10-01', acc: 0.9, pass: true }; rl().outs = rl().outs || {}; rl().outs[u2.title] = '2026-10-01';
