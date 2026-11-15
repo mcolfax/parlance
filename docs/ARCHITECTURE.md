@@ -210,7 +210,7 @@ data/users/{self}  (platform default: private to each person)
 
 - Style through tokens: `font: var(--type-label)`, `border-radius: var(--r-md)`, `z-index: var(--z-sheet)`. Don't write new literal colors.
 - A color used for text or for a control's edge gets a row in `PAIRS` in `dev/contrast.js`. Gold lettering uses `--gold-text`; a field's edge uses `--hair-strong`.
-- Durations are tokens too (`--dur-press`, `--dur-fast`, `--dur-quick`, `--dur`, `--dur-settle`, `--dur-slow`, `--dur-enter`, `--dur-exit`): `npm test` fails a transition with a literal time. Vibration goes through `haptic('<name>')` with a name from `HAPTICS` in `js/core/util.js`; `settings.haptics` (Me → Sound → Vibration) turns it off.
+- Durations are tokens too (`--dur-press`, `--dur-fast`, `--dur-quick`, `--dur`, `--dur-settle`, `--dur-slow`, `--dur-enter`, `--dur-exit`): `npm test` fails a transition or an `animation:` with a literal time (ambient loops that run for seconds and a few long one-shots are listed by selector in the motion test, `AMBIENT` and `CHOREO`). Vibration goes through `haptic('<name>')` with a name from `HAPTICS` in `js/core/util.js`; `settings.haptics` (Me → Sound → Vibration) turns it off.
 - Before the scripts run, `#app` holds a skeleton (`.boot`, `styles/base.css`); the first `render()` replaces it. Keep it free of inline scripts and styles.
 - Every sound is a named entry in `SOUNDS`; call `sfx('name')`. Music goes through `Song` and `MEDIA.song`, never a new `<audio>`.
 - XP amounts, quests, badges and scenarios are data in `config.js`, not literals in screens.
