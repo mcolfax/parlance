@@ -181,11 +181,20 @@ function levelSection(lang, lv){
     h('span', { class: 'lvl-text' }, h('span', { class: 'lvl-name' }, LEVEL_NAME[lv]), h('span', { class: 'lvl-meta' }, st.done + ' of ' + st.total + ' lessons' + (levelComplete(lang, lv) ? ' · complete' : ''))),
     h('span', { class: 'bar-mini', 'aria-hidden': 'true' }, h('i', { style: 'width:' + (pct * 100).toFixed(0) + '%' })),
     ic('chev', 'chev')));
+  /* a finished or tested-out unit folds into one row (unless unfolded this visit or it holds the lesson just finished); its open checkpoint stays visible */
+  UI.units = UI.units || new Set();
   if (open) units.forEach(({ u, ui }) => {
-    const done = u.lessons.filter(l => isDone(lang, l.id)).length;
-    sec.append(h('div', { class: 'unit' },
-      h('div', { class: 'unit-head' }, unitSign(u.title, 46), h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Unit ' + (ui + 1) + ' · ' + done + '/' + u.lessons.length), h('h2', null, u.title))),
-      stationList(u.lessons, lang), checkpointRow(u, lang)));
+    const done = u.lessons.filter(l => isDone(lang, l.id)).length, full = unitDone(lang, u), out = !!(S.langs[lang].outs || {})[u.title];
+    const key = lang + '|' + u.title, foldable = (full || out) && !u.lessons.some(l => l.id === UI.justDone);
+    const unfolded = !foldable || UI.units.has(key), rec = S.langs[lang].cp[u.title];
+    const head = foldable
+      ? h('button', { class: 'unit-head unit-toggle', type: 'button', 'aria-expanded': String(unfolded), onclick: () => { if (unfolded) UI.units.delete(key); else UI.units.add(key); UI.animate = false; render(); } },
+          unitSign(u.title, unfolded ? 46 : 36), h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Unit ' + (ui + 1) + ' · ' + (full ? 'done' : 'tested out')), h('h2', null, u.title)),
+          unfolded ? null : h('span', { class: 'unit-done', 'aria-hidden': 'true' }, ic('check')), ic('chev', 'chev'))
+      : h('div', { class: 'unit-head' }, unitSign(u.title, 46), h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Unit ' + (ui + 1) + ' · ' + done + '/' + u.lessons.length), h('h2', null, u.title)));
+    sec.append(h('div', { class: 'unit' + (unfolded ? '' : ' compact') }, head,
+      unfolded ? stationList(u.lessons, lang) : null,
+      unfolded || !(rec && rec.pass) ? checkpointRow(u, lang) : null));
   });
   return sec;
 }

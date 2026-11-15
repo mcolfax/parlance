@@ -1344,6 +1344,12 @@ async function main(){
       R.E('UI.tab = "me"; render()'); R.E('openBirdPicker()');
       nameCheck('bird picker sheet', rd.querySelector('.sheet-back'));
       rd.querySelector('.sheet-back .sheet-actions button').click(); await sleep(250);
+      // a folded unit on Learn (one button with its name and state)
+      const keepEsDone = R.E('JSON.stringify(S.langs.es.done)');
+      R.E('S.langs.es.done = {}; for (const l of COURSE.es.units[0].lessons) S.langs.es.done[l.id] = { at: "2026-10-01", acc: 1, times: 1 }; UI.units = new Set(); UI.tab = "learn"; UI.open = new Set(["A1"]); UI.openLang = "es"; render()');
+      ok(!!rd.querySelector('#app .unit.compact .unit-toggle'), 'a11y: a finished unit is folded');
+      nameCheck('folded unit on Learn', rd.querySelector('#app'));
+      R.E('S.langs.es.done = JSON.parse(' + JSON.stringify(keepEsDone) + '); render()');
       // the weekly recap sheet
       R.E('S.days[addDays("2026-10-26", 0)] = { xp: 10, met: false }; S.days[addDays("2026-10-26", 2)] = { xp: 25, met: true }; openRecap("2026-10-26")');
       ok(!!rd.querySelector('.sheet-back .recap'), 'a11y: the recap sheet opened');
@@ -1686,6 +1692,29 @@ async function main(){
       if (dow <= 2){ [...d.querySelectorAll('#app .recap-card .linkish')].find(b => b.textContent === 'Not now').click(); ok(!d.querySelector('#app .recap-card') && Q.E('localStorage.getItem("parlance.recap")') === Q.E('lastMonday()'), 'your week: Not now hides the card for good'); }
       Q.E('S.days = {}'); Q.E('UI.tab = "me"; render()'); ok(![...d.querySelectorAll('#app .linkish')].some(b => b.textContent === 'Your last full week'), 'your week: Me has no button after a quiet week');
       Q.E('localStorage.removeItem("parlance.recap"); S.days = JSON.parse(' + JSON.stringify(keepDays) + '); S.settings.lang = ' + JSON.stringify(keepLang) + '; S.settings.goal = ' + keepGoal + '; UI.tab = "learn"; render()');
+    }
+    // route: finished units fold into one row (P7 WP2, R-11)
+    { const d = Q.w.document, keepDone = Q.E('JSON.stringify(S.langs.es.done)'), keepLang = Q.E('S.settings.lang'), keepCp = Q.E('JSON.stringify(S.langs.es.cp)'), keepOuts = Q.E('JSON.stringify(S.langs.es.outs || null)');
+      const u0 = Q.P.COURSE.es.units[0], u1 = Q.P.COURSE.es.units[1];
+      Q.E('S.settings.lang = "es"; S.langs.es.done = {}; S.langs.es.cp = {}; delete S.langs.es.outs; UI.justDone = null; UI.units = new Set()');
+      for (const l of u0.lessons) Q.E('S.langs.es.done[' + JSON.stringify(l.id) + '] = { at: "2026-10-01", acc: 1, times: 1 }');
+      const show = () => { Q.E('UI.tab = "learn"; UI.open = new Set(["A1"]); UI.openLang = "es"; render()'); return [...d.querySelectorAll('#app .unit')]; };
+      const named = (units, u) => units.find(el => el.querySelector('h2').textContent === u.title);
+      let units = show(), a = named(units, u0), b = named(units, u1);
+      ok(!!a && a.classList.contains('compact') && !a.querySelector('.stations:not(.checkpoint) .station') && !!a.querySelector('.stations.checkpoint'), 'route: a finished unit folds into one row');
+      ok(!!b && !b.classList.contains('compact') && b.querySelectorAll('.stations:not(.checkpoint) .station').length === u1.lessons.length, 'route: an unfinished unit stays open');
+      let tg = a.querySelector('.unit-toggle'); ok(!!tg && tg.getAttribute('aria-expanded') === 'false' && tg.textContent.includes('done'), 'route: a folded unit is one button, collapsed');
+      tg.click(); a = named(show(), u0);
+      ok(!a.classList.contains('compact') && a.querySelectorAll('.stations:not(.checkpoint) .station').length === u0.lessons.length && a.querySelector('.unit-toggle').getAttribute('aria-expanded') === 'true', 'route: tapping a folded unit opens it');
+      a.querySelector('.unit-toggle').click(); a = named(show(), u0);
+      ok(a.classList.contains('compact') && a.querySelector('.unit-toggle').getAttribute('aria-expanded') === 'false', 'route: tapping again folds it');
+      Q.E('UI.justDone = ' + JSON.stringify(u0.lessons[0].id)); a = named(show(), u0);
+      ok(!a.classList.contains('compact') && !!a.querySelector('li.just'), 'route: the lesson just finished keeps its unit open');
+      Q.E('UI.justDone = null; S.langs.es.cp[' + JSON.stringify(u0.title) + '] = { pass: true, acc: 1 }'); a = named(show(), u0);
+      ok(a.classList.contains('compact') && !a.querySelector('.stations'), 'route: a passed unit folds with no checkpoint row');
+      Q.E('delete S.langs.es.cp[' + JSON.stringify(u0.title) + ']; S.langs.es.done = {}; S.langs.es.outs = {}; S.langs.es.outs[' + JSON.stringify(u0.title) + '] = 1'); a = named(show(), u0);
+      ok(a.classList.contains('compact') && a.textContent.includes('tested out') && !!a.querySelector('.stations.checkpoint'), 'route: a tested-out unit folds and keeps its open checkpoint');
+      Q.E('S.langs.es.done = JSON.parse(' + JSON.stringify(keepDone) + '); S.langs.es.cp = JSON.parse(' + JSON.stringify(keepCp) + '); S.langs.es.outs = JSON.parse(' + JSON.stringify(keepOuts) + ') || undefined; if (!S.langs.es.outs) delete S.langs.es.outs; S.settings.lang = ' + JSON.stringify(keepLang) + '; UI.units = new Set(); UI.justDone = null; render()');
     }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
