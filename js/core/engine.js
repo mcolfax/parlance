@@ -442,7 +442,9 @@ function convoSession(lang){
   for (const st of shuffle(sts.slice())){
     if (orders.length >= CONVO.orders) break;
     const n = LEVELS.indexOf(st.level) <= 1 ? 4 : 5, max = convoLines(st).length - n; if (max < 0) continue;
-    const ex = orderEx(st, Math.floor(Math.random() * (max + 1)), n, lang); if (ex) orders.push(ex);
+    const ls = convoLines(st), alt = Array.from({ length: max + 1 }, (_, i) => i).filter(i => ls.slice(i, i + n).every((l, k, a) => !k || l.who !== a[k - 1].who));   // windows where the speakers take turns
+    const at = alt.length ? alt[Math.floor(Math.random() * alt.length)] : Math.floor(Math.random() * (max + 1));
+    const ex = orderEx(st, at, n, lang); if (ex) orders.push(ex);
   }
   const out = []; let r = 0, o = 0;
   while (r < replies.length || o < orders.length){ for (let k = 0; k < 2 && r < replies.length; k++) out.push(replies[r++]); if (o < orders.length) out.push(orders[o++]); }

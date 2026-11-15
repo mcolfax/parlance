@@ -838,6 +838,10 @@ async function main(){
       ok(!R.E('OV.prog.classList.contains("hot")'), 'juice: four in a row do not glow yet');
       R.E('window.playSound = window.__playSound0');
       ok(R.E('SOUNDS.bad.length') === 1 && R.E('SOUNDS.done.length') === 1 && R.E('SOUNDS.ok.length') === 2, 'juice: other sounds are unchanged');
+      { const peak = p => R.E('(() => { const peaks = [], prm = () => ({ value: 1, setValueAtTime(){}, exponentialRampToValueAtTime(v){ peaks.push(v); } }), nd = () => ({ connect(){}, start(){}, stop(){}, frequency: prm(), gain: prm(), Q: prm(), type: "" }); const c = { currentTime: 0, sampleRate: 8000, createBuffer: () => ({ getChannelData: () => new Float32Array(8) }), createOscillator: nd, createBufferSource: nd, createBiquadFilter: nd, createGain: nd }; SFX.noise = SFX.noise || {}; SOUNDS.ok(c, ' + p + '); return Math.max(...peaks); })()');
+        const p0 = peak('undefined'), p1 = peak('1'), p7 = peak('Math.pow(2, 7 / 12)'), p3 = peak('Math.pow(2, 3 / 12)');
+        ok(Math.abs(p0 - 0.05) < 1e-9 && p1 === p0, 'juice: the first chime keeps its loudness: ' + p0 + ' / ' + p1);
+        ok(Math.abs(p7 / p0 - 1 / Math.sqrt(1 + 7 / 2)) < 0.01 && p3 < p0 && p7 < p3, 'juice: the chime climbs brighter, not louder (peak at +7 semitones is ' + (p7 / p0).toFixed(3) + ' of the first)'); }
       ok(/\.progress i\.hot\{[^}]*var\(--flame\)/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'juice: the glow is a style rule');
       R.w.close();
     }
@@ -1200,6 +1204,9 @@ async function main(){
     {
       const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
       const rd = R.w.document;
+      // every mood a bird is actually shown in on this page: Rig.create's first mood and every later set
+      R.E('(() => { const seen = window.__moodsShown = new Set(), rec = m => { if (typeof m === "string") seen.add(m); }, orig = Rig.create; Rig.create = function(def, opts){ const r = orig.apply(this, arguments); rec(opts && opts.mood); const set = r.set; r.set = function(spec){ rec(spec); return set.apply(this, arguments); }; return r; }; })()');
+      R.E('render()');
       const uiDir = path.join(ROOT, 'js', 'ui');
       const screens = fs.readdirSync(uiDir).filter(f => f.endsWith('.js') && f !== 'film.js').map(f => fs.readFileSync(path.join(uiDir, f), 'utf8')).concat(fs.readFileSync(path.join(ROOT, 'js', 'core', 'art.js'), 'utf8')).join('\n');
       const moodNames = R.E('Object.keys(Bird.BIRD.moods)'), clipNames = R.E('Object.keys(Bird.BIRD.clips)'), moodClip = R.E('Object.fromEntries(Object.entries(Bird.BIRD.moods).map(([k, m]) => [k, m.clip || null]))');
@@ -1218,6 +1225,8 @@ async function main(){
       R.E('window.__shrug.click()');
       ok(JSON.stringify(R.E('window.__plays')) === '["shake"]', 'birds: a shrugging bird shakes its head: ' + JSON.stringify(R.E('window.__plays')));
       ok(['talk.js', 'review.js'].every(f => { const src = fs.readFileSync(path.join(ROOT, 'js', 'ui', f), 'utf8'); return /'shrug'/.test(src) && !/'shrug'[^\n;]{0,40}tap: false/.test(src); }), 'birds: the shrugging birds on Talk and Review can be tapped');
+      { const said = R.E('window.__shrug.querySelector(".pip-say").textContent');
+        ok(R.E('PIP_SAYS.es.shrug').includes(said) && !R.E('PIP_SAYS.es.hello').includes(said) && ['de', 'es', 'it'].every(l => R.E('PIP_SAYS.' + l + '.shrug.length') === 2), 'follow-ups: a shrugging bird says a shrug line, not hello: ' + said); }
       R.E('window.__shrug.remove()');
       // eight in a row laughs, four dances
       R.E('startLesson(COURSE.es.units[0].lessons[0].id)');
@@ -1266,6 +1275,15 @@ async function main(){
       R.E('confirmTestOut(COURSE.es.units[0])');
       const readyNow = [...rd.querySelectorAll('.pip.ready')];
       ok(readyNow.length === readyBefore + 1 && /Test out of this unit\?/.test(rd.body.textContent), 'test out: the bird is ready');
+      // the screens and taps that show the rest: Me (love, wave), Review (think), a wrong answer (oops), the note sheet (listen), a tapped sleeper (wow), six quick taps (dizzy)
+      for (const t of ['me', 'review', 'learn']){ R.E('UI.tab = ' + JSON.stringify(t) + '; render()'); }
+      R.E('openFeedback()'); R.E('closeOverlay(true)');
+      R.E('window.__sl = pip("sleep", 40); window.__hp = pip("happy", 40); document.body.append(window.__sl, window.__hp); window.__sl.click(); for (let i = 0; i < 6; i++) window.__hp.click(); window.__sl.remove(); window.__hp.remove()');
+      R.E('startLesson(COURSE.es.units[0].lessons[0].id); Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx()');
+      { let g = 0; while (g++ < 60){ const ex = R.E('Run.cur'); if (ex && ex.options && ex.correct !== undefined && ex.type !== 'match') break; R.E('Run.pos++; nextEx()'); }
+        R.E('Run.value = "~wrong~"; Run.canCheck = true; doCheck()'); R.E('closeOverlay(true)'); }
+      { const shown = new Set(R.E('[...window.__moodsShown]')), never = moodNames.filter(m => !shown.has(m));
+        ok(!never.length, 'birds: every mood has a moment: these moods were never shown to the learner on this page (not just named in the code): ' + never.join(', ')); }
       ok(R.errors.length === 0, 'every move: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }
@@ -1588,6 +1606,9 @@ async function main(){
       ok(R.failures.length === 0, 'contrast: every pair passes or is a known exception. Fix the color, or if the pair is wrong add it to KNOWN in dev/contrast.js with a reason (Matt decides): ' + R.failures.map(f => f.theme + ' ' + f.fg + ' on ' + f.bg + ' ' + f.ratio + ' < ' + f.min).join('; '));
       ok(R.drift.length === 0, 'contrast: the two dark blocks agree. Differing tokens: ' + R.drift.join(', '));
       ok(Object.keys(CT.KNOWN).length === 0, 'contrast: there are no known exceptions');
+      { const T = CT.themes(), miss = [];
+        for (const [fg, bg] of CT.PAIRS) for (const theme of ['light', 'dark']) for (const t of [fg, bg]) if (!/^#[0-9a-fA-F]{6}$/.test(T[theme][t] || '')) miss.push(theme + ' ' + t);
+        ok(miss.length === 0, 'contrast: every PAIRS token exists in both themes as #RRGGBB (a missing one is skipped, not checked): ' + [...new Set(miss)].join(', ')); }
     }
     // colors: gold lettering and a field's edge have their own tokens, and the rules use them
     { const css = n => fs.readFileSync(path.join(ROOT, 'styles', n), 'utf8'), tk = css('tokens.css'), rule = (f, sel) => { const i = f.indexOf(sel); return i < 0 ? '' : f.slice(i, f.indexOf('}', i)); };
@@ -1617,6 +1638,12 @@ async function main(){
       }
       ok(sess.length >= 4 && badRep === 0, 'conversation: replies come from read stories, with two options from other stories (' + sess.length + ' questions, ' + badRep + ' bad)');
       ok(sess.some(x => x.type === 'order') && badOrd === 0, 'conversation: an order question starts out of order, with two speakers (' + badOrd + ' bad)');
+      { const r = Q.E([
+          '(() => { let bad = 0, n = 0; const read = S.langs.es.stories, syn = { id: "es-zz", lang: "es", level: "A1", items: ["A", "A", "B", "A", "B"].map((who, i) => ({ who, t: "Linea " + i, e: "Line " + i })) };',
+          'STORIES.push(syn); S.langs.es.stories = { "es-zz": { at: "2026-01-01", score: 1, times: 1 } };',
+          'for (let i = 0; i < 60; i++) for (const ex of convoSession("es")) if (ex.type === "order"){ n++; if (!ex.lines.every((l, j) => !j || l.who !== ex.lines[j - 1].who)) bad++; }',
+          'STORIES.pop(); S.langs.es.stories = read; return bad + "/" + n; })()'].join(' ')).split('/').map(Number);
+        ok(r[1] === 60 && r[0] === 0, 'conversation: order questions alternate speakers when the story allows it (' + r[0] + ' bad of ' + r[1] + ')'); }
       const cnt = Q.E('(() => { let bad = 0, n = 0; for (const s of STORIES) for (const p of convoReplies(s)){ const ex = replyEx(p, s.lang); if (!ex) continue; n++; const k = t => fold(norm(t, s.lang)), r = k(ex.correct); for (const o of ex.options) if (o !== ex.correct && (k(o) === r || k(o).split(" ")[0] === r.split(" ")[0] || CONVO.never.includes(o))) bad++; } return bad + "/" + n; })()').split('/');
       ok(cnt[0] === '0' && +cnt[1] > 50, 'conversation: no wrong option matches the reply (' + cnt[1] + ' questions in every language)');
       const few = Q.E('(() => { const bad = []; const keep = {}; for (const l of LANG_IDS) keep[l] = S.langs[l].stories; for (const s of STORIES){ S.langs[s.lang].stories = { [s.id]: { at: "x" } }; if (convoSession(s.lang).length < CONVO.min) bad.push(s.id); } for (const l of LANG_IDS) S.langs[l].stories = keep[l]; return bad.join(","); })()');

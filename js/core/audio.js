@@ -322,7 +322,7 @@ const SOUNDS = {
   select: c => { tone(c, 640, 0, 0.07, 'triangle', 0.035); tone(c, 960, 0.025, 0.08, 'sine', 0.025); },
   pick: c => { tone(c, 520, 0, 0.09, 'sine', 0.05, { to: 820, glide: 0.06 }); hiss(c, 0, 0.03, 0.012, { f: 4000 }); },
   drop: c => tone(c, 760, 0, 0.1, 'sine', 0.04, { to: 440, glide: 0.08 }),
-  ok: (c, p) => { const k = p || 1; bell(c, 1046.5 * k, 0, 0.55, 0.05); bell(c, 1568 * k, 0.075, 0.7, 0.045); hiss(c, 0.06, 0.25, 0.008, { type: 'highpass', f: 6000 }); },
+  ok: (c, p) => { const k = p || 1, d = Math.sqrt(1 + Math.max(0, 12 * Math.log2(k)) / 2); /* climbing semitones: brighter, not louder */ bell(c, 1046.5 * k, 0, 0.55, 0.05 / d); bell(c, 1568 * k, 0.075, 0.7, 0.045 / d); hiss(c, 0.06, 0.25, 0.008 / d, { type: 'highpass', f: 6000 }); },
   bad: c => { tone(c, 233, 0, 0.26, 'triangle', 0.07, { to: 175, glide: 0.24 }); tone(c, 117, 0.01, 0.22, 'sine', 0.05); },
   combo: c => [880, 1109, 1319, 1760].forEach((f, i) => bell(c, f, i * 0.055, 0.35, 0.035)),
   done: c => { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => bell(c, f, i * 0.09, 0.9, 0.04)); tone(c, 261.6, 0.3, 1.1, 'sine', 0.03, { attack: 0.08 }); },
