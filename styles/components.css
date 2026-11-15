@@ -484,7 +484,7 @@ li.locked .st-title{color:var(--muted)}
 @keyframes selpop{40%{transform:scale(1.025)}}
 .opt.m-hit{border-color:var(--ok);background:var(--ok-bg);box-shadow:0 3px 0 var(--ok);animation:hit var(--dur-settle) var(--spring);pointer-events:none}
 @keyframes hit{40%{transform:scale(1.08)}}
-.progress i.glint::before{content:"";position:absolute;right:-4px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;background:radial-gradient(circle,#fff 0,rgb(255 255 255 / 0) 70%);animation:glint var(--dur-slow) ease-out both}
+.progress i.glint::before{content:"";position:absolute;right:-4px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;background:var(--glint);animation:glint var(--dur-slow) ease-out both}
 @keyframes glint{from{transform:scale(.2);opacity:1}to{transform:scale(2.4);opacity:0}}
 .fb-pip{position:absolute;right:14px;top:-46px;pointer-events:none;animation:peek var(--dur-settle) var(--spring) both}
 @keyframes peek{from{transform:translateY(34px);opacity:0}}
