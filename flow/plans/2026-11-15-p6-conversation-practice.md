@@ -1,7 +1,7 @@
 # Conversation practice: choose the reply, and put a conversation in order
 
 - **Cycle:** 2026-11-15 (premium program P6, `flow/PREMIUM.md`)
-- **Status:** building
+- **Status:** shipped (4.43.0)
 - **Release:** 4.43.0
 - **Base:** `main` at 16d53ec (4.42.0)
 - **Proposals built:** none. Answers idea note fmv58xfx9pqsf (tutor features outside Claude) in a way that needs no tutor.
@@ -233,5 +233,5 @@ After WP2 is merged (`parlance-chores`, Haiku):
 ## Outcome
 
 <!-- Filled in by the orchestrator at the end of the cycle. -->
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.43.0, `de60f15` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:** Promote `flow/plans/queue/p7-your-week.md`.
