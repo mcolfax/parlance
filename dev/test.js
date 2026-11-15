@@ -1637,6 +1637,20 @@ async function main(){
       SL.es.stories = {}; Q.E('startConvo()'); ok(!Q.E('Run.active') && /Read a story first/.test(qd2.body.textContent), 'conversation: with no story read, a toast says what to do');
       SL.es.stories = saved.es; SL.it.stories = saved.it; Q.E('S.settings.lang = "es"');
     }
+    // conversation entry points: Stories and Review (Talk on the web is checked with the web page)
+    { const SL = Q.P.S.langs, keep = SL.es.stories, d = Q.w.document; SL.es.stories = {}; Q.E('S.settings.lang = "es"; UI.tab = "stories"; render()');
+      ok(!d.querySelector('#app .convo-card'), 'conversation entry: Stories shows no card while no story is read');
+      Q.E('UI.tab = "review"; render()'); ok(!d.querySelector('#app [data-practice="convo"]'), 'conversation entry: Review has no Conversations tile while no story is read');
+      SL.es.stories = { 'es-s1': { at: '2026-01-01', score: 1, times: 1 }, 'es-s2': { at: '2026-01-01', score: 1, times: 1 } };
+      Q.E('UI.tab = "stories"; render()'); const card = d.querySelector('#app .convo-card');
+      ok(!!card && card.textContent.includes('Practice the conversations') && d.querySelectorAll('#app .convo-card').length === 1, 'conversation entry: Stories shows the card once a story is read');
+      card.querySelector('button').click(); ok(Q.E('Run.mode') === 'convo' && Q.E('Run.active'), 'conversation entry: the Stories button starts a convo session');
+      Q.E('endRun(); closeOverlay(true)');
+      Q.E('UI.tab = "review"; render()'); const tile = d.querySelector('#app [data-practice="convo"]');
+      ok(!!tile && tile.textContent.includes('Conversations'), 'conversation entry: Review has a Conversations tile once a story is read');
+      tile.click(); ok(Q.E('Run.mode') === 'convo', 'conversation entry: the Review tile starts a convo session');
+      Q.E('endRun(); closeOverlay(true)'); SL.es.stories = keep; Q.E('UI.tab = "learn"; render()');
+    }
     // placement: all right goes to the top, all wrong stays at A1
     const place = async right => {
       Q.E('S.settings.lang = "es"; startPlacement()');
@@ -2638,6 +2652,12 @@ async function main(){
       ok([...app.querySelectorAll('a')].some(a => a.href === 'https://claude.ai/artifact/8ZNHqMUCms2THTSfDkTp72' && a.target === '_blank'), 'the ' + tab + ' tab links to Parlance in Claude on the web');
     }
     W1.E('UI.tab="talk"; render()');
+    { const card = () => W1.w.document.querySelector('#app .convo-card'), btn = () => card() && card().querySelector('button');
+      ok(!!card() && card().textContent.includes('Practice without the tutor') && btn().textContent.trim() === 'Go to Stories', 'conversation entry: web Talk offers practice without the tutor (no story read: Go to Stories)');
+      btn().click(); ok(W1.E('UI.tab') === 'stories', 'conversation entry: Go to Stories opens Stories');
+      W1.P.S.langs.de.stories['de-s1'] = { at: '2026-10-11', score: 1, times: 1 }; W1.E('UI.tab="talk"; render()');
+      ok(btn().textContent.trim() === 'Practice conversations' && card().textContent.includes('no tutor needed'), 'conversation entry: web Talk starts the practice once a story is read');
+      delete W1.P.S.langs.de.stories['de-s1']; W1.E('UI.tab="talk"; render()'); }
     W1.w.document.querySelector('.scen').click();
     { const links = [...W1.w.document.querySelectorAll('.sheet .ai-picker a')].map(a => a.href);
       ok(links.length === 3 && links[0].startsWith('https://claude.ai/new?q=') && links[1].startsWith('https://chatgpt.com/?q=') && links[2] === 'https://gemini.google.com/app', 'a Talk scene opens in Claude, ChatGPT or Gemini: ' + links.join(' ')); 

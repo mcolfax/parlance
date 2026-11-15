@@ -12,6 +12,10 @@ function viewStories(){
       pip('listen', 70, { cls: 'stories-pip' })),
     h('div', { class: 'cast-row' }, castOf(lang).map((id, i) => h('div', { class: 'cast-chip', style: '--i:' + i }, avatar(id, 46), h('div', { class: 'cc-text' }, h('b', null, CAST[id].name), h('span', { class: 'small muted' }, CAST[id].role))))),
     h('div', { class: 'row' }, h('span', { class: 'eyebrow' }, read + ' of ' + list.length + ' read'), h('span', { class: 'spacer' }), h('span', { class: 'bar-mini wide', 'aria-hidden': 'true' }, h('i', { style: 'width:' + Math.round(read / list.length * 100) + '%' }))));
+  if (convoReadStories(lang).length > 0) v.append(h('section', { class: 'card convo-card' },
+    h('h3', null, 'Practice the conversations'),
+    h('p', { class: 'small muted' }, 'Choose the right reply and put lines in order, from the stories you’ve read.'),
+    h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => startConvo() }, ic('talk'), 'Practice conversations')));
   const grid = h('div', { class: 'story-grid' });
   list.forEach((st, i) => {
     const rec = S.langs[lang].stories[st.id]; const ahead = LEVELS.indexOf(st.level) > cl + 1;
