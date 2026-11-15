@@ -1671,9 +1671,15 @@ async function main(){
       Q.E(wk([10, 0, 25, 0, 0, 30, 5], '2026-10-26'));
       const r = Q.E('weekRecap("es", "2026-10-26")');
       ok(r.xp === 70 && r.goalDays === 2 && r.activeDays === 4 && r.bestDay === '2026-10-31' && r.bestXp === 30, 'your week: the recap adds up the week');
+      Q.E('S.days["2026-10-27"] = { xp: 30, bonus: 30, met: false }'); const rb = Q.E('weekRecap("es", "2026-10-26")');
+      ok(rb.xp === 100 && rb.goalDays === 2 && rb.activeDays === 4 && rb.xps[1] === 0, 'your week: a duel bonus counts in the total, not in goal days');
+      Q.E('delete S.days["2026-10-27"]');
       ok(Q.E('mondayOf("2026-11-01")') === '2026-10-26' && Q.E('mondayOf("2026-10-26")') === '2026-10-26' && Q.E('lastMonday("2026-11-02")') === '2026-10-26', 'your week: weeks run Monday to Sunday');
       const cmp = prev => { Q.E('for (let i = 0; i < 7; i++) delete S.days[addDays("2026-10-19", i)]; ' + (prev ? 'S.days["2026-10-20"] = { xp: ' + prev + ' }' : '')); return Q.E('recapCompare(weekRecap("es", "2026-10-26"))'); };
+      Q.E('S.days["2026-10-05"] = { xp: 10 }');
       ok(cmp(35) === 'Up 100% on the week before.' && cmp(140) === 'Down 50% on the week before. A short lesson today gets you going again.' && cmp(0) === 'A fresh start after a quiet week.', 'your week: compared with the week before');
+      Q.E('delete S.days["2026-10-05"]');
+      ok(cmp(0) === 'Your first week. A great start.', 'your week: a first week is called a first week');
       ok(Q.E('recapDue("es", "2026-11-02")') === '2026-10-26' && Q.E('recapDue("es", "2026-11-04")') === '2026-10-26' && Q.E('recapDue("es", "2026-11-05")') === null, 'your week: shown Monday to Wednesday, once (days)');
       Q.E('recapSet("2026-10-26")'); ok(Q.E('recapDue("es", "2026-11-03")') === null, 'your week: shown Monday to Wednesday, once');
       Q.E('localStorage.removeItem("parlance.recap"); S.days = {}');

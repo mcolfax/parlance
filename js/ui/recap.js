@@ -9,8 +9,9 @@ function mondayOf(k){ return addDays(k, -((parseDay(k).getDay() + 6) % 7)); }
 function lastMonday(t){ return addDays(mondayOf(t || today()), -7); }
 function weekRecap(lang, mon){
   const days = [...Array(7)].map((_, i) => addDays(mon, i)), xps = days.map(k => goalXP(S.days[k]));
-  const xp = xps.reduce((a, b) => a + b, 0), top = Math.max(...xps), inWeek = at => !!at && at >= days[0] && at <= days[6];
-  const prevXp = [...Array(7)].map((_, i) => goalXP(S.days[addDays(mon, i - 7)])).reduce((a, b) => a + b, 0);
+  const tot = k => (S.days[k] && +S.days[k].xp) || 0;
+  const xp = days.map(tot).reduce((a, b) => a + b, 0), top = Math.max(...xps), inWeek = at => !!at && at >= days[0] && at <= days[6];
+  const prevXp = [...Array(7)].map((_, i) => tot(addDays(mon, i - 7))).reduce((a, b) => a + b, 0);
   const L = S.langs[lang], t = today(); let upcoming = 0;
   for (const c of Object.values(L.cards)) if (c && c.due && daysBetween(t, c.due) <= 7) upcoming++;
   return { lang, mon, days, xps, xp, prevXp,
@@ -27,7 +28,7 @@ function recapDue(lang, t){
 }
 function recapRange(mon){ const f = k => parseDay(k).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }); return f(mon) + ' – ' + f(addDays(mon, 6)); }
 function recapCompare(r){
-  if (!r.prevXp) return r.xp ? 'A fresh start after a quiet week.' : '';
+  if (!r.prevXp) return !r.xp ? '' : Object.keys(S.days).some(k => k < addDays(r.mon, -7) && S.days[k] && +S.days[k].xp > 0) ? 'A fresh start after a quiet week.' : 'Your first week. A great start.';
   const pct = Math.round((r.xp - r.prevXp) / r.prevXp * 100);
   return pct >= 0 ? 'Up ' + pct + '% on the week before.' : 'Down ' + (-pct) + '% on the week before. A short lesson today gets you going again.';
 }
@@ -58,7 +59,7 @@ function openRecap(mon){
     h('div', { class: 'tiles3' },
       h('div', { class: 'stat' }, h('span', { class: 'num' }, r.xp), h('span', { class: 'lbl' }, 'XP')),
       h('div', { class: 'stat' }, h('span', { class: 'num' }, r.goalDays + '/7'), h('span', { class: 'lbl' }, 'goal days')),
-      h('div', { class: 'stat' }, h('span', { class: 'num' }, r.streak), h('span', { class: 'lbl' }, plural(r.streak, 'day') + ' streak'))),
+      h('div', { class: 'stat' }, h('span', { class: 'num' }, r.streak), h('span', { class: 'lbl' }, 'day streak'))),
     h('div', { class: 'bars', role: 'img', 'aria-label': 'XP per day, Monday to Sunday: ' + r.xps.join(', ') },
       h('span', { class: 'goal-line', style: 'bottom:' + (24 + Math.round(goal / max * 100)) + 'px' }, h('span', null, goal)),
       r.days.map((k, i) => h('div', { class: 'bar' + (r.xps[i] >= goal ? '' : ' miss') }, h('i', { style: 'height:' + Math.max(3, Math.round(r.xps[i] / max * 100)) + 'px;--d:' + i }), h('span', null, names[parseDay(k).getDay()])))),
@@ -66,6 +67,6 @@ function openRecap(mon){
       li(r.lessons ? r.lessons + ' ' + plural(r.lessons, 'lesson') + ' finished' : ''),
       li(r.stories ? r.stories + ' ' + plural(r.stories, 'story', 'stories') + ' read' : ''),
       li(r.bestDay ? 'Best day: ' + parseDay(r.bestDay).toLocaleDateString(undefined, { weekday: 'long' }) + ', ' + r.bestXp + ' XP' : ''),
-      li(r.upcoming + ' ' + plural(r.upcoming, 'review', 'reviews') + ' coming up this week'))),
+      li(r.upcoming ? r.upcoming + ' ' + plural(r.upcoming, 'review', 'reviews') + ' coming up this week' : ''))),
     [{ label: 'Share my week', run: () => { shareRecap(r); return true; } }, { label: 'Done', primary: true, run: () => { UI.animate = false; render(); } }]);
 }
