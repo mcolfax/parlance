@@ -225,7 +225,7 @@ function firstWeekCard(){
 }
 function viewLearn(){
   const lang = S.settings.lang;
-  const v = h('div', { class: 'view' }, topBar(), greetBlock(), resumeCard(), heroCard(), firstWeekCard(), questCard(), wordOfDay(), routeStrip());
+  const v = h('div', { class: 'view' }, topBar(), greetBlock(), typeof recapCard === 'function' ? recapCard() : null, resumeCard(), heroCard(), firstWeekCard(), questCard(), wordOfDay(), routeStrip());
   for (const lv of LEVELS){ const s = levelSection(lang, lv); if (s) v.append(s); }
   v.append(genSection());
   if (UI.justDone){ const id = UI.justDone; setTimeout(() => { if (UI.justDone === id) UI.justDone = null; }, 1600); }

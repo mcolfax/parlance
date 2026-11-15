@@ -400,6 +400,12 @@ li.locked .st-title{color:var(--muted)}
 .first-week li.done .fw-step{color:var(--muted);cursor:default}
 .first-week .fw-go{color:var(--muted);transform:rotate(-90deg)}
 .first-week .linkish{align-self:flex-start}
+/* Your week (recap) */
+.recap-card h3{margin:2px 0 4px}
+.recap-card .linkish{align-self:flex-start}
+.recap{display:flex;flex-direction:column;gap:14px}
+.recap-top{align-items:center;gap:12px}
+.recap-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
 .chest{width:70px;height:63px;border:0;background:none;padding:0;flex:none;transition:transform var(--dur-fast) var(--ease)}
 .chest:active{transform:scale(.92)}
 .chest svg{width:100%;height:100%;display:block;overflow:visible}
