@@ -17,6 +17,7 @@
   --streak-bg:#FFE8D6; --streak-text:#8A3A0C;
   --der:#2360C6; --die:#C22E29; --das:#00737D; --pl:#7847B3;
   --gold:#B8860B;
+  --gold-text:#7A5A00; --hair-strong:#7F9685;   /* gold lettering and a field's edge: checked in dev/contrast.js */
   --ice:#CFE6F7;
   --sc-warm:#E9A23B; --sc-red:#D9604C; --sc-sage:#7FB5A0; --sc-night:#1C2D3B; --sc-house:#C9D6D4; --sc-glow:rgb(255 214 120 / .38); --sc-glowbox:#FFE9B8; --sc-crate:#B98A5A; --sc-moon:#F5E7B5;
   --edge:0 2px 0 var(--hair);   /* the soft ledge under cards */
@@ -119,6 +120,7 @@
     --flame:#FF6A4D; --sun:#FFD84F;
     --streak-bg:#3A1E12; --streak-text:#FFB38A;
     --der:#7BA8FF; --die:#FF7C75; --das:#4FD1D9; --pl:#C49CFF; --gold:#E8B84A;
+    --gold-text:#E8B84A; --hair-strong:#668A71;
     --ice:#1D3A52; --pip-shadow:rgb(0 0 0 / .32);
     --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
     --pic-tile:#1F3326; --pic-paper:#F4F8EE; --pic-shade:rgb(0 0 0 / .26); --pic-figure:#B9A4EA;
@@ -138,6 +140,7 @@
   --flame:#FF6A4D; --sun:#FFD84F;
   --streak-bg:#3A1E12; --streak-text:#FFB38A;
   --der:#7BA8FF; --die:#FF7C75; --das:#4FD1D9; --pl:#C49CFF; --gold:#E8B84A;
+  --gold-text:#E8B84A; --hair-strong:#668A71;
   --ice:#1D3A52; --pip-shadow:rgb(0 0 0 / .32);
   --sc-warm:#F0B44A; --sc-red:#E6735F; --sc-sage:#5E9C86; --sc-night:#0B1620; --sc-house:#2A3B3E; --sc-glow:rgb(255 214 120 / .22); --sc-glowbox:#4A3D1E; --sc-crate:#8A6440; --sc-moon:#F1E2A8;
   --pic-tile:#1F3326; --pic-paper:#F4F8EE; --pic-shade:rgb(0 0 0 / .26); --pic-figure:#B9A4EA;
