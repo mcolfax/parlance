@@ -1605,7 +1605,7 @@ async function main(){
       }
       ok(sess.length >= 4 && badRep === 0, 'conversation: replies come from read stories, with two options from other stories (' + sess.length + ' questions, ' + badRep + ' bad)');
       ok(sess.some(x => x.type === 'order') && badOrd === 0, 'conversation: an order question starts out of order, with two speakers (' + badOrd + ' bad)');
-      const cnt = Q.E('(() => { let bad = 0, n = 0; for (const s of STORIES) for (const p of convoReplies(s)){ const ex = replyEx(p, s.lang); if (!ex) continue; n++; const k = t => fold(norm(t, s.lang)), r = k(ex.correct); for (const o of ex.options) if (o !== ex.correct && (k(o) === r || k(o).split(" ")[0] === r.split(" ")[0])) bad++; } return bad + "/" + n; })()').split('/');
+      const cnt = Q.E('(() => { let bad = 0, n = 0; for (const s of STORIES) for (const p of convoReplies(s)){ const ex = replyEx(p, s.lang); if (!ex) continue; n++; const k = t => fold(norm(t, s.lang)), r = k(ex.correct); for (const o of ex.options) if (o !== ex.correct && (k(o) === r || k(o).split(" ")[0] === r.split(" ")[0] || CONVO.never.includes(o))) bad++; } return bad + "/" + n; })()').split('/');
       ok(cnt[0] === '0' && +cnt[1] > 50, 'conversation: no wrong option matches the reply (' + cnt[1] + ' questions in every language)');
       const few = Q.E('(() => { const bad = []; const keep = {}; for (const l of LANG_IDS) keep[l] = S.langs[l].stories; for (const s of STORIES){ S.langs[s.lang].stories = { [s.id]: { at: "x" } }; if (convoSession(s.lang).length < CONVO.min) bad.push(s.id); } for (const l of LANG_IDS) S.langs[l].stories = keep[l]; return bad.join(","); })()');
       ok(few === '', 'conversation: any one story read gives a session of ' + 4 + '+ questions' + (few ? ' (not: ' + few + ')' : ''));
@@ -1627,7 +1627,8 @@ async function main(){
         ok(Q.E('Run.value') === oex.correct && Q.E('Run.canCheck') === true && qov().querySelectorAll('.co-list li').length === oex.lines.length && tiles().length === 0, 'conversation: tapping the lines in order builds the answer'); }
       // a wrong order shows the right one
       { const oex = Q.E('Run.cur'); Q.E('Run.value = ' + JSON.stringify(oex.tiles.join(',')) + '; Run.canCheck = true; doCheck()');
-        ok(qov().querySelectorAll('.co-answer li').length === oex.lines.length && qov().querySelector('.ov-foot').classList.contains('bad'), 'conversation: a wrong order shows the right one'); qfoot('Continue').click(); }
+        ok(qov().querySelectorAll('.co-answer li').length === oex.lines.length && qov().querySelector('.ov-foot').classList.contains('bad'), 'conversation: a wrong order shows the right one'); qfoot('Continue').click();
+        ok(Q.E('(ex => Array.from({ length: 20 }, () => retryTiles(ex).join(",")).every(t => t !== ex.correct))(' + JSON.stringify({ type: oex.type, tiles: oex.tiles, correct: oex.correct }) + ')') === true, 'conversation: a retried order never comes back already in order'); }
       Q.E('Run.pos = 0; nextEx()');
       let guard = 0;
       while (Q.E('Run.active && !Run.finished') && guard++ < 40){ const ex = Q.E('Run.cur'); Q.E('Run.value = ' + JSON.stringify(ex.correct) + '; Run.canCheck = true; doCheck()'); const c = qfoot('Continue'); if (c) c.click(); }

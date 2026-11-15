@@ -219,6 +219,8 @@ function showCombo(n){
   OV.combo.classList.remove('show'); void OV.combo.offsetWidth; OV.combo.classList.add('show');
   sfx('combo');
 }
+/* the tiles of a question asked again: shuffled, and an order question never comes back already in order */
+function retryTiles(ex){ let t = shuffle(ex.tiles); if (ex.type === 'order' && t.join(',') === ex.correct) t = t.slice(1).concat(t[0]); return t; }
 function showFeedback(ex, res){
   Run.checking = false;
   const first = !Run.first.has(ex.id);
@@ -241,7 +243,7 @@ function showFeedback(ex, res){
   if (OV.prog) OV.prog.classList.toggle('hot', Run.combo >= 5);   // the bar glows from five in a row
   if (!res.ok){
     const tries = (Run.tries.get(ex.id) || 0) + 1; Run.tries.set(ex.id, tries);
-    if (tries <= 3 && Run.mode !== 'checkpoint' && Run.mode !== 'placement'){ const again = { ...ex, peeked: false }; if (again.options) again.options = shuffle(again.options); if (again.tiles) again.tiles = shuffle(again.tiles); Run.queue.push(again); }
+    if (tries <= 3 && Run.mode !== 'checkpoint' && Run.mode !== 'placement'){ const again = { ...ex, peeked: false }; if (again.options) again.options = shuffle(again.options); if (again.tiles) again.tiles = retryTiles(again); Run.queue.push(again); }
   }
   setProgress();
   Run.pos++; resumeSave(); Run.pos--;   // answered: a lesson picked up from here starts at the next card

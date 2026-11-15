@@ -417,7 +417,7 @@ function convoReplies(st){
 function replyEx(p, lang){
   const key = t => fold(norm(t, lang)), right = key(p.b.t), first = right.split(' ')[0];
   const pool = shuffle(STORIES.filter(s => s.lang === lang && s.id !== p.st.id).flatMap(convoLines)
-    .filter(l => convoWords(l.t) >= CONVO.minWords && key(l.t) !== right && key(l.t).split(' ')[0] !== first));
+    .filter(l => convoWords(l.t) >= CONVO.minWords && !CONVO.never.includes(l.t) && key(l.t) !== right && key(l.t).split(' ')[0] !== first));
   const ds = [];
   for (const l of pool){ if (ds.length === 2) break; if (!ds.some(d => key(d.t) === key(l.t))) ds.push(l); }
   if (ds.length < 2) return null;
