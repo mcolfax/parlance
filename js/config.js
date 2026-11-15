@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.42.0';
+const APP_VERSION = '4.43.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,9 @@ const SCHEMA_VERSION = 12;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.43.0', date: '2026-11-15', title: 'Conversation practice', notes: [
+    'Practice real conversations, no tutor needed: choose the right reply, and put a conversation back in order. It’s built from the stories you’ve read.',
+    'Find it in Stories and Review, and in Talk on the web version.'] },
   { v: '4.42.0', date: '2026-11-13', title: 'Easier to read', notes: [
     'Gold lettering, search boxes and switches are easier to see in the light theme.',
     'Behind the scenes, every color pairing in Parlance is now checked for readability, in light and dark.'] },
@@ -289,6 +292,10 @@ const XP = { perAnswer: 1, lesson: 5, perfectBonus: 5, review: 3, story: 8, stor
 /* Unit checkpoints (a short test once a unit's lessons are done) and the placement test (Me → Starting level). */
 const RESUME = { maxAgeDays: 7 };   // how long a lesson left half-done can be picked up again
 const CHECKPOINT = { questions: 12, pass: 0.8 };
+/* Conversation practice (Stories, Review, Talk on the web): from the built-in stories you’ve read. replies and orders per session;
+   minWords: shortest line used as a reply or a wrong option; min: fewest questions for a session;
+   never: lines too generic to be a wrong reply (a yes that would answer almost any question; they can still be the right reply) */
+const CONVO = { replies: 6, orders: 2, minWords: 3, min: 4, never: ['Claro que sí.', 'Certo che sì.'] };
 /* Listen hands-free (Review) and Listen first (Stories): items per session, the fewest learned items to offer it, and the pauses in ms */
 const LISTEN = { max: 20, min: 6, gapSay: 1800, gapReveal: 1200, gapNext: 1500, storyGap: 700 };
 const PLACEMENT = { perLevel: 5, pass: 3 };

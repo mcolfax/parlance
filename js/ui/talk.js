@@ -37,6 +37,12 @@ function chatPrompt(sc, lang, level){
 function webTalk(v, lang, lv){
   v.append(h('div', { class: 'notice' }, h('strong', null, 'The tutor runs on Claude. '), 'Open Parlance in Claude for the full thing, or pick a scene below and practice it in Claude, ChatGPT or Gemini. Lessons and reviews work here as usual.'),
     h('div', { class: 'field' }, openInClaude()));
+  const some = convoReadStories(lang).length > 0;
+  v.append(h('section', { class: 'card convo-card' },
+    h('h3', null, 'Practice without the tutor'),
+    h('p', { class: 'small muted' }, some ? 'Choose the right reply and put lines in order, from the stories you’ve read. It works right here, no tutor needed.' : 'Read a story, then practice its conversations here.'),
+    some ? h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => startConvo() }, ic('talk'), 'Practice conversations')
+      : h('button', { class: 'btn btn-quiet btn-wide', type: 'button', onclick: () => { UI.tab = 'stories'; UI.animate = true; render(); window.scrollTo(0, 0); } }, ic('stories'), 'Go to Stories')));
   v.append(h('div', { class: 'field' }, h('span', { class: 'lbl' }, 'Level'), h('div', { class: 'chips' }, LEVELS.map(x => h('button', { class: 'chip', type: 'button', 'aria-pressed': String(x === lv), onclick: () => { UI.talkLevel = x; render(); } }, x)))));
   const li = LEVELS.indexOf(lv);
   v.append(h('div', { class: 'scen-grid' }, SCENARIOS.map(sc => {
