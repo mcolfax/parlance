@@ -874,6 +874,20 @@ async function main(){
         const bad = [...css.matchAll(/transition:([^;}]*)/g)].filter(m => !m[1].split(',').every(part => /^\s*none(!important)?\s*$/.test(part) || part.includes('var(--dur')));
         ok(!bad.length, 'motion: every transition uses a duration token (' + f + '.css): ' + (bad[0] ? 'transition:' + bad[0][1] + ' - use a --dur-* token from styles/tokens.css' : ''));
       }
+      // animations too: a duration is a token, except ambient loops and the long one-shot choreography below (each by selector, with its reason)
+      { const AMBIENT = new Set(['.btn.busy::after', '.top .music-btn.on svg', '.sk::after', '.stat.hot .flame', '.hero-art i:nth-child(3)', '.lvl.cur i', 'li.next .dot', '.mic-btn.live,.icon-btn.live', '.typing i', '.sound-check.live>span:first-child', '.btn.shine::after', '.chest.open .ch-rays', '.chest.ready', '.chest.ready .ch-glow', '.chest.open .ch-glow', '.chest.ready .ch-spark,.chest.open .ch-spark', '.bird-opt .bo-ph', '.steam path', '.rain path', '.stars circle', '.beams .sc-beam', '.sc-onair', '.sticker.shiny::after']);   // loops that run for seconds: their own pace is the look
+        const CHOREO = new Set(['.combo.show', '.ring .fill', '.stamp::after', '.hero-lines .ln', '.q-bar i', '.chest.open .ch-fly', '.badge-new', '.pip.fly-in', 'li.just .dot', 'li.just .station']);   // one-shots longer than the slowest token (.6s), timed to what they show (the fly-in is also timed in art.js)
+        const left = new Set(), used = new Set();
+        for (const f of ['base', 'components', 'features', 'art']){
+          const css = fs.readFileSync(path.join(ROOT, 'styles', f + '.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+          for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) for (const d of m[2].matchAll(/animation:([^;]*)/g)){
+            if (/^\s*none/.test(d[1]) || d[1].includes('var(--dur')) continue;
+            const sel = m[1].trim().replace(/\s+/g, ' '); used.add(sel);
+            if (!(/\binfinite\b/.test(d[1]) ? AMBIENT : CHOREO).has(sel)) left.add(f + '.css ' + sel + ' { animation:' + d[1].trim() + ' }');
+          }
+        }
+        ok(!left.size, 'motion: every animation uses a duration token, or is a listed exception: ' + [...left].slice(0, 3).join(' | ') + ' - use a --dur-* token, or add the selector to AMBIENT or CHOREO in dev/test.js with a reason');
+        ok([...AMBIENT, ...CHOREO].every(x => used.has(x)), 'motion: every listed animation exception is still needed: ' + [...AMBIENT, ...CHOREO].filter(x => !used.has(x)).join(', ')); }
       const bcss = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8');
       ok(bcss.split('prefers-reduced-motion').length === 2 && bcss.slice(bcss.indexOf('prefers-reduced-motion')).includes('.spark-p{display:none}'), 'motion: one reduced-motion block in base.css');
     }
@@ -3150,6 +3164,63 @@ async function main(){
     ok(WA.E('socialState()') === 'notready' && WA.w.document.querySelector('.fr-hero .notice').textContent.includes('isn’t ready on the web version'), 'if the web database can’t take cards yet, Friends says so');
     WA.E('Social.blocked = false');
     for (const X of [WA, WB]){ ok(!X.errors.length, 'no page errors (web friends) ' + JSON.stringify(X.errors.slice(0, 3))); X.dom.window.close(); }
+  }
+  /* ---------- 13. follow-ups (4.45.0): the small things the reviews left ---------- */
+  {
+    const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+    const rd = R.w.document, E = R.E;
+    const cssOf = f => fs.readFileSync(path.join(ROOT, 'styles', f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const rule = (css, sel) => { const m = css.match(new RegExp('(?:^|})\\s*' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\{([^}]*)\\}')); return m ? m[1].replace(/\s+/g, '') : ''; };
+    const base = cssOf('base.css'), comp = cssOf('components.css'), meSrc = fs.readFileSync(path.join(ROOT, 'js', 'ui', 'me.js'), 'utf8');
+    // R-52: Me's links and small buttons
+    ok(/class: 'linkish small', href: 'privacy\.html'/.test(meSrc) && /class: 'linkish small', href: 'terms\.html'/.test(meSrc), 'follow-ups: the Privacy and Terms links on Me use the link colour, not the browser’s blue');
+    ok(rule(base, '.btn-sm').includes('min-height:44px'), 'follow-ups: a small button is still a 44px tap target');
+    // R-60 (chips): a story's chips are 44px tall
+    ok(rule(comp, '.chip-btn').includes('min-height:44px'), 'follow-ups: the story chips (Show text, Translate, Save) are 44px tall');
+    // R-54: the checkpoint takes the run's language; a resumed run of five glows; the finish bubble clears the date
+    E('S.settings.lang = "de"; startCheckpoint(COURSE.es.units[0], true, "es")');
+    ok(E('Run.lang') === 'es' && E('Run.mode') === 'checkpoint', 'follow-ups: a checkpoint started from a finish screen uses the run’s language, not the setting: ' + E('Run.lang'));
+    E('endRun(); S.settings.lang = "es"');
+    E('startLesson(COURSE.es.units[0].lessons[0].id); resumeApply({ r: { combo: 6 }, queue: buildLesson(Run.lesson), pos: 0 })');
+    ok(E('OV.prog.classList.contains("hot")'), 'follow-ups: a lesson resumed on a run of six glows again');
+    E('endRun(); startLesson(COURSE.es.units[0].lessons[0].id); resumeApply({ r: { combo: 2 }, queue: buildLesson(Run.lesson), pos: 0 })');
+    ok(!E('OV.prog.classList.contains("hot")'), 'follow-ups: a lesson resumed on a run of two does not glow');
+    E('endRun()');
+    { const pr = rule(comp, '.complete-pip'), bot = +/bottom:(-?\d+)px/.exec(pr)[1], right = +/right:(-?\d+)px/.exec(pr)[1];
+      ok(bot < -14 && right < -30, 'follow-ups: the finish screen’s bird sits down and out from the stamp, so its bubble clears the date: ' + pr); }
+    // R-56: Learn's tiles differ in every language; tab jumps keep the scroll of the tab they leave; one shaky word reads right
+    { const st = rule(comp, '.stat.streak'), xp = rule(comp, '.stat.xp'), due = rule(comp, '.stat.due');
+      ok(st === 'background:var(--surface);box-shadow:var(--edge);color:var(--ink)' && xp.includes('background:var(--warn-bg)') && due.includes('background:var(--line-soft)'), 'follow-ups: Learn’s three tiles are a plain card, a warm tile and a language tint: ' + st); }
+    for (const l of ['de', 'es', 'it']){
+      E('S.settings.lang = "' + l + '"; UI.tab = "learn"; render()');
+      const tiles = [...rd.querySelectorAll('#app .stats .stat')];
+      ok(tiles.length === 3 && tiles[0].classList.contains('streak') && !!tiles[0].querySelector('.flame'), 'follow-ups: Learn shows its three tiles in ' + l);
+    }
+    E('S.settings.lang = "es"; UI.tab = "learn"; UI.scroll = {}; render()');
+    Object.defineProperty(R.w, 'scrollY', { configurable: true, get(){ return 321; } });
+    E('goTab("review")'); ok(E('UI.scroll.learn') === 321 && E('UI.scroll.review') === 0 && E('UI.tab') === 'review', 'follow-ups: goTab saves the scroll of the tab it leaves');
+    E('UI.tab = "learn"; UI.scroll = {}; render()'); rd.querySelector('#app .stat.due').click();
+    ok(E('UI.scroll.learn') === 321 && E('UI.tab') === 'review', 'follow-ups: the reviews tile saves Learn’s scroll too');
+    ok(/onclick: \(\) => \{ if \(UI\.scroll\) UI\.scroll\[UI\.tab\] = window\.scrollY \|\| 0; UI\.tab = 'talk'/.test(meSrc), 'follow-ups: Me’s Go to Talk saves Me’s scroll');
+    delete R.w.scrollY; E('UI.tab = "learn"; render()');
+    ok(E('(() => { const o = learnedEntries; learnedEntries = () => [{ item: {}, card: {} }]; const one = practiceTiles("es").find(x => x.id === "weak").sub; learnedEntries = () => [{ item: {}, card: {} }, { item: {}, card: {} }, { item: {}, card: {} }]; const three = practiceTiles("es").find(x => x.id === "weak").sub; learnedEntries = () => new Array(30).fill({ item: {}, card: {} }); const many = practiceTiles("es").find(x => x.id === "weak").sub; learnedEntries = o; return [one, three, many].join("|"); })()') === 'Your shakiest one|Your 3 shakiest|Your 12 shakiest', 'follow-ups: “Your 1 shakiest” reads “Your shakiest one”');
+    // R-57: five new stickers at most; a speed round with nothing right is kindly told so
+    E('picFor = () => "cat"; UI.tab = "learn"; render(); startLesson("es-3-1"); finishRun()');
+    { const fin = rd.querySelector('.overlay:not(.out) .complete'), strip = fin && [...fin.querySelectorAll('.learned')].find(x => /New stickers?/.test(x.textContent));
+      ok(!!strip && strip.querySelectorAll('.sticker').length >= 1 && strip.querySelectorAll('.sticker').length <= 5, 'follow-ups: the finish screen shows at most five new stickers: ' + (strip && strip.querySelectorAll('.sticker').length)); }
+    E('endRun()');
+    { const src = fs.readFileSync(path.join(ROOT, 'js', 'ui', 'speed.js'), 'utf8');
+      ok(src.includes("!Speed.score ? 'Have another go. Your words will come faster.' : 'Your best is '"), 'follow-ups: a speed round with no right answers says “Have another go. Your words will come faster.”'); }
+    // R-63: a folded unit's row is not a heading in a button; the keyboard works on it; the recap's line says what it counts
+    E('UI.tab = "learn"; UI.units = new Set(); S.langs.es.cp = {}; for (const l of COURSE.es.units[0].lessons) S.langs.es.done[l.id] = { at: "2026-01-01", acc: 1 }; render()');
+    { const tg = rd.querySelector('#app .unit.compact .unit-toggle');
+      ok(!!tg && !tg.closest('button') && !tg.querySelector('button') && tg.getAttribute('role') === 'button' && tg.getAttribute('tabindex') === '0' && tg.getAttribute('aria-expanded') === 'false', 'follow-ups: a folded unit row is a role=button row with no heading inside a button');
+      if (tg){ tg.dispatchEvent(new R.w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+        const open = rd.querySelector('#app .unit-toggle[aria-expanded="true"]'); ok(!!open, 'follow-ups: Enter opens a folded unit');
+        if (open){ open.dispatchEvent(new R.w.KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })); ok(!rd.querySelector('#app .unit-toggle[aria-expanded="true"]') && !!rd.querySelector('#app .unit.compact'), 'follow-ups: Space folds it again'); } } }
+    ok(fs.readFileSync(path.join(ROOT, 'js', 'ui', 'recap.js'), 'utf8').includes("' due now or this week'") && !fs.readFileSync(path.join(ROOT, 'js', 'ui', 'recap.js'), 'utf8').includes('coming up this week'), 'follow-ups: the recap says reviews are “due now or this week”');
+    ok(R.errors.length === 0, 'follow-ups: no page errors ' + R.errors.slice(0, 2).join(' | '));
+    R.w.close();
   }
   console.log('PASS', passes, 'FAIL', fails);
   process.exit(fails ? 1 : 0);

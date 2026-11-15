@@ -13,16 +13,16 @@ button.stat{font:inherit;color:inherit}
 button.stat:active{transform:scale(.97)}
 .stat .num{font:var(--type-num);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
 .stat .lbl{font:700 13px/1.3 var(--body);color:var(--muted)}
-/* Learn's three tiles each get their own color: streak, today's XP, reviews due */
-.stat.streak{background:var(--streak-bg);box-shadow:none;color:var(--streak-text)}
+/* Learn's three tiles look different in every language: a plain card for the streak (like Me's), warm for today's XP, the language's tint for reviews due */
+.stat.streak{background:var(--surface);box-shadow:var(--edge);color:var(--ink)}
 .stat.xp{background:var(--warn-bg);box-shadow:none;color:var(--warn)}
 .stat.due{background:var(--line-soft);box-shadow:none;color:var(--line-text)}
-.stat.streak .lbl,.stat.xp .lbl,.stat.due .lbl{color:inherit}
+.stat.xp .lbl,.stat.due .lbl{color:inherit}
 .stat.xp .ring .track{stroke:color-mix(in srgb, var(--warn) 22%, transparent)}
 .stat.xp .ring .fill{stroke:var(--warn)}
 .stat .sub{font-size:12px;opacity:.85}
 .flame{color:var(--flame)}
-.stat.cold .flame{color:var(--streak-text);opacity:.35}
+.stat.cold .flame{color:var(--flame);opacity:.35}
 .stat.hot .flame{animation:flicker 2.4s ease-in-out infinite;transform-origin:50% 90%}
 @keyframes flicker{0%,100%{transform:scale(1) rotate(0)}30%{transform:scale(1.08,1.12) rotate(-3deg)}60%{transform:scale(.97,1.03) rotate(2deg)}}
 .ring{display:inline-flex;flex:none}
@@ -491,7 +491,7 @@ li.locked .st-title{color:var(--muted)}
 .tab .badge.dot{min-width:9px;width:9px;height:9px;padding:0;top:6px;left:calc(50% + 9px)}
 .empty{display:flex;justify-content:center;padding:10px 0 2px}
 .chip.ok{border-color:var(--ok);color:var(--ok)}
-.chip-btn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--hair);background:var(--surface);border-radius:var(--r-pill);padding:6px 11px;font:700 13px var(--body);color:var(--muted);transition:color var(--dur-quick),border-color var(--dur-quick),transform var(--dur-press)}
+.chip-btn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--hair);background:var(--surface);border-radius:var(--r-pill);padding:6px 11px;min-height:44px;font:700 13px var(--body);color:var(--muted);transition:color var(--dur-quick),border-color var(--dur-quick),transform var(--dur-press)}
 .chip-btn:active{transform:scale(.95)}
 .chip-btn[aria-pressed="true"]{color:var(--line-text);border-color:var(--line)}
 .chip-btn[disabled]{opacity:.75}
