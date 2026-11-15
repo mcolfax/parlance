@@ -76,10 +76,13 @@ button.stat:active{transform:scale(.97)}
 .unit h2{font-size:20px}
 /* a finished unit folds into one row; the row is a button, so it has to look like the plain head */
 .unit-toggle{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:10px 0 0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
-.unit-toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
-.unit.compact{padding-top:6px;padding-bottom:6px;contain-intrinsic-size:auto 76px}
+.lvl-sec.open .unit-toggle .chev{transform:none}
+.lvl-sec.open .unit-toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.unit.compact{padding-top:6px;padding-bottom:6px;contain-intrinsic-size:auto 128px}
 .unit.compact h2{font-size:18px}
 .unit.compact .unit-head{padding-top:0}
+/* a finished level also matches the finish screen's .complete rule (centered column that shrinks to fit): keep its route rows full width and left aligned */
+.lvl-sec.complete{align-items:stretch;gap:0;padding-top:0;text-align:left}
 .unit-done{display:grid;place-items:center;flex:none;width:26px;height:26px;border-radius:50%;background:var(--line);color:var(--surface)}
 .unit-done svg{width:15px;height:15px}
 .stations{list-style:none;margin:4px 0 0;padding:0;position:relative}

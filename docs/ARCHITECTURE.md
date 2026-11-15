@@ -32,7 +32,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `design/pictures/` | The picture pipeline: `PLAN.md`, `briefs-src.txt` (one line per word concept), `tools.js` (inventory, briefs, words, check, shots, svg), the style board, and `recraft/` (prompts and generator for the cast and story scenes) | add pictures, ingest Recraft art |
 | `js/core/art.js` | `pip()` (the learner's bird, alive: it moves and talks when tapped and looks where you touch) and `pipSVG()` (a still), loading a picked bird (`loadMascot`), cast portraits, unit signs, scenes, chest, medals (pure SVG) | change illustrations |
 | `content/*.js` | Lessons (`de-*`, `es-*`, `it-*`), stories (`stories-de|es|it.js`), cast, glossary (data only) | add or fix built-in content |
-| `js/ui/*.js` | One file per screen: learn, review, listen, speed, stories, talk, friends, me, runner (lessons), onboarding, film, feedback, studio | change a screen |
+| `js/ui/*.js` | One file per screen: learn, recap, review, listen, speed, stories, talk, friends, me, runner (lessons), onboarding, film, feedback, studio | change a screen |
 | `js/main.js` | Boot order | rarely |
 | `dev/test.js` | End-to-end tests (jsdom) | run before every publish |
 | `dev/contrast.js` | Checks the contrast of the token pairs in `PAIRS`, both themes, and that the two dark blocks agree; run by `npm test`. Not published | add a color used as text or as a control's edge |
@@ -237,6 +237,10 @@ A lesson left half-done (Leave, a closed tab, a reload) can be picked up where i
 - **Device-local on purpose.** It is not in `parlance.v2`, the synced slices or the database, so there is no schema change and nothing to migrate.
 - **Offered** by a "Pick up where you left off" card at the top of Learn (current language only) and by the lesson's own intro, which then also offers Start over. `resumeFind()` rebuilds the queue against the lesson as it is now and returns nothing if it is older than `RESUME.maxAgeDays` (`config.js`), belongs to another account, or the lesson's word, phrase or blank counts changed.
 - **Cleared** when the lesson finishes, on Start over, or from the card's "Forget it". Only lessons resume; reviews, practice sessions and checkpoints do not.
+
+## Your week
+
+**Your week** (`js/ui/recap.js`): a recap of last week (Monday to Sunday) from saved days, lessons, stories and cards, shown on Learn Monday to Wednesday until opened or dismissed (`parlance.recap` in `localStorage`, device-only), and from Me any time. Share uses the system share sheet, or copies the text with the home's link from `FRIENDS.links`. Learn also folds a finished or tested-out unit into one row (`levelSection()` in `js/ui/learn.js`; the unfolded units live in `UI.units`, for this visit only), and an open checkpoint stays visible under a folded unit.
 
 ## Practice beyond lessons
 
