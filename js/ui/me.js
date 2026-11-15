@@ -269,7 +269,7 @@ function webAccountRow(){
     h('button', { class: 'linkish small', type: 'button', onclick: openWebName }, 'Change your name'),
     h('button', { class: 'linkish small', type: 'button', onclick: async () => { await webSignOut(); saveLocal(); webReload(); } }, 'Sign out'));
   return h('div', { class: 'web-acct' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openWebSignIn('in') }, 'Sign in or create an account'),
-    h('span', { class: 'small muted' }, h('a', { href: 'privacy.html', target: '_blank', rel: 'noopener' }, 'Privacy'), ' · ', h('a', { href: 'terms.html', target: '_blank', rel: 'noopener' }, 'Terms')));
+    h('span', { class: 'small muted' }, h('a', { class: 'linkish small', href: 'privacy.html', target: '_blank', rel: 'noopener' }, 'Privacy'), ' · ', h('a', { class: 'linkish small', href: 'terms.html', target: '_blank', rel: 'noopener' }, 'Terms')));
 }
 function openWebName(){
   const input = h('input', { class: 'input', type: 'text', maxlength: '40', autocomplete: 'given-name', 'aria-label': 'Your name', value: (Web.session && Web.session.user && Web.session.user.name) || '' });

@@ -6,9 +6,9 @@
 .pip-svg{width:100%;height:100%;display:block;overflow:visible}
 @keyframes flyin{0%{transform:translate(-110vw,-60px) rotate(-8deg)}70%{transform:translate(6px,4px) rotate(3deg)}100%{transform:none}}
 .pip.fly-in{animation:flyin 1.6s var(--ease) .2s both}
-.pip-say{position:absolute;bottom:calc(100% - 4px);right:50%;transform:translateX(34%);background:var(--surface);color:var(--ink);border:1.5px solid var(--hair);border-radius:var(--r-md);padding:6px 10px;font:780 14px/1.2 var(--display);white-space:nowrap;box-shadow:var(--shadow);pointer-events:none;z-index:2;animation:sayin .45s var(--spring) .35s both}
+.pip-say{position:absolute;bottom:calc(100% - 4px);right:50%;transform:translateX(34%);background:var(--surface);color:var(--ink);border:1.5px solid var(--hair);border-radius:var(--r-md);padding:6px 10px;font:780 14px/1.2 var(--display);white-space:nowrap;box-shadow:var(--shadow);pointer-events:none;z-index:2;animation:sayin var(--dur-settle) var(--spring) .35s both}
 .pip-say::after{content:"";position:absolute;bottom:-7px;right:28%;width:11px;height:11px;background:var(--surface);border-right:1.5px solid var(--hair);border-bottom:1.5px solid var(--hair);transform:rotate(45deg)}
-.pip-say.pop{animation:sayin .4s var(--spring) both}
+.pip-say.pop{animation:sayin var(--dur-enter) var(--spring) both}
 .pip-say.up-right{right:auto;left:58%;transform:none;animation-name:sayinR}
 .pip-say.up-right::after{right:auto;left:14px}
 @keyframes sayin{from{opacity:0;transform:translateX(34%) translateY(8px) scale(.8)}}
@@ -50,7 +50,7 @@ li.just .station{animation:flashbg 1.6s ease both}
 .medal.on .md-rib.r{fill:var(--der)}
 .medal:not(.on){opacity:.5}
 .badge-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 6px}
-.badge-cell{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:4px 0;font:inherit;color:inherit;border-radius:12px;animation:rise .4s var(--ease) both;animation-delay:calc(var(--i,0) * 25ms);transition:transform var(--dur-press) var(--ease)}
+.badge-cell{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;padding:4px 0;font:inherit;color:inherit;border-radius:12px;animation:rise var(--dur-enter) var(--ease) both;animation-delay:calc(var(--i,0) * 25ms);transition:transform var(--dur-press) var(--ease)}
 .badge-cell:active{transform:scale(.94)}
 .bc-name{font:var(--type-eyebrow);text-align:center;color:var(--muted)}
 .badge-cell.on .bc-name{color:var(--ink)}
@@ -59,10 +59,10 @@ li.just .station{animation:flashbg 1.6s ease both}
 /* tap-to-translate */
 .say.gl .w{text-decoration:underline dotted color-mix(in srgb, var(--line) 70%, transparent) 2px;text-underline-offset:6px}
 .say .w.on{background:var(--line-soft)}
-.gloss{position:fixed;z-index:var(--z-pop);min-width:120px;max-width:260px;background:var(--ink);color:var(--bg);border-radius:var(--r-md);padding:9px 13px 10px;box-shadow:var(--shadow-lg);pointer-events:none;animation:glin .22s var(--spring) both}
+.gloss{position:fixed;z-index:var(--z-pop);min-width:120px;max-width:260px;background:var(--ink);color:var(--bg);border-radius:var(--r-md);padding:9px 13px 10px;box-shadow:var(--shadow-lg);pointer-events:none;animation:glin var(--dur-quick) var(--spring) both}
 .gloss::after{content:"";position:absolute;left:calc(var(--ax,50%) - 7px);bottom:-6px;width:14px;height:14px;background:var(--ink);border-radius:3px;transform:rotate(45deg)}
 .gloss.below::after{bottom:auto;top:-6px}
-.gloss.out{animation:glout .14s ease both}
+.gloss.out{animation:glout var(--dur-fast) ease both}
 .gl-t{font:800 17px/1.2 var(--display)}
 .gl-e{font:600 15px/1.35 var(--body);opacity:.92}
 .gl-e.muted{opacity:.6;font-weight:500;color:inherit}
@@ -146,7 +146,7 @@ li.just .station{animation:flashbg 1.6s ease both}
 .pic [class*="pk-"]:not([class*="line"]):not(.pk-hi):not(.pk-shade):not(.pk-ink):not(.pk-blush){stroke:var(--pic-ink);stroke-width:2.3;stroke-linejoin:round}
 
 /* Sticker book (Me) and new stickers (finish screen) */
-.sticker{position:relative;display:inline-grid;place-items:center;padding:0;background:none;border:0;cursor:pointer;animation:pop .45s var(--spring) both;animation-delay:calc(var(--i, 0) * 50ms)}
+.sticker{position:relative;display:inline-grid;place-items:center;padding:0;background:none;border:0;cursor:pointer;animation:pop var(--dur-settle) var(--spring) both;animation-delay:calc(var(--i, 0) * 50ms)}
 .sticker[disabled]{cursor:default}
 .sticker.empty .pic{filter:grayscale(1);opacity:.22}
 .sticker.shiny .pic{box-shadow:0 0 0 3px var(--gold),0 0 14px var(--gold)}

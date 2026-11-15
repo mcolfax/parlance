@@ -12,7 +12,7 @@
 .about .about-actions .btn{flex:1 1 auto}
 .studio-entry{border-style:dashed;border-color:var(--line)}
 .studio-entry .ic svg{width:28px;height:28px;color:var(--line-text)}
-.update-banner{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:var(--z-banner);max-width:540px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--hair);box-shadow:var(--shadow-lg);font-size:15px;animation:toastin .45s var(--spring) both}
+.update-banner{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top,0px));z-index:var(--z-banner);max-width:540px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--hair);box-shadow:var(--shadow-lg);font-size:15px;animation:toastin var(--dur-settle) var(--spring) both}
 .announce,.whatsnew{display:flex;flex-direction:column;gap:12px}
 .announce{align-items:center;text-align:center}
 .wn-pip{align-self:center}
@@ -26,7 +26,7 @@
 .mini-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:var(--line);color:var(--line-ink);font:800 11px var(--body)}
 .studio-sec{display:flex;flex-direction:column;gap:12px}
 .studio-hero .btn{margin-top:4px}
-.fb-item{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:6px;animation:rise .3s var(--ease) both}
+.fb-item{background:var(--surface);border:1px solid var(--hair);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:6px;animation:rise var(--dur) var(--ease) both}
 .fb-item.new{border-left:4px solid var(--line)}
 .fb-type{font-size:12px;padding:3px 9px}
 .fb-type.t-bug{border-color:var(--bad);color:var(--bad)}
@@ -147,7 +147,7 @@
 .story-head{display:flex;flex-direction:column;gap:8px}
 .story-head h1{font-size:28px}
 .story-lines{display:flex;flex-direction:column;gap:14px;padding-bottom:24px}
-.sline{display:flex;align-items:flex-end;gap:10px;animation:rise .35s var(--ease) both}
+.sline{display:flex;align-items:flex-end;gap:10px;animation:rise var(--dur-enter) var(--ease) both}
 .sline.r{flex-direction:row-reverse}
 .sline .sl-av{align-self:flex-start}
 .story-listen{margin-top:4px}
@@ -160,8 +160,8 @@
 .sl-en{font-size:15px;color:var(--muted)}
 .sl-en[hidden]{display:none}
 .sl-act{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-.squiz{display:flex;flex-direction:column;gap:12px;padding:16px;background:var(--surface);box-shadow:var(--shadow);border-radius:var(--r);animation:rise .35s var(--ease) both}
-.squiz.shake{animation:shake .38s ease both}
+.squiz{display:flex;flex-direction:column;gap:12px;padding:16px;background:var(--surface);box-shadow:var(--shadow);border-radius:var(--r);animation:rise var(--dur-enter) var(--ease) both}
+.squiz.shake{animation:shake var(--dur-enter) ease both}
 .squiz h3{font-size:20px}
 .squiz-ok{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .msg-row{display:flex;align-items:flex-end;gap:8px}
