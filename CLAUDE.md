@@ -43,6 +43,7 @@ Read `docs/ARCHITECTURE.md` before changing anything. It maps every file and exp
 ```sh
 npm ci && npm test   # jsdom end-to-end suite (~2 min). Must end with "FAIL 0". Out of memory? NODE_OPTIONS=--max-old-space-size=6144 npm test
 npm run preview      # http://127.0.0.1:8765/_preview.html
+node dev/contrast.js   # contrast of every text and control color pair, light and dark (must end with ok)
 node design/pictures/tools.js check   # word pictures: drawing rules, the word mapping, coverage (must end with ok)
 npm run files        # JSON map of the files to publish next to index.html
 npm run web          # builds the web version into dist/ (what Vercel serves)

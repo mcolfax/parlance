@@ -35,6 +35,7 @@ Parlance is a static web app published as one multi-file Claude artifact. There 
 | `js/ui/*.js` | One file per screen: learn, review, listen, speed, stories, talk, friends, me, runner (lessons), onboarding, film, feedback, studio | change a screen |
 | `js/main.js` | Boot order | rarely |
 | `dev/test.js` | End-to-end tests (jsdom) | run before every publish |
+| `dev/contrast.js` | Checks the contrast of the token pairs in `PAIRS`, both themes, and that the two dark blocks agree; run by `npm test`. Not published | add a color used as text or as a control's edge |
 | `dev/preview.py`, `dev/files.js` | Local preview server; the list of files to publish | rarely |
 | `dev/web.js`, `vercel.json` | Builds the web version into `dist/` (page, Home Screen manifest and icon tags); Vercel runs it on every push to `main` | change how the web version is served |
 | `dev/sw.js` | The web version's service worker: precache, per-file hash caching, updates and the kill switch (`dev/web.js` writes it to `dist/sw.js`) | change offline behavior |
@@ -208,6 +209,7 @@ data/users/{self}  (platform default: private to each person)
 ## Conventions
 
 - Style through tokens: `font: var(--type-label)`, `border-radius: var(--r-md)`, `z-index: var(--z-sheet)`. Don't write new literal colors.
+- A color used for text or for a control's edge gets a row in `PAIRS` in `dev/contrast.js`. Gold lettering uses `--gold-text`; a field's edge uses `--hair-strong`.
 - Durations are tokens too (`--dur-press`, `--dur-fast`, `--dur-quick`, `--dur`, `--dur-settle`, `--dur-slow`, `--dur-enter`, `--dur-exit`): `npm test` fails a transition with a literal time. Vibration goes through `haptic('<name>')` with a name from `HAPTICS` in `js/core/util.js`; `settings.haptics` (Me → Sound → Vibration) turns it off.
 - Before the scripts run, `#app` holds a skeleton (`.boot`, `styles/base.css`); the first `render()` replaces it. Keep it free of inline scripts and styles.
 - Every sound is a named entry in `SOUNDS`; call `sfx('name')`. Music goes through `Song` and `MEDIA.song`, never a new `<audio>`.
