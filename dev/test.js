@@ -327,6 +327,30 @@ async function main(){
     ok(n1.ok === false && n1.level === 'article' && n1.note === 'Right gender, but ciudad is singular: la ciudad.' && n2.note === 'Right gender, but guantes is plural: los guantes.' && n2.level === 'article'
       && n3.level === 'article' && n3.note === 'Right gender. Before a vowel, lo and la become l’.' && n4.level === 'article' && n4.note === 'Right gender. Before s + consonant, z, gn, ps or y, use lo, not il.'
       && n5.ok === false && n5.level === 'article' && n6.ok === false && n6.level === 'article', "article practice: the right gender in the wrong number or form is a near miss that doesn't count"); }
+  /* an article question in A1–A2 lessons */
+  { const counts = { de: 0, es: 0, it: 0 }, bad = [], late = []; let nonOk = 0;
+    const probe = id => A.E('(l => { const q = buildLesson(l), gi = q.map((e, i) => e.type === "gender" ? i : -1).filter(i => i >= 0), g = gi.length ? q[gi[0]] : null;' +
+      ' const wi = g ? q.slice(0, gi[0]).map((e, i) => e.type === "teach" && e.mode === "words" ? i : -1).filter(i => i >= 0) : [], w = wi.length ? q[wi[wi.length - 1]] : null;' +
+      ' return { lvl: l.level, has: l.vocab.some(v => genderLessonOk(v, l.lang)), n: gi.length, ok: !g || genderLessonOk(g.item, l.lang), near: !!w && w.idxs.includes(l.vocab.indexOf(g.item)) }; })(getLesson(' + JSON.stringify(id) + '))');
+    for (const lang of ['de', 'es', 'it']) for (const id of A.E('coreOrder(' + JSON.stringify(lang) + ').map(l => l.id)')){
+      const r = probe(id);
+      if (r.lvl === 'A1' || r.lvl === 'A2'){ if (r.has === (r.n === 1) && r.n <= 1 && (r.n === 0 || r.near)){ if (r.n) counts[lang]++; } else bad.push(id + ':' + r.n); }
+      else if (r.n) late.push(id);
+      if (!r.ok) nonOk++;
+    }
+    ok(!bad.length && counts.de >= 50 && counts.es >= 55 && counts.it >= 55, 'lesson articles: A1 and A2 lessons with an eligible noun ask exactly one, after its words card (' + JSON.stringify(counts) + (bad.length ? ' ' + bad.slice(0, 3).join(', ') : '') + ')');
+    ok(late.length === 0, 'lesson articles: none from B1 (' + late.slice(0, 3).join(', ') + ')');
+    ok(nonOk === 0, 'lesson articles: never a plural or a noun with two articles (' + nonOk + ' bad)'); }
+  { const Q = await makeDom(); Q.P.S.settings.onboarded = true;
+    const lid = 'de-3-1'; Q.E('S.settings.lang = "de"; localStorage.removeItem("parlance.genmiss"); startLesson(' + JSON.stringify(lid) + '); Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx()');
+    const at = Q.E('Run.queue.findIndex(e => e.type === "gender")'), cards0 = JSON.stringify(Q.P.S.langs.de.cards), noun = Q.E('Run.queue[' + at + '].item.t');
+    Q.E('Run.pos = ' + at + '; nextEx()');
+    const cur = Q.E('Run.cur'); Q.E('Run.value = Run.cur.options.find(o => o !== Run.cur.correct); Run.canCheck = true; doCheck()');
+    const miss = JSON.parse(Q.w.localStorage.getItem('parlance.genmiss') || '{}');
+    ok(at >= 0 && cur.type === 'gender' && !('key' in cur) && !('srs' in cur) && miss.de && miss.de[0] === noun && JSON.stringify(Q.P.S.langs.de.cards) === cards0, 'lesson articles: no review card, and a miss comes back first in Practice articles');
+    Q.E('resumeSave()'); const rs = Q.E('resumeFind(' + JSON.stringify(lid) + ')'), back = rs && rs.queue.find(e => e.type === 'gender');
+    ok(!!back && back.item.t === noun && rs.lesson.vocab.includes(back.item) && rs.queue.length === Q.E('Run.queue.length') && rs.queue.indexOf(back) === at, 'lesson articles: a lesson with one resumes');
+    Q.dom.window.close(); }
   /* word pictures: the mapping and the files follow the rules, and enough lessons ask about them (floors: the shipped numbers, rounded down) */
   { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
     let fails; try { fails = await T.check(); } finally { console.log = log; }
