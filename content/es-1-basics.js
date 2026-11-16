@@ -132,7 +132,7 @@ U('Numbers & time', 'A1', [
 U('Food & ordering', 'A1', [
   L('es-3-1', 'Food basics',
     T('el, la, los, las',
-      'Every noun is masculine or feminine, and the word for “the” follows: **el** (masculine) and **la** (feminine), plural **los** and **las**. Most nouns ending in -o are masculine and most ending in -a are feminine. **agua** is feminine but takes **el** (el agua) because of the sound; the adjective stays feminine: el agua **fría**. Adjectives agree: manzana **roja**, huevos **frescos**. Use **ser** for what something is (La manzana **es** roja) and **estar** for its state (El agua **está** fría, El pan **está** rico). The verbs **comer** (to eat) and **tomar** (to drink, to take) are regular.',
+      'Every noun is masculine or feminine, and the word for “the” follows: **el** (masculine) and **la** (feminine), plural **los** and **las**. Most nouns ending in -o are masculine and most ending in -a are feminine. **agua** is feminine but takes **el** (el agua) because of the sound; the adjective stays feminine: el agua **fría**.\n\nAdjectives agree: manzana **roja**, huevos **frescos**. Use **ser** for what something is (La manzana **es** roja) and **estar** for its state (El agua **está** fría, El pan **está** rico).\n\nThe verbs **comer** (to eat) and **tomar** (to drink, to take) are regular: **como**, comes, come; **tomo**, tomas, toma. **Como pan con queso** is “I eat bread with cheese”.',
       [['Como pan con queso.', 'I eat bread with cheese.'], ['El agua está fría.', 'The water is cold.'], ['La manzana es roja.', 'The apple is red.']],
       [
         ['“The”', ['', 'masculine', 'feminine'], [['singular', '**el** pan', '**la** leche'], ['plural', '**los** huevos', '**las** manzanas']]],
@@ -147,7 +147,7 @@ U('Food & ordering', 'A1', [
     [['___ manzana es roja.', 'La|El|Los', 'The apple is red.'], ['___ pan está rico.', 'El|La|Las', 'The bread is delicious.'], ['___ huevos son frescos.', 'Los|Las|El', 'The eggs are fresh.']]),
   L('es-3-2', 'At the café',
     T('Ordering: un, una, quisiera',
-      '**Quisiera** (“I would like”) is softer and more polite than **quiero** (“I want”). **querer** (to want) changes e to ie in every form except nosotros: **quiero**, **quieres**. After it, use an infinitive: Quiero **pagar**. “A/an” is **un** before a masculine noun and **una** before a feminine one; the plural is **unos** / **unas**. After **de** (of) with a drink or food, no article is needed: una taza **de** té, un vaso **de** agua. Say **con tarjeta** (by card) without an article.',
+      '**Quisiera** (“I would like”) is softer and more polite than **quiero** (“I want”): **Quisiera un café**, por favor.\n\n**querer** (to want) changes e to ie in every form except nosotros: **quiero**, **quieres**, **quiere**. After it, use an infinitive: Quiero **pagar**. Say **con tarjeta** (by card) without an article.\n\n“A” or “an” is **un** before a masculine noun and **una** before a feminine one; the plural is **unos** and **unas**. After **de** (of) with a drink or food, no article is needed: una taza **de** té, un vaso **de** agua.',
       [['Quisiera un café, por favor.', 'I would like a coffee, please.'], ['¿Quieres pastel?', 'Do you want cake?'], ['Quiero pagar con tarjeta.', 'I want to pay by card.']],
       [
         ['“A” and “some”', ['', 'masculine', 'feminine'], [['singular', '**un** café', '**una** taza'], ['plural', '**unos** cafés', '**unas** tazas']]],
@@ -162,7 +162,7 @@ U('Food & ordering', 'A1', [
     [['Quisiera ___ café.', 'un|una|unos', 'I’d like a coffee.'], ['Quisiera ___ taza de té.', 'una|un|unas', 'I’d like a cup of tea.'], ['Un vaso ___ agua, por favor.', 'de|con|en', 'A glass of water, please.']]),
   L('es-3-3', 'At the restaurant',
     T('pedir, tener, querer and ustedes',
-      '**pedir** (to order, to ask for) changes e to i in every form except nosotros: **pido**, **pide**, **piden**. **tener** and **querer** change e to ie in the same way (tienen, quieren), and **tener** has an irregular yo form, **tengo**. **Voy a pedir** uses **ir a** + infinitive: “I’m going to order”. In Latin America **ustedes** is the only plural “you”, formal or not, and takes the same verb form as ellos: **Ustedes piden**, **¿Tienen…?**. Adjectives agree: la comida está muy **rica**, algo **vegetariano** becomes vegetariana before a feminine noun. **está** is used for how food tastes.',
+      '**pedir** (to order, to ask for) changes e to i in every form except nosotros: **pido**, **pide**, **piden**. **Voy a pedir** uses **ir a** + infinitive: “I’m going to order”.\n\n**tener** and **querer** change e to ie in the same way (tienen, quieren), and tener has an irregular yo form, **tengo**. In Latin America **ustedes** is the only plural “you”, formal or not, and takes the same verb form as ellos: Ustedes piden, ¿Tienen…?\n\nAdjectives agree: la comida está muy **rica**, and **algo vegetariano** becomes vegetariana before a feminine noun. **está** is used for how food tastes.',
       [['Voy a pedir la sopa.', 'I am going to order the soup.'], ['¿Tienen algo vegetariano?', 'Do you have anything vegetarian?'], ['Queremos pedir, por favor.', 'We would like to order, please.']],
       [
         ['pedir (e→i): to order, to ask for', null, [['yo', '**pido**'], ['tú', '**pides**'], ['él/ella/usted', '**pide**'], ['nosotros', 'pedimos'], ['ellos/ustedes', '**piden**']]],
@@ -177,7 +177,7 @@ U('Food & ordering', 'A1', [
     [['Yo ___ la sopa.', 'pido|pedimos|pide', 'I order the soup.'], ['Ella ___ una ensalada.', 'pide|pido|piden', 'She orders a salad.'], ['Ustedes ___ la cuenta.', 'piden|pedimos|pide', 'You all ask for the check.']]),
   L('es-3-4', 'At the market',
     T('Agreement, ser and costar',
-      'Adjectives match their noun in gender and number: la papa barat**a**, las papas barat**as**, el kilo barat**o**. Use **ser** (**es** for one, **son** for several) for prices and descriptions: **Es muy caro**, **Las papas son baratas**. **costar** changes o to ue: **cuesta** for one thing, **cuestan** for several, and **cuánto** stays the same: ¿Cuánto cuestan las papas? **comprar** (to buy) is regular: **compro** is “I buy”. **de** links the amount and the thing: un kilo **de** tomates. In Latin America a potato is **papa**.',
+      'Adjectives match their noun in gender and number: la papa **barata**, las papas **baratas**, el kilo **barato**. In Latin America a potato is **papa**: **Las papas son baratas**.\n\nUse **ser** (**es** for one, **son** for several) for prices and descriptions: **Es muy caro**. **costar** changes o to ue: **cuesta** for one thing, **cuestan** for several, and **cuánto** stays the same: ¿Cuánto cuestan las papas?\n\n**comprar** (to buy) is regular: **compro** is “I buy”. **de** links the amount and the thing: un kilo **de** tomates.',
       [['¿Cuánto cuesta?', 'How much does it cost?'], ['Las papas son baratas.', 'The potatoes are cheap.'], ['Compro pan en el mercado.', 'I buy bread at the market.']],
       [
         ['es / son and cuesta / cuestan', ['', 'one thing', 'several things'], [['ser', '**es**', '**son**'], ['costar (o→ue)', '**cuesta**', '**cuestan**']]],

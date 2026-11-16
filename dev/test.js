@@ -253,7 +253,43 @@ async function main(){
       'it-2-3': [['È l’una.'], ['Sono le tre e mezza.', 'Saying the time'], ['Arrivo tardi.', 'arrivare (regular -are): to arrive']],
       'es-2-4': [['Los sábados juego tenis.', 'Days with “on”'], ['Hoy es lunes.'], ['El viernes no trabajo.', 'Jugamos tenis el sábado.', 'Two present-tense verbs']],
       'de-2-4': [['Die Woche hat sieben Tage.', 'Which word?'], ['Am Freitag arbeite ich nicht.'], ['Wir spielen am Samstag Tennis.', 'Present of **arbeiten** and **spielen**']],
-      'it-2-4': [['Io lavoro il lunedì.', 'Days with “on”'], ['Oggi è lunedì.'], ['Venerdì non lavoro.', 'Sabato giochiamo a tennis.', 'Two present-tense verbs']]
+      'it-2-4': [['Io lavoro il lunedì.', 'Days with “on”'], ['Oggi è lunedì.'], ['Venerdì non lavoro.', 'Sabato giochiamo a tennis.', 'Two present-tense verbs']],
+      'es-3-1': [['El agua está fría.', '“The”'], ['La manzana es roja.'], ['Como pan con queso.', 'Two regular verbs']],
+      'es-3-2': [['Quisiera un café, por favor.'], ['¿Quieres pastel?', 'Quiero pagar con tarjeta.', 'querer (e→ie): to want'], ['“A” and “some”']],
+      'es-3-3': [['Voy a pedir la sopa.', 'Queremos pedir, por favor.', 'pedir (e→i): to order, to ask for'], ['tener and querer'], ['¿Tienen algo vegetariano?']],
+      'es-3-4': [['Las papas son baratas.', 'Agreement'], ['¿Cuánto cuesta?', 'es / son and cuesta / cuestan'], ['Compro pan en el mercado.', 'comprar (regular -ar): to buy']],
+      'de-3-1': [['Der Apfel ist rot.'], ['Ich esse Brot mit Käse.'], ['Isst du Fisch?', 'Present of **essen** and **trinken**']],
+      'de-3-2': [['Ich möchte einen Kaffee, bitte.', 'Only masculine changes'], ['Möchtest du Kuchen?', 'Present of **möchten** (would like)'], ['Eine Tasse Tee, bitte.']],
+      'de-3-3': [['Ich nehme die Suppe.', 'The accusative'], ['Haben Sie etwas Vegetarisches?'], ['Wir möchten bestellen.', 'Three useful verbs']],
+      'de-3-4': [['Die Kartoffeln sind billig.', 'Plurals'], ['Was kostet das?', 'The verb follows the number'], ['Ich kaufe Brot auf dem Markt.']],
+      'it-3-1': [['La pasta è buona.', 'The, singular'], ['Mangio il pane.'], ['Lui beve il caffè.', 'mangiare and bere']],
+      'it-3-2': [['Vorrei un caffè, per favore.', 'Ways to order'], ['Prendo un tè.', 'prendere (regular -ere): to have, to take'], ['Il conto, per favore.']],
+      'it-3-3': [['The courses'], ['Un tavolo per due, per favore.'], ['C’è un menù in inglese?', 'Ci sono due tavoli liberi.', 'There is / there are']],
+      'it-3-4': [['Vorrei un chilo di pomodori.', 'Amount + di + food'], ['Quanto costano le pere?', 'Ecco le patate!'], ['Plurals']],
+      'es-20-1': [['Colors that change (-o): four forms'], ['Tengo un gato gris.', 'Colors with one form for masc. and fem.'], ['Mi carro es negro.', 'Las flores son amarillas y moradas.', 'ser: what color it is']],
+      'es-20-2': [['Hay dos baños en la casa.'], ['La sala es grande.', 'The and a'], ['Cocino en la cocina.', 'Present of cocinar and comer']],
+      'es-20-3': [['Este libro es interesante.', 'Esta bolsa es nueva.', 'this and that'], ['Adjectives agree with the noun'], ['Necesito esa llave.', 'Present of necesitar']],
+      'es-20-4': [['¿Dónde está mi celular?', 'Present of estar (irregular)'], ['El gato está debajo de la silla.'], ['El banco está al lado de la farmacia.', 'Place word + de + la / el']],
+      'de-20-1': [['Der Himmel ist blau.'], ['Ich habe eine schwarze Katze.', 'Color + noun after “a”'], ['Welche Farbe hat dein Auto?']],
+      'de-20-2': [['Die Wohnung hat ein Schlafzimmer.', 'Rooms by article'], ['Wir haben einen kleinen Balkon.'], ['Ich koche in der Küche.', 'Present of **haben** and **kochen**']],
+      'de-20-3': [['Das ist meine Tasche.'], ['Ich suche meinen Schlüssel.', 'Das ist ein Tisch, kein Stuhl.', 'a / my / not a'], ['this']],
+      'de-20-4': [['Das Buch ist in der Tasche.', '“Where?” takes the dative'], ['Die Katze ist unter dem Tisch.'], ['Die Lampe steht neben dem Sofa.', 'Verbs of position']],
+      'it-20-1': [['La mela è rossa.', 'I pomodori sono rossi.', 'Colors in -o'], ['Colors that do not change'], ['Il mio colore preferito è il verde.']],
+      'it-20-2': [['La casa ha tre camere da letto.'], ['Mangiamo in cucina.', 'In which room?'], ['In cucina c’è un tavolo grande.', 'c’è or ci sono?']],
+      'it-20-3': [['Che cos’è questo?', 'questo (this)'], ['Quel divano è molto grande.', 'quello (that)'], ['Questa sedia è comoda.']],
+      'it-20-4': [['Il gatto è sotto la sedia.', 'Place words'], ['Il libro è sul tavolo.', 'La borsa è accanto alla porta.', 'Prepositions merge with the article'], []],
+      'es-21-1': [['Hoy hace mucho calor.', 'Hace sol, vamos al parque.'], ['Está nublado y llueve.', 'Which verb for the weather?'], ['Present of ir (to go, irregular)']],
+      'es-21-2': [['Vamos a la playa en julio.', 'Months'], ['El año tiene doce meses.', 'Present of tener (irregular)'], ['Me gusta la primavera.', 'gustar: one thing or several']],
+      'es-21-3': [['Mi cumpleaños es el primero de marzo.', 'Saying a date'], ['Hoy es el cinco de mayo.'], ['Pasado mañana es jueves.', 'Days of the week (lowercase)', 'Time words']],
+      'es-21-4': [['Hace sol, me pongo los lentes de sol.', 'Present of ponerse (put on)'], ['Hace frío, necesito un abrigo.', 'Regular -ar verbs'], ['Llueve, así que llevo un paraguas.']],
+      'de-21-1': [['Es regnet und es ist kalt.', 'Weather verbs (es / the sun)'], ['Heute gibt es viel Schnee.', 'viel or viele?'], ['Heute scheint die Sonne.']],
+      'de-21-2': [['Im Sommer ist es heiß.', 'Der Frühling beginnt im März.'], ['Present of **beginnen** and **haben**'], ['Ein Jahr hat zwölf Monate.', 'Plural: add **-e**']],
+      'de-21-3': [['Heute ist der zehnte Oktober.', 'Ordinals'], ['Welches Datum ist heute?', '“which” matches the noun'], ['Gestern war Sonntag.', 'sein: now and before']],
+      'de-21-4': [['Present of **brauchen** and **tragen**'], ['Es ist kalt. Ich trage einen Mantel.', 'Wo ist deine Jacke?', 'a / your as the object'], ['Bei Regen brauche ich einen Regenschirm.']],
+      'it-21-1': [['Che tempo fa oggi?', 'Oggi fa molto caldo.', 'fare (irregular): to do, to make'], ['Weather phrases'], ['Domani piove.']],
+      'it-21-2': [['Un anno ha dodici mesi.', 'Months by season'], ['Il mio compleanno è a luglio.', 'In a season or month'], ['In estate fa molto caldo.']],
+      'it-21-3': [['Oggi è il quattordici ottobre.', 'Il mio compleanno è il primo giugno.', 'Saying dates'], ['Che giorno è oggi?'], ['Ordinals']],
+      'it-21-4': [['In inverno porto la sciarpa e i guanti.'], ['mettersi (reflexive): to put on'], ['Quando fa freddo mi metto il cappotto.', 'Prendo l’ombrello perché piove.', 'Weather and clothes']]
     };
     const plainT = s => String(s).replace(/\*\*/g, '').toLowerCase();
     for (const lang of LANG_IDS) for (const u of P.COURSE[lang].units) for (const l of u.lessons){
@@ -271,7 +307,7 @@ async function main(){
       const got = A.E('tipBites(getLesson(' + JSON.stringify(id) + ').tip)').map(b => [...b.examples.map(e => e.t), ...b.tables.map(t => t.cap)]);
       ok(JSON.stringify(got) === JSON.stringify(TIP_PLACES[id]), id + ' tip cards hold what the plan says: ' + JSON.stringify(got));
     }
-    ok(Object.keys(TIP_PLACES).length === 24 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all twenty-four unit 1 and unit 2 tips are cut into three paragraphs'); }
+    ok(Object.keys(TIP_PLACES).length === 60 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all sixty hand-cut A1 tips are cut into three paragraphs'); }
   /* the top bar lets the wordmark wrap away instead of being cut mid-word (layout itself is checked in a browser) */
   { const css = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8'), brand = (css.match(/\n\.brand\{[^}]*\}/) || [''])[0];
     ok(brand.includes('flex-wrap:wrap') && brand.includes('height:26px') && !css.includes('@media (max-width:400px){\n  .brand-name'), 'the top bar lets the wordmark wrap instead of cutting it'); }
