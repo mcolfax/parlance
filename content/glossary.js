@@ -541,3 +541,18 @@ Object.assign(STORY_GLOSS.it, {
 /* review fixes for stories s10–s12 (4.47.0) */
 Object.assign(STORY_GLOSS.de, { "ginge": "would it work · would it go (from gehen)", "mithalten": "to keep up", "bekanntlich": "as everyone knows", "geduldiger": "more patiently" });
 Object.assign(STORY_GLOSS.it, { "erano": "were (from essere)", "contrari": "against · opposed", "impoverisce": "makes poorer (from impoverire)" });
+/* units 43–44 (4.49.0) */
+Object.assign(LESSON_GLOSS.it, {
+  'pagina': 'page', 'comunicato': 'statement · communiqué', 'sindaco': 'mayor', 'approva': 'approves (from approvare)', 'riforma': 'reform',
+  'conferenza': 'conference · lecture', 'concluse': 'ended · finished (plural feminine of concluso)', 'presa': 'taking · grip (la presa di posizione: a stance)',
+  'scritto': 'written · wrote (from scrivere)', 'giornalisti': 'journalists · reporters (plural of il giornalista)', 'vera': 'true · real',
+  'frase': 'sentence · phrase', 'sbagliata': 'wrong · mistaken', 'falsa': 'false · untrue', 'contraddetto': 'contradicted (from contraddire)',
+  'versione': 'version · account', 'influito': 'influenced · had an effect (from influire)', 'durata': 'lasted (from durare)',
+  'economista': 'economist', 'previsto': 'predicted · foreseen (from prevedere)', 'enorme': 'enormous · huge', 'diceva': 'said · was saying (from dire)',
+  'pensavamo': 'we thought · we were thinking (from pensare)', 'risparmi': 'savings (plural of il risparmio)', 'alzare': 'to raise · to lift',
+  'spenda': 'spends (subjunctive of spendere)', 'spende': 'spends (from spendere)', 'salario': 'wage · pay', 'minimo': 'minimum · lowest',
+  'poveri': 'poor · the poor (plural of povero)', 'evasione': 'evasion', 'fiscale': 'tax · fiscal', 'miliardi': 'billions (plural of il miliardo)',
+  'guadagna': 'earns (from guadagnare)', 'presentare': 'to submit · to present', 'dichiarazione': 'declaration · return', 'mediche': 'medical (plural feminine)',
+  'applica': 'applies · charges (from applicare)', 'somma': 'sum · amount', 'piaccia': 'likes · pleases (subjunctive of piacere)',
+  'indebitarci': 'to get ourselves into debt (from indebitarsi)', 'torto': 'wrong · fault (avere torto: to be wrong)', 'permetterci': 'to afford · to allow ourselves (from permettersi)',
+  'pensare': 'to think' });
