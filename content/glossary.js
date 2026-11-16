@@ -541,3 +541,8 @@ Object.assign(STORY_GLOSS.it, {
 /* review fixes for stories s10–s12 (4.47.0) */
 Object.assign(STORY_GLOSS.de, { "ginge": "would it work · would it go (from gehen)", "mithalten": "to keep up", "bekanntlich": "as everyone knows", "geduldiger": "more patiently" });
 Object.assign(STORY_GLOSS.it, { "erano": "were (from essere)", "contrari": "against · opposed", "impoverisce": "makes poorer (from impoverire)" });
+/* units 43–44 (4.49.0) */
+Object.assign(LESSON_GLOSS.de, { "minister": "minister", "bahn": "railway · rail company (die Bahn)", "steuer": "tax (die Steuer)", "steuern": "taxes (plural of die Steuer)", "oben": "up · at the top",
+  "presse": "press (die Presse)", "kritisiert": "criticized (from kritisieren)", "widersprachen": "contradicted · disagreed with (from widersprechen)", "nachfragten": "asked again · kept asking (from nachfragen)",
+  "unklar": "unclear", "stimmt": "is correct · is true (from stimmen)", "netz": "net · web (im Netz: online)", "foto": "photo", "echt": "real · genuine", "krise": "crisis",
+  "ignorieren": "to ignore", "umzuverteilen": "to redistribute (umverteilen with zu)", "zahlende": "paying (from zahlen; zu zahlende: to be paid)", "zahlenden": "paying (from zahlen; zu zahlenden: to be paid)" });
