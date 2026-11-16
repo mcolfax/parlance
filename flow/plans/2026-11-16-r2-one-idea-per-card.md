@@ -1,7 +1,7 @@
 # One idea per card in A1 units 3, 20 and 21, and an article question in early lessons
 
 - **Cycle:** queued 2026-11-16 (program 2, release R2; `flow/PROGRAM-2.md`)
-- **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r2-one-idea-per-card.md`, set Base, check it still matches `main`)
+- **Status:** shipped (4.48.0)
 - **Release:** 4.48.0
 - **Base:** `main` at 74e6732 (4.47.0)
 - **Proposals built:** pmvxw6o4w0 (web, already approved and partly shipped in 4.27.0 and 4.28.0; this continues it)
@@ -238,5 +238,5 @@ Only tip text and one extra question per early lesson. A half-done lesson on som
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.48.0, `59a0834` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**

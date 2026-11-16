@@ -2,8 +2,8 @@
 
 - **Cycle:** queued 2026-11-16 (program 2, release R3; `flow/PROGRAM-2.md`)
 - **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r3-news-and-money.md`, set Base, check it still matches `main`)
-- **Release:** 4.49.0 (minor: new content)
-- **Base:** `main` at the commit that ships 4.48.0 (`r2-one-idea-per-card.md`)
+- **Release:** 4.49.0
+- **Base:** `main` at 59a0834 (4.48.0)
 - **Proposals built:** none
 - **Roadmap items:** R-2 (first of two releases)
 
