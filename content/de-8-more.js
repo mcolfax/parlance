@@ -15,7 +15,7 @@ U('News & media', 'C1', [
      ['Die Zeitung veröffentlicht die Meldung morgen.', 'The newspaper publishes the report tomorrow.|The newspaper will publish the report tomorrow.|The newspaper is publishing the report tomorrow.|The newspaper will publish the news item tomorrow.|The paper publishes the report tomorrow.']],
     [['Minister ___.', 'zurückgetreten|zurücktreten|zurücktritt', 'Minister has resigned.'],
      ['Regierung plant ___ Steuer.', 'neue|neuer|neuen', 'Government plans new tax.'],
-     ['Die ___ steht ganz oben auf der Titelseite.', 'Schlagzeile|Pressemitteilung|Meldung', 'The headline is right at the top of the front page.']]),
+     ['Die ___ steht in großen Buchstaben über dem Artikel.', 'Schlagzeile|Pressemitteilung|Meldung', 'The headline is in big letters above the article.']]),
   L('de-43-2', 'At the press conference',
     T('A participle opens the sentence', 'A participle can open a sentence in place of a clause. With a verb that takes an object, it has a passive sense: **Von der Presse kritisiert, trat der Minister zurück**. With a verb of movement, it has a perfect sense: **Kaum angekommen, gab sie ein Interview**. The subject of the main clause is also the subject of the participle. It is common in news reports and speeches.',
       [['Von der Presse kritisiert, trat der Minister zurück.', 'Criticized by the press, the minister resigned.'], ['Kaum angekommen, gab sie ein Interview.', 'Hardly had she arrived when she gave an interview.']],
@@ -23,7 +23,7 @@ U('News & media', 'C1', [
     [['die Pressekonferenz', 'press conference', 'f'], ['die Sprecherin', 'spokeswoman|spokesperson|female spokesperson', 'f'], ['der Journalist', 'journalist|reporter', 'm'], ['befragen', 'to question|to interview|to ask'],
      ['die Stellungnahme', 'statement|position|comment', 'f'], ['ankündigen', 'to announce'], ['bestätigen', 'to confirm'], ['dementieren', 'to deny']],
     [['Von den Journalisten befragt, bestätigte die Sprecherin die Meldung.', 'Questioned by the journalists, the spokeswoman confirmed the report.|Asked by the journalists, the spokeswoman confirmed the report.|Questioned by the reporters, the spokeswoman confirmed the report.|Questioned by the journalists, the spokesperson confirmed the report.|Questioned by the journalists, the spokeswoman confirmed the news item.'],
-     ['Kaum angekommen, kündigte der Minister eine Pressekonferenz an.', 'Hardly had he arrived when the minister announced a press conference.|Barely arrived, the minister announced a press conference.|No sooner had he arrived than the minister announced a press conference.|Just arrived, the minister announced a press conference.|Having barely arrived, the minister announced a press conference.'],
+     ['Kaum angekommen, kündigte der Minister eine Pressekonferenz an.', 'Hardly had he arrived when the minister announced a press conference.|Barely arrived, the minister announced a press conference.|No sooner had he arrived than the minister announced a press conference.|Just arrived, the minister announced a press conference.|Having barely arrived, the minister announced a press conference.|As soon as he arrived, the minister announced a press conference.|The minister had barely arrived when he announced a press conference.|The minister had hardly arrived when he announced a press conference.|Having just arrived, the minister announced a press conference.|Barely had he arrived when the minister announced a press conference.'],
      ['Von der Presse kritisiert, dementierte die Sprecherin alles.', 'Criticized by the press, the spokeswoman denied everything.|Criticised by the press, the spokeswoman denied everything.|Criticized by the press, the spokesperson denied everything.|Criticized by the press, the spokeswoman denied it all.'],
      ['Die Journalisten warten auf die Stellungnahme der Sprecherin.', 'The journalists are waiting for the spokeswoman’s statement.|The journalists are waiting for the statement from the spokeswoman.|The journalists wait for the spokeswoman’s statement.|The reporters are waiting for the spokeswoman’s statement.|The journalists are waiting for the spokesperson’s statement.'],
      ['Die Pressekonferenz beginnt um zehn Uhr.', 'The press conference starts at ten o’clock.|The press conference begins at ten o’clock.|The press conference starts at ten.|The press conference begins at ten.|The press conference starts at 10.']],
@@ -57,7 +57,7 @@ U('News & media', 'C1', [
      ['Niemand weiß, inwiefern das Foto echt ist.', 'Nobody knows to what extent the photo is genuine.|No one knows to what extent the photo is real.|Nobody knows how far the photo is genuine.|Nobody knows to what extent the photo is real.|No one knows to what extent the photo is genuine.']],
     [['___ ist die Quelle glaubwürdig?', 'Inwiefern|Wohin|Woher', 'To what extent is the source credible?'],
      ['Es ist unklar, ___ die Meldung stimmt.', 'inwieweit|obwohl|damit', 'It is unclear to what extent the report is true.'],
-     ['Die ___ wurde im Netz verbreitet.', 'Falschmeldung|Quelle|Titelseite', 'The false report was spread online.']])
+     ['Die ___ wurde im Netz verbreitet.', 'Falschmeldung|Quelle|Glaubwürdigkeit', 'The false report was spread online.']])
 ]),
 U('Money & the economy', 'C2', [
   L('de-44-1', 'A crisis nobody saw coming',

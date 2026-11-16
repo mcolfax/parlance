@@ -100,7 +100,7 @@ U('Money & the economy', 'C2', [
   L('it-44-4', 'Spending and saving',
     T('Not that: non che + subjunctive',
       'To say “not that…” and then give the real point, use **non che** with the subjunctive. After it comes **ma** and the real reason: **Non che io sia tirchio, ma preferisco risparmiare**. The first part denies an idea that someone might think. The second part says what is true.',
-      [['Non che io sia tirchio, ma preferisco risparmiare.', 'Not that I’m stingy, but I prefer to save.'], ['Non che tu abbia torto, ma non possiamo permetterci una macchina nuova.', 'Not that you’re wrong, but we can’t afford a new car.'], ['Non che lei sia spendaccione, ma il bilancio è basso.', 'Not that she’s a spendthrift, but the budget is low.']],
+      [['Non che io sia tirchio, ma preferisco risparmiare.', 'Not that I’m stingy, but I prefer to save.'], ['Non che tu abbia torto, ma non possiamo permetterci una macchina nuova.', 'Not that you’re wrong, but we can’t afford a new car.'], ['Non che lei sia spendacciona, ma i soldi sono pochi.', 'Not that she’s a spendthrift, but money is tight.']],
       [['Subjunctive after non che', ['phrase', 'form'], [['non che io (essere)', '**sia**'], ['non che tu (avere)', '**abbia**'], ['non che lui (potere)', '**possa**']]]]),
     [['il conto di risparmio', 'savings account', 'm'], ['la spesa', 'spending|expense|expenditure', 'f', '-'], ['tirchio', 'stingy|tight|cheap'], ['permettersi', 'to afford'],
      ['il risparmio', 'saving|savings', 'm'], ['il bilancio', 'budget|balance|finances', 'm'], ['spendaccione', 'spendthrift|big spender|wasteful'], ['indebitarsi', 'to get into debt|to go into debt']],
