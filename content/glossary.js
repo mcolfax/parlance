@@ -541,3 +541,30 @@ Object.assign(STORY_GLOSS.it, {
 /* review fixes for stories s10–s12 (4.47.0) */
 Object.assign(STORY_GLOSS.de, { "ginge": "would it work · would it go (from gehen)", "mithalten": "to keep up", "bekanntlich": "as everyone knows", "geduldiger": "more patiently" });
 Object.assign(STORY_GLOSS.it, { "erano": "were (from essere)", "contrari": "against · opposed", "impoverisce": "makes poorer (from impoverire)" });
+/* units 43–44 (4.49.0) */
+Object.assign(LESSON_GLOSS.de, { "minister": "minister", "bahn": "railway · rail company (die Bahn)", "steuer": "tax (die Steuer)", "steuern": "taxes (plural of die Steuer)", "oben": "up · at the top",
+  "presse": "press (die Presse)", "kritisiert": "criticized (from kritisieren)", "widersprachen": "contradicted · disagreed with (from widersprechen)", "nachfragten": "asked again · kept asking (from nachfragen)",
+  "unklar": "unclear", "stimmt": "is correct · is true (from stimmen)", "netz": "net · web (im Netz: online)", "foto": "photo", "echt": "real · genuine", "krise": "crisis",
+  "ignorieren": "to ignore", "umzuverteilen": "to redistribute (umverteilen with zu)", "zahlende": "paying (from zahlen; zu zahlende: to be paid)", "zahlenden": "paying (from zahlen; zu zahlenden: to be paid)" });
+Object.assign(LESSON_GLOSS.es, { "ministro": "minister", "ministra": "minister (woman)", "Salud": "health (el ministro de Salud: the health minister)", "aparece": "appears (from aparecer)", "aparecen": "they appear (from aparecer)",
+  "subirá": "will raise · will go up (from subir)", "subir": "to raise · to go up", "suben": "they rise · they go up (from subir)", "sube": "rises · goes up (from subir)", "ocupa": "takes up · occupies (from ocupar)",
+  "rueda": "wheel · circle (la rueda de prensa: the press conference)", "prensa": "press", "desmintió": "denied (from desmentir)", "asistencia": "attendance", "entró": "entered (entró en vigor: came into force)",
+  "contradijo": "contradicted (from contradecir)", "recortes": "cuts (plural of el recorte)", "influyó": "influenced · had an influence (from influir)", "falsa": "false · fake", "verificación": "verification · check",
+  "mostró": "showed (from mostrar)", "redes": "networks (las redes: social media)", "imaginaba": "imagined (from imaginar)", "económica": "economic", "preveían": "they foresaw (from prever)", "preveía": "foresaw (from prever)",
+  "economista": "economist", "llegaría": "would arrive · would come (from llegar)", "crecería": "would grow (from crecer)", "prestaron": "they lent (from prestar)", "creció": "grew (from crecer)", "control": "control",
+  "sirve": "is of use · serves (de nada sirve: there is no point)", "mínimo": "minimum", "redistribuye": "redistributes (from redistribuir)", "evasión": "evasion", "fiscal": "tax · fiscal",
+  "pagarlo": "to pay it (from pagar)", "transferencia": "transfer", "lujo": "luxury · treat (darse el lujo: to treat oneself)", "endeudarnos": "to get ourselves into debt (from endeudarse)" });
+Object.assign(LESSON_GLOSS.it, {
+  'pagina': 'page', 'comunicato': 'statement · communiqué', 'sindaco': 'mayor', 'approva': 'approves (from approvare)', 'riforma': 'reform',
+  'conferenza': 'conference · lecture', 'concluse': 'ended · finished (plural feminine of concluso)', 'presa': 'taking · grip (la presa di posizione: a stance)',
+  'scritto': 'written · wrote (from scrivere)', 'giornalisti': 'journalists · reporters (plural of il giornalista)', 'vera': 'true · real',
+  'frase': 'sentence · phrase', 'sbagliata': 'wrong · mistaken', 'falsa': 'false · untrue', 'contraddetto': 'contradicted (from contraddire)',
+  'versione': 'version · account', 'influito': 'influenced · had an effect (from influire)', 'durata': 'lasted (from durare)',
+  'economista': 'economist', 'previsto': 'predicted · foreseen (from prevedere)', 'enorme': 'enormous · huge', 'diceva': 'said · was saying (from dire)',
+  'pensavamo': 'we thought · we were thinking (from pensare)', 'risparmi': 'savings (plural of il risparmio)', 'alzare': 'to raise · to lift',
+  'spenda': 'spends (subjunctive of spendere)', 'spende': 'spends (from spendere)', 'salario': 'wage · pay', 'minimo': 'minimum · lowest',
+  'poveri': 'poor · the poor (plural of povero)', 'evasione': 'evasion', 'fiscale': 'tax · fiscal', 'miliardi': 'billions (plural of il miliardo)',
+  'guadagna': 'earns (from guadagnare)', 'presentare': 'to submit · to present', 'dichiarazione': 'declaration · return', 'mediche': 'medical (plural feminine)',
+  'applica': 'applies · charges (from applicare)', 'somma': 'sum · amount', 'piaccia': 'likes · pleases (subjunctive of piacere)',
+  'indebitarci': 'to get ourselves into debt (from indebitarsi)', 'torto': 'wrong · fault (avere torto: to be wrong)', 'permetterci': 'to afford · to allow ourselves (from permettersi)',
+  'pensare': 'to think' });

@@ -2145,3 +2145,77 @@ n 0 c-law rule | thick closed red law book with yellow spine bands and a small y
 - loophole | abstract
 - to-ban | abstract; a no-entry sign needs a subject
 - to-get-around | abstract
+# ---- units 43–44 (release 4.49.0) ----
+n 1 c-media-money front-page | newspaper front page with a big black headline bar across the top, a photo block and columns of lines, no words
+n 0 c-media-money press-conference | microphone on a stand in front of a row of three empty chairs
+n 0 c-media-money quote {"de":["das Zitat"],"it":["la citazione"]} | big yellow speech bubble with a pair of heavy quote marks inside
+n 0 c-media-money fact-check | magnifying glass over a page of lines with a green check mark
+n 0 c-media-money bubble | soap bubble about to burst over a falling red line chart
+n 1 c-media-money tax-return | tax form with a signature box and a pen lying across it, no words
+n 0 c-media-money bill-utility {"it":["la bolletta"]} | utility bill sheet with a yellow lightning bolt and a blue water drop above lines
+= fact-check-2 fact-check
+- to-quote | shares a lesson with its noun, which has the picture
+= savings-account to-save
+- saving | shares a lesson with the savings account, which has the picture
+- press-release | abstract document, nothing distinctive to show
+- resignation | abstract
+- the-media | abstract
+- to-publish | abstract
+- to-resign | abstract
+- journalist | would need a figure with a prop that reads as any reporter
+- spokeswoman | a person at a lectern is already the picture for speech
+- stance | abstract
+- to-question | abstract
+- claim | abstract
+- rumor | abstract
+- to-clarify | abstract
+- to-contradict | abstract
+- to-correct | abstract
+- credible | abstract
+- fake-news | abstract
+- false-report | abstract
+- hoax | abstract
+- misleading | abstract
+- reliable | abstract
+- to-check | abstract
+- to-spread | abstract
+- to-verify | abstract
+- to-what-extent | a phrase
+- collapse | abstract
+- debt | abstract
+- economic-crisis | abstract
+- recession | abstract
+- stock-exchange | abstract
+- stock-market | abstract
+- to-burst | abstract
+- to-foresee | abstract
+- to-predict | abstract
+- to-suspect | abstract
+- minimum-wage | abstract
+- poverty | abstract
+- sense | abstract
+- tax-evasion | abstract
+- there-is-no-point | a phrase
+- to-be-of-use | abstract
+- to-redistribute | abstract
+- wealth | abstract
+- wealth-tax | abstract
+- amount | abstract
+- due | abstract
+- fee | abstract
+- reminder | abstract
+- sum | abstract
+- tax-agency | an institution, nothing to draw
+- tax-office | an institution, nothing to draw
+- the-tax-office | an institution, nothing to draw
+- to-deduct | abstract
+- to-expire | abstract
+- expense | abstract
+- reserve | abstract
+- spending | abstract
+- spendthrift | abstract
+- stingy | abstract
+- thrifty | abstract
+- to-afford-something | abstract
+- to-get-into-debt | abstract
+- wasteful | abstract
