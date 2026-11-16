@@ -403,7 +403,7 @@ n 1 a-food dinner | plate with a roast chicken leg, vegetables and a lit candle 
 - gladly | adverb
 n 1 a-time night | crescent moon and stars in a dark blue sky above a small house
 = to-go-for-a-walk to-walk
-- to-go-to-bed | abstract
+- to-go-to-bed | would look like to-sleep, which shares its lesson
 v 0 a-verbs to-walk | figure walking along a path, one foot ahead, trees behind
 = to-watch to-see
 v 1 a-verbs to-watch-tv | figure sitting on a sofa watching a TV with a glowing screen
@@ -955,9 +955,9 @@ n 0 b-misc success | gold trophy cup with two handles
 - half-a-kilo | abstract or grammar
 - ingredient | abstract or grammar
 - for-ten-minutes | abstract or grammar
-- to-add | abstract or grammar
-- to-drain | abstract or grammar
-- to-season | abstract or grammar
+v 0 r12-verbs-1 to-add | a measuring cup tipping into a mixing bowl, a small plus sign beside it
+v 0 r12-verbs-1 to-drain | a colander full of spaghetti, water drops falling below it
+v 0 r12-verbs-1 to-season | a pepper grinder over a frying pan, small grains falling
 - complaint | abstract or grammar
 - gluten-free | abstract or grammar
 - lactose-free | abstract or grammar
@@ -979,7 +979,7 @@ n 0 b-misc success | gold trophy cup with two handles
 - taste | abstract or grammar
 - tasty | abstract or grammar
 - to-prepare | abstract or grammar
-- to-taste | abstract or grammar
+v 0 r12-verbs-1 to-taste | the neutral figure, eyes closed, a wooden spoon at its mouth
 - to-usually | abstract or grammar
 - typical | abstract or grammar
 - usual | abstract or grammar
@@ -1009,9 +1009,9 @@ n 0 b-misc success | gold trophy cup with two handles
 - layover | abstract or grammar
 - passenger | abstract or grammar
 - security-check | abstract or grammar
-- to-board | abstract or grammar
-- to-check-luggage | abstract or grammar
-- to-check-in | abstract or grammar
+v 0 r12-verbs-1 to-board | the neutral figure climbing steps up to an airplane’s open door
+- to-check-luggage | same picture as to-check-in in its lesson
+- to-check-in | would look like suitcase, which shares its lesson
 - after-having | abstract or grammar
 - already | abstract or grammar
 - before | abstract or grammar
@@ -1022,7 +1022,7 @@ n 0 b-misc success | gold trophy cup with two handles
 - on-the-way | abstract or grammar
 - to-continue | abstract or grammar
 - to-experience | abstract or grammar
-- to-get-lost | abstract or grammar
+v 0 r12-verbs-1 to-get-lost | the neutral figure holding an open map, a question mark above, two signposts pointing opposite ways
 - to-realize | abstract or grammar
 - to-stay-overnight | abstract or grammar
 - accident | abstract or grammar
@@ -1035,9 +1035,9 @@ n 0 b-misc success | gold trophy cup with two handles
 - founded | abstract or grammar
 - injured | abstract or grammar
 - to-destroy | abstract or grammar
-- to-protect | abstract or grammar
+v 0 r12-verbs-1 to-protect | two cupped hands around a small green sprout
 - to-reduce | abstract or grammar
-- to-waste | abstract or grammar
+v 0 r12-verbs-1 to-waste | a full plate of food tipping into a bin
 - because-of | abstract or grammar
 - despite | abstract or grammar
 - network | abstract or grammar
@@ -1045,8 +1045,8 @@ n 0 b-misc success | gold trophy cup with two handles
 - social-network | abstract or grammar
 - to-browse | abstract or grammar
 - to-connect | abstract or grammar
-- to-download | abstract or grammar
-- to-share | abstract or grammar
+v 1 r12-verbs-1 to-download | a cloud with a thick arrow pointing down into an open tray
+v 0 r12-verbs-1 to-share | two hands, each holding one half of a round cookie
 - as-long-as | abstract or grammar
 - as-soon-as | abstract or grammar
 - hurry | abstract or grammar
