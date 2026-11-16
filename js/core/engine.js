@@ -277,6 +277,7 @@ function buildLesson(lesson){
   const extras = lessonForms(lesson);
   const V = (t, i) => { if (i < nV){ const ex = makeEx(t, lesson, 'v', i); out.push(ex); return ex; } };
   const picType = PIC_EX[lesson.level]; let picLeft = PIC_EX.perLesson || 0;
+  let artLeft = GENDER_DRILL.inLesson.includes(lesson.level) && GENDER_DRILL[lang] ? 1 : 0;   // one article question in A1 and A2 lessons
   const Sx = (t, i) => { if (nS && i != null){ usedS.add(i % nS); out.push(makeEx(t, lesson, 's', i % nS)); } };
   const Bx = i => { if (i != null && i < nB){ usedB.add(i); out.push(blankEx(lesson, i)); } };
   const phrases = items => {   // items: ['s', i] or ['b', i]; one card for those not shown yet
@@ -300,6 +301,7 @@ function buildLesson(lesson){
       else V(recognise[k % 3], i);
       taught.add(i); done.push(i);
     });
+    if (artLeft){ const i = g.find(k => genderLessonOk(lesson.vocab[k], lang)); if (i !== undefined){ out.push(genderEx({ lesson, item: lesson.vocab[i] })); artLeft = 0; } }   // one article question, right after the card that showed the noun
     if (gi > 0){   // the newest words that can be told apart (du and Sie both mean “you”)
       const pick = [], ts = new Set(), es = new Set();
       for (const i of done.slice().reverse()){ const v = lesson.vocab[i]; if (pick.length < 5 && !ts.has(v.t) && !es.has(v.e[0])){ pick.push(i); ts.add(v.t); es.add(v.e[0]); } }
@@ -394,6 +396,8 @@ function genderNoun(item, lang){   // { art, noun, plural } when the word starts
   if (!noun || !G.fits[art] || !G.fits[art].includes(item.g)) return null;   // el agua (feminine, with el) is left out
   return { art, noun, plural: item.g === 'pl' };
 }
+/* a lesson noun that can be asked in the lesson itself: it shows its article, it's singular, and no other lesson gives it another article */
+function genderLessonOk(item, lang){ const g = genderNoun(item, lang); return !!g && !g.plural && !genderClashes(lang).has(g.noun.toLowerCase()); }
 /* nouns that appear with two different articles somewhere in the course are never asked.
    The answer only changes when the course content does, so it is kept per language until Packs.version moves. */
 const GENDER_CLASH_CACHE = new Map();

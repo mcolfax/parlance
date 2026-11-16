@@ -253,7 +253,43 @@ async function main(){
       'it-2-3': [['È l’una.'], ['Sono le tre e mezza.', 'Saying the time'], ['Arrivo tardi.', 'arrivare (regular -are): to arrive']],
       'es-2-4': [['Los sábados juego tenis.', 'Days with “on”'], ['Hoy es lunes.'], ['El viernes no trabajo.', 'Jugamos tenis el sábado.', 'Two present-tense verbs']],
       'de-2-4': [['Die Woche hat sieben Tage.', 'Which word?'], ['Am Freitag arbeite ich nicht.'], ['Wir spielen am Samstag Tennis.', 'Present of **arbeiten** and **spielen**']],
-      'it-2-4': [['Io lavoro il lunedì.', 'Days with “on”'], ['Oggi è lunedì.'], ['Venerdì non lavoro.', 'Sabato giochiamo a tennis.', 'Two present-tense verbs']]
+      'it-2-4': [['Io lavoro il lunedì.', 'Days with “on”'], ['Oggi è lunedì.'], ['Venerdì non lavoro.', 'Sabato giochiamo a tennis.', 'Two present-tense verbs']],
+      'es-3-1': [['El agua está fría.', '“The”'], ['La manzana es roja.'], ['Como pan con queso.', 'Two regular verbs']],
+      'es-3-2': [['Quisiera un café, por favor.'], ['¿Quieres pastel?', 'Quiero pagar con tarjeta.', 'querer (e→ie): to want'], ['“A” and “some”']],
+      'es-3-3': [['Voy a pedir la sopa.', 'Queremos pedir, por favor.', 'pedir (e→i): to order, to ask for'], ['tener and querer'], ['¿Tienen algo vegetariano?']],
+      'es-3-4': [['Las papas son baratas.', 'Agreement'], ['¿Cuánto cuesta?', 'es / son and cuesta / cuestan'], ['Compro pan en el mercado.', 'comprar (regular -ar): to buy']],
+      'de-3-1': [['Der Apfel ist rot.'], ['Ich esse Brot mit Käse.'], ['Isst du Fisch?', 'Present of **essen** and **trinken**']],
+      'de-3-2': [['Ich möchte einen Kaffee, bitte.', 'Only masculine changes'], ['Möchtest du Kuchen?', 'Present of **möchten** (would like)'], ['Eine Tasse Tee, bitte.']],
+      'de-3-3': [['Ich nehme die Suppe.', 'The accusative'], ['Haben Sie etwas Vegetarisches?'], ['Wir möchten bestellen.', 'Three useful verbs']],
+      'de-3-4': [['Die Kartoffeln sind billig.', 'Plurals'], ['Was kostet das?', 'The verb follows the number'], ['Ich kaufe Brot auf dem Markt.']],
+      'it-3-1': [['La pasta è buona.', 'The, singular'], ['Mangio il pane.'], ['Lui beve il caffè.', 'mangiare and bere']],
+      'it-3-2': [['Vorrei un caffè, per favore.', 'Ways to order'], ['Prendo un tè.', 'prendere (regular -ere): to have, to take'], ['Il conto, per favore.']],
+      'it-3-3': [['The courses'], ['Un tavolo per due, per favore.'], ['C’è un menù in inglese?', 'Ci sono due tavoli liberi.', 'There is / there are']],
+      'it-3-4': [['Vorrei un chilo di pomodori.', 'Amount + di + food'], ['Quanto costano le pere?', 'Ecco le patate!'], ['Plurals']],
+      'es-20-1': [['Colors that change (-o): four forms'], ['Tengo un gato gris.', 'Colors with one form for masc. and fem.'], ['Mi carro es negro.', 'Las flores son amarillas y moradas.', 'ser: what color it is']],
+      'es-20-2': [['Hay dos baños en la casa.'], ['La sala es grande.', 'The and a'], ['Cocino en la cocina.', 'Present of cocinar and comer']],
+      'es-20-3': [['Este libro es interesante.', 'Esta bolsa es nueva.', 'this and that'], ['Adjectives agree with the noun'], ['Necesito esa llave.', 'Present of necesitar']],
+      'es-20-4': [['¿Dónde está mi celular?', 'Present of estar (irregular)'], ['El gato está debajo de la silla.'], ['El banco está al lado de la farmacia.', 'Place word + de + la / el']],
+      'de-20-1': [['Der Himmel ist blau.'], ['Ich habe eine schwarze Katze.', 'Color + noun after “a”'], ['Welche Farbe hat dein Auto?']],
+      'de-20-2': [['Die Wohnung hat ein Schlafzimmer.', 'Rooms by article'], ['Wir haben einen kleinen Balkon.'], ['Ich koche in der Küche.', 'Present of **haben** and **kochen**']],
+      'de-20-3': [['Das ist meine Tasche.'], ['Ich suche meinen Schlüssel.', 'Das ist ein Tisch, kein Stuhl.', 'a / my / not a'], ['this']],
+      'de-20-4': [['Das Buch ist in der Tasche.', '“Where?” takes the dative'], ['Die Katze ist unter dem Tisch.'], ['Die Lampe steht neben dem Sofa.', 'Verbs of position']],
+      'it-20-1': [['La mela è rossa.', 'I pomodori sono rossi.', 'Colors in -o'], ['Colors that do not change'], ['Il mio colore preferito è il verde.']],
+      'it-20-2': [['La casa ha tre camere da letto.'], ['Mangiamo in cucina.', 'In which room?'], ['In cucina c’è un tavolo grande.', 'c’è or ci sono?']],
+      'it-20-3': [['Che cos’è questo?', 'questo (this)'], ['Quel divano è molto grande.', 'quello (that)'], ['Questa sedia è comoda.']],
+      'it-20-4': [['Il gatto è sotto la sedia.', 'Place words'], ['Il libro è sul tavolo.', 'La borsa è accanto alla porta.', 'Prepositions merge with the article'], []],
+      'es-21-1': [['Hoy hace mucho calor.', 'Hace sol, vamos al parque.'], ['Está nublado y llueve.', 'Which verb for the weather?'], ['Present of ir (to go, irregular)']],
+      'es-21-2': [['Vamos a la playa en julio.', 'Months'], ['El año tiene doce meses.', 'Present of tener (irregular)'], ['Me gusta la primavera.', 'gustar: one thing or several']],
+      'es-21-3': [['Mi cumpleaños es el primero de marzo.', 'Saying a date'], ['Hoy es el cinco de mayo.'], ['Pasado mañana es jueves.', 'Days of the week (lowercase)', 'Time words']],
+      'es-21-4': [['Hace sol, me pongo los lentes de sol.', 'Present of ponerse (put on)'], ['Hace frío, necesito un abrigo.', 'Regular -ar verbs'], ['Llueve, así que llevo un paraguas.']],
+      'de-21-1': [['Es regnet und es ist kalt.', 'Weather verbs (es / the sun)'], ['Heute gibt es viel Schnee.', 'viel or viele?'], ['Heute scheint die Sonne.']],
+      'de-21-2': [['Im Sommer ist es heiß.', 'Der Frühling beginnt im März.'], ['Present of **beginnen** and **haben**'], ['Ein Jahr hat zwölf Monate.', 'Plural: add **-e**']],
+      'de-21-3': [['Heute ist der zehnte Oktober.', 'Ordinals'], ['Welches Datum ist heute?', '“which” matches the noun'], ['Gestern war Sonntag.', 'sein: now and before']],
+      'de-21-4': [['Present of **brauchen** and **tragen**'], ['Es ist kalt. Ich trage einen Mantel.', 'Wo ist deine Jacke?', 'a / your as the object'], ['Bei Regen brauche ich einen Regenschirm.']],
+      'it-21-1': [['Che tempo fa oggi?', 'Oggi fa molto caldo.', 'fare (irregular): to do, to make'], ['Weather phrases'], ['Domani piove.']],
+      'it-21-2': [['Un anno ha dodici mesi.', 'Months by season'], ['Il mio compleanno è a luglio.', 'In a season or month'], ['In estate fa molto caldo.']],
+      'it-21-3': [['Oggi è il quattordici ottobre.', 'Il mio compleanno è il primo giugno.', 'Saying dates'], ['Che giorno è oggi?'], ['Ordinals']],
+      'it-21-4': [['In inverno porto la sciarpa e i guanti.'], ['mettersi (reflexive): to put on'], ['Quando fa freddo mi metto il cappotto.', 'Prendo l’ombrello perché piove.', 'Weather and clothes']]
     };
     const plainT = s => String(s).replace(/\*\*/g, '').toLowerCase();
     for (const lang of LANG_IDS) for (const u of P.COURSE[lang].units) for (const l of u.lessons){
@@ -271,7 +307,7 @@ async function main(){
       const got = A.E('tipBites(getLesson(' + JSON.stringify(id) + ').tip)').map(b => [...b.examples.map(e => e.t), ...b.tables.map(t => t.cap)]);
       ok(JSON.stringify(got) === JSON.stringify(TIP_PLACES[id]), id + ' tip cards hold what the plan says: ' + JSON.stringify(got));
     }
-    ok(Object.keys(TIP_PLACES).length === 24 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all twenty-four unit 1 and unit 2 tips are cut into three paragraphs'); }
+    ok(Object.keys(TIP_PLACES).length === 60 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all sixty hand-cut A1 tips are cut into three paragraphs'); }
   /* the top bar lets the wordmark wrap away instead of being cut mid-word (layout itself is checked in a browser) */
   { const css = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8'), brand = (css.match(/\n\.brand\{[^}]*\}/) || [''])[0];
     ok(brand.includes('flex-wrap:wrap') && brand.includes('height:26px') && !css.includes('@media (max-width:400px){\n  .brand-name'), 'the top bar lets the wordmark wrap instead of cutting it'); }
@@ -291,6 +327,30 @@ async function main(){
     ok(n1.ok === false && n1.level === 'article' && n1.note === 'Right gender, but ciudad is singular: la ciudad.' && n2.note === 'Right gender, but guantes is plural: los guantes.' && n2.level === 'article'
       && n3.level === 'article' && n3.note === 'Right gender. Before a vowel, lo and la become l’.' && n4.level === 'article' && n4.note === 'Right gender. Before s + consonant, z, gn, ps or y, use lo, not il.'
       && n5.ok === false && n5.level === 'article' && n6.ok === false && n6.level === 'article', "article practice: the right gender in the wrong number or form is a near miss that doesn't count"); }
+  /* an article question in A1–A2 lessons */
+  { const counts = { de: 0, es: 0, it: 0 }, bad = [], late = []; let nonOk = 0;
+    const probe = id => A.E('(l => { const q = buildLesson(l), gi = q.map((e, i) => e.type === "gender" ? i : -1).filter(i => i >= 0), g = gi.length ? q[gi[0]] : null;' +
+      ' const wi = g ? q.slice(0, gi[0]).map((e, i) => e.type === "teach" && e.mode === "words" ? i : -1).filter(i => i >= 0) : [], w = wi.length ? q[wi[wi.length - 1]] : null;' +
+      ' return { lvl: l.level, has: l.vocab.some(v => genderLessonOk(v, l.lang)), n: gi.length, ok: !g || genderLessonOk(g.item, l.lang), near: !!w && w.idxs.includes(l.vocab.indexOf(g.item)) }; })(getLesson(' + JSON.stringify(id) + '))');
+    for (const lang of ['de', 'es', 'it']) for (const id of A.E('coreOrder(' + JSON.stringify(lang) + ').map(l => l.id)')){
+      const r = probe(id);
+      if (r.lvl === 'A1' || r.lvl === 'A2'){ if (r.has === (r.n === 1) && r.n <= 1 && (r.n === 0 || r.near)){ if (r.n) counts[lang]++; } else bad.push(id + ':' + r.n); }
+      else if (r.n) late.push(id);
+      if (!r.ok) nonOk++;
+    }
+    ok(!bad.length && counts.de >= 50 && counts.es >= 55 && counts.it >= 55, 'lesson articles: A1 and A2 lessons with an eligible noun ask exactly one, after its words card (' + JSON.stringify(counts) + (bad.length ? ' ' + bad.slice(0, 3).join(', ') : '') + ')');
+    ok(late.length === 0, 'lesson articles: none from B1 (' + late.slice(0, 3).join(', ') + ')');
+    ok(nonOk === 0, 'lesson articles: never a plural or a noun with two articles (' + nonOk + ' bad)'); }
+  { const Q = await makeDom(); Q.P.S.settings.onboarded = true;
+    const lid = 'de-3-1'; Q.E('S.settings.lang = "de"; localStorage.removeItem("parlance.genmiss"); startLesson(' + JSON.stringify(lid) + '); Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx()');
+    const at = Q.E('Run.queue.findIndex(e => e.type === "gender")'), cards0 = JSON.stringify(Q.P.S.langs.de.cards), noun = Q.E('Run.queue[' + at + '].item.t');
+    Q.E('Run.pos = ' + at + '; nextEx()');
+    const cur = Q.E('Run.cur'); Q.E('Run.value = Run.cur.options.find(o => o !== Run.cur.correct); Run.canCheck = true; doCheck()');
+    const miss = JSON.parse(Q.w.localStorage.getItem('parlance.genmiss') || '{}');
+    ok(at >= 0 && cur.type === 'gender' && !('key' in cur) && !('srs' in cur) && miss.de && miss.de[0] === noun && JSON.stringify(Q.P.S.langs.de.cards) === cards0, 'lesson articles: no review card, and a miss comes back first in Practice articles');
+    Q.E('resumeSave()'); const rs = Q.E('resumeFind(' + JSON.stringify(lid) + ')'), back = rs && rs.queue.find(e => e.type === 'gender');
+    ok(!!back && back.item.t === noun && rs.lesson.vocab.includes(back.item) && rs.queue.length === Q.E('Run.queue.length') && rs.queue.indexOf(back) === at, 'lesson articles: a lesson with one resumes');
+    Q.dom.window.close(); }
   /* word pictures: the mapping and the files follow the rules, and enough lessons ask about them (floors: the shipped numbers, rounded down) */
   { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
     let fails; try { fails = await T.check(); } finally { console.log = log; }
