@@ -1,28 +1,28 @@
 {
   "birds": {
     "kakadu": {
-      "print": "eead76db567830b1",
-      "bytes": 6409542,
+      "print": "8534b48b366f9806",
+      "bytes": 6423392,
       "frames": 3079
     },
     "kiwi": {
-      "print": "2e7dab0882816a2b",
-      "bytes": 6151910,
+      "print": "d3e836a9ef88cdb8",
+      "bytes": 6132019,
       "frames": 3079
     },
     "mango": {
-      "print": "06d7e1966e835191",
-      "bytes": 6130034,
+      "print": "66611cf5ac10319f",
+      "bytes": 6120105,
       "frames": 3079
     },
     "pip": {
-      "print": "f00e77c591c587ad",
-      "bytes": 6109846,
+      "print": "c141557a87feafd5",
+      "bytes": 6091755,
       "frames": 3079
     },
     "rojo": {
-      "print": "7723ab603aed21a1",
-      "bytes": 6347394,
+      "print": "11b8479bdffa1e3d",
+      "bytes": 6356017,
       "frames": 3079
     }
   },

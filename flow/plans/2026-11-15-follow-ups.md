@@ -4,7 +4,7 @@
 - **Status:** approved
 - **Release:** 4.45.0
 - **Base:** `main` at ee3341b (4.44.0)
-- **Proposals built:** web `proposals/pfmwfh63ei` ("Your call: stop a bird's dance reliably"), approved by Matt in chat on 2026-11-15 ("Proceed with all fixes and recommendations"). R-53 (the fonts hosts in the Content-Security-Policy) approved by Matt in the same message.
+- **Proposals built:** web `proposals/pfmwfh63ei` ("Your call: stop a bird's dance reliably"), approved by Matt in chat on 2026-11-15 ("Proceed with all fixes and recommendations"). R-53 (the fonts hosts in the Content-Security-Policy) approved by Matt in the same message, recorded as web `proposals/pfmwih89zn` (approved, no decidedBy).
 - **Roadmap items:** R-52 to R-63 (R-60's screen-off fix waits for Matt's phone check; R-61's warmer gold waits for his eye)
 
 ## Why this, why now
