@@ -538,3 +538,6 @@ Object.assign(STORY_GLOSS.it, {
   "commuovere": "to move · to touch (emotionally)", "dura": "holds out · lasts (from durare; chi la dura la vince: whoever holds out wins)",
   "testarda": "stubborn", "continuava": "kept going · continued (from continuare)", "tornare": "to come back · to return", "vostro": "your (plural you)",
   "arrendo": "I give up · I surrender (from arrendersi)", "sospiro": "sigh", "prometto": "I promise (from promettere)" });
+/* review fixes for stories s10–s12 (4.47.0) */
+Object.assign(STORY_GLOSS.de, { "ginge": "would it work · would it go (from gehen)", "mithalten": "to keep up", "bekanntlich": "as everyone knows", "geduldiger": "more patiently" });
+Object.assign(STORY_GLOSS.it, { "erano": "were (from essere)", "contrari": "against · opposed", "impoverisce": "makes poorer (from impoverire)" });
