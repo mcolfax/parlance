@@ -131,8 +131,8 @@ function startForms(){
   beginSession('forms', lang, all.map(x => formEx(x.l, x.d)));
 }
 function startGenders(){
-  const lang = S.settings.lang, es = genderEntries(lang); if (es.length < GENDER_DRILL.min) return;
-  beginSession('genders', lang, shuffle(es).slice(0, GENDER_DRILL.perSession).map(genderEx));
+  const lang = S.settings.lang; if (genderEntries(lang).length < GENDER_DRILL.min) return;
+  beginSession('genders', lang, genderPick(lang).map(genderEx));
 }
 function startConvo(){
   const lang = S.settings.lang, q = convoSession(lang);
@@ -236,6 +236,7 @@ function showFeedback(ex, res){
       }
     }
   }
+  if (first && ex.type === 'gender') genMissNote(ex.lang, ex.item.t, !res.ok);   // a missed noun comes back first next time (this device only)
   if (first && ex.key && Run.mode !== 'placement'){ noteMiss(Run.lang, ex.key, !res.ok || res.level === 'form'); touch(Run.lang); }
   if (res.ok && first && res.level === 'exact'){ Run.combo++; Run.bestCombo = Math.max(Run.bestCombo, Run.combo); }
   if (first && res.ok && res.level === 'exact' && ex.type === 'form') S.stats.formsRight = (S.stats.formsRight || 0) + 1;

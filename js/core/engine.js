@@ -372,11 +372,29 @@ function genderNoun(item, lang){   // { art, noun, plural } when the word starts
   if (!noun || !G.fits[art] || !G.fits[art].includes(item.g)) return null;   // el agua (feminine, with el) is left out
   return { art, noun, plural: item.g === 'pl' };
 }
-/* nouns that appear with two different articles somewhere in the course are never asked */
+/* nouns that appear with two different articles somewhere in the course are never asked.
+   The answer only changes when the course content does, so it is kept per language until Packs.version moves. */
+const GENDER_CLASH_CACHE = new Map();
 function genderClashes(lang){
+  const key = lang + '|' + Packs.version, hit = GENDER_CLASH_CACHE.get(lang); if (hit && hit.key === key) return hit.out;
   const seen = new Map(), out = new Set();
   for (const l of coreOrder(lang)) for (const v of l.vocab){ const g = genderNoun(v, lang); if (!g) continue; const k = g.noun.toLowerCase(); if (seen.has(k) && seen.get(k) !== g.art) out.add(k); else if (!seen.has(k)) seen.set(k, g.art); }
+  GENDER_CLASH_CACHE.set(lang, { key, out });
   return out;
+}
+/* the nouns a learner missed in article practice, newest first, kept on this device only (never in parlance.v2) */
+const GENMISS = { key: 'parlance.genmiss', max: 20 };
+function genMissAll(){
+  try { const o = JSON.parse(localStorage.getItem(GENMISS.key)); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; } catch (e){ return {}; }
+}
+function genMissList(lang){ const a = genMissAll()[lang]; return Array.isArray(a) ? a.filter(x => typeof x === 'string') : []; }
+/* a wrong answer puts the noun at the front of the list; a right one takes it off */
+function genMissNote(lang, noun, wrong){
+  try {
+    const all = genMissAll(), had = genMissList(lang), next = had.filter(k => k !== noun); if (wrong) next.unshift(noun);
+    if (!wrong && next.length === had.length) return;
+    all[lang] = next.slice(0, GENMISS.max); localStorage.setItem(GENMISS.key, JSON.stringify(all));
+  } catch (e){ /* storage unavailable: the session is the same as ever */ }
 }
 function genderEntries(lang){
   const clash = genderClashes(lang), seen = new Set(), out = [];
@@ -384,7 +402,14 @@ function genderEntries(lang){
     const g = genderNoun(e.item, lang); if (!g || seen.has(e.item.t) || clash.has(g.noun.toLowerCase())) continue;
     seen.add(e.item.t); out.push(e);
   }
-  return out;
+  const miss = genMissList(lang); if (!miss.length) return out;
+  const rank = e => { const i = miss.indexOf(e.item.t); return i < 0 ? miss.length : i; };
+  return out.map((e, i) => ({ e, i, r: rank(e) })).sort((a, b) => a.r - b.r || a.i - b.i).map(x => x.e);   // missed nouns first (newest miss first), then the usual order
+}
+/* one session: the missed nouns that are still eligible come first, the rest are shuffled */
+function genderPick(lang){
+  const es = genderEntries(lang), miss = new Set(genMissList(lang)), n = es.filter(e => miss.has(e.item.t)).length;
+  return [...es.slice(0, n), ...shuffle(es.slice(n))].slice(0, GENDER_DRILL.perSession);
 }
 /* no key and no srs: an article question never moves a review card or lands on "Fix my mistakes" */
 function genderEx(entry){

@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.45.0';
+const APP_VERSION = '4.46.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,10 @@ const SCHEMA_VERSION = 12;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.46.0', date: '2026-11-16', title: 'Tidy-ups', notes: [
+    'Practice articles brings back the nouns you got wrong first.',
+    'Review opens faster, and testing out further ahead tells you what happens to the units before it.',
+    'A few clearer explanations in the first Italian and German lessons.'] },
   { v: '4.45.0', date: '2026-11-15', title: 'Little things', notes: [
     'Lots of small fixes from our reviews: clearer tiles on Learn, bigger buttons to tap, a calmer chime on long runs, and a Relaxed speed you can actually hear.',
     'Your bird has something to say when there’s nothing to show, and it never gets stuck dancing.'] },
@@ -354,7 +358,7 @@ const GENDER_DRILL = { min: 6, perSession: 12,
   de: { label: 'der, die, das', sg: ['der', 'die', 'das'], pl: ['der', 'die', 'das'], fits: { der: ['m'], die: ['f', 'pl'], das: ['n'] }, gender: { der: 'm', die: 'f', das: 'n' }, why: {} },
   es: { label: 'el, la, los, las', sg: ['el', 'la', 'los', 'las'], pl: ['el', 'la', 'los', 'las'], fits: { el: ['m'], la: ['f'], los: ['pl'], las: ['pl'] }, gender: { el: 'm', la: 'f', los: 'm', las: 'f' }, why: {} },
   it: { label: 'il, lo, la, i, gli, le', sg: ['il', 'lo', 'la', 'l’'], pl: ['i', 'gli', 'le'], fits: { il: ['m'], lo: ['m'], la: ['f'], 'l’': ['m', 'f'], i: ['pl'], gli: ['pl'], le: ['pl'] }, gender: { il: 'm', lo: 'm', la: 'f', 'l’': 'mf', i: 'm', gli: 'm', le: 'f' },
-    why: { 'l’': 'Before a vowel, il and la become l’.', lo: 'Before s + consonant, z, gn, ps or y, use lo, not il.', il: 'Use il before most consonants. lo is for s + consonant, z, gn, ps and y, and l’ is for a vowel.', la: 'Use la before a consonant. It becomes l’ only before a vowel.', gli: 'Before a vowel, s + consonant, z, gn, ps or y, use gli, not i.', i: 'Use i before most consonants. gli is for a vowel, s + consonant, z, gn, ps and y.' } }
+    why: { 'l’': 'Before a vowel, lo and la become l’.', lo: 'Before s + consonant, z, gn, ps or y, use lo, not il.', il: 'Use il before most consonants. lo is for s + consonant, z, gn, ps and y, and l’ is for a vowel.', la: 'Use la before a consonant. It becomes l’ only before a vowel.', gli: 'Before a vowel, s + consonant, z, gn, ps or y, use gli, not i.', i: 'Use i before most consonants. gli is for a vowel, s + consonant, z, gn, ps and y.' } }
 };
 /* Wrong form of the right word (a wrong ending, person or tense): in the early levels the answer still counts and says what was off;
    from B1 on it does not count, and says why. */
