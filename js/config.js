@@ -310,7 +310,10 @@ const CHECKPOINT = { questions: 12, pass: 0.8 };
    never: lines too generic to be a wrong reply (a yes that would answer almost any question; they can still be the right reply) */
 const CONVO = { replies: 6, orders: 2, minWords: 3, min: 4, never: ['Claro que sí.', 'Certo che sì.'] };
 /* Spot the mistake: one per lesson at these levels, made from a blank whose wrong option is another form of the right word */
-const SPOT = { levels: ['B2', 'C1', 'C2'] };
+// blanks whose wrong option is also acceptable, or isn't a form of the answer
+const SPOT = { levels: ['B2', 'C1', 'C2'], skip: [
+  'Die Stadt ___ im Krieg zerstört.', 'Das ist ein Gerät, ___ alles kann.', 'Das ist das Beste, ___ es gibt.', 'Er meint das nicht ___, es ist ein Scherz.', 'Daraus ___, dass wir handeln müssen.', 'Para 2040, la IA ___ cambiado muchos trabajos.', 'Por un lado es útil, por ___ es caro.', 'Es barato; sin ___, no es bueno.', 'Tal ___ venga mañana.', 'Le ___ aspettare un momento?', 'Mi ___ un favore?', 'Non voglio dare la ___ a nessuno.', 'Si direbbe che la statua ___.', 'In ___ alla testimonianza, l’imputato è colpevole.', 'Quante mele vuoi? ___ voglio tre.', 'Hai bisogno di aiuto? Sì, ___ ho bisogno.'
+] };
 /* Listen hands-free (Review) and Listen first (Stories): items per session, the fewest learned items to offer it, and the pauses in ms */
 const LISTEN = { max: 20, min: 6, gapSay: 1800, gapReveal: 1200, gapNext: 1500, storyGap: 700 };
 const PLACEMENT = { perLevel: 5, pass: 3 };

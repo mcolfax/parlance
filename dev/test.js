@@ -1707,7 +1707,9 @@ async function main(){
         if (sp.length > 1 || (!high && sp.length)) bad++;
         if (high && sp.length){ per[lang]++; spots.push({ l, exs, ex: sp[0] }); }
       }
-      ok(bad === 0 && per.de >= 50 && per.es >= 50 && per.it >= 35, 'spot: B2–C2 lessons with a form blank ask one, and A1–B1 lessons none (' + bad + ' bad; de ' + per.de + ', es ' + per.es + ', it ' + per.it + ')');
+      ok(bad === 0 && per.de >= 36 && per.es >= 19 && per.it >= 15, 'spot: B2–C2 lessons with a form blank ask one, and A1–B1 lessons none (' + bad + ' bad; de ' + per.de + ', es ' + per.es + ', it ' + per.it + ')');
+      { const skip = Q.E('SPOT.skip'), hinted = spots.filter(({ ex }) => { const t = ex.blank.t; return /\([^)]*\)\s*$/.test(t) || t.includes('→') || skip.includes(t); }).length;
+        ok(hinted === 0, 'spot: no hinted or skipped blank is used'); }
       let wrongOk = 0, otherBad = 0, shownBad = 0;
       for (const { l, exs, ex } of spots){
         const said = new Set(l.blanks.map(b => Q.P.blankSaid(b)).concat(l.sentences.map(s => s.t)));
