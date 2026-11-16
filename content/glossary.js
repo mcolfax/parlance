@@ -494,3 +494,31 @@ Object.assign(LESSON_GLOSS.it, {
   "utile": "useful", "misura": "measure · extent (nella misura in cui: insofar as)", "applicata": "applied · enforced (from applicare)", "vigore": "force (in vigore: in force)",
   "eccezione": "exception", "un’eccezione": "an exception", "eccezioni": "exceptions (plural of l’eccezione)", "cercano": "look for · seek (from cercare)",
   "prove": "evidence · proof (plural of la prova)", "silenziosa": "quiet · silent" });
+
+/* stories s10–s12 (4.47.0) */
+Object.assign(STORY_GLOSS.it, {
+  "finalmente": "finally · at last", "palazzo": "building · apartment block", "ascensore": "lift · elevator", "potranno": "will be able to · can (from potere)",
+  "cominciare": "to begin · to start", "condòmini": "residents of a building (plural of il condòmino)", "dovranno": "will have to (from dovere)",
+  "condominiali": "of the building · communal (building fees)", "finché": "until · as long as", "far": "to make · to have (short for fare)",
+  "preventivi": "quotes · estimates (plural of il preventivo)", "ditte": "companies · firms (plural of la ditta)", "diverse": "different · various",
+  "salumeria": "deli · delicatessen", "all’ingresso": "at the entrance", "possibile": "possible", "ad": "to · at (before a vowel)",
+  "organizzarci": "to organize ourselves · to arrange things", "facile": "easy", "propongo": "I propose (from proporre)", "l’ascensore": "the lift · the elevator",
+  "usare": "to use", "appoggio": "I support · I back (from appoggiare)", "pagassimo": "we paid · if we paid (subjunctive of pagare)",
+  "protesterebbero": "they would protest (from protestare)", "avrebbero": "they would have (from avere)", "mmm": "hmm", "sicura": "sure · certain",
+  "finiscano": "finish (subjunctive of finire)", "salame": "salami", "festeggiamo": "we celebrate (from festeggiare)", "votazione": "vote · voting",
+  "contro": "against", "benvenuti": "welcome (to everyone)", "episodio": "episode", "podcast": "podcast", "botteghe": "small shops (plural of la bottega)",
+  "possano": "can · may (subjunctive of potere)", "sopravvivere": "to survive", "applicano": "they apply · they charge (from applicare)",
+  "bottega": "small shop · workshop", "competere": "to compete", "qualità": "quality", "conta": "counts · matters (from contare)",
+  "ascoltatore": "listener", "ascoltatori": "listeners", "stesso": "same", "reggono": "they hold up · they cope (from reggere)",
+  "semplicemente": "simply · just", "mercato": "market", "fatta": "made · made up (from fare)", "povera": "poor", "servirebbe": "would be needed (from servire)",
+  "concretamente": "in practice · concretely", "attività": "business · activity", "negozi": "shops (plural of il negozio)", "tornano": "they come back (from tornare)",
+  "intervisterei": "I would interview (from intervistare)", "sentano": "hear (subjunctive of sentire)", "nomina": "mentions · names (from nominare)",
+  "espresso": "espresso", "offro": "I offer · it’s on me (from offrire)", "naturalmente": "naturally · of course", "un’espressione": "an expression",
+  "elastica": "elastic · flexible", "dicevano": "they said · they used to say (from dire)", "durato": "lasted (from durare)", "d’incontro": "of meeting (un luogo d’incontro: a meeting place)",
+  "oggetti": "objects · things (plural of l’oggetto)", "ricevono": "they receive · they get (from ricevere)", "indicazioni": "directions (plural of l’indicazione)",
+  "certa": "certain", "reception": "front desk · reception", "protesto": "I protest (from protestare)", "mappe": "maps (plural of la mappa)",
+  "soltanto": "only · just", "record": "record", "rapidità": "speed · quickness", "turno": "shift · turn", "dell’ospedale": "of the hospital",
+  "ciò": "that · what (ciò che: what)", "edifici": "buildings (plural of l’edificio)", "alziamo": "let’s raise · we raise (from alzare)",
+  "commuovere": "to move · to touch (emotionally)", "dura": "holds out · lasts (from durare; chi la dura la vince: whoever holds out wins)",
+  "testarda": "stubborn", "continuava": "kept going · continued (from continuare)", "tornare": "to come back · to return", "vostro": "your (plural you)",
+  "arrendo": "I give up · I surrender (from arrendersi)", "sospiro": "sigh", "prometto": "I promise (from promettere)" });
