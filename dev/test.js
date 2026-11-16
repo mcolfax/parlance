@@ -289,7 +289,7 @@ async function main(){
     ok(!w1.ok && w1.level === 'wrong' && !w2.ok && w2.level === 'wrong' && !w3.ok && w3.level === 'wrong' && !w4.ok && w4.note === 'In the plural, every noun takes die.', "article practice: a wrong article doesn't count");
     const n1 = ev('es', 'la ciudad', 'las'), n2 = ev('es', 'los guantes', 'el'), n3 = ev('it', 'l’anno', 'il'), n4 = ev('it', 'lo sconto', 'il'), n5 = ev('it', 'la città', 'l’'), n6 = ev('it', 'gli occhi', 'i');
     ok(n1.ok === false && n1.level === 'article' && n1.note === 'Right gender, but ciudad is singular: la ciudad.' && n2.note === 'Right gender, but guantes is plural: los guantes.' && n2.level === 'article'
-      && n3.level === 'article' && n3.note === 'Right gender. lo and la drop their vowel before a vowel: use l’.' && n4.level === 'article' && n4.note === 'Right gender. Before s + consonant, z, gn, ps or y, use lo, not il.'
+      && n3.level === 'article' && n3.note === 'Right gender. Before a vowel, lo and la become l’.' && n4.level === 'article' && n4.note === 'Right gender. Before s + consonant, z, gn, ps or y, use lo, not il.'
       && n5.ok === false && n5.level === 'article' && n6.ok === false && n6.level === 'article', "article practice: the right gender in the wrong number or form is a near miss that doesn't count"); }
   /* word pictures: the mapping and the files follow the rules, and enough lessons ask about them (floors: the shipped numbers, rounded down) */
   { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
@@ -3227,7 +3227,7 @@ async function main(){
     const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
     const rd = R.w.document, E = R.E;
     // WP1: wording
-    ok(E('GENDER_DRILL.it.why["l’"]') === 'lo and la drop their vowel before a vowel: use l’.' && !E('JSON.stringify(GENDER_DRILL.it.why)').includes('il and la become'), 'tidy: the Italian l’ note says lo and la drop their vowel');
+    ok(E('GENDER_DRILL.it.why["l’"]') === 'Before a vowel, lo and la become l’.' && !E('JSON.stringify(GENDER_DRILL.it.why)').includes('il and la become'), 'tidy: the Italian l’ note says lo and la become l’');
     ok(!E('getLesson("de-1-3").tip.body').includes('?,') && E('getLesson("de-1-3").tip.body').includes('**Woher kommst du?**'), 'tidy: de-1-3 has no "?," in its tip');
     { const body = E('getLesson("it-1-2").tip.body'), para = body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean)[2] || '';
       ok(para.includes('**Il mio nome è Matt**') && /means “my name”/.test(para) && para.includes('**è** means “is”'), 'tidy: it-1-2 explains Il mio nome è Matt'); }
