@@ -1,7 +1,7 @@
 # Follow-ups: every fix the reviewers left behind, in one release
 
 - **Cycle:** 2026-11-15-3
-- **Status:** approved
+- **Status:** shipped (4.45.0)
 - **Release:** 4.45.0
 - **Base:** `main` at ee3341b (4.44.0)
 - **Proposals built:** web `proposals/pfmwfh63ei` ("Your call: stop a bird's dance reliably"), approved by Matt in chat on 2026-11-15 ("Proceed with all fixes and recommendations"). R-53 (the fonts hosts in the Content-Security-Policy) approved by Matt in the same message, recorded as web `proposals/pfmwih89zn` (approved, no decidedBy).
@@ -76,5 +76,5 @@ Run in order WP1 → WP2 → WP3 on branch `flow/2026-11-15-3` (they share `dev/
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.45.0, `6c9ce58` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**
