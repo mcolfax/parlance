@@ -591,3 +591,22 @@ Object.assign(LESSON_GLOSS.es, {
   'secó': 'dried (from secar; se secó: dried up)', zona: 'area · zone', nivel: 'level', 'freático': 'groundwater (nivel freático: water table)', forestal: 'forest (adjective)',
   mala: 'bad (feminine)', alerta: 'alert · warning', 'meteorológica': 'weather (adjective, feminine) · meteorological', Tras: 'after', tras: 'after',
   hereden: 'inherit (subjunctive, from heredar)', sepan: 'know (subjunctive, from saber)', bosques: 'forests (plural of el bosque)', generaciones: 'generations (plural of la generación)' });
+Object.assign(LESSON_GLOSS.it, {
+  'vecchio': 'old · oldest (più vecchio)', 'infanzia': 'childhood', 'eravamo': 'we were (from essere)', 'faceva': 'made · did (faceva caldo: it was hot; from fare)',
+  'settembre': 'September', 'maggio': 'May', 'sappia': 'knows · know (subjunctive of sapere; che io sappia: as far as I know)', 'rimosso': 'repressed · removed (from rimuovere)',
+  'riesco': 'I manage · I can (from riuscire)', 'breve': 'short · brief', 'termine': 'term · end (a breve termine: short-term)', 'telefonato': 'phoned · called (from telefonare)',
+  'operazione': 'operation · surgery', 'spaventa': 'frightens · scares (from spaventare)', 'esame': 'exam', 'attacco': 'attack', 'panico': 'panic',
+  'riuscivo': 'I was able to · I could (from riuscire)', 'incubo': 'nightmare', 'gridare': 'to shout · to scream', 'soffro': 'I suffer (from soffrire)', 'insonnia': 'insomnia',
+  'mancanza': 'lack · absence', 'semplice': 'simple', 'soffrivo': 'I used to suffer (from soffrire)', 'autodisciplina': 'self-discipline', 'preferirei': 'I would prefer (from preferire)',
+  'rimandassi': 'you put off · you postponed (imperfect subjunctive of rimandare)', 'volontà': 'will · willingness (la forza di volontà: willpower)', 'brutta': 'ugly · bad (feminine of brutto)',
+  'abitudine': 'habit', 'alzassi': 'you got up (imperfect subjunctive of alzarsi)', 'venga': 'comes · come (subjunctive of venire)', 'vertice': 'summit · peak',
+  'clima': 'climate', 'agisse': 'acted (imperfect subjunctive of agire)', 'promettesse': 'promised (imperfect subjunctive of promettere)', 'diminuiscano': 'decrease · go down (subjunctive of diminuire)',
+  'transizione': 'transition', 'energetica': 'energy · energetic (feminine of energetico)', 'combustibili': 'fuels (plural of il combustibile)', 'obiettivo': 'goal · aim · objective',
+  'neutralità': 'neutrality', 'climatica': 'climate · climatic (feminine of climatico)', 'agiscano': 'act · take action (subjunctive of agire)', 'prosciugato': 'dried up · drained (from prosciugare)',
+  'pochissimo': 'very little', 'danneggiato': 'damaged (from danneggiare)', 'devono': 'they must · they have to (from dovere)', 'collina': 'hill', 'falda': 'layer · water table (la falda acquifera: aquifer)',
+  'acquifera': 'water-bearing (la falda acquifera: aquifer)', 'scesa': 'gone down · dropped (feminine of sceso, from scendere)', 'dev’essere': 'must be · must have been (from dovere + essere)',
+  'boschivo': 'of the woods (l’incendio boschivo: forest fire)', 'distruggere': 'to destroy', 'bosco': 'wood · forest', 'estremo': 'extreme', 'rovinare': 'to ruin · to spoil',
+  'allerta': 'alert · warning', 'meteo': 'weather (l’allerta meteo: weather warning)', 'tempesta': 'storm', 'calmata': 'calmed down (feminine of calmato, from calmarsi)',
+  'ondata': 'wave', 'calore': 'heat', 'ordinato': 'ordered (from ordinare)', 'fiume': 'river', 'ricominciò': 'began again · started again (from ricominciare)', 'tutte': 'all · everyone (feminine plural of tutto)',
+  'generazioni': 'generations (plural of la generazione)', 'future': 'future (plural feminine of futuro)', 'lasciamo': 'we leave (from lasciare)', 'eredità': 'legacy · inheritance',
+  'vivano': 'live (subjunctive of vivere)', 'capissero': 'understood (imperfect subjunctive of capire)', 'natura': 'nature', 'calda': 'hot · warm (feminine of caldo)' });
