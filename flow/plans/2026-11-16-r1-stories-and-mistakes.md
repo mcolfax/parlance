@@ -1,9 +1,9 @@
 # Three advanced stories in every language, and Spot the mistake
 
-- **Cycle:** queued 2026-11-16 (program 2, release R1; `flow/PROGRAM-2.md`)
-- **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r1-stories-and-mistakes.md`, set Base, check it still matches `main`)
+- **Cycle:** 2026-11-16-2 (program 2, release R1; `flow/PROGRAM-2.md`)
+- **Status:** building
 - **Release:** 4.47.0 (minor: new content and a new exercise type)
-- **Base:** `main` at the commit that ships 4.46.0 (`flow/plans/2026-11-16-tidy-ups.md`)
+- **Base:** `main` at 86accd5 (4.46.0)
 - **Proposals built:** none (Matt asked in chat on 2026-11-16 to work through the roadmap)
 - **Roadmap items:** R-3, R-13, R-62 (the `CONVO.never` review for new stories)
 
