@@ -575,3 +575,19 @@ Object.assign(LESSON_GLOSS.de, { "soviel": "as far as (soviel ich weiß: as far 
   "botschaft": "message (die Botschaft)", "aufgeschoben": "put off · postponed (from aufschieben)", "höchste": "highest · utmost (höchste Zeit: high time)", "senken": "to lower · to reduce",
   "klima": "climate (das Klima)", "belastet": "burdens · strains (from belasten)", "länder": "countries (plural of das Land)", "begann": "began (from beginnen)", "küste": "coast (die Küste)",
   "möge": "may (a solemn wish; Konjunktiv I of mögen)", "generation": "generation (die Generation)", "klüger": "wiser · smarter (from klug)", "wälder": "forests (plural of der Wald)", "natur": "nature (die Natur)" });
+
+/* units 45–46 (4.51.0) */
+Object.assign(LESSON_GLOSS.es, {
+  recuerde: 'remember (subjunctive, from recordar)', aquel: 'that (over there · back then)', madre: 'mother', 'reprimí': 'I repressed (from reprimir)',
+  'operación': 'operation · surgery', da: 'gives (from dar; miedo me da: scares me)', paralice: 'paralyzes (subjunctive, from paralizar)', darle: 'to give it (darle vueltas a algo: to overthink something)',
+  'médico': 'doctor', mantiene: 'keeps · stays (from mantenerse)', caer: 'to fall', 'sobresalté': 'I was startled (from sobresaltarse)', 'oí': 'I heard (from oír)', 'Oí': 'I heard (from oír)',
+  gritar: 'to shout · to scream', 'psicóloga': 'psychologist (woman)', raras: 'strange · odd (plural feminine)', 'sufría': 'suffered (from sufrir)', 'oían': 'heard (from oír)',
+  dura: 'lasts (from durar) · hard', apenas: 'as soon as · barely', Apenas: 'as soon as · barely', 'preferiría': 'would prefer (from preferir)', 'Preferiría': 'would prefer (from preferir)',
+  perseverara: 'persevered (subjunctive, from perseverar)', 'sofá': 'sofa · couch', crear: 'to create · to build', dejaras: 'stopped (subjunctive, from dejar)',
+  levantaras: 'got up (subjunctive, from levantarse)', requiere: 'requires (from requerir)', voluntad: 'will (fuerza de voluntad: willpower)',
+  calentamiento: 'warming (calentamiento global: global warming)', global: 'global', neutralidad: 'neutrality', carbono: 'carbon', redujera: 'reduced (subjunctive, from reducir)',
+  combustibles: 'fuels (plural of el combustible)', 'fósiles': 'fossil (plural)', retorno: 'return (punto de no retorno: point of no return)', cumbre: 'summit · peak',
+  'transición': 'transition', 'energética': 'energy (adjective, feminine)', actuara: 'acted (subjunctive, from actuar)', combustible: 'fuel', 'fósil': 'fossil',
+  'secó': 'dried (from secar; se secó: dried up)', zona: 'area · zone', nivel: 'level', 'freático': 'groundwater (nivel freático: water table)', forestal: 'forest (adjective)',
+  mala: 'bad (feminine)', alerta: 'alert · warning', 'meteorológica': 'weather (adjective, feminine) · meteorological', Tras: 'after', tras: 'after',
+  hereden: 'inherit (subjunctive, from heredar)', sepan: 'know (subjunctive, from saber)', bosques: 'forests (plural of el bosque)', generaciones: 'generations (plural of la generación)' });
