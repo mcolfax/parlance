@@ -230,7 +230,7 @@ U('News & society', 'B2', [
       [
         ['The gerundio', ['infinitive', 'gerund'], [['scrivere', 'scriv**endo**'], ['scaricare', 'scaric**ando**'], ['navigare', 'navig**ando**'], ['collegarsi', 'collegando**si**']]],
         ['Object pronouns', ['', 'masculine', 'feminine'], [['it / him / her', '**lo** uso', '**la** uso'], ['them', '**li** uso', '**le** uso']]]]),
-    [['scaricare', 'to download|to unload'], ['condividere', 'to share'], ['la rete', 'network|net|web|internet', 'f'], ['la password', 'password', 'f'], ['il messaggio', 'message|text', 'm'],
+    [['scaricare', 'to download|to unload'], ['condividere', 'to share', '', '-'], ['la rete', 'network|net|web|internet', 'f'], ['la password', 'password', 'f'], ['il messaggio', 'message|text', 'm'],
      ['il social', 'social network|social media|social app', 'm'], ['navigare', 'to browse|to surf|to navigate|to sail'], ['collegarsi', 'to connect|to log on|to log in']],
     [['Sto scrivendo un messaggio.', 'I am writing a message.|I’m writing a message.|I am writing a text.|I’m writing a text.|I am typing a message.|I’m typing a message.'],
      ['Passo troppo tempo sui social.', 'I spend too much time on social media.|I spend too much time on the social networks.|I spend too much time on social networks.|I spend too much time on social apps.'],
