@@ -242,6 +242,7 @@ function spotEx(lesson, met){
   const lang = lesson.lang, nB = Math.min(lesson.blanks.length, 3), key = t => fold(norm(t, lang));
   for (let i = 0; i < nB; i++){
     const b = lesson.blanks[i]; if (!met.has('b' + i)) continue;
+    if (/\([^)]*\)\s*$/.test(b.t) || b.t.includes('→') || SPOT.skip.includes(b.t)) continue;   // a hint decides the answer and blankSaid() drops it
     const wrong = b.o.slice(1).find(o => sameWordForm(o, b.a, lang, lesson)); if (!wrong) continue;
     const bad = blankSaid(b, wrong), fixed = blankSaid(b); if (key(bad) === key(fixed)) continue;
     const pool = [];
