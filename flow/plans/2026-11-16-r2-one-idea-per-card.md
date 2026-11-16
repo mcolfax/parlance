@@ -2,8 +2,8 @@
 
 - **Cycle:** queued 2026-11-16 (program 2, release R2; `flow/PROGRAM-2.md`)
 - **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r2-one-idea-per-card.md`, set Base, check it still matches `main`)
-- **Release:** 4.48.0 (minor: a new lesson feature)
-- **Base:** `main` at the commit that ships 4.47.0 (`r1-stories-and-mistakes.md`)
+- **Release:** 4.48.0
+- **Base:** `main` at 74e6732 (4.47.0)
 - **Proposals built:** pmvxw6o4w0 (web, already approved and partly shipped in 4.27.0 and 4.28.0; this continues it)
 - **Roadmap items:** R-16 (units 3, 20, 21), R-20 (second half)
 

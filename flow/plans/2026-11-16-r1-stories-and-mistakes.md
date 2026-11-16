@@ -1,7 +1,7 @@
 # Three advanced stories in every language, and Spot the mistake
 
 - **Cycle:** 2026-11-16-2 (program 2, release R1; `flow/PROGRAM-2.md`)
-- **Status:** building
+- **Status:** shipped (4.47.0)
 - **Release:** 4.47.0 (minor: new content and a new exercise type)
 - **Base:** `main` at 86accd5 (4.46.0)
 - **Proposals built:** none (Matt asked in chat on 2026-11-16 to work through the roadmap)
@@ -201,5 +201,5 @@ A spot question built from a blank whose "wrong" option is in fact acceptable wo
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.47.0, `74e6732` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**
