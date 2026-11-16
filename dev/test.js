@@ -289,7 +289,43 @@ async function main(){
       'it-21-1': [['Che tempo fa oggi?', 'Oggi fa molto caldo.', 'fare (irregular): to do, to make'], ['Weather phrases'], ['Domani piove.']],
       'it-21-2': [['Un anno ha dodici mesi.', 'Months by season'], ['Il mio compleanno è a luglio.', 'In a season or month'], ['In estate fa molto caldo.']],
       'it-21-3': [['Oggi è il quattordici ottobre.', 'Il mio compleanno è il primo giugno.', 'Saying dates'], ['Che giorno è oggi?'], ['Ordinals']],
-      'it-21-4': [['In inverno porto la sciarpa e i guanti.'], ['mettersi (reflexive): to put on'], ['Quando fa freddo mi metto il cappotto.', 'Prendo l’ombrello perché piove.', 'Weather and clothes']]
+      'it-21-4': [['In inverno porto la sciarpa e i guanti.'], ['mettersi (reflexive): to put on'], ['Quando fa freddo mi metto il cappotto.', 'Prendo l’ombrello perché piove.', 'Weather and clothes']],
+      'es-16-1': [['Mi libro es azul claro.', 'La silla es verde oscuro.', 'Shades never change'], [], ['La bufanda es de rayas.', 'Patterns with **de**']],
+      'es-16-2': [['El suéter es de lana.', 'de + material (no article)'], ['¿De qué es tu corbata?'], ['El cinturón es de cuero.']],
+      'es-16-3': [['Mañana va a llover.', 'Va a hacer calor.'], ['ir a + infinitive'], ['Va a estar despejado.', 'Forecast words']],
+      'es-16-4': [['En invierno vamos a esquiar.', 'en + holiday or season'], ['En Navidad tenemos vacaciones.'], ['El Día de Muertos es el dos de noviembre.']],
+      'de-16-1': [['Mein Auto ist dunkelgrün.', 'hell / dunkel + color'], ['Der Himmel ist hellblau.'], ['Der Schal ist gestreift.', 'Patterns']],
+      'de-16-2': [['Der Pullover ist aus Wolle.', 'aus + material (no article)'], ['Der Gürtel ist aus Leder.'], ['Die Krawatte ist aus Seide.']],
+      'de-16-3': [['Morgen regnet es.'], ['Übermorgen wird es warm.', 'werden (to get)'], ['Morgen sind es zehn Grad.', 'Forecast words']],
+      'de-16-4': [['An Weihnachten haben wir Urlaub.'], ['Im Winter fahren wir Ski.', 'Time phrase first, verb second'], ['Ostern ist ein Feiertag.', 'Holiday words']],
+      'it-16-1': [['Mi piace il verde chiaro.', 'Il mare è blu scuro.', 'Shades do not change'], [], ['Questa sciarpa è a righe.', 'Patterns']],
+      'it-16-2': [['Questo maglione è di lana.', 'Made of…'], ['Indosso una camicia di cotone.', 'indossare (regular -are): to wear'], ['Per l’ufficio porto la cravatta.']],
+      'it-16-3': [['Le previsioni dicono che domani pioverà.', 'Ci saranno venti gradi.', 'Future forms'], ['Il cielo sarà sereno.', 'Sky and weather words'], []],
+      'it-16-4': [['In inverno vado a sciare in montagna.', 'A season, an activity'], ['Quest’anno vado in vacanza a luglio.', 'andare (irregular): to go'], ['Ferragosto è il quindici agosto.']],
+      'es-24-1': [['Mi gata se llama Luna.', 'Male and female: **el gato**, **la gata**'], ['En el río hay muchos peces.', 'Plurals: **ratones**, **peces**'], ['¿Tienes mascota?']],
+      'es-24-2': [['La vaca come pasto.'], ['Las gallinas viven en la granja.', '**comer** and **vivir**'], ['El gato duerme todo el día.', '**dormir** (o to ue)']],
+      'es-24-3': [['El loro sabe hablar.', '¿Sabes nadar?', '**saber**'], ['**poder** (o to ue)'], ['El pingüino no puede volar.']],
+      'es-24-4': [['¡Vamos a caminar!', '¡Vamos a descansar un rato!'], ['¡Vamos al parque!', '**¡Vamos a** …! or **¡Vamos al** …!'], []],
+      'de-24-1': [['Hast du ein Haustier?', 'Plurals: Hunde, Katzen, Vögel, Mäuse'], ['Ich habe zwei Katzen.'], ['Im Garten sind drei Vögel.']],
+      'de-24-2': [[], ['Die Kuh frisst Gras.', 'Present of **fressen** (animals eat)'], ['Das Pferd läuft schnell.', 'Die Katze schläft auf dem Sofa.', 'Vowel changes: **läuft**, **schläft**']],
+      'de-24-3': [['Kannst du schwimmen?', 'Present of **können** (can)'], ['Der Papagei kann sprechen.', 'Word order: **können** + verb at the end'], ['Ein Pinguin kann nicht fliegen.']],
+      'de-24-4': [['Gehen wir in den Park!', 'Machen wir eine Pause!', 'Two ways to say “let’s”: **Gehen wir** and **Lass uns**'], ['Lass uns spazieren gehen.'], []],
+      'it-24-1': [['Hai un animale?', 'Articles: **i**, **le**, **gli**'], ['Ho un cane e due gatti.', 'Plurals: **gatti**, **gatte**, **cani**'], ['Gli uccelli cantano.']],
+      'it-24-2': [['La mucca mangia l’erba.'], ['Il cavallo corre veloce.', 'Il gatto dorme sul divano.'], ['Three groups: **mangia**, **corre**, **dorme**', 'Present of **dormire**']],
+      'it-24-3': [['Il pappagallo sa parlare.', 'Sai nuotare?', 'Present of **sapere**'], ['Present of **potere**'], ['Il pinguino non può volare.']],
+      'it-24-4': [['Andiamo al parco!', 'Facciamo una passeggiata!', 'Let’s: **Andiamo**, **Facciamo**'], ['Guardiamo le anatre!'], []],
+      'es-30-1': [['The question words'], ['¿De dónde eres?', '¿Adónde vas?'], ['¿Cuántos años tienes?', 'cuánto agrees with the noun', 'Verbs in these questions']],
+      'es-30-2': [['Salgo a las ocho.', 'salir, poner'], ['Mi mamá dice que sí.', 'hacer, venir, ver', 'dar, decir, saber'], ['¿Qué haces hoy?']],
+      'es-30-3': [['No tengo tiempo.', 'Verbs in this lesson'], ['No veo a nadie.', 'Positive and negative words'], ['Yo tampoco.']],
+      'es-30-4': [['Perdón, no entiendo.', 'Hablo un poco de español.', 'poder, entender, hablar'], ['¿Puede repetir, por favor?', 'tú or usted?'], []],
+      'de-30-1': [['Wer ist das?', 'Wohin gehst du jetzt?', 'Question words'], ['Wie viele Kinder hast du?', 'Word order'], ['Present: du and er/sie/es']],
+      'de-30-2': [['Wir gehen jetzt nach Hause.', 'machen, bleiben (regular)'], ['Hast du heute Zeit?', 'haben, wollen, gehen'], ['Er gibt mir das Buch.', 'sehen, geben, nehmen']],
+      'de-30-3': [['Ich habe keine Zeit.', 'kein: no / not a'], ['Das ist nicht mein Handy.', 'Where does nicht go?'], ['Er trinkt nie Kaffee.', 'Yes, no or doch?']],
+      'de-30-4': [['Entschuldigung, können Sie das wiederholen?'], ['Ich verstehe nicht.', 'können, sprechen, verstehen'], ['Wie sagt man das auf Deutsch?', 'wiederholen, sagen (regular)']],
+      'it-30-1': [[], ['Da dove vieni?', 'Perché sei stanco?', 'The question words'], ['Quale libro preferisci?', 'quale and quanto agree']],
+      'it-30-2': [['Vengo a casa tua stasera.', 'Non so la risposta.', 'dire, venire, sapere'], ['Esco alle otto.', 'dare, uscire'], []],
+      'it-30-3': [['Non ho tempo.', 'Non abito più qui.'], ['Non vedo nessuno.', 'Two negatives'], ['Positive and negative words']],
+      'it-30-4': [['Scusi, non capisco.'], ['Può ripetere, per favore?', 'potere, capire, parlare', 'tu or Lei?'], ['Parlo un po’ di italiano.']],
     };
     const plainT = s => String(s).replace(/\*\*/g, '').toLowerCase();
     for (const lang of LANG_IDS) for (const u of P.COURSE[lang].units) for (const l of u.lessons){
@@ -307,7 +343,7 @@ async function main(){
       const got = A.E('tipBites(getLesson(' + JSON.stringify(id) + ').tip)').map(b => [...b.examples.map(e => e.t), ...b.tables.map(t => t.cap)]);
       ok(JSON.stringify(got) === JSON.stringify(TIP_PLACES[id]), id + ' tip cards hold what the plan says: ' + JSON.stringify(got));
     }
-    ok(Object.keys(TIP_PLACES).length === 60 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all sixty hand-cut A1 tips are cut into three paragraphs'); }
+    ok(Object.keys(TIP_PLACES).length === 96 && Object.keys(TIP_PLACES).every(id => { const body = A.E('getLesson(' + JSON.stringify(id) + ').tip.body'); return /\n\s*\n/.test(body) && body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length === 3; }), 'all ninety-six hand-cut A1 tips are cut into three paragraphs'); }
   /* the top bar lets the wordmark wrap away instead of being cut mid-word (layout itself is checked in a browser) */
   { const css = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8'), brand = (css.match(/\n\.brand\{[^}]*\}/) || [''])[0];
     ok(brand.includes('flex-wrap:wrap') && brand.includes('height:26px') && !css.includes('@media (max-width:400px){\n  .brand-name'), 'the top bar lets the wordmark wrap instead of cutting it'); }

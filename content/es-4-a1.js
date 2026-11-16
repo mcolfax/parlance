@@ -4,7 +4,7 @@ COURSE_SRC.es.push(
 U('Questions & small talk', 'A1', [
   L('es-30-1', 'Question words',
     T('Question words and accents',
-      'Spanish questions start with **¿** and end with **?**. Every question word carries a written accent: **quién**, **qué**, **dónde**, **cuándo**, **cómo**, **cuánto**. Without the accent a word is not a question: **¿Por qué…?** (“why”, two words) is answered with **porque** (“because”, one word). **dónde** is “where”, **de dónde** “where from” and **adónde** “where to” (with ir). **cuánto** agrees with the noun: cuánto, cuánta, cuántos, cuántas. The verbs here are all known ones; their forms are in the last table.',
+      'Spanish questions start with **¿** and end with **?**. Every question word carries a written accent: **quién**, **qué**, **dónde**, **cuándo**, **cómo**, **cuánto**. Without the accent a word is not a question: **¿Por qué…?** (“why”, two words) is answered with **porque** (“because”, one word).\n\n**dónde** is “where”, **de dónde** “where from” and **adónde** “where to” (with ir): **¿De dónde eres?** **¿Adónde vas?**\n\n**cuánto** agrees with the noun: **cuánto**, **cuánta**, **cuántos**, **cuántas**: ¿Cuántos años **tienes**?',
       [['¿De dónde eres?', 'Where are you from?'], ['¿Adónde vas?', 'Where are you going?'], ['¿Cuántos años tienes?', 'How old are you?']],
       [
         ['The question words', ['Word', 'Meaning'], [['**quién**', 'who'], ['**qué**', 'what'], ['**dónde** / **de dónde** / **adónde**', 'where / where from / where to'], ['**cuándo**', 'when'], ['**por qué** / porque', 'why / because'], ['**cómo**', 'how'], ['**cuánto**', 'how much, how many']]],
@@ -23,7 +23,7 @@ U('Questions & small talk', 'A1', [
      ['¿___ años tienes?', 'Cuántos|Cuánto|Cuántas', 'How old are you?']]),
   L('es-30-2', 'Everyday verbs',
     T('Verbs with an odd yo form',
-      'Many of the most useful verbs are regular except in **yo**: hacer → **hago**, ver → **veo**, dar → **doy**, salir → **salgo**, poner → **pongo**, decir → **digo**, saber → **sé** (with an accent, to tell it from se). **venir** and **decir** also change their stem in the middle (e→ie, e→i): **vienes**, **dices**. These changes do not touch nosotros, so it is **venimos**, **decimos**. **ustedes** uses the ellos form (**vienen**). **saber** + infinitive means “know how to”: Sé cocinar.',
+      'Many of the most useful verbs are regular except in **yo**: hacer → **hago**, ver → **veo**, dar → **doy**, salir → **salgo**, poner → **pongo**, decir → **digo**, saber → **sé** (with an accent, to tell it from se). **Salgo** a las ocho.\n\n**venir** and **decir** also change their stem in the middle (e→ie, e→i): **vienes**, **dices**, **dice**. These changes do not touch nosotros, so it is venimos, decimos. **ustedes** uses the ellos form (**vienen**).\n\n**saber** + infinitive means “know how to”: Sé cocinar. **hacer** is regular after yo: **¿Qué haces** hoy?',
       [['¿Qué haces hoy?', 'What are you doing today?'], ['Mi mamá dice que sí.', 'My mom says yes.'], ['Salgo a las ocho.', 'I leave at eight.']],
       [
         ['hacer, venir, ver', ['', 'hacer', 'venir', 'ver'], [['yo', '**hago**', '**vengo**', '**veo**'], ['tú', 'haces', '**vienes**', 'ves'], ['él/ella/usted', 'hace', '**viene**', 've'], ['nosotros', 'hacemos', 'venimos', 'vemos'], ['ellos/ustedes', 'hacen', '**vienen**', 'ven']]],
@@ -41,7 +41,7 @@ U('Questions & small talk', 'A1', [
      ['Nosotros ___ la mesa. (poner)', 'ponemos|pongo|ponen', 'We set the table.|We are setting the table.|We’re setting the table.']]),
   L('es-30-3', 'Saying no',
     T('no, nunca, nada, nadie',
-      'To say no, put **no** before the verb: **No** tengo tiempo. Spanish loves double negatives. When a negative word like **nada** (nothing), **nadie** (nobody) or **nunca** (never) comes after the verb, keep **no** in front too: **No** veo a **nadie**. If the negative word comes first, drop no: **Nunca** como carne. Use **a** before a person: a nadie, a alguien. **tampoco** means “neither / not either”, and **ya no** means “not anymore”. The positive partners are algo, alguien and siempre. Verbs shown are the yo and tú forms.',
+      'To say no, put **no** before the verb: **No tengo tiempo** (**tengo** is from tener). Use **a** before a person: a nadie, a alguien.\n\nSpanish loves double negatives. When a negative word like **nada** (nothing), **nadie** (nobody) or **nunca** (never) comes after the verb, keep no in front too: **No veo a nadie**. If the negative word comes first, drop no: **Nunca** como carne. The positive partners are **algo**, **alguien** and **siempre**.\n\n**tampoco** means “neither” or “not either”: **Yo tampoco**. **ya no** means “not anymore”.',
       [['No tengo tiempo.', 'I don’t have time.'], ['No veo a nadie.', 'I don’t see anyone.'], ['Yo tampoco.', 'Me neither.']],
       [
         ['Positive and negative words', ['Positive', 'Negative'], [['**algo** (something)', '**nada** (nothing)'], ['**alguien** (someone)', '**nadie** (nobody)'], ['**siempre** (always)', '**nunca** (never)'], ['también (also)', '**tampoco** (neither)'], ['ya (already)', '**ya no** (not anymore)']]],
@@ -59,7 +59,7 @@ U('Questions & small talk', 'A1', [
      ['___ como pescado. (always)', 'Siempre|Nunca|Nadie', 'I always eat fish.']]),
   L('es-30-4', 'Getting by',
     T('When you do not understand',
-      'Say **Perdón** to get attention or to apologize. To ask a stranger for something, use **usted**: **¿Puede** repetir, por favor? (a friend would hear ¿Puedes repetir?). **puede** comes from poder (o→ue) and is followed by an infinitive: repetir, hablar, ayudar. **me** goes before the verb: ¿**Me** puede ayudar? **entender** changes e→ie: **entiendo**. **hablo** is regular. **¿Cómo se dice…?** means “How do you say…?”, and **esto** means “this” (a thing you point at). Add **por favor** to be polite.',
+      'Say **Perdón** to get attention or to apologize: **Perdón, no entiendo**. **entender** changes e→ie: **entiendo**. **hablo** is regular: **Hablo** un poco de español.\n\nTo ask a stranger for something, use usted: **¿Puede repetir**, por favor? (a friend would hear ¿Puedes repetir?). **puede** comes from **poder** (o→ue) and is followed by an infinitive: repetir, hablar, ayudar. **me** goes before the verb: ¿Me **puede** ayudar?\n\n**¿Cómo se dice…?** means “How do you say…?”, and **esto** means “this” (a thing you point at). Add **por favor** to be polite.',
       [['Perdón, no entiendo.', 'Sorry, I don’t understand.'], ['¿Puede repetir, por favor?', 'Can you repeat that, please?'], ['Hablo un poco de español.', 'I speak a little Spanish.']],
       [
         ['poder, entender, hablar', ['', 'poder (o→ue)', 'entender (e→ie)', 'hablar'], [['yo', 'p**ue**do', 'ent**ie**ndo', 'hablo'], ['tú', 'p**ue**des', 'ent**ie**ndes', 'hablas'], ['él/ella/usted', 'p**ue**de', 'ent**ie**nde', 'habla'], ['nosotros', 'podemos', 'entendemos', 'hablamos'], ['ellos/ustedes', 'p**ue**den', 'ent**ie**nden', 'hablan']]],
