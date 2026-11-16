@@ -554,3 +554,17 @@ Object.assign(LESSON_GLOSS.es, { "ministro": "minister", "ministra": "minister (
   "economista": "economist", "llegaría": "would arrive · would come (from llegar)", "crecería": "would grow (from crecer)", "prestaron": "they lent (from prestar)", "creció": "grew (from crecer)", "control": "control",
   "sirve": "is of use · serves (de nada sirve: there is no point)", "mínimo": "minimum", "redistribuye": "redistributes (from redistribuir)", "evasión": "evasion", "fiscal": "tax · fiscal",
   "pagarlo": "to pay it (from pagar)", "transferencia": "transfer", "lujo": "luxury · treat (darse el lujo: to treat oneself)", "endeudarnos": "to get ourselves into debt (from endeudarse)" });
+Object.assign(LESSON_GLOSS.it, {
+  'pagina': 'page', 'comunicato': 'statement · communiqué', 'sindaco': 'mayor', 'approva': 'approves (from approvare)', 'riforma': 'reform',
+  'conferenza': 'conference · lecture', 'concluse': 'ended · finished (plural feminine of concluso)', 'presa': 'taking · grip (la presa di posizione: a stance)',
+  'scritto': 'written · wrote (from scrivere)', 'giornalisti': 'journalists · reporters (plural of il giornalista)', 'vera': 'true · real',
+  'frase': 'sentence · phrase', 'sbagliata': 'wrong · mistaken', 'falsa': 'false · untrue', 'contraddetto': 'contradicted (from contraddire)',
+  'versione': 'version · account', 'influito': 'influenced · had an effect (from influire)', 'durata': 'lasted (from durare)',
+  'economista': 'economist', 'previsto': 'predicted · foreseen (from prevedere)', 'enorme': 'enormous · huge', 'diceva': 'said · was saying (from dire)',
+  'pensavamo': 'we thought · we were thinking (from pensare)', 'risparmi': 'savings (plural of il risparmio)', 'alzare': 'to raise · to lift',
+  'spenda': 'spends (subjunctive of spendere)', 'spende': 'spends (from spendere)', 'salario': 'wage · pay', 'minimo': 'minimum · lowest',
+  'poveri': 'poor · the poor (plural of povero)', 'evasione': 'evasion', 'fiscale': 'tax · fiscal', 'miliardi': 'billions (plural of il miliardo)',
+  'guadagna': 'earns (from guadagnare)', 'presentare': 'to submit · to present', 'dichiarazione': 'declaration · return', 'mediche': 'medical (plural feminine)',
+  'applica': 'applies · charges (from applicare)', 'somma': 'sum · amount', 'piaccia': 'likes · pleases (subjunctive of piacere)',
+  'indebitarci': 'to get ourselves into debt (from indebitarsi)', 'torto': 'wrong · fault (avere torto: to be wrong)', 'permetterci': 'to afford · to allow ourselves (from permettersi)',
+  'pensare': 'to think' });
