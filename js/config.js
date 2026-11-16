@@ -362,7 +362,8 @@ const SPEED = { secs: 60, min: 8, xpCap: 12, rightMs: 220, wrongMs: 650 };   // 
 /* Practice articles (Review tab, startGenders()): nouns from finished lessons, shown without their article.
    sg and pl are the buttons for a singular and a plural noun; fits says which vocab genders an article can go with;
    gender is each article's own gender (mf: either), for telling a near miss; why is the Italian rule a near miss shows. */
-const GENDER_DRILL = { min: 6, perSession: 12,
+const GENDER_DRILL = { inLesson: ['A1', 'A2'],   /* levels whose lessons ask one article question after the words card that shows the noun */
+  min: 6, perSession: 12,
   de: { label: 'der, die, das', sg: ['der', 'die', 'das'], pl: ['der', 'die', 'das'], fits: { der: ['m'], die: ['f', 'pl'], das: ['n'] }, gender: { der: 'm', die: 'f', das: 'n' }, why: {} },
   es: { label: 'el, la, los, las', sg: ['el', 'la', 'los', 'las'], pl: ['el', 'la', 'los', 'las'], fits: { el: ['m'], la: ['f'], los: ['pl'], las: ['pl'] }, gender: { el: 'm', la: 'f', los: 'm', las: 'f' }, why: {} },
   it: { label: 'il, lo, la, i, gli, le', sg: ['il', 'lo', 'la', 'l’'], pl: ['i', 'gli', 'le'], fits: { il: ['m'], lo: ['m'], la: ['f'], 'l’': ['m', 'f'], i: ['pl'], gli: ['pl'], le: ['pl'] }, gender: { il: 'm', lo: 'm', la: 'f', 'l’': 'mf', i: 'm', gli: 'm', le: 'f' },
