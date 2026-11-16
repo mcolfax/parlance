@@ -541,3 +541,12 @@ Object.assign(STORY_GLOSS.it, {
 /* review fixes for stories s10–s12 (4.47.0) */
 Object.assign(STORY_GLOSS.de, { "ginge": "would it work · would it go (from gehen)", "mithalten": "to keep up", "bekanntlich": "as everyone knows", "geduldiger": "more patiently" });
 Object.assign(STORY_GLOSS.it, { "erano": "were (from essere)", "contrari": "against · opposed", "impoverisce": "makes poorer (from impoverire)" });
+/* units 43–44 (4.49.0) */
+Object.assign(LESSON_GLOSS.es, { "ministro": "minister", "ministra": "minister (woman)", "Salud": "health (el ministro de Salud: the health minister)", "aparece": "appears (from aparecer)", "aparecen": "they appear (from aparecer)",
+  "subirá": "will raise · will go up (from subir)", "subir": "to raise · to go up", "suben": "they rise · they go up (from subir)", "sube": "rises · goes up (from subir)", "ocupa": "takes up · occupies (from ocupar)",
+  "rueda": "wheel · circle (la rueda de prensa: the press conference)", "prensa": "press", "desmintió": "denied (from desmentir)", "asistencia": "attendance", "entró": "entered (entró en vigor: came into force)",
+  "contradijo": "contradicted (from contradecir)", "recortes": "cuts (plural of el recorte)", "influyó": "influenced · had an influence (from influir)", "falsa": "false · fake", "verificación": "verification · check",
+  "mostró": "showed (from mostrar)", "redes": "networks (las redes: social media)", "imaginaba": "imagined (from imaginar)", "económica": "economic", "preveían": "they foresaw (from prever)", "preveía": "foresaw (from prever)",
+  "economista": "economist", "llegaría": "would arrive · would come (from llegar)", "crecería": "would grow (from crecer)", "prestaron": "they lent (from prestar)", "creció": "grew (from crecer)", "control": "control",
+  "sirve": "is of use · serves (de nada sirve: there is no point)", "mínimo": "minimum", "redistribuye": "redistributes (from redistribuir)", "evasión": "evasion", "fiscal": "tax · fiscal",
+  "pagarlo": "to pay it (from pagar)", "transferencia": "transfer", "lujo": "luxury · treat (darse el lujo: to treat oneself)", "endeudarnos": "to get ourselves into debt (from endeudarse)" });
