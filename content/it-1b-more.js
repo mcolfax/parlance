@@ -4,7 +4,7 @@ COURSE_SRC.it.push(
 U('Home & colors', 'A1', [
   L('it-20-1', 'Colors',
     T('Colors agree with the noun',
-      'Colors that end in **-o** change with the noun: **rosso, rossa, rossi, rosse**. Colors that end in **-e** have two forms: **verde, verdi**. A few never change at all: **rosa**, **blu**. The color comes after the noun: **la mela rossa**, **i pomodori rossi**. To ask “What color is it?” say **Di che colore è?** The verb **essere** agrees with the noun: **La mela è rossa**, **I pomodori sono rossi**. **il colore** is masculine and **preferito** means “favorite”: **Il mio colore preferito è il verde.**',
+      'Colors that end in **-o** change with the noun: **rosso**, **rossa**, **rossi**, **rosse**. **bianco** keeps its hard sound in the plural: **bianchi**, **bianche**.\n\nColors that end in **-e** have two forms: **verde**, **verdi**. A few never change at all: **rosa**, **blu**. The color comes after the noun: **la mela rossa**, **i pomodori rossi**.\n\nTo ask “What color is it?” say **Di che colore è?** The verb **essere** agrees with the noun: **La mela è rossa**, **I pomodori sono rossi**. **il colore** is masculine and **preferito** means “favorite”: **Il mio colore preferito è il verde**.',
       [['La mela è rossa.', 'The apple is red.'], ['I pomodori sono rossi.', 'The tomatoes are red.'], ['Il mio colore preferito è il verde.', 'My favorite color is green.']],
       [
         ['Colors in -o', ['', 'masculine', 'feminine'], [['one', 'ross**o**', 'ross**a**'], ['several', 'ross**i**', 'ross**e**'], ['bianco, one', 'bianc**o**', 'bianc**a**'], ['bianco, several', 'bianc**hi**', 'bianc**he**']]],
@@ -19,7 +19,7 @@ U('Home & colors', 'A1', [
     [['La mela è ___. (red)', 'rossa|rosso|rossi', 'The apple is red.'], ['I pomodori sono ___.', 'rossi|rosse|rosso', 'The tomatoes are red.'], ['Il gatto è ___. (black)', 'nero|nera|neri', 'The cat is black.']]),
   L('it-20-2', 'Rooms in the house',
     T('Rooms and c’è / ci sono',
-      'Italian homes have a **cucina** (kitchen), a **salotto** or **soggiorno** (living room), one or more **camere da letto** (bedrooms) and a **bagno**. With **in** the room takes no article: **in cucina**, **in bagno**, **in camera**. To say what a room has use **c’è** for one thing and **ci sono** for several: **In cucina c’è un tavolo.** **grande** (big) and **piccolo** (small) come after the noun and agree with it: **un bagno piccolo**, **una cucina grande**. The house **ha** (has) rooms: **La casa ha tre camere da letto.**',
+      'Italian homes have a **cucina** (kitchen), a **salotto** or **soggiorno** (living room), one or more **camere da letto** (bedrooms) and a **bagno**. The house **ha** (has) rooms: **La casa ha tre camere da letto**.\n\nWith **in** the room takes no article: **in cucina**, **in bagno**, **in camera**, **in salotto**. So: **Mangiamo in cucina**.\n\nTo say what a room has, use **c’è** for one thing and **ci sono** for several: **In cucina c’è un tavolo**. **grande** (big) and **piccolo** (small) come after the noun and agree with it: **un bagno piccolo**, **una cucina grande**.',
       [['In cucina c’è un tavolo grande.', 'There is a big table in the kitchen.'], ['La casa ha tre camere da letto.', 'The house has three bedrooms.'], ['Mangiamo in cucina.', 'We eat in the kitchen.']],
       [
         ['In which room?', ['say it', 'meaning'], [['**in** cucina', 'in the kitchen'], ['**in** bagno', 'in the bathroom'], ['**in** camera', 'in the bedroom'], ['**in** salotto', 'in the living room']]],
@@ -35,7 +35,7 @@ U('Home & colors', 'A1', [
     [['___ cucina c’è un tavolo.', 'In|A|Su', 'There is a table in the kitchen.'], ['Il bagno è ___. (small)', 'piccolo|piccola|piccoli', 'The bathroom is small.'], ['In casa ___ tre camere.', 'ci sono|c’è|sono', 'There are three rooms in the house.']]),
   L('it-20-3', 'Things around me',
     T('This and that',
-      '**questo** means “this” and agrees with the noun: **questo tavolo**, **questa sedia**, **questi libri**, **queste case**. **quello** means “that”, and it changes like the article: **quel divano**, **quella sedia**, **quei libri**, **quelle case**. Before a vowel it is **quell’**: **quell’armadio**. Ask **Che cos’è questo?** (“What is this?”) and answer **È una lampada.** Adjectives agree: **Questa sedia è comoda.** **nuovo** (new) and **comodo** (comfortable) follow the usual -o / -a / -i / -e pattern.',
+      '**questo** means “this” and agrees with the noun: **questo libro**, **questa casa**, **questi libri**, **queste case**. Ask **Che cos’è questo?** (“What is this?”) and answer **È una lampada**.\n\n**quello** means “that”, and it changes like the article: **quel divano**, **quella sedia**, **quei libri**, **quelle case**. Before a vowel it is **quell’**: **quell’armadio**.\n\nAdjectives agree: **Questa sedia è comoda**. **nuovo** (new) and **comodo** (comfortable) follow the usual -o, -a, -i, -e pattern.',
       [['Che cos’è questo?', 'What is this?'], ['Questa sedia è comoda.', 'This chair is comfortable.'], ['Quel divano è molto grande.', 'That sofa is very big.']],
       [
         ['questo (this)', ['', 'masculine', 'feminine'], [['one', '**questo** libro', '**questa** casa'], ['several', '**questi** libri', '**queste** case']]],
@@ -51,7 +51,7 @@ U('Home & colors', 'A1', [
     [['___ sedia è comoda. (this)', 'Questa|Questo|Questi', 'This chair is comfortable.'], ['___ divano è grande. (that)', 'Quel|Quella|Quei', 'That sofa is big.'], ['Questi libri ___ nuovi.', 'sono|è|siete', 'These books are new.']]),
   L('it-20-4', 'Where is it?',
     T('Place words and the merged prepositions',
-      'Place words say where something is: **sopra** (above), **sotto** (under), **davanti a** (in front of), **dietro a** (behind), **accanto a** (next to), **tra** (between) and **su** (on). Ask **Dov’è…?** Small prepositions like **su**, **in** and **a** merge with the article: **su + il = sul**, **in + la = nella**, **a + le = alle**. So “on the table” is **sul tavolo** and “in the bag” is **nella borsa**. The same happens with **di** (**del**, **della**) and **da** (**dal**, **dalla**).',
+      'Place words say where something is: **sopra** (above), **sotto** (under), **davanti a** (in front of), **dietro a** (behind), **accanto a** (next to), **tra** (between) and **su** (on). Ask **Dov’è…?** So: Il gatto è **sotto la sedia**.\n\nSmall prepositions like su, in and a merge with the article: su + il = **sul**, in + la = **nella**, a + la = **alla**. So “on the table” is **sul tavolo** and “in the bag” is **nella borsa**. **accanto alla porta** means “next to the door”.\n\nThe same happens with **di** (**del**, **della**) and **da** (**dal**, **dalla**).',
       [['Il libro è sul tavolo.', 'The book is on the table.'], ['Il gatto è sotto la sedia.', 'The cat is under the chair.'], ['La borsa è accanto alla porta.', 'The bag is next to the door.']],
       [
         ['Prepositions merge with the article', ['', 'il', 'la', 'the plural (i, le)'], [['su (on)', '**sul**', '**sulla**', 'sui / sulle'], ['in (in)', '**nel**', '**nella**', 'nei / nelle'], ['a (to, at)', '**al**', '**alla**', 'ai / alle']]],
@@ -68,7 +68,7 @@ U('Home & colors', 'A1', [
 U('Weather & seasons', 'A1', [
   L('it-21-1', 'The weather',
     T('Weather with fare, c’è and verbs',
-      'Ask **Che tempo fa?** (“What’s the weather like?”). Answer with **fare** for temperature: **Fa caldo** (hot), **Fa freddo** (cold), **Fa bel tempo** (nice weather). Use **c’è** for sun, wind and fog: **C’è il sole**, **C’è vento**, **C’è nebbia**. Rain and snow are verbs that only have the **he/she/it** form: **piove**, **nevica**. With **è** you can also use an adjective: **È nuvoloso** (cloudy). **molto** goes after fare: **Fa molto caldo.** **il tempo** means both “weather” and “time”.',
+      'Ask **Che tempo fa**? (“What’s the weather like?”). Answer with **fare** for temperature: **Fa caldo** (hot), **Fa freddo** (cold), **Fa bel tempo** (nice weather). **molto** goes after fare: **Fa molto caldo**. **fare** is irregular: **faccio**, **fai**, **fa**.\n\nUse **c’è** for sun, wind and fog: **C’è il sole**, **C’è vento**, **C’è nebbia**. With **è** you can also use an adjective: **È nuvoloso** (cloudy). **il tempo** means both “weather” and “time”.\n\nRain and snow are verbs that only have the he, she or it form: **piove**, **nevica**. So: Domani **piove**.',
       [['Che tempo fa oggi?', 'What’s the weather like today?'], ['Oggi fa molto caldo.', 'It is very hot today.'], ['Domani piove.', 'Tomorrow it will rain.']],
       [
         ['Weather phrases', ['say it', 'meaning'], [['**Fa** caldo / freddo', 'it’s hot / cold'], ['**C’è** il sole', 'it’s sunny'], ['**C’è** vento', 'it’s windy'], ['**Piove**', 'it rains, it’s raining'], ['**Nevica**', 'it snows, it’s snowing'], ['**È** nuvoloso', 'it’s cloudy']]],
@@ -83,7 +83,7 @@ U('Weather & seasons', 'A1', [
     [['Che ___ fa oggi?', 'tempo|ora|giorno', 'What’s the weather like today?'], ['Oggi ___ freddo.', 'fa|è|c’è', 'It is cold today.'], ['___ il sole.', 'C’è|Fa|Piove', 'It is sunny.']]),
   L('it-21-2', 'Seasons & months',
     T('Months, seasons and in',
-      'Months and seasons are not capitalized in Italian: **gennaio**, **luglio**, **la primavera**. Say “in” a month with **a** or **in**: **a luglio**, **in ottobre**. For seasons use **in**: **in estate**, **in inverno**, **in autunno**, **in primavera**; **d’estate** is also common. **l’estate** and **la primavera** are feminine; **l’autunno** and **l’inverno** are masculine. A year has **dodici mesi**, and **il mese** is “the month”. The plural of **mese** is **mesi**.',
+      'Months and seasons are not capitalized in Italian: **gennaio**, **dicembre**, **la primavera**. A year has **dodici mesi**: **Un anno ha dodici mesi**. **il mese** is “the month”, and its plural is **mesi**.\n\nSay “in” a month with **a** or **in**: **a luglio**, **in ottobre**. Before a vowel, a becomes **ad**: **ad aprile**.\n\nFor seasons use **in**: **in estate**, **in inverno**, **in autunno**, **in primavera**; **d’estate** is also common. **l’estate** and **la primavera** are feminine; **l’autunno** and **l’inverno** are masculine.',
       [['In estate fa molto caldo.', 'In summer it is very hot.'], ['Il mio compleanno è a luglio.', 'My birthday is in July.'], ['Un anno ha dodici mesi.', 'A year has twelve months.']],
       [
         ['Months by season', null, [['winter', 'dicembre', 'gennaio', 'febbraio'], ['spring', 'marzo', 'aprile', 'maggio'], ['summer', 'giugno', 'luglio', 'agosto'], ['autumn', 'settembre', 'ottobre', 'novembre']]],
@@ -98,7 +98,7 @@ U('Weather & seasons', 'A1', [
     [['In ___ fa freddo. (winter)', 'inverno|estate|primavera', 'In winter it is cold.'], ['Il mio compleanno è ___ luglio.', 'a|il|di', 'My birthday is in July.'], ['Un anno ha dodici ___.', 'mesi|giorni|anni', 'A year has twelve months.']]),
   L('it-21-3', 'Today’s date',
     T('Dates and ordinals',
-      'Say a date with **il** + number + month: **il quattordici ottobre**. Only the first of the month is an ordinal: **il primo giugno**. Ask **Che giorno è oggi?** or **Quanti ne abbiamo oggi?** (“How many do we have today?”). Ordinals agree with the noun like adjectives: **primo, prima**, **secondo, seconda**, **terzo**, **quarto**. A year is said as one number: **duemilaventisei**. Natale is on **il venticinque dicembre**. **ieri** means “yesterday” and **era** is the past of “is”: **Ieri era sabato.**',
+      'Say a date with **il** + number + month: **il quattordici ottobre**. Only the first of the month is an ordinal: **il primo giugno**. Natale is on **il venticinque dicembre**, and a year is said as one number: **duemilaventisei**.\n\nAsk **Che giorno è oggi?** or **Quanti ne abbiamo oggi?** (“How many do we have today?”). **ieri** means “yesterday” and **era** is the past of “is”: **Ieri era sabato**.\n\nOrdinals agree with the noun like adjectives: **primo**, **prima**, **secondo**, **seconda**, **terzo**, **quarto**.',
       [['Che giorno è oggi?', 'What day is it today?'], ['Oggi è il quattordici ottobre.', 'Today is October fourteenth.'], ['Il mio compleanno è il primo giugno.', 'My birthday is on June first.']],
       [
         ['Saying dates', ['date', 'say it'], [['1 Oct', 'il **primo** ottobre'], ['14 Oct', 'il **quattordici** ottobre'], ['25 Dec', 'il **venticinque** dicembre'], ['2026', 'duemilaventisei']]],
@@ -113,7 +113,7 @@ U('Weather & seasons', 'A1', [
     [['Che ___ è oggi?', 'giorno|data|mese', 'What day is it today?'], ['Oggi è il ___ ottobre. (fourteenth)', 'quattordici|quattordicesimo|quarto', 'Today is October fourteenth.'], ['Il mio compleanno è il ___ giugno. (first)', 'primo|uno|prima', 'My birthday is on June first.']]),
   L('it-21-4', 'What to wear',
     T('Dressing for the weather',
-      '**portare** means “to wear” (and “to carry”): **In inverno porto la sciarpa e i guanti.** **mettersi** means “to put on” and is reflexive: **mi metto**, **ti metti**, **si mette**. The pronoun comes before the verb: **Che cosa ti metti oggi?** **Quando** introduces a time clause and the verb stays in the present: **Quando fa freddo, mi metto il cappotto.** **prendere** also means “to take”: **Prendo l’ombrello perché piove.** **perché** means both “because” and “why”.',
+      '**portare** means “to wear” (and “to carry”): **In inverno porto la sciarpa e i guanti**.\n\n**mettersi** means “to put on” and is reflexive: **mi metto**, **ti metti**, **si mette**. The pronoun comes before the verb: **Che cosa ti metti oggi?**\n\n**Quando** introduces a time clause, and the verb stays in the present: Quando **fa freddo**, mi metto il **cappotto**. **prendere** also means “to take”: Prendo l’**ombrello** perché **piove**. **perché** means both “because” and “why”.',
       [['Quando fa freddo mi metto il cappotto.', 'When it is cold I put on my coat.'], ['Prendo l’ombrello perché piove.', 'I take the umbrella because it is raining.'], ['In inverno porto la sciarpa e i guanti.', 'In winter I wear a scarf and gloves.']],
       [
         ['mettersi (reflexive): to put on', null, [['io', '**mi** metto'], ['tu', '**ti** metti'], ['lui/lei/Lei', '**si** mette'], ['noi', '**ci** mettiamo'], ['voi', '**vi** mettete'], ['loro', '**si** mettono']]],
