@@ -1,7 +1,7 @@
 # One idea per card in A1 units 16, 24 and 30, and the first verb pictures
 
 - **Cycle:** queued 2026-11-16 (program 2, release R4; `flow/PROGRAM-2.md`)
-- **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r4-one-idea-per-card-part-two.md`, set Base, check it still matches `main`)
+- **Status:** shipped (4.50.0)
 - **Release:** 4.50.0
 - **Base:** `main` at 773d919 (4.49.0)
 - **Proposals built:** pmvxw6o4w0 (web, approved; this finishes its A1 part)
@@ -235,5 +235,5 @@ Tip text and pictures only; no key changes. Undo: `git revert`, patch release, r
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.50.0, `9f65e69` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**

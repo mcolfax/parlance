@@ -2,8 +2,8 @@
 
 - **Cycle:** queued 2026-11-16 (program 2, release R5; `flow/PROGRAM-2.md`)
 - **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r5-the-mind-and-the-planet.md`, set Base, check it still matches `main`)
-- **Release:** 4.51.0 (minor: new content)
-- **Base:** `main` at the commit that ships 4.50.0 (`r4-one-idea-per-card-part-two.md`); R3 must have shipped (units 43–44 and `content/<lang>-8-more.js`)
+- **Release:** 4.51.0
+- **Base:** `main` at 9f65e69 (4.50.0)
 - **Proposals built:** none
 - **Roadmap items:** R-2 (second of two releases), R-9 (first audit: German A1)
 
