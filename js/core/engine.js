@@ -234,8 +234,29 @@ function makeEx(type, lesson, kind, i){
   return ex;
 }
 /* the whole sentence a blank makes once it is filled in, as it is shown and spoken */
-function blankSaid(b){ return b.t.replace('___', b.a).replace(/\s*\([^)]*\)\s*$/, '').replace(/^.*→\s*/, ''); }
+function blankSaid(b, o){ return b.t.replace('___', typeof o === 'string' ? o : b.a)   /* o: a wrong option for Spot the mistake; anything else (an index from .map) means the right answer */
+    .replace(/\s*\([^)]*\)\s*$/, '').replace(/^.*→\s*/, ''); }
 function blankEx(lesson, i){ const b = lesson.blanks[i]; return { id: ++EXID, type: 'blank', lang: lesson.lang, lesson, blank: b, correct: b.a, options: shuffle(b.o) }; }
+/* Spot the mistake (B2 and up): three lines the lesson has shown, one with a blank's wrong form put in; `met` holds the shown phrases ('s' + i, 'b' + i) */
+function spotEx(lesson, met){
+  const lang = lesson.lang, nB = Math.min(lesson.blanks.length, 3), key = t => fold(norm(t, lang));
+  for (let i = 0; i < nB; i++){
+    const b = lesson.blanks[i]; if (!met.has('b' + i)) continue;
+    if (/\([^)]*\)\s*$/.test(b.t) || b.t.includes('→') || SPOT.skip.includes(b.t)) continue;   // a hint decides the answer and blankSaid() drops it
+    const wrong = b.o.slice(1).find(o => sameWordForm(o, b.a, lang, lesson)); if (!wrong) continue;
+    const bad = blankSaid(b, wrong), fixed = blankSaid(b); if (key(bad) === key(fixed)) continue;
+    const pool = [];
+    for (let j = 0; j < nB; j++) if (j !== i && met.has('b' + j)) pool.push({ t: blankSaid(lesson.blanks[j]), e: lesson.blanks[j].e });
+    lesson.sentences.forEach((s, k) => { if (met.has('s' + k)) pool.push({ t: s.t, e: s.e[0] }); });
+    const seen = new Set([key(bad), key(fixed)]), others = [];
+    for (const p of shuffle(pool)){ if (others.length === 2) break; if (!seen.has(key(p.t))){ seen.add(key(p.t)); others.push(p); } }
+    if (others.length < 2) continue;
+    const w = sameWordForm(wrong, b.a, lang, lesson);
+    return { id: ++EXID, type: 'spot', lang, lesson, blank: b, wrong, correct: bad, fixed, en: b.e, note: formNote(wrong, b.a, w, lang),
+      options: shuffle([bad, ...others.map(p => p.t)]) };
+  }
+  return null;
+}
 function matchEx(lesson, idxs){ return { id: ++EXID, type: 'match', lang: lesson.lang, lesson, items: idxs.map(i => lesson.vocab[i]) }; }
 /* teaching cards sit in the lesson's queue between the exercises: a few new words, one bite of the lesson's idea, or the phrases about to be asked */
 function teachEx(lesson, mode, extra){ return Object.assign({ id: ++EXID, type: 'teach', mode, lang: lesson.lang, lesson }, extra); }
@@ -308,6 +329,7 @@ function buildLesson(lesson){
     if (p && !met.has(p[0] + p[1])){ const nx = seq[n + 1] && pair(seq[n + 1]); phrases(nx ? [p, nx] : [p]); }
     if (d.v) V(d.v, d.i); else if (d.b != null) Bx(d.b); else Sx(d.s, d.i);
   });
+  if (SPOT.levels.includes(lesson.level)){ const sp = spotEx(lesson, met); if (sp) out.push(sp); }
   shuffle(formDrills(lesson)).slice(0, 2).forEach(d => out.push(formEx(lesson, d)));   // the forms in the lesson's tables
   return out;
 }
@@ -626,6 +648,7 @@ function evaluate(ex, value){
     }
     case 'match': return { ok: true, level: 'exact' };
     case 'gender': return genderGrade(ex, value);
+    case 'spot': return value === ex.correct ? { ok: true, level: 'exact', note: ex.note } : { ok: false, level: 'wrong', note: 'That one is right. The mistake is in “' + ex.correct + '”. ' + ex.note };
     case 'reply': { const ok = value === ex.correct; return { ok, level: ok ? 'exact' : 'wrong' }; }
     case 'order': { const ok = value === ex.correct; return ok ? { ok, level: 'exact' } : { ok, level: 'wrong', note: 'Here’s how the conversation goes.' }; }
     default: {

@@ -210,6 +210,7 @@ function feedbackAnswer(ex){
   if (ex.type === 'order') return null;
   if (ex.type === 'reply') return { t: ex.item.t, en: ex.item.e[0], target: true };
   if (ex.type === 'form') return { t: ex.correct, en: ex.cap + ' · ' + ex.label, target: true };
+  if (ex.type === 'spot') return { t: ex.fixed, en: ex.en, target: true };
   if (ex.type === 'blank') return { t: blankSaid(ex.blank), en: ex.blank.e, target: true };
   if (ex.type === 'match') return null;
   return { t: ex.item.t, en: ex.item.e[0], target: ['mc-e2t', 'type-e2t', 'bank-e2t', 'listen', 'speak', 'pic-name', 'pic-type', 'gender'].includes(ex.type) };
@@ -264,9 +265,9 @@ function showFeedback(ex, res){
   if (ex.type === 'order' && !res.ok) fb.append(h('ol', { class: 'co-answer' }, ex.lines.map(l => h('li', null, h('b', null, CAST[l.who].name + ': '), h('span', { lang: LANGS[lang].tts }, l.t)))));
   if (!res.ok || res.level === 'ai') fb.append(reportLink(ex));
   const userWords = !res.ok && typeof Run.value === 'string' ? new Set(fold(norm(Run.value, ans && ans.target ? lang : 'en')).split(' ')) : null;
-  if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank', 'pic-pick', 'gender'].includes(ex.type))){
-    if (!res.ok) fb.append(h('div', { class: 'fb-label' }, 'Correct answer'));
-    if (ans.target) fb.append(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, ex.type === 'blank' ? sayText(ans.t, lang, glossOpts(ans)) : (ex.item.g && ex.kind === 'v' ? itemText(ex.item, lang) : sayText(ans.t, lang, { ...(userWords ? { miss: userWords } : {}), ...glossOpts(ans) }))), speakBtn(ans.t, lang, null, vo)), h('div', { class: 'fb-sub' }, ans.en));
+  if (ans && !cmp && (!res.ok || res.level !== 'exact' || ['bank-t2e', 'type-t2e', 'listen', 'mc-t2e', 'listen-mc', 'blank', 'spot', 'pic-pick', 'gender'].includes(ex.type))){
+    if (!res.ok || ex.type === 'spot') fb.append(h('div', { class: 'fb-label' }, ex.type === 'spot' ? 'Put right' : 'Correct answer'));
+    if (ans.target) fb.append(h('div', { class: 'fb-ans row' }, h('span', { class: 'grow' }, ex.type === 'blank' || ex.type === 'spot' ? sayText(ans.t, lang, glossOpts(ans)) : (ex.item.g && ex.kind === 'v' ? itemText(ex.item, lang) : sayText(ans.t, lang, { ...(userWords ? { miss: userWords } : {}), ...glossOpts(ans) }))), speakBtn(ans.t, lang, null, vo)), h('div', { class: 'fb-sub' }, ans.en));
     else fb.append(h('div', { class: 'fb-ans' }, userWords ? markMissing(ans.en, userWords) : ans.en), h('div', { class: 'fb-sub row' }, h('span', { class: 'grow' }, itemText(ex.item, lang)), speakBtn(ans.t, lang)));
   }
   OV.foot.className = 'ov-foot ' + (res.ok ? 'ok' : 'bad');
@@ -555,6 +556,10 @@ const RENDER = {
           h('div', { class: 'sl-act' }, speakBtn(ex.prompt.t, lang, 'Play line', vo)))),
       h('p', { class: 'muted' }, 'What does ' + CAST[ex.item.who].name + ' say next?'),
       options(ex.options, o => { api.set(o); api.ready(true); speak(o, lang, false, CAST[ex.item.who]); }, o => h('span', { lang: LANGS[lang].tts }, o)));
+  },
+  spot(ex, api){
+    return h('div', { class: 'ex' }, qLabel('Spot the mistake'), h('p', { class: 'muted' }, 'One of these sentences has a mistake. Tap it.'),
+      options(ex.options, o => { api.set(o); api.ready(true); }, o => h('span', { lang: LANGS[ex.lang].tts }, o)));
   },
   order(ex, api){
     const lang = ex.lang, placed = [];

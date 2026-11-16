@@ -308,7 +308,8 @@ async function main(){
     ok(st.items.filter(x => x.q).length >= 2, 'story questions ' + st.id);
     for (const it of st.items){ if (it.q){ ok(it.o.length === 3 && new Set(it.o).size === 3, 'story q opts ' + st.id + ' ' + it.q); } else { ok(P.CAST[it.who] && P.CAST[it.who].lang === st.lang, 'speaker ' + st.id + ' ' + it.who); ok(it.t && it.e, 'line text ' + st.id); } }
   }
-  ok(P.STORIES.length === 27, 'stories ' + P.STORIES.length);
+  ok(P.STORIES.length === 36, 'stories ' + P.STORIES.length);
+  { const b = P.COURSE.de.units[0].lessons[0].blanks[0]; ok(P.blankSaid(b, 0) === P.blankSaid(b) && P.blankSaid(b, 1) === P.blankSaid(b) && [b].map(P.blankSaid)[0] === P.blankSaid(b), 'blankSaid: an index from .map still gives the right answer (recorded blank lines keep matching)'); }
   /* cast figures and story scenes (made in Recraft): a portrait is cropped from each character's figure, a scene shows its cast, a story without a scene keeps its drawn one */
   { const CF = A.E('CAST_FIG'), SA = A.E('STORY_ART');
     for (const [id, c] of Object.entries(P.CAST)) if (c.look){
@@ -1424,6 +1425,14 @@ async function main(){
       }
       await sleep(300); nameCheck('conversation finish screen', top());
       R.E('endRun(); closeOverlay(true)');
+      { // spot the mistake, before and after it is answered
+        const sid = R.E('COURSE.es.units.flatMap(u => u.lessons).find(l => l.level === "C1" && buildLesson(l).some(e => e.type === "spot")).id');
+        R.E('startLesson(' + JSON.stringify(sid) + '); Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = Run.queue.findIndex(e => e.type === "spot"); runHead(); nextEx()');
+        nameCheck('spot the mistake question', top());
+        const sp = R.E('Run.cur'); [...rd.querySelectorAll('.overlay:not(.out) .opts .opt')].find(b => b.textContent === sp.options.find(o => o !== sp.correct)).click(); foot('Check').click();
+        nameCheck('spot the mistake feedback', top());
+        R.E('endRun(); closeOverlay(true)'); await sleep(100);
+      }
       R.E('openStickers()'); nameCheck('sticker book', top()); R.E('closeOverlay(true)');
       { let card = null;
         try { R.E('Offline.on = true; UI.tab = "me"; render()'); await sleep(300); card = rd.querySelector('.offline-card'); } catch (e) {}
@@ -1690,6 +1699,51 @@ async function main(){
       Q.E('endRun(); closeOverlay(true)');
       SL.es.stories = {}; Q.E('startConvo()'); ok(!Q.E('Run.active') && /Read a story first/.test(qd2.body.textContent), 'conversation: with no story read, a toast says what to do');
       SL.es.stories = saved.es; SL.it.stories = saved.it; Q.E('S.settings.lang = "es"');
+    }
+    /* spot the mistake */
+    { const spots = [], per = { de: 0, es: 0, it: 0 }; let bad = 0, early = 0;
+      for (const lang of LANG_IDS) for (const l of Q.P.COURSE[lang].units.flatMap(u => u.lessons)){
+        const exs = Q.P.buildLesson(l), sp = exs.filter(e => e.type === 'spot'), high = ['B2', 'C1', 'C2'].includes(l.level);
+        if (sp.length > 1 || (!high && sp.length)) bad++;
+        if (high && sp.length){ per[lang]++; spots.push({ l, exs, ex: sp[0] }); }
+      }
+      ok(bad === 0 && per.de >= 36 && per.es >= 19 && per.it >= 15, 'spot: B2–C2 lessons with a form blank ask one, and A1–B1 lessons none (' + bad + ' bad; de ' + per.de + ', es ' + per.es + ', it ' + per.it + ')');
+      { const skip = Q.E('SPOT.skip'), hinted = spots.filter(({ ex }) => { const t = ex.blank.t; return /\([^)]*\)\s*$/.test(t) || t.includes('→') || skip.includes(t); }).length;
+        ok(hinted === 0, 'spot: no hinted or skipped blank is used'); }
+      let wrongOk = 0, otherBad = 0, shownBad = 0;
+      for (const { l, exs, ex } of spots){
+        const said = new Set(l.blanks.map(b => Q.P.blankSaid(b)).concat(l.sentences.map(s => s.t)));
+        if (ex.wrong !== ex.blank.a && !!Q.E('sameWordForm')(ex.wrong, ex.blank.a, l.lang, l) && ex.fixed === Q.P.blankSaid(ex.blank) && ex.correct === Q.P.blankSaid(ex.blank, ex.wrong)) wrongOk++;
+        const others = ex.options.filter(o => o !== ex.correct);
+        if (ex.options.length !== 3 || others.length !== 2 || !others.every(o => said.has(o))) otherBad++;
+        const shown = new Set(exs.slice(0, exs.indexOf(ex)).filter(e => e.type === 'teach' && e.mode === 'phrases').flatMap(e => e.lines.map(x => x.t)));
+        if (![ex.fixed, ...others].every(t => shown.has(t))) shownBad++;
+      }
+      ok(wrongOk === spots.length && otherBad === 0, 'spot: the mistake is another form of the blank’s answer and the other two lines are the lesson’s own (' + wrongOk + '/' + spots.length + ', ' + otherBad + ' bad)');
+      ok(shownBad === 0, 'spot: every line was shown first (' + shownBad + ' bad)');
+      const any = spots.find(s => s.l.level === 'C1' && s.l.lang === 'es') || spots[0], ex = any.ex;
+      const g = Q.P.evaluate(ex, ex.correct), wo = ex.options.find(o => o !== ex.correct), gw = Q.P.evaluate(ex, wo), ge = Q.P.evaluate(ex, '');
+      ok(g.ok && g.level === 'exact' && g.note.includes(ex.blank.a) && !gw.ok && gw.note.startsWith('That one is right.') && !ge.ok, 'spot: grading');
+      ok(!('key' in ex) && !('srs' in ex) && !('kind' in ex), 'spot: no review card, no mistakes entry (the exercise)');
+      { const lid = any.l.id, lg = any.l.lang; let miss0, cards0;
+        Q.E('S.settings.lang = ' + JSON.stringify(lg) + '; startLesson(' + JSON.stringify(lid) + '); Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx()');
+        Q.E('Run.pos = Run.queue.findIndex(e => e.type === "spot"); nextEx()');
+        const cur = Q.E('Run.cur');
+        ok(cur.type === 'spot' && qov().querySelectorAll('.opts .opt').length === 3 && qov().textContent.includes('Spot the mistake'), 'spot: the card renders three sentences');
+        // a lesson with one resumes
+        Q.E('resumeSave()'); const rs = Q.E('resumeFind(' + JSON.stringify(lid) + ')'), back = rs && rs.queue.find(e => e.type === 'spot');
+        ok(!!back && back.blank === any.l.blanks[any.l.blanks.indexOf(back.blank)] && any.l.blanks.includes(back.blank) && back.wrong === cur.wrong && back.fixed === cur.fixed && JSON.stringify(back.options) === JSON.stringify(cur.options), 'spot: a lesson with one resumes');
+        // the wrong sentence: the fix shows
+        const opt = t => [...qov().querySelectorAll('.opts .opt')].find(b => b.textContent === t);
+        opt(cur.correct).click(); qfoot('Check').click();
+        ok(qov().textContent.includes('Put right') && qov().querySelector('.fb-ans').textContent.includes(cur.fixed) && qov().querySelector('.ov-foot').classList.contains('ok'), 'spot: the card renders and the fix shows');
+        qfoot('Continue').click(); miss0 = JSON.stringify(Q.P.S.langs[lg].miss); cards0 = JSON.stringify(Q.P.S.langs[lg].cards);
+        // another sentence is right: the mistake is named
+        Q.E('Run.pos = Run.queue.findIndex(e => e.type === "spot"); nextEx()');
+        const c2 = Q.E('Run.cur'); opt(c2.options.find(o => o !== c2.correct)).click(); qfoot('Check').click();
+        ok(qov().textContent.includes('Not quite') && qov().textContent.includes('That one is right.') && qov().textContent.includes(c2.note) && qov().querySelector('.ov-foot').classList.contains('bad'), 'spot: a right sentence gets Not quite and the note');
+        ok(JSON.stringify(Q.P.S.langs[lg].miss) === miss0 && JSON.stringify(Q.P.S.langs[lg].cards) === cards0, 'spot: no review card, no mistakes entry (a wrong answer changes neither)');
+        Q.E('endRun(); closeOverlay(true); S.settings.lang = "es"'); }
     }
     // conversation entry points: Stories and Review (Talk on the web is checked with the web page)
     { const SL = Q.P.S.langs, keep = SL.es.stories, d = Q.w.document; SL.es.stories = {}; Q.E('S.settings.lang = "es"; UI.tab = "stories"; render()');

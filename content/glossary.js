@@ -494,3 +494,50 @@ Object.assign(LESSON_GLOSS.it, {
   "utile": "useful", "misura": "measure · extent (nella misura in cui: insofar as)", "applicata": "applied · enforced (from applicare)", "vigore": "force (in vigore: in force)",
   "eccezione": "exception", "un’eccezione": "an exception", "eccezioni": "exceptions (plural of l’eccezione)", "cercano": "look for · seek (from cercare)",
   "prove": "evidence · proof (plural of la prova)", "silenziosa": "quiet · silent" });
+
+/* stories s10–s12 (4.47.0) */
+Object.assign(STORY_GLOSS.de, { "endlich": "finally · at last", "frühjahr": "spring", "ausgetauscht": "replaced (from austauschen)", "mieter": "tenants (also: tenant, male)", "soweit": "as far as", "teil": "part · share", "umgelegt": "passed on (from umlegen; Kosten umlegen: pass costs on to tenants)", "ließe": "could be · would let (subjunctive of lassen; das ließe sich einrichten: that could be arranged)", "einrichten": "to arrange · to set up", "erhöhung": "increase · rise", "akzeptieren": "to accept", "einverständnis": "agreement · consent", "versprechen": "to promise", "fair": "fair", "hm": "hm", "versammlung": "meeting · assembly", "snacks": "snacks", "übel": "bad (etwas übel nehmen: to take offense)", "einzige": "only · sole", "kaputtgeht": "breaks down (from kaputtgehen)", "geschlossen": "closed (from schließen)", "campus": "campus", "ketten": "chains (plural of die Kette)", "überleben": "to survive", "gast": "guest", "inwieweit": "to what extent", "qualität": "quality", "kleinere": "smaller", "rolle": "role", "denkt": "thinks (from denken)", "gäste": "guests · customers (plural of der Gast)", "hörerin": "listener (female)", "vermisst": "misses (from vermissen)", "höre": "hear (from hören)", "verdoppelt": "doubled (from verdoppeln)", "advocatus": "advocate (Advocatus Diaboli: devil’s advocate)", "diaboli": "of the devil (Advocatus Diaboli: devil’s advocate)", "widerspreche": "disagree (from widersprechen)", "konkret": "concrete · specifically", "mietverträge": "leases (plural of der Mietvertrag)", "betriebe": "businesses (plural of der Betrieb)", "wiederkommen": "to come back", "öfter": "more often", "jedes": "every · each", "sendung": "show · broadcast", "beruft": "refers (sich berufen auf: to mention, refer to)", "gratiskaffee": "free coffee", "paar": "few (ein paar: a few)", "gebeten": "asked (from bitten)", "wissen": "know (from wissen)", "dehnbarer": "flexible · stretchy", "begriff": "term · idea", "seitdem": "since then", "poststelle": "post office (small branch)", "nachtapotheke": "night pharmacy", "fundbüro": "lost-and-found office", "verkauft": "sold · sells (from verkaufen)", "ort": "place", "geduld": "patience", "anhört": "listens to · hears out (from anhören)", "gewissen": "certain", "ungerecht": "unfair", "einwandfrei": "perfectly · flawless", "neunzehn": "nineteen", "nachbarin": "neighbor (female)", "babynahrung": "baby food", "zuhause": "home", "häuser": "houses (plural of das Haus)", "darum": "that’s why · so", "erhebe": "raise (from erheben)", "gerührt": "moved · touched", "totgesagte": "those declared dead (Totgesagte leben länger: written-off people live longer)", "weitergemacht": "kept going (from weitermachen)", "wiedergekommen": "come back (from wiederkommen)", "seufzer": "sigh", "verspreche": "promise (from versprechen)", "erhöhe": "raise · increase (from erhöhen)" });
+Object.assign(STORY_GLOSS.es, {
+  "noticia": "news · piece of news", "viejo": "old", "alegría": "joy · gladness", "dígame": "tell me (polite command from decir)", "costarnos": "to cost us (from costar)",
+  "temo": "I fear (from temer; me temo que sí: I’m afraid so)", "cuota": "fee · dues", "mantenimiento": "maintenance", "subiría": "would go up (from subir)", "quince": "fifteen",
+  "ciento": "hundred (por ciento: percent)", "repartir": "to share out · to split", "decidir": "to decide", "podrían": "could · would be able to (from poder)", "agosto": "August",
+  "hacerlo": "to do it (from hacer)", "funcione": "works (subjunctive, from funcionar)", "pagáramos": "we paid (subjunctive, from pagar)", "pagaríamos": "we would pay (from pagar)",
+  "mmm": "hmm", "único": "only · unique", "falla": "fails (from fallar)", "bienvenidos": "welcome (plural)", "sobrevivir": "to survive", "frente": "in front of · against (frente a: facing)",
+  "cadenas": "chains (plural of la cadena)", "fijan": "set · fix (from fijar)", "igualar": "to match · to equal", "cuestión": "question · matter", "quiere": "wants (from querer)",
+  "oyente": "listener", "fonda": "small eatery · family restaurant", "verdadero": "real · true", "duplicado": "doubled (from duplicar)", "permítame": "allow me (polite command from permitir)",
+  "abogado": "lawyer", "diablo": "devil", "simplemente": "simply", "llena": "full (feminine)", "pobre": "poor", "ayudaría": "would help (from ayudar)", "vuelvan": "come back (subjunctive, from volver)",
+  "confieso": "I confess (from confesar)", "entrevistaría": "I would interview (from entrevistar)", "incluyera": "included (subjunctive, from incluir)", "escuchó": "heard · listened to (from escuchar)",
+  "olla": "pot (café de olla: coffee spiced with cinnamon, brewed in a clay pot)", "pidieron": "they asked for (from pedir)", "flexible": "flexible", "duraría": "would last (from durar)",
+  "sido": "been (from ser)", "comisión": "commission · fee", "bateristas": "drummers (plural of el baterista)", "aguanta": "puts up with · tolerates (from aguantar)", "paciencia": "patience",
+  "protesto": "I protest (from protestar)", "lograrlo": "to achieve it (from lograr)", "añadir": "to add", "abrió": "opened (from abrir)", "llevarles": "to take them · to bring them (from llevar)",
+  "enfermeras": "nurses (plural of la enfermera)", "turno": "shift · turn", "sino": "but rather · but", "seguí": "I kept on · I continued (from seguir)", "siguieron": "they kept on (from seguir)",
+  "regresando": "coming back (from regresar)", "suspiro": "sigh", "tocaré": "I will play · touch (from tocar)" });
+Object.assign(STORY_GLOSS.it, {
+  "finalmente": "finally · at last", "palazzo": "building · apartment block", "ascensore": "lift · elevator", "potranno": "will be able to · can (from potere)",
+  "cominciare": "to begin · to start", "condòmini": "residents of a building (plural of il condòmino)", "dovranno": "will have to (from dovere)",
+  "condominiali": "of the building · communal (building fees)", "finché": "until · as long as", "far": "to make · to have (short for fare)",
+  "preventivi": "quotes · estimates (plural of il preventivo)", "ditte": "companies · firms (plural of la ditta)", "diverse": "different · various",
+  "salumeria": "deli · delicatessen", "all’ingresso": "at the entrance", "possibile": "possible", "ad": "to · at (before a vowel)",
+  "organizzarci": "to organize ourselves · to arrange things", "facile": "easy", "propongo": "I propose (from proporre)", "l’ascensore": "the lift · the elevator",
+  "usare": "to use", "appoggio": "I support · I back (from appoggiare)", "pagassimo": "we paid · if we paid (subjunctive of pagare)",
+  "protesterebbero": "they would protest (from protestare)", "avrebbero": "they would have (from avere)", "mmm": "hmm", "sicura": "sure · certain",
+  "finiscano": "finish (subjunctive of finire)", "salame": "salami", "festeggiamo": "we celebrate (from festeggiare)", "votazione": "vote · voting",
+  "contro": "against", "benvenuti": "welcome (to everyone)", "episodio": "episode", "podcast": "podcast", "botteghe": "small shops (plural of la bottega)",
+  "possano": "can · may (subjunctive of potere)", "sopravvivere": "to survive", "applicano": "they apply · they charge (from applicare)",
+  "bottega": "small shop · workshop", "competere": "to compete", "qualità": "quality", "conta": "counts · matters (from contare)",
+  "ascoltatore": "listener", "ascoltatori": "listeners", "stesso": "same", "reggono": "they hold up · they cope (from reggere)",
+  "semplicemente": "simply · just", "mercato": "market", "fatta": "made · made up (from fare)", "povera": "poor", "servirebbe": "would be needed (from servire)",
+  "concretamente": "in practice · concretely", "attività": "business · activity", "negozi": "shops (plural of il negozio)", "tornano": "they come back (from tornare)",
+  "intervisterei": "I would interview (from intervistare)", "sentano": "hear (subjunctive of sentire)", "nomina": "mentions · names (from nominare)",
+  "espresso": "espresso", "offro": "I offer · it’s on me (from offrire)", "naturalmente": "naturally · of course", "un’espressione": "an expression",
+  "elastica": "elastic · flexible", "dicevano": "they said · they used to say (from dire)", "durato": "lasted (from durare)", "d’incontro": "of meeting (un luogo d’incontro: a meeting place)",
+  "oggetti": "objects · things (plural of l’oggetto)", "ricevono": "they receive · they get (from ricevere)", "indicazioni": "directions (plural of l’indicazione)",
+  "certa": "certain", "reception": "front desk · reception", "protesto": "I protest (from protestare)", "mappe": "maps (plural of la mappa)",
+  "soltanto": "only · just", "record": "record", "rapidità": "speed · quickness", "turno": "shift · turn", "dell’ospedale": "of the hospital",
+  "ciò": "that · what (ciò che: what)", "edifici": "buildings (plural of l’edificio)", "alziamo": "let’s raise · we raise (from alzare)",
+  "commuovere": "to move · to touch (emotionally)", "dura": "holds out · lasts (from durare; chi la dura la vince: whoever holds out wins)",
+  "testarda": "stubborn", "continuava": "kept going · continued (from continuare)", "tornare": "to come back · to return", "vostro": "your (plural you)",
+  "arrendo": "I give up · I surrender (from arrendersi)", "sospiro": "sigh", "prometto": "I promise (from promettere)" });
+/* review fixes for stories s10–s12 (4.47.0) */
+Object.assign(STORY_GLOSS.de, { "ginge": "would it work · would it go (from gehen)", "mithalten": "to keep up", "bekanntlich": "as everyone knows", "geduldiger": "more patiently" });
+Object.assign(STORY_GLOSS.it, { "erano": "were (from essere)", "contrari": "against · opposed", "impoverisce": "makes poorer (from impoverire)" });
