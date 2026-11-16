@@ -1,7 +1,7 @@
 # C1 "News & media" and C2 "Money & the economy" in every language
 
 - **Cycle:** queued 2026-11-16 (program 2, release R3; `flow/PROGRAM-2.md`)
-- **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r3-news-and-money.md`, set Base, check it still matches `main`)
+- **Status:** shipped (4.49.0)
 - **Release:** 4.49.0
 - **Base:** `main` at 59a0834 (4.48.0)
 - **Proposals built:** none
@@ -101,5 +101,5 @@ New lessons only; no existing key changes. Undo: `git revert`, patch release, re
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.49.0, `773d919` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**

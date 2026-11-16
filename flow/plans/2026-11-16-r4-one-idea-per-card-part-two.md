@@ -2,8 +2,8 @@
 
 - **Cycle:** queued 2026-11-16 (program 2, release R4; `flow/PROGRAM-2.md`)
 - **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r4-one-idea-per-card-part-two.md`, set Base, check it still matches `main`)
-- **Release:** 4.50.0 (minor)
-- **Base:** `main` at the commit that ships 4.49.0 (`r3-news-and-money.md`); R2 must have shipped (this plan extends its `TIP_PLACES`)
+- **Release:** 4.50.0
+- **Base:** `main` at 773d919 (4.49.0)
 - **Proposals built:** pmvxw6o4w0 (web, approved; this finishes its A1 part)
 - **Roadmap items:** R-16 (units 16, 24, 30: the last A1 units), R-12 (first batch)
 
