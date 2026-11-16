@@ -289,7 +289,7 @@ async function main(){
     ok(!w1.ok && w1.level === 'wrong' && !w2.ok && w2.level === 'wrong' && !w3.ok && w3.level === 'wrong' && !w4.ok && w4.note === 'In the plural, every noun takes die.', "article practice: a wrong article doesn't count");
     const n1 = ev('es', 'la ciudad', 'las'), n2 = ev('es', 'los guantes', 'el'), n3 = ev('it', 'l’anno', 'il'), n4 = ev('it', 'lo sconto', 'il'), n5 = ev('it', 'la città', 'l’'), n6 = ev('it', 'gli occhi', 'i');
     ok(n1.ok === false && n1.level === 'article' && n1.note === 'Right gender, but ciudad is singular: la ciudad.' && n2.note === 'Right gender, but guantes is plural: los guantes.' && n2.level === 'article'
-      && n3.level === 'article' && n3.note === 'Right gender. Before a vowel, il and la become l’.' && n4.level === 'article' && n4.note === 'Right gender. Before s + consonant, z, gn, ps or y, use lo, not il.'
+      && n3.level === 'article' && n3.note === 'Right gender. lo and la drop their vowel before a vowel: use l’.' && n4.level === 'article' && n4.note === 'Right gender. Before s + consonant, z, gn, ps or y, use lo, not il.'
       && n5.ok === false && n5.level === 'article' && n6.ok === false && n6.level === 'article', "article practice: the right gender in the wrong number or form is a near miss that doesn't count"); }
   /* word pictures: the mapping and the files follow the rules, and enough lessons ask about them (floors: the shipped numbers, rounded down) */
   { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
@@ -3220,6 +3220,54 @@ async function main(){
         if (open){ open.dispatchEvent(new R.w.KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })); ok(!rd.querySelector('#app .unit-toggle[aria-expanded="true"]') && !!rd.querySelector('#app .unit.compact'), 'follow-ups: Space folds it again'); } } }
     ok(fs.readFileSync(path.join(ROOT, 'js', 'ui', 'recap.js'), 'utf8').includes("' due now or this week'") && !fs.readFileSync(path.join(ROOT, 'js', 'ui', 'recap.js'), 'utf8').includes('coming up this week'), 'follow-ups: the recap says reviews are “due now or this week”');
     ok(R.errors.length === 0, 'follow-ups: no page errors ' + R.errors.slice(0, 2).join(' | '));
+    R.w.close();
+  }
+  /* ---------- 14. tidy-ups (4.46.0): wording, a cached article check, a clearer test-out, missed articles first ---------- */
+  {
+    const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'de', seenVersion: '9.0.0' } } } });
+    const rd = R.w.document, E = R.E;
+    // WP1: wording
+    ok(E('GENDER_DRILL.it.why["l’"]') === 'lo and la drop their vowel before a vowel: use l’.' && !E('JSON.stringify(GENDER_DRILL.it.why)').includes('il and la become'), 'tidy: the Italian l’ note says lo and la drop their vowel');
+    ok(!E('getLesson("de-1-3").tip.body').includes('?,') && E('getLesson("de-1-3").tip.body').includes('**Woher kommst du?**'), 'tidy: de-1-3 has no "?," in its tip');
+    { const body = E('getLesson("it-1-2").tip.body'), para = body.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean)[2] || '';
+      ok(para.includes('**Il mio nome è Matt**') && /means “my name”/.test(para) && para.includes('**è** means “is”'), 'tidy: it-1-2 explains Il mio nome è Matt'); }
+    // WP2: the article check is cached per language and content version
+    ok(E('genderClashes("de") === genderClashes("de")') === true && E('(() => { const a = genderClashes("de"); Packs.version++; const b = genderClashes("de"), same = b === genderClashes("de"); Packs.version--; return a !== b && same; })()') === true, 'tidy: genderClashes is cached per language and content version');
+    // the test-out sheet
+    const sheetText = () => [...rd.querySelectorAll('.sheet')].pop().textContent;
+    E('S.langs.de.done = {}; S.langs.de.outs = {}; UI.tab = "learn"; render()');
+    E('confirmTestOut(COURSE.de.units[1])');
+    ok(sheetText().includes('Units before it that you haven’t finished stay open, and your route moves past them too.'), 'tidy: testing out further ahead says the units before stay open');
+    rd.querySelectorAll('.sheet-back').forEach(x => x.remove());
+    E('for (const l of COURSE.de.units[0].lessons) S.langs.de.done[l.id] = { at: "2026-01-01", acc: 1 }');
+    E('confirmTestOut(COURSE.de.units[1])');
+    const nextText = sheetText();
+    ok(nextText.includes('questions from') && !nextText.includes('Units before it'), 'tidy: testing out the next unit adds no extra line');
+    rd.querySelectorAll('.sheet-back').forEach(x => x.remove());
+    // missed articles come back first (this device only)
+    E('for (const u of COURSE.de.units.slice(0, 6)) for (const l of u.lessons){ S.langs.de.done[l.id] = { at: "2026-01-01", acc: 1 }; l.vocab.forEach((v, i) => { S.langs.de.cards[itemKey(l, "v", i)] = { n: 1, due: "2026-01-02", ts: 1 }; }); }');
+    R.w.localStorage.removeItem('parlance.genmiss');
+    const gen = JSON.parse(E('JSON.stringify(genderEntries("de").map(e => e.item.t))')), v2Before = R.w.localStorage.getItem('parlance.v2');
+    ok(gen.length >= 8, 'tidy: article practice has nouns to ask: ' + gen.length);
+    const pick = gen[gen.length - 1], other = gen[gen.length - 2];
+    const answer = (noun, right) => E('(() => { const e = genderEntries("de").find(x => x.item.t === ' + JSON.stringify(noun) + '), ex = genderEx(e); Run.first = new Map(); Run.tries = new Map(); Run.queue = []; Run.active = true; Run.mode = "genders"; Run.lang = "de"; Run.combo = 0; Run.xp = 0; showFeedback(ex, { ok: ' + right + ', level: "' + (right ? 'exact' : 'wrong') + '" }); return true; })()');
+    E('startGenders()'); E('closeOverlay(true)');
+    answer(pick, false);
+    ok(JSON.parse(R.w.localStorage.getItem('parlance.genmiss')).de[0] === pick && E('genderEntries("de")[0].item.t') === JSON.stringify(pick).slice(1, -1) && JSON.parse(E('JSON.stringify(genderPick("de").slice(0, 1).map(e => e.item.t))'))[0] === pick, 'tidy: a missed article comes back first');
+    answer(pick, true);
+    ok(!((JSON.parse(R.w.localStorage.getItem('parlance.genmiss')) || {}).de || []).includes(pick) && E('genderEntries("de")[0].item.t') === gen[0], 'tidy: a right answer takes it off the list');
+    for (const t of gen.slice(0, 25)) E('genMissNote("de", ' + JSON.stringify(t) + ', true)');
+    for (let i = 0; i < 25; i++) E('genMissNote("de", "Noun' + i + '", true)');
+    { const m = JSON.parse(R.w.localStorage.getItem('parlance.genmiss')); ok(m.de.length === 20 && m.de[0] === 'Noun24', 'tidy: the list stays under 20 per language'); }
+    ok(R.w.localStorage.getItem('parlance.v2') !== null && !R.w.localStorage.getItem('parlance.v2').includes('genmiss'), 'tidy: missed articles are not saved in parlance.v2');
+    E('Object.defineProperty(window, "localStorage", { configurable: true, get(){ throw new Error("no storage") } })');
+    { let threw = false, same = false; try { E('genMissNote("de", ' + JSON.stringify(other) + ', true)'); same = JSON.stringify(E('genderEntries("de").map(e => e.item.t)')) === JSON.stringify(gen) && E('genderPick("de").length') === E('Math.min(GENDER_DRILL.perSession, genderEntries("de").length)'); } catch (e){ threw = true; }
+      ok(!threw && same, 'tidy: with no storage the session is unchanged'); }
+    // R-64: a failed Italian checkpoint gets a kind word, not a cheer
+    E('S.settings.lang = "it"; confetti = () => {}; startCheckpoint(COURSE.it.units[0], true); Run.first.set("a", "wrong"); Run.first.set("b", "wrong"); finishRun()');
+    { const c = rd.querySelector('.overlay:not(.out) .complete'), say = c && c.querySelector('.complete-pip .pip-say') && c.querySelector('.complete-pip .pip-say').textContent;
+      ok(!!c && E('PIP_SAYS.it.oops').includes(say) && !E('PIP_SAYS.it.cheer').includes(say), 'tidy: a failed checkpoint in Italian gets a kind word: ' + say); }
+    ok(R.errors.length === 0, 'tidy: no page errors ' + R.errors.slice(0, 2).join(' | '));
     R.w.close();
   }
   console.log('PASS', passes, 'FAIL', fails);

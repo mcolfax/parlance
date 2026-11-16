@@ -159,8 +159,12 @@ function checkpointRow(u, lang){
       h('span', { class: 'st-state' }, passed ? 'Again' : ready ? 'Start' : 'Test out'))));
 }
 function confirmTestOut(u){
+  const lang = S.settings.lang, ui = COURSE[lang].units.indexOf(u);
+  const skipped = ui > 0 && COURSE[lang].units.slice(0, ui).some(p => !unitDone(lang, p) && !(S.langs[lang].outs || {})[p.title]);   // an earlier unit with lessons left and no test-out
   sheet('Test out of this unit?', h('div', { class: 'row', style: 'align-items:flex-start' }, pip('ready', 56, { tap: false }),
-    h('p', { class: 'grow' }, CHECKPOINT.questions + ' questions from “' + u.title + '”. Score ' + Math.round(CHECKPOINT.pass * 100) + '% and your route moves past this unit. Its lessons stay open, and their words join Review when you take them.')),
+    h('div', { class: 'grow' },
+      h('p', null, CHECKPOINT.questions + ' questions from “' + u.title + '”. Score ' + Math.round(CHECKPOINT.pass * 100) + '% and your route moves past this unit. Its lessons stay open, and their words join Review when you take them.'),
+      skipped ? h('p', null, 'Units before it that you haven’t finished stay open, and your route moves past them too.') : null)),
     [{ label: 'Not now' }, { label: 'Start the test', primary: true, run: () => { startCheckpoint(u, true); } }]);
 }
 function confirmLocked(l){
