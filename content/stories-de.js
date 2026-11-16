@@ -118,4 +118,56 @@ ST('de-s9', 'B1', 'Notdienst in der Apotheke', 'The late-night pharmacy', 'shop'
   ['leyla', 'Fast nur Gutes. Aber reparieren Sie bald die Heizung, dann sind auch die Kopfschmerzen weg.', 'Almost only good things. But fix the heating soon, and the headaches will be gone too.'],
   ['?', 'What does Leyla suggest at the end?', 'Fixing the heating soon|Writing a letter|Moving to a new flat']
 ])
+,
+ST('de-s10', 'B2', 'Die Mieterversammlung', 'The tenants’ meeting', 'home', [
+  ['brandt', 'Guten Abend zusammen. Ich freue mich, dass endlich etwas passiert: Im Frühjahr wird die alte Heizung ausgetauscht.', 'Good evening, everyone. I’m glad that something is finally happening: in spring the old heating will be replaced.'],
+  ['lena', 'Das ist eine gute Nachricht. Aber sagen Sie ehrlich, Herr Brandt: Wird das für uns Mieter teurer?', 'That’s good news. But tell us honestly, Herr Brandt: will it cost us tenants more?'],
+  ['brandt', 'Leider ja. Die Miete müsste um acht Prozent steigen, sonst könnte ich die Arbeiten nicht bezahlen.', 'Unfortunately yes. The rent would have to go up by eight percent, otherwise I couldn’t pay for the work.'],
+  ['weber', 'Soweit ich weiß, darf nur ein Teil der Kosten umgelegt werden. Ich hätte die Zahlen gern schriftlich, bevor wir entscheiden.', 'As far as I know, only part of the cost may be passed on. I’d like the figures in writing before we decide.'],
+  ['?', 'What does Frau Weber ask for?', 'The figures in writing|A lower rent at once|A new landlord'],
+  ['emre', 'Obwohl ich die neue Heizung gut finde, mache ich mir Sorgen. Im Frühjahr ist in meinem Laden am meisten los. Könnte man die Arbeiten im Sommer machen?', 'Although I think the new heating is a good thing, I’m worried. Spring is the busiest time in my shop. Could the work be done in summer?'],
+  ['brandt', 'Das ließe sich einrichten, wenn alle die Erhöhung akzeptieren. Ohne Ihr Einverständnis kann ich nichts versprechen.', 'That could be arranged if everyone accepts the increase. Without your agreement I can’t promise anything.'],
+  ['lena', 'Dann mache ich einen Vorschlag: Die Miete steigt erst, wenn die neue Heizung wirklich funktioniert.', 'Then I’ll make a suggestion: the rent only goes up once the new heating really works.'],
+  ['?', 'When should the rent go up, according to Lena?', 'Once the new heating works|Next month|After the summer holidays'],
+  ['weber', 'Das finde ich fair. Wer bezahlt, sollte auch etwas dafür bekommen, und zwar nicht erst nach Jahren.', 'I think that’s fair. Anyone who pays should get something for it, and not only after years.'],
+  ['brandt', 'Hm, das wäre für mich nicht einfach. Aber gut, ich bin einverstanden. Wir machen es so.', 'Hm, that wouldn’t be easy for me. But all right, I agree. We’ll do it that way.'],
+  ['emre', 'Dann lade ich Sie alle zur nächsten Versammlung ein: Es gibt Kaffee und Snacks aus meinem Laden.', 'Then I’ll invite you all to the next meeting: there will be coffee and snacks from my shop.'],
+  ['brandt', 'Nehmen Sie es mir nicht übel, Emre, aber Ihr Kaffee ist das Einzige im Haus, das nie kaputtgeht.', 'No offense, Emre, but your coffee is the only thing in the building that never breaks down.'],
+  ['weber', 'Da hat er recht! Damit ist die Versammlung geschlossen. Die Zahlen bekommen Sie alle bis Freitag.', 'He’s right about that! With that, the meeting is closed. You’ll all get the figures by Friday.'],
+  ['?', 'What does Emre offer?', 'Coffee and snacks from his shop|His shop as a storeroom|To pay part of the rent']
+]),
+ST('de-s11', 'C1', 'Kleine Cafés, große Ketten', 'Small cafés, big chains', 'studio', [
+  ['jonas', 'Willkommen bei „Campus am Morgen“! Heute fragen wir: Können kleine Läden gegen die großen Ketten überleben? Zu Gast ist Lena, die in Berlin ein kleines Café führt.', 'Welcome to “Campus am Morgen”! Today we ask: can small shops survive against the big chains? Our guest is Lena, who runs a small café in Berlin.'],
+  ['lena', 'Danke für die Einladung. Es ist nicht so, dass ich gegen die Ketten wäre, aber sie setzen Preise, die kleine Läden nie erreichen können.', 'Thanks for the invitation. It isn’t that I’m against the chains, but they set prices that small places can never match.'],
+  ['jonas', 'Inwieweit ist es denn eine Frage des Preises und nicht der Qualität?', 'To what extent is it really a question of price rather than quality?'],
+  ['lena', 'Der Preis spielt eine kleinere Rolle, als man denkt. Die meisten Gäste wollen vor allem, dass man sie mit Namen kennt.', 'Price plays a smaller role than people think. Most customers above all want to be known by name.'],
+  ['?', 'What do customers really want, according to Lena?', 'To be known by name|The lowest prices|Free Wi-Fi'],
+  ['jonas', 'Dazu passt eine Nachricht einer Hörerin: In ihrer Straße hat letztes Jahr ein kleines Café geschlossen, und sie vermisst es sehr.', 'A message from a listener fits here: last year a small café closed on her street, and she misses it a lot.'],
+  ['lena', 'Das höre ich oft. Das eigentliche Problem sind die Mieten. Laut einer Studie haben sie sich in Berlin in zehn Jahren verdoppelt.', 'I hear that often. The real problem is the rents. According to a study, they have doubled in Berlin in ten years.'],
+  ['jonas', 'Ich spiele mal den Advocatus Diaboli: Ist das nicht einfach der Markt?', 'Let me play devil’s advocate: isn’t that simply the market?'],
+  ['lena', 'Man kann es so sehen, aber ich widerspreche höflich: Eine Straße voller Ketten ist für alle ärmer.', 'You can see it that way, but I politely disagree: a street full of chains is poorer for everyone.'],
+  ['jonas', 'Was würde denn konkret helfen?', 'What would actually help, then?'],
+  ['lena', 'Längere Mietverträge für kleine Betriebe, und Gäste, die jede Woche wiederkommen statt nur einmal.', 'Longer leases for small businesses, and customers who come back every week instead of just once.'],
+  ['?', 'What would help, according to Lena?', 'Longer leases and regular customers|Higher prices|More chains in the area'],
+  ['jonas', 'Ich würde Sie öfter einladen, wenn jedes Mal ein Frühstück dabei wäre.', 'I’d invite you more often if breakfast came with it every time.'],
+  ['lena', 'Abgemacht! Wer sich bei mir auf diese Sendung beruft, bekommt einen Gratiskaffee.', 'Deal! Anyone who mentions this show at my café gets a free coffee.'],
+  ['?', 'What does Lena offer the listeners?', 'A free coffee if they mention the show|A discount on cake|A job at the café']
+]),
+ST('de-s12', 'C2', 'Zwanzig Jahre Emres Laden', 'Twenty years of Emre’s shop', 'shop', [
+  ['weber', 'Darf ich kurz um Ruhe bitten? Man hat mich um „ein paar Worte“ gebeten, und wie alle wissen, ist das bei mir ein sehr dehnbarer Begriff.', 'May I have a moment of quiet? I was asked for “a few words”, and as everyone knows, that is a very flexible idea with me.'],
+  ['weber', 'Vor zwanzig Jahren sagten die Nachbarn, Emres Laden halte nicht einmal einen Winter durch.', 'Twenty years ago the neighbors said Emre’s shop wouldn’t even last a winter.'],
+  ['?', 'What did the neighbors say twenty years ago?', 'That the shop wouldn’t last a winter|That Emre would become famous|That the street would close'],
+  ['weber', 'Seitdem war er Poststelle, Nachtapotheke und Fundbüro, und nebenbei hat er sogar noch Brot verkauft.', 'Since then it has been a post office, a night pharmacy and a lost-and-found, and on the side he even sold bread.'],
+  ['weber', 'Ein Ort, an dem man Beschwerden über die Heizung mit mehr Geduld anhört als bei gewissen Vermietern. Nein, Herr Brandt, ich schaue Sie nicht an.', 'A place where complaints about the heating are heard with more patience than by certain landlords. No, Herr Brandt, I’m not looking at you.'],
+  ['brandt', 'Das ist ungerecht! Die Heizung läuft seit dem Frühjahr einwandfrei.', 'That’s unfair! The heating has worked perfectly since spring.'],
+  ['weber', 'Genau, und es hat nur neunzehn Jahre gedauert.', 'Exactly, and it only took nineteen years.'],
+  ['leyla', 'Ich erzähle auch etwas: Einmal hat Emre nachts um drei für eine Nachbarin geöffnet, weil sie dringend Babynahrung brauchte.', 'Let me tell one too: once Emre opened at three in the morning for a neighbor because she urgently needed baby food.'],
+  ['?', 'Why did Emre once open at three in the morning?', 'A neighbor needed baby food|He had lost his keys|A delivery came early'],
+  ['weber', 'Eben. Was eine Straße zu einem Zuhause macht, sind nicht die Häuser, sondern Menschen wie Emre.', 'Precisely. What makes a street a home is not the buildings but people like Emre.'],
+  ['weber', 'Darum erhebe ich mein Glas: auf Emre und auf zwanzig Jahre, die niemand für möglich gehalten hätte!', 'So I raise my glass: to Emre and to twenty years that nobody thought possible!'],
+  ['emre', 'Ich bin gerührt. Man sagt ja, Totgesagte leben länger, und offenbar gilt das auch für Läden.', 'I’m moved. They say those declared dead live longer, and apparently that goes for shops too.'],
+  ['emre', 'Ehrlich gesagt habe ich nur weitergemacht, weil ihr immer wiedergekommen seid.', 'I’m moved. Honestly, I only kept going because you all kept coming back.'],
+  ['brandt', 'Na gut. Mit einem Seufzer verspreche ich: Dieses Jahr erhöhe ich die Miete des Ladens nicht.', 'All right. With a sigh, I promise: this year I won’t raise the shop’s rent.'],
+  ['?', 'What does Herr Brandt promise?', 'Not to raise the shop’s rent this year|To fix the heating again|To give a speech next year']
+])
 );
