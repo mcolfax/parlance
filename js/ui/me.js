@@ -180,7 +180,7 @@ function viewMe(){
     AI.denied ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: manageAccess }, 'Manage permissions') : null,
     Web.on ? tutorOptions('Conversations, new lessons and grading need the tutor.', null) : null,
     Web.on ? h('p', { class: 'small muted' }, 'You can also practice any Talk scene in Claude, ChatGPT or Gemini: open Talk, pick a scene and choose your app.') : null,
-    Web.on ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => { UI.tab = 'talk'; if (UI.scroll) UI.scroll.talk = 0; UI.animate = true; render(); window.scrollTo(0, 0); } }, ic('talk'), 'Go to Talk') : null));
+    Web.on ? h('button', { class: 'btn btn-quiet btn-sm', type: 'button', onclick: () => { if (UI.scroll) UI.scroll[UI.tab] = window.scrollY || 0; UI.tab = 'talk'; if (UI.scroll) UI.scroll.talk = 0; UI.animate = true; render(); window.scrollTo(0, 0); } }, ic('talk'), 'Go to Talk') : null));
   v.append(h('section', { class: 'card' }, h('h3', null, 'Your progress is saved'),
     Web.on ? webAccountRow() : null,
     h('p', { class: 'sync-line small', id: 'sync-status' }, ...syncLine()),
@@ -269,7 +269,7 @@ function webAccountRow(){
     h('button', { class: 'linkish small', type: 'button', onclick: openWebName }, 'Change your name'),
     h('button', { class: 'linkish small', type: 'button', onclick: async () => { await webSignOut(); saveLocal(); webReload(); } }, 'Sign out'));
   return h('div', { class: 'web-acct' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openWebSignIn('in') }, 'Sign in or create an account'),
-    h('span', { class: 'small muted' }, h('a', { href: 'privacy.html', target: '_blank', rel: 'noopener' }, 'Privacy'), ' · ', h('a', { href: 'terms.html', target: '_blank', rel: 'noopener' }, 'Terms')));
+    h('span', { class: 'small muted' }, h('a', { class: 'linkish small', href: 'privacy.html', target: '_blank', rel: 'noopener' }, 'Privacy'), ' · ', h('a', { class: 'linkish small', href: 'terms.html', target: '_blank', rel: 'noopener' }, 'Terms')));
 }
 function openWebName(){
   const input = h('input', { class: 'input', type: 'text', maxlength: '40', autocomplete: 'given-name', 'aria-label': 'Your name', value: (Web.session && Web.session.user && Web.session.user.name) || '' });

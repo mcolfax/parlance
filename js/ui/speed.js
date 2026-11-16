@@ -109,7 +109,7 @@ function speedEnd(){
     lang: Speed.lang, top: 'Speed round', title: Speed.score + ' right', gold: isBest && Speed.score > 0, xp,
     acc: Speed.answered ? Speed.score / Speed.answered : 0, accLabel: 'right',
     h1: isBest && Speed.score ? 'New best!' : 'Time!',
-    sub: isBest && Speed.score ? 'Your best speed round in ' + LANGS[Speed.lang].name + ' so far.' : 'Your best is ' + best + '.',
+    sub: isBest && Speed.score ? 'Your best speed round in ' + LANGS[Speed.lang].name + ' so far.' : !Speed.score ? 'Have another go. Your words will come faster.' : 'Your best is ' + best + '.',
     third: [Speed.bestCombo, 'best run in a row'], badges, quests,
     more: [{ id: 'again', label: 'Play again', run: () => startSpeed() }], onDone: () => endSpeed()
   });

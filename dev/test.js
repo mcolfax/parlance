@@ -838,6 +838,10 @@ async function main(){
       ok(!R.E('OV.prog.classList.contains("hot")'), 'juice: four in a row do not glow yet');
       R.E('window.playSound = window.__playSound0');
       ok(R.E('SOUNDS.bad.length') === 1 && R.E('SOUNDS.done.length') === 1 && R.E('SOUNDS.ok.length') === 2, 'juice: other sounds are unchanged');
+      { const peak = p => R.E('(() => { const peaks = [], prm = () => ({ value: 1, setValueAtTime(){}, exponentialRampToValueAtTime(v){ peaks.push(v); } }), nd = () => ({ connect(){}, start(){}, stop(){}, frequency: prm(), gain: prm(), Q: prm(), type: "" }); const c = { currentTime: 0, sampleRate: 8000, createBuffer: () => ({ getChannelData: () => new Float32Array(8) }), createOscillator: nd, createBufferSource: nd, createBiquadFilter: nd, createGain: nd }; SFX.noise = SFX.noise || {}; SOUNDS.ok(c, ' + p + '); return Math.max(...peaks.filter(v => v < 1)); })()');   // gains only: the bell’s modulator ramps in hertz
+        const p0 = peak('undefined'), p1 = peak('1'), p7 = peak('Math.pow(2, 7 / 12)'), p3 = peak('Math.pow(2, 3 / 12)');
+        ok(Math.abs(p0 - 0.05) < 1e-9 && p1 === p0, 'juice: the first chime keeps its loudness: ' + p0 + ' / ' + p1);
+        ok(Math.abs(p7 / p0 - 1 / Math.sqrt(1 + 7 / 2)) < 0.01 && p3 < p0 && p7 < p3, 'juice: the chime climbs brighter, not louder (peak at +7 semitones is ' + (p7 / p0).toFixed(3) + ' of the first)'); }
       ok(/\.progress i\.hot\{[^}]*var\(--flame\)/.test(fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8')), 'juice: the glow is a style rule');
       R.w.close();
     }
@@ -870,6 +874,20 @@ async function main(){
         const bad = [...css.matchAll(/transition:([^;}]*)/g)].filter(m => !m[1].split(',').every(part => /^\s*none(!important)?\s*$/.test(part) || part.includes('var(--dur')));
         ok(!bad.length, 'motion: every transition uses a duration token (' + f + '.css): ' + (bad[0] ? 'transition:' + bad[0][1] + ' - use a --dur-* token from styles/tokens.css' : ''));
       }
+      // animations too: a duration is a token, except ambient loops and the long one-shot choreography below (each by selector, with its reason)
+      { const AMBIENT = new Set(['.btn.busy::after', '.top .music-btn.on svg', '.sk::after', '.stat.hot .flame', '.hero-art i:nth-child(3)', '.lvl.cur i', 'li.next .dot', '.mic-btn.live,.icon-btn.live', '.typing i', '.sound-check.live>span:first-child', '.btn.shine::after', '.chest.open .ch-rays', '.chest.ready', '.chest.ready .ch-glow', '.chest.open .ch-glow', '.chest.ready .ch-spark,.chest.open .ch-spark', '.bird-opt .bo-ph', '.steam path', '.rain path', '.stars circle', '.beams .sc-beam', '.sc-onair', '.sticker.shiny::after']);   // loops that run for seconds: their own pace is the look
+        const CHOREO = new Set(['.combo.show', '.ring .fill', '.stamp::after', '.hero-lines .ln', '.q-bar i', '.chest.open .ch-fly', '.badge-new', '.pip.fly-in', 'li.just .dot', 'li.just .station']);   // one-shots longer than the slowest token (.6s), timed to what they show (the fly-in is also timed in art.js)
+        const left = new Set(), used = new Set();
+        for (const f of ['base', 'components', 'features', 'art']){
+          const css = fs.readFileSync(path.join(ROOT, 'styles', f + '.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+          for (const m of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) for (const d of m[2].matchAll(/animation:([^;]*)/g)){
+            if (/^\s*none/.test(d[1]) || d[1].includes('var(--dur')) continue;
+            const sel = m[1].trim().replace(/\s+/g, ' '); used.add(sel);
+            if (!(/\binfinite\b/.test(d[1]) ? AMBIENT : CHOREO).has(sel)) left.add(f + '.css ' + sel + ' { animation:' + d[1].trim() + ' }');
+          }
+        }
+        ok(!left.size, 'motion: every animation uses a duration token, or is a listed exception: ' + [...left].slice(0, 3).join(' | ') + ' - use a --dur-* token, or add the selector to AMBIENT or CHOREO in dev/test.js with a reason');
+        ok([...AMBIENT, ...CHOREO].every(x => used.has(x)), 'motion: every listed animation exception is still needed: ' + [...AMBIENT, ...CHOREO].filter(x => !used.has(x)).join(', ')); }
       const bcss = fs.readFileSync(path.join(ROOT, 'styles', 'base.css'), 'utf8');
       ok(bcss.split('prefers-reduced-motion').length === 2 && bcss.slice(bcss.indexOf('prefers-reduced-motion')).includes('.spark-p{display:none}'), 'motion: one reduced-motion block in base.css');
     }
@@ -965,7 +983,7 @@ async function main(){
       ok(lastEl && lastEl.tagName === 'BUTTON' && lastEl.textContent.startsWith('Show more ('), 'review: Show more still appears on a long list');
       const tk = fs.readFileSync(path.join(ROOT, 'styles', 'tokens.css'), 'utf8'), cc = fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8');
       const streakRule = (cc.match(/\.stat\.streak\{[^}]*\}/) || [''])[0];
-      ok((tk.match(/--streak-bg:/g) || []).length === 3 && (tk.match(/--streak-text:/g) || []).length === 3 && streakRule.includes('var(--streak-bg)') && !streakRule.includes('--bad'), 'learn: the streak tile has its own colors');
+      ok((tk.match(/--streak-bg:/g) || []).length === 3 && (tk.match(/--streak-text:/g) || []).length === 3 && streakRule.includes('var(--surface)') && !streakRule.includes('--bad') && !streakRule.includes('--streak-bg'), 'learn: the streak tile is a plain card like Me’s (the --streak-* tokens stay, unused by the tile)');
       // a failed retake of a passed unit
       const units = R.P.COURSE.es.units, u2 = units[1];
       rl().cp[u2.title] = { at: '2026-10-01', acc: 0.9, pass: true }; rl().outs = rl().outs || {}; rl().outs[u2.title] = '2026-10-01';
@@ -1200,6 +1218,9 @@ async function main(){
     {
       const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
       const rd = R.w.document;
+      // every mood a bird is actually shown in on this page: Rig.create's first mood and every later set
+      R.E('(() => { const seen = window.__moodsShown = new Set(), rec = m => { if (typeof m === "string") seen.add(m); }, orig = Rig.create; Rig.create = function(def, opts){ const r = orig.apply(this, arguments); rec(opts && opts.mood); const set = r.set; r.set = function(spec){ rec(spec); return set.apply(this, arguments); }; return r; }; })()');
+      R.E('render()');
       const uiDir = path.join(ROOT, 'js', 'ui');
       const screens = fs.readdirSync(uiDir).filter(f => f.endsWith('.js') && f !== 'film.js').map(f => fs.readFileSync(path.join(uiDir, f), 'utf8')).concat(fs.readFileSync(path.join(ROOT, 'js', 'core', 'art.js'), 'utf8')).join('\n');
       const moodNames = R.E('Object.keys(Bird.BIRD.moods)'), clipNames = R.E('Object.keys(Bird.BIRD.clips)'), moodClip = R.E('Object.fromEntries(Object.entries(Bird.BIRD.moods).map(([k, m]) => [k, m.clip || null]))');
@@ -1218,6 +1239,8 @@ async function main(){
       R.E('window.__shrug.click()');
       ok(JSON.stringify(R.E('window.__plays')) === '["shake"]', 'birds: a shrugging bird shakes its head: ' + JSON.stringify(R.E('window.__plays')));
       ok(['talk.js', 'review.js'].every(f => { const src = fs.readFileSync(path.join(ROOT, 'js', 'ui', f), 'utf8'); return /'shrug'/.test(src) && !/'shrug'[^\n;]{0,40}tap: false/.test(src); }), 'birds: the shrugging birds on Talk and Review can be tapped');
+      { const said = R.E('window.__shrug.querySelector(".pip-say").textContent');
+        ok(R.E('PIP_SAYS.es.shrug').includes(said) && !R.E('PIP_SAYS.es.hello').includes(said) && ['de', 'es', 'it'].every(l => R.E('PIP_SAYS.' + l + '.shrug.length') === 2), 'follow-ups: a shrugging bird says a shrug line, not hello: ' + said); }
       R.E('window.__shrug.remove()');
       // eight in a row laughs, four dances
       R.E('startLesson(COURSE.es.units[0].lessons[0].id)');
@@ -1266,6 +1289,15 @@ async function main(){
       R.E('confirmTestOut(COURSE.es.units[0])');
       const readyNow = [...rd.querySelectorAll('.pip.ready')];
       ok(readyNow.length === readyBefore + 1 && /Test out of this unit\?/.test(rd.body.textContent), 'test out: the bird is ready');
+      // the screens and taps that show the rest: Me (love, wave), Review (think), a wrong answer (oops), the note sheet (listen), a tapped sleeper (wow), six quick taps (dizzy)
+      for (const t of ['me', 'review', 'learn']){ R.E('UI.tab = ' + JSON.stringify(t) + '; render()'); }
+      R.E('openFeedback()'); R.E('closeOverlay(true)');
+      R.E('window.__sl = pip("sleep", 40); window.__hp = pip("happy", 40); document.body.append(window.__sl, window.__hp); window.__sl.click(); for (let i = 0; i < 6; i++) window.__hp.click(); window.__sl.remove(); window.__hp.remove()');
+      R.E('startLesson(COURSE.es.units[0].lessons[0].id); Run.started = true; Run.queue = buildLesson(Run.lesson); Run.pos = 0; runHead(); nextEx()');
+      { let g = 0; while (g++ < 60){ const ex = R.E('Run.cur'); if (ex && ex.options && ex.correct !== undefined && ex.type !== 'match') break; R.E('Run.pos++; nextEx()'); }
+        R.E('Run.value = "~wrong~"; Run.canCheck = true; doCheck()'); R.E('closeOverlay(true)'); }
+      { const shown = new Set(R.E('[...window.__moodsShown]')), never = moodNames.filter(m => !shown.has(m));
+        ok(!never.length, 'birds: every mood has a moment: these moods were never shown to the learner on this page (not just named in the code): ' + never.join(', ')); }
       ok(R.errors.length === 0, 'every move: no page errors ' + R.errors.slice(0, 2).join(' | '));
       R.w.close();
     }
@@ -1588,6 +1620,9 @@ async function main(){
       ok(R.failures.length === 0, 'contrast: every pair passes or is a known exception. Fix the color, or if the pair is wrong add it to KNOWN in dev/contrast.js with a reason (Matt decides): ' + R.failures.map(f => f.theme + ' ' + f.fg + ' on ' + f.bg + ' ' + f.ratio + ' < ' + f.min).join('; '));
       ok(R.drift.length === 0, 'contrast: the two dark blocks agree. Differing tokens: ' + R.drift.join(', '));
       ok(Object.keys(CT.KNOWN).length === 0, 'contrast: there are no known exceptions');
+      { const T = CT.themes(), miss = [];
+        for (const [fg, bg] of CT.PAIRS) for (const theme of ['light', 'dark']) for (const t of [fg, bg]) if (!/^#[0-9a-fA-F]{6}$/.test(T[theme][t] || '')) miss.push(theme + ' ' + t);
+        ok(miss.length === 0, 'contrast: every PAIRS token exists in both themes as #RRGGBB (a missing one is skipped, not checked): ' + [...new Set(miss)].join(', ')); }
     }
     // colors: gold lettering and a field's edge have their own tokens, and the rules use them
     { const css = n => fs.readFileSync(path.join(ROOT, 'styles', n), 'utf8'), tk = css('tokens.css'), rule = (f, sel) => { const i = f.indexOf(sel); return i < 0 ? '' : f.slice(i, f.indexOf('}', i)); };
@@ -1617,6 +1652,12 @@ async function main(){
       }
       ok(sess.length >= 4 && badRep === 0, 'conversation: replies come from read stories, with two options from other stories (' + sess.length + ' questions, ' + badRep + ' bad)');
       ok(sess.some(x => x.type === 'order') && badOrd === 0, 'conversation: an order question starts out of order, with two speakers (' + badOrd + ' bad)');
+      { const r = Q.E([
+          '(() => { let bad = 0, n = 0; const read = S.langs.es.stories, syn = { id: "es-zz", lang: "es", level: "A1", items: ["A", "A", "B", "A", "B"].map((who, i) => ({ who, t: "Linea " + i, e: "Line " + i })) };',
+          'STORIES.push(syn); S.langs.es.stories = { "es-zz": { at: "2026-01-01", score: 1, times: 1 } };',
+          'for (let i = 0; i < 60; i++) for (const ex of convoSession("es")) if (ex.type === "order"){ n++; if (!ex.lines.every((l, j) => !j || l.who !== ex.lines[j - 1].who)) bad++; }',
+          'STORIES.pop(); S.langs.es.stories = read; return bad + "/" + n; })()'].join(' ')).split('/').map(Number);
+        ok(r[1] === 60 && r[0] === 0, 'conversation: order questions alternate speakers when the story allows it (' + r[0] + ' bad of ' + r[1] + ')'); }
       const cnt = Q.E('(() => { let bad = 0, n = 0; for (const s of STORIES) for (const p of convoReplies(s)){ const ex = replyEx(p, s.lang); if (!ex) continue; n++; const k = t => fold(norm(t, s.lang)), r = k(ex.correct); for (const o of ex.options) if (o !== ex.correct && (k(o) === r || k(o).split(" ")[0] === r.split(" ")[0] || CONVO.never.includes(o))) bad++; } return bad + "/" + n; })()').split('/');
       ok(cnt[0] === '0' && +cnt[1] > 50, 'conversation: no wrong option matches the reply (' + cnt[1] + ' questions in every language)');
       const few = Q.E('(() => { const bad = []; const keep = {}; for (const l of LANG_IDS) keep[l] = S.langs[l].stories; for (const s of STORIES){ S.langs[s.lang].stories = { [s.id]: { at: "x" } }; if (convoSession(s.lang).length < CONVO.min) bad.push(s.id); } for (const l of LANG_IDS) S.langs[l].stories = keep[l]; return bad.join(","); })()');
@@ -2422,6 +2463,9 @@ async function main(){
     { const r = G.E('(() => { const e = pip("sleep", 60, { lang: "de" }); document.body.append(e); e.click(); return e.rig.mood; })()'); ok(r === 'wow', 'a sleeping Pip wakes with a start when tapped: ' + r); }
     { const r = G.E('(() => { const e = pip("dance", 60, { tap: false, moveFor: 1 }); document.body.append(e); e.rig._frame(0, 0.05); return e.rig.playing("dance"); })()'); await sleep(40);   // one frame first: the rig's clock starts at 0, and a stop stamped at 0 reads as "not stopped"
       ok(r && !G.E('[...document.querySelectorAll(".pip")].pop().rig.playing("dance")'), 'moveFor ends a looping move'); }
+    // a move stopped before the rig's first frame (clock at 0) must still stop
+    { const r = G.E('(() => { const e = pip("happy", 60, { tap: false }); document.body.append(e); e.rig.play("dance", { loop: true }); e.rig.stop("dance"); e.rig._frame(0, 0.05); return e.rig.playing("dance"); })()');
+      ok(r === false, 'rig: a move stopped before the first frame stops'); }
     // a mood's looping clip ends with the mood: after the hello wave the bird rests, its wing still, not waving on
     { const r = G.E('(() => { const e = pip("happy", 60, { tap: false }); document.body.append(e); const R = e.rig, wr = R.def.bones.findIndex(b => b.id === "wingR");' +
         ' R.set("wave"); const a = R.playing("wave"); let flap = 0; for (let i = 0; i < 20; i++){ R._frame(0, 0.05); flap = Math.max(flap, Math.abs(R.frame.chans[wr].r)); }' +
@@ -2653,9 +2697,24 @@ async function main(){
     ok(fetched.includes('media/voice/de.json') && fetched.filter(u => u === 'media/voice/de-1-1.mp3').length === 1, 'the index and the pack are fetched once');
     await played('speak("guten  morgen", "de", false, CAST.lena)', [15, 10]);
     await played('speak("Guten Morgen", "de", false, CAST.weber)', [5, 10]);   // no recording of hers: the narrator's
-    E('S.settings.speed = "relaxed"'); await played('speak("Guten Morgen", "de")', [5, 10]); ok(E('Rec.el.playbackRate') === 0.85, 'relaxed speed plays it slower');
+    E('S.settings.speed = "relaxed"'); await played('speak("Guten Morgen", "de")', [5, 10]); ok(E('Rec.el.playbackRate') === 0.78, 'relaxed speed plays it slower');
     E('S.settings.speed = "normal"'); await played('speak("Guten Morgen", "de", true)', [5, 10]); ok(E('Rec.el.playbackRate') === 0.7 && E('Rec.el.preservesPitch') === true, 'the slow button slows it without lowering it');
     ok(E('__dev') === 0, 'none of that used the device voice');
+    // Relaxed has to be heard (follow-ups): a clip at 0.78 against 1, the device voice slower in step, a rate Chrome reset put back, and the Web Audio fallback slowed too
+    E('S.settings.speed = "normal"'); await played('speak("Guten Morgen", "de")', [5, 10]); ok(E('Rec.el.playbackRate') === 1, 'follow-ups: normal speed plays a clip at 1');
+    { const src = fs.readFileSync(path.join(ROOT, 'js', 'core', 'audio.js'), 'utf8'), m = /speed === 'relaxed' \? ([\d.]+) : ([\d.]+)\)\) \* \(\(vo/.exec(src);
+      ok(m && +m[2] === 0.96 && +m[1] / +m[2] <= 0.78, 'follow-ups: the device voice is slower on Relaxed in step with the clips: ' + (m && m[1] + ' vs ' + m[2])); }
+    E('S.settings.speed = "relaxed"');
+    { const pr = E('speak("Guten Morgen", "de")'); await sleep(40);
+      E('Rec.el.playbackRate = 1; Rec.el.dispatchEvent(new Event("playing"))');
+      ok(E('Rec.el.playbackRate') === 0.78, 'follow-ups: a rate Chrome reset when the source loaded is put back when it starts playing');
+      E('Rec.el.dispatchEvent(new Event("ended"))'); await pr; }
+    { const run = async rate => E('(async () => { const old = SFX.ctx, src = { connect(){}, start(){}, stop(){}, playbackRate: { value: 1 }, detune: { value: 0 } }; window.__bsrc = src;'
+        + ' SFX.ctx = { state: "running", destination: {}, decodeAudioData: (b, yes) => { yes({ duration: 1 }); }, createBufferSource: () => src };'
+        + ' const pr = recBuffer(new ArrayBuffer(4), ' + rate + ', Rec.gen); await new Promise(r => setTimeout(r, 20)); if (src.onended) src.onended(); const out = await pr; SFX.ctx = old; return out; })()');
+      ok(await run(0.78) === true && E('__bsrc.playbackRate.value') === 0.78 && E('__bsrc.detune.value') === 0, 'follow-ups: the Web Audio fallback plays Relaxed at 0.78 (detune stays 0: it would cancel the slowdown)');
+      ok(await run(0.7) === null && await run(1) === true && E('__bsrc.playbackRate.value') === 1, 'follow-ups: the Web Audio fallback leaves slow to the device voice and normal at full speed'); }
+    E('S.settings.speed = "normal"');
     let n = blobs.length;
     ok(await E('speak("Etwas ganz Neues", "de")') === false && E('__dev') === 1 && blobs.length === n, 'a line with no recording uses the device voice');
     ok(await E('speak("Kaputt", "de")') === false && E('__dev') === 2, 'a clip past the end of its pack uses the device voice');
@@ -3105,6 +3164,63 @@ async function main(){
     ok(WA.E('socialState()') === 'notready' && WA.w.document.querySelector('.fr-hero .notice').textContent.includes('isn’t ready on the web version'), 'if the web database can’t take cards yet, Friends says so');
     WA.E('Social.blocked = false');
     for (const X of [WA, WB]){ ok(!X.errors.length, 'no page errors (web friends) ' + JSON.stringify(X.errors.slice(0, 3))); X.dom.window.close(); }
+  }
+  /* ---------- 13. follow-ups (4.45.0): the small things the reviews left ---------- */
+  {
+    const R = await makeDom({ seed: { 'parlance.v2': { settings: { onboarded: true, lang: 'es', seenVersion: '9.0.0' } } } });
+    const rd = R.w.document, E = R.E;
+    const cssOf = f => fs.readFileSync(path.join(ROOT, 'styles', f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const rule = (css, sel) => { const m = css.match(new RegExp('(?:^|})\\s*' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\{([^}]*)\\}')); return m ? m[1].replace(/\s+/g, '') : ''; };
+    const base = cssOf('base.css'), comp = cssOf('components.css'), meSrc = fs.readFileSync(path.join(ROOT, 'js', 'ui', 'me.js'), 'utf8');
+    // R-52: Me's links and small buttons
+    ok(/class: 'linkish small', href: 'privacy\.html'/.test(meSrc) && /class: 'linkish small', href: 'terms\.html'/.test(meSrc), 'follow-ups: the Privacy and Terms links on Me use the link colour, not the browser’s blue');
+    ok(rule(base, '.btn-sm').includes('min-height:44px'), 'follow-ups: a small button is still a 44px tap target');
+    // R-60 (chips): a story's chips are 44px tall
+    ok(rule(comp, '.chip-btn').includes('min-height:44px'), 'follow-ups: the story chips (Show text, Translate, Save) are 44px tall');
+    // R-54: the checkpoint takes the run's language; a resumed run of five glows; the finish bubble clears the date
+    E('S.settings.lang = "de"; startCheckpoint(COURSE.es.units[0], true, "es")');
+    ok(E('Run.lang') === 'es' && E('Run.mode') === 'checkpoint', 'follow-ups: a checkpoint started from a finish screen uses the run’s language, not the setting: ' + E('Run.lang'));
+    E('endRun(); S.settings.lang = "es"');
+    E('startLesson(COURSE.es.units[0].lessons[0].id); resumeApply({ r: { combo: 6 }, queue: buildLesson(Run.lesson), pos: 0 })');
+    ok(E('OV.prog.classList.contains("hot")'), 'follow-ups: a lesson resumed on a run of six glows again');
+    E('endRun(); startLesson(COURSE.es.units[0].lessons[0].id); resumeApply({ r: { combo: 2 }, queue: buildLesson(Run.lesson), pos: 0 })');
+    ok(!E('OV.prog.classList.contains("hot")'), 'follow-ups: a lesson resumed on a run of two does not glow');
+    E('endRun()');
+    { const pr = rule(comp, '.complete-pip'), bot = +/bottom:(-?\d+)px/.exec(pr)[1], right = +/right:(-?\d+)px/.exec(pr)[1];
+      ok(bot < -14 && right < -30, 'follow-ups: the finish screen’s bird sits down and out from the stamp, so its bubble clears the date: ' + pr); }
+    // R-56: Learn's tiles differ in every language; tab jumps keep the scroll of the tab they leave; one shaky word reads right
+    { const st = rule(comp, '.stat.streak'), xp = rule(comp, '.stat.xp'), due = rule(comp, '.stat.due');
+      ok(st === 'background:var(--surface);box-shadow:var(--edge);color:var(--ink)' && xp.includes('background:var(--warn-bg)') && due.includes('background:var(--line-soft)'), 'follow-ups: Learn’s three tiles are a plain card, a warm tile and a language tint: ' + st); }
+    for (const l of ['de', 'es', 'it']){
+      E('S.settings.lang = "' + l + '"; UI.tab = "learn"; render()');
+      const tiles = [...rd.querySelectorAll('#app .stats .stat')];
+      ok(tiles.length === 3 && tiles[0].classList.contains('streak') && !!tiles[0].querySelector('.flame'), 'follow-ups: Learn shows its three tiles in ' + l);
+    }
+    E('S.settings.lang = "es"; UI.tab = "learn"; UI.scroll = {}; render()');
+    Object.defineProperty(R.w, 'scrollY', { configurable: true, get(){ return 321; } });
+    E('goTab("review")'); ok(E('UI.scroll.learn') === 321 && E('UI.scroll.review') === 0 && E('UI.tab') === 'review', 'follow-ups: goTab saves the scroll of the tab it leaves');
+    E('UI.tab = "learn"; UI.scroll = {}; render()'); rd.querySelector('#app .stat.due').click();
+    ok(E('UI.scroll.learn') === 321 && E('UI.tab') === 'review', 'follow-ups: the reviews tile saves Learn’s scroll too');
+    ok(/onclick: \(\) => \{ if \(UI\.scroll\) UI\.scroll\[UI\.tab\] = window\.scrollY \|\| 0; UI\.tab = 'talk'/.test(meSrc), 'follow-ups: Me’s Go to Talk saves Me’s scroll');
+    delete R.w.scrollY; E('UI.tab = "learn"; render()');
+    ok(E('(() => { const o = learnedEntries; learnedEntries = () => [{ item: {}, card: {} }]; const one = practiceTiles("es").find(x => x.id === "weak").sub; learnedEntries = () => [{ item: {}, card: {} }, { item: {}, card: {} }, { item: {}, card: {} }]; const three = practiceTiles("es").find(x => x.id === "weak").sub; learnedEntries = () => new Array(30).fill({ item: {}, card: {} }); const many = practiceTiles("es").find(x => x.id === "weak").sub; learnedEntries = o; return [one, three, many].join("|"); })()') === 'Your shakiest one|Your 3 shakiest|Your 12 shakiest', 'follow-ups: “Your 1 shakiest” reads “Your shakiest one”');
+    // R-57: five new stickers at most; a speed round with nothing right is kindly told so
+    E('picFor = () => "cat"; UI.tab = "learn"; render(); startLesson("es-3-1"); finishRun()');
+    { const fin = rd.querySelector('.overlay:not(.out) .complete'), strip = fin && [...fin.querySelectorAll('.learned')].find(x => /New stickers?/.test(x.textContent));
+      ok(!!strip && strip.querySelectorAll('.sticker').length >= 1 && strip.querySelectorAll('.sticker').length <= 5, 'follow-ups: the finish screen shows at most five new stickers: ' + (strip && strip.querySelectorAll('.sticker').length)); }
+    E('endRun()');
+    { const src = fs.readFileSync(path.join(ROOT, 'js', 'ui', 'speed.js'), 'utf8');
+      ok(src.includes("!Speed.score ? 'Have another go. Your words will come faster.' : 'Your best is '"), 'follow-ups: a speed round with no right answers says “Have another go. Your words will come faster.”'); }
+    // R-63: a folded unit's row is not a heading in a button; the keyboard works on it; the recap's line says what it counts
+    E('UI.tab = "learn"; UI.units = new Set(); S.langs.es.cp = {}; for (const l of COURSE.es.units[0].lessons) S.langs.es.done[l.id] = { at: "2026-01-01", acc: 1 }; render()');
+    { const tg = rd.querySelector('#app .unit.compact .unit-toggle');
+      ok(!!tg && !tg.closest('button') && !tg.querySelector('button') && tg.getAttribute('role') === 'button' && tg.getAttribute('tabindex') === '0' && tg.getAttribute('aria-expanded') === 'false', 'follow-ups: a folded unit row is a role=button row with no heading inside a button');
+      if (tg){ tg.dispatchEvent(new R.w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+        const open = rd.querySelector('#app .unit-toggle[aria-expanded="true"]'); ok(!!open, 'follow-ups: Enter opens a folded unit');
+        if (open){ open.dispatchEvent(new R.w.KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true })); ok(!rd.querySelector('#app .unit-toggle[aria-expanded="true"]') && !!rd.querySelector('#app .unit.compact'), 'follow-ups: Space folds it again'); } } }
+    ok(fs.readFileSync(path.join(ROOT, 'js', 'ui', 'recap.js'), 'utf8').includes("' due now or this week'") && !fs.readFileSync(path.join(ROOT, 'js', 'ui', 'recap.js'), 'utf8').includes('coming up this week'), 'follow-ups: the recap says reviews are “due now or this week”');
+    ok(R.errors.length === 0, 'follow-ups: no page errors ' + R.errors.slice(0, 2).join(' | '));
+    R.w.close();
   }
   console.log('PASS', passes, 'FAIL', fails);
   process.exit(fails ? 1 : 0);

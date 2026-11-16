@@ -58,9 +58,9 @@ function pipSVG(mood, size, view, def){
   return Rig.svg(def, pipMood(mood), { view: view || PIP_VIEW, size: size || 72, cls: 'pip-svg', style: false });
 }
 const PIP_SAYS = {
-  de: { cheer: ['Super!', 'Toll gemacht!', 'Wunderbar!', 'Klasse!', 'Sehr gut!', 'Weiter so!'], oops: ['Fast!', 'Kein Problem!', 'Gleich klappt’s!', 'Nochmal!'], hello: ['Hallo!', 'Los geht’s!', 'Alles einsteigen!', 'Bereit?', 'Gute Fahrt!'], sleep: ['Gute Nacht!'] },
-  es: { cheer: ['¡Genial!', '¡Muy bien!', '¡Excelente!', '¡Increíble!', '¡Así se hace!', '¡Bravo!'], oops: ['¡Casi!', '¡No pasa nada!', '¡Ya casi!', '¡Otra vez!'], hello: ['¡Hola!', '¡Vámonos!', '¡Todos a bordo!', '¿Listos?', '¡Buen viaje!'], sleep: ['¡Buenas noches!'] },
-  it: { cheer: ['Bravo!', 'Benissimo!', 'Fantastico!', 'Che bravo!', 'Perfetto!', 'Grande!'], oops: ['Quasi!', 'Non fa niente!', 'Ci sei quasi!', 'Ancora!'], hello: ['Ciao!', 'Andiamo!', 'Tutti a bordo!', 'Pronti?', 'Buon viaggio!'], sleep: ['Buonanotte!'] }
+  de: { cheer: ['Super!', 'Toll gemacht!', 'Wunderbar!', 'Klasse!', 'Sehr gut!', 'Weiter so!'], oops: ['Fast!', 'Kein Problem!', 'Gleich klappt’s!', 'Nochmal!'], hello: ['Hallo!', 'Los geht’s!', 'Alles einsteigen!', 'Bereit?', 'Gute Fahrt!'], sleep: ['Gute Nacht!'], shrug: ['Hmm, leider nichts.', 'Nichts zu sehen.'] },
+  es: { cheer: ['¡Genial!', '¡Muy bien!', '¡Excelente!', '¡Increíble!', '¡Así se hace!', '¡Bravo!'], oops: ['¡Casi!', '¡No pasa nada!', '¡Ya casi!', '¡Otra vez!'], hello: ['¡Hola!', '¡Vámonos!', '¡Todos a bordo!', '¿Listos?', '¡Buen viaje!'], sleep: ['¡Buenas noches!'], shrug: ['¡Uy, nada por aquí!', 'Mmm, nada todavía.'] },
+  it: { cheer: ['Bravo!', 'Benissimo!', 'Fantastico!', 'Che bravo!', 'Perfetto!', 'Grande!'], oops: ['Quasi!', 'Non fa niente!', 'Ci sei quasi!', 'Ancora!'], hello: ['Ciao!', 'Andiamo!', 'Tutti a bordo!', 'Pronti?', 'Buon viaggio!'], sleep: ['Buonanotte!'], shrug: ['Mmm, niente qui.', 'Ancora niente.'] }
 };
 /* what a bird says when you meet it in the picker: recorded in each bird's voice like the lines above */
 function birdHello(id, lang){ const n = (MASCOTS[id] || MASCOTS.pip).name; return lang === 'es' ? '¡Hola! Soy ' + n + '.' : lang === 'it' ? 'Ciao! Sono ' + n + '.' : 'Hallo! Ich bin ' + n + '.'; }
@@ -114,7 +114,7 @@ function pip(mood, size, opts = {}){
     el.addEventListener('click', e => {
       e.stopPropagation();
       const lang = opts.lang || (typeof S !== 'undefined' ? S.settings.lang : 'de');
-      const m = rig.home, line = pickSay(lang, ['oops', 'cheer', 'sleep'].includes(m) ? m : 'hello');
+      const m = rig.home, line = pickSay(lang, ['oops', 'cheer', 'sleep', 'shrug'].includes(m) ? m : 'hello');
       const dizzy = pipDizzy(rig);
       if (!dizzy) pipTap(rig);
       const b = el.querySelector('.pip-say') || h('span', { class: 'pip-say' + (opts.sayPos ? ' ' + opts.sayPos : '') });

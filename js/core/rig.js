@@ -451,7 +451,7 @@ const Rig = (() => {
       const clip = typeof name === 'string' ? def.clips[name] : name;
       if (!clip) return R;
       if (o.restart !== false) clips = clips.filter(k => k.clip !== clip);
-      clips.push({ clip, name: typeof name === 'string' ? name : 'clip', t0: R.time, loop: o.loop != null ? o.loop : !!clip.loop, stopAt: 0, then: o.then || clip.then, speed: o.speed || 1 });
+      clips.push({ clip, name: typeof name === 'string' ? name : 'clip', t0: R.time, loop: o.loop != null ? o.loop : !!clip.loop, stopAt: null, then: o.then || clip.then, speed: o.speed || 1 });
       R._sync();
       return R;
     };
@@ -459,7 +459,7 @@ const Rig = (() => {
       for (const k of clips) if (!name || k.name === name) k.stopAt = R.time;
       return R;
     };
-    R.playing = name => clips.some(k => k.name === name && !k.stopAt);
+    R.playing = name => clips.some(k => k.name === name && k.stopAt == null);
     R.hop = () => R.play(def.hopClip || 'hop');
     R.say = function (text, o = {}) {
       const v = visemes(def, text, o.rate);
@@ -516,18 +516,18 @@ const Rig = (() => {
         let done = false;
         if (k.loop) lt = lt % dur; else if (lt >= dur){ lt = dur; done = true; }
         let w = Math.min(1, (t - k.t0) / (cl.fadeIn || 0.06));
-        if (k.stopAt){ const f = 1 - (t - k.stopAt) / (cl.fadeOut || 0.18); if (f <= 0) done = true; w *= clamp(f, 0, 1); }
+        if (k.stopAt != null){ const f = 1 - (t - k.stopAt) / (cl.fadeOut || 0.18); if (f <= 0) done = true; w *= clamp(f, 0, 1); }
         if (rm && !cl.slotsOnly) w = 0;
         for (const key in cl.tracks){
           const keys = cl.tracks[key], dot = key.indexOf('.');
           const kind = key.slice(0, dot), name = key.slice(dot + 1);
-          if (kind === 'slot'){ const sl = c.slotById[name]; if (sl && (!k.stopAt) && (!done || cl.holdSlots)) S[sl.i] = track(keys, lt); continue; }
+          if (kind === 'slot'){ const sl = c.slotById[name]; if (sl && (k.stopAt == null) && (!done || cl.holdSlots)) S[sl.i] = track(keys, lt); continue; }
           if (kind === 'param'){ P[name] = (P[name] || 0) + track(keys, lt) * w; continue; }
           const bo = c.byId[kind]; if (!bo || w <= 0) continue;
           const v = track(keys, lt);
           if (cl.abs) chans[bo.i][name] = lerp(chans[bo.i][name], v, w); else addCh(chans[bo.i], name, v, w);
         }
-        if (done){ if (k.then && !k.stopAt) setTimeout(() => R.set(k.then), 0); if (R.onEvent) R.onEvent('end', k.name); }
+        if (done){ if (k.then && k.stopAt == null) setTimeout(() => R.set(k.then), 0); if (R.onEvent) R.onEvent('end', k.name); }
         else keep.push(k);
       }
       clips = keep;

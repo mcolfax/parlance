@@ -5,7 +5,7 @@ function practiceTiles(lang){
   const fix = mistakeEntries(lang).length, all = learnedEntries(lang).length, forms = formLessons(lang).length, arts = genderEntries(lang).length >= GENDER_DRILL.min;
   return [
     { id: 'mistakes', icon: 'flag', label: 'Fix my mistakes', sub: fix + ' to fix', show: fix > 0, run: () => startMistakes() },
-    { id: 'weak', icon: 'review', label: 'Weakest items', sub: 'Your ' + Math.min(12, all) + ' shakiest', show: all > 0, run: () => startReview(true) },
+    { id: 'weak', icon: 'review', label: 'Weakest items', sub: all === 1 ? 'Your shakiest one' : 'Your ' + Math.min(12, all) + ' shakiest', show: all > 0, run: () => startReview(true) },
     { id: 'listen', icon: 'headphones', label: 'Listen hands-free', sub: 'Hear your words, say them back', show: all >= LISTEN.min && listenItems(lang).length >= LISTEN.min, run: () => startListen() },
     { id: 'convo', icon: 'talk', label: 'Conversations', sub: 'From stories you’ve read', show: convoReadStories(lang).length > 0, run: () => startConvo() },
     { id: 'speed', icon: 'bolt', label: 'Speed round', sub: S.stats['speed-' + lang] ? 'Best: ' + S.stats['speed-' + lang] : SPEED.secs + ' seconds. Go!', show: speedPool(lang).length >= SPEED.min, run: () => startSpeed() },

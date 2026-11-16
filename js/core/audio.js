@@ -100,7 +100,7 @@ function speakDevice(text, lang, slow, vo){
     };
     const run = (plan, a) => {
       const parts = chunks(text);
-      const rate = (slow ? 0.62 : (S.settings.speed === 'relaxed' ? 0.82 : 0.96)) * ((vo && vo.rate) || 1);
+      const rate = (slow ? 0.62 : (S.settings.speed === 'relaxed' ? 0.74 : 0.96)) * ((vo && vo.rate) || 1);
       parts.forEach((p, i) => {
         const u = new SpeechSynthesisUtterance(p);
         if (plan.voice) u.voice = plan.voice;
@@ -192,7 +192,7 @@ function recPlay(lang, c, slow, my){
   const go = buf => {
     if (my !== Rec.gen) return false;
     if (!buf || c[1] + c[2] > buf.byteLength) return null;
-    const bytes = buf.slice(c[1], c[1] + c[2]), rate = slow ? 0.7 : S.settings.speed === 'relaxed' ? 0.85 : 1;
+    const bytes = buf.slice(c[1], c[1] + c[2]), rate = slow ? 0.7 : S.settings.speed === 'relaxed' ? 0.78 : 1;
     try { if (window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending)){ Voice.seq++; window.speechSynthesis.cancel(); } } catch (e) {}
     return (Rec.noBlob ? Promise.resolve('retry') : recElement(bytes, rate)).then(r => r === 'retry' && my === Rec.gen ? recBuffer(bytes, rate, my) : r);
   };
@@ -208,7 +208,7 @@ function recElement(bytes, rate){
     const fin = r => { if (Rec.done !== fin) return; Rec.done = null; clearTimeout(Rec.t); a.onended = a.onerror = a.onplaying = null; res(r); };
     try { a = recEl(); url = URL.createObjectURL(new Blob([bytes], { type: 'audio/mpeg' })); } catch (e) { return res('retry'); }
     Rec.done = fin;
-    a.onplaying = () => { started = true; };
+    a.onplaying = () => { started = true; if (a.playbackRate !== rate){ try { a.playbackRate = rate; } catch (e) {} } };   // Chrome on Android can reset the rate when the source loads
     a.onended = () => fin(true);
     a.onerror = () => { if (started) return fin(true); Rec.noBlob = true; fin('retry'); };   // a local copy the page may not play: Web Audio instead
     const release = recUrl(url); a.muted = false; a.src = url; release();
@@ -218,16 +218,18 @@ function recElement(bytes, rate){
     if (p && p.catch) p.catch(e => fin(e && e.name === 'AbortError' ? false : null));
   });
 }
-/* through Web Audio, when the element can't play a local copy. It can't slow a voice down without lowering it, so a slow
-   request goes to the device's voice */
+/* through Web Audio, when the element can't play a local copy. It can't slow a voice down without lowering it (detune
+   would only cancel the slowdown: the spec multiplies it into the playback rate), so Relaxed is a little lower here and a
+   slow request goes to the device's voice */
 function recBuffer(bytes, rate, my){
-  const c = sfxCtx(); if (!c || !c.decodeAudioData || rate < 0.8) return Promise.resolve(null);
+  const c = sfxCtx(); if (!c || !c.decodeAudioData || rate < 0.75) return Promise.resolve(null);
   return new Promise((ok, no) => { const p = c.decodeAudioData(bytes, ok, no); if (p && p.then) p.then(ok, no); }).then(buf => new Promise(res => {
     if (my !== Rec.gen) return res(false);
     const s = c.createBufferSource(); s.buffer = buf; s.connect(c.destination);
     const fin = r => { if (Rec.done !== fin) return; Rec.done = null; if (Rec.src === s) Rec.src = null; clearTimeout(Rec.t); res(r); };
     Rec.done = fin; Rec.src = s; s.onended = () => fin(true);
-    s.start(); Rec.t = setTimeout(() => fin(true), (buf.duration || 0) * 1000 + 2000);
+    if (rate < 1) s.playbackRate.value = rate;
+    s.start(); Rec.t = setTimeout(() => fin(true), (buf.duration || 0) * 1000 / (rate < 1 ? rate : 1) + 2000);
   }), () => null);
 }
 function recStop(){
@@ -322,7 +324,7 @@ const SOUNDS = {
   select: c => { tone(c, 640, 0, 0.07, 'triangle', 0.035); tone(c, 960, 0.025, 0.08, 'sine', 0.025); },
   pick: c => { tone(c, 520, 0, 0.09, 'sine', 0.05, { to: 820, glide: 0.06 }); hiss(c, 0, 0.03, 0.012, { f: 4000 }); },
   drop: c => tone(c, 760, 0, 0.1, 'sine', 0.04, { to: 440, glide: 0.08 }),
-  ok: (c, p) => { const k = p || 1; bell(c, 1046.5 * k, 0, 0.55, 0.05); bell(c, 1568 * k, 0.075, 0.7, 0.045); hiss(c, 0.06, 0.25, 0.008, { type: 'highpass', f: 6000 }); },
+  ok: (c, p) => { const k = p || 1, d = Math.sqrt(1 + Math.max(0, 12 * Math.log2(k)) / 2); /* climbing semitones: brighter, not louder */ bell(c, 1046.5 * k, 0, 0.55, 0.05 / d); bell(c, 1568 * k, 0.075, 0.7, 0.045 / d); hiss(c, 0.06, 0.25, 0.008 / d, { type: 'highpass', f: 6000 }); },
   bad: c => { tone(c, 233, 0, 0.26, 'triangle', 0.07, { to: 175, glide: 0.24 }); tone(c, 117, 0.01, 0.22, 'sine', 0.05); },
   combo: c => [880, 1109, 1319, 1760].forEach((f, i) => bell(c, f, i * 0.055, 0.35, 0.035)),
   done: c => { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => bell(c, f, i * 0.09, 0.9, 0.04)); tone(c, 261.6, 0.3, 1.1, 'sine', 0.03, { attack: 0.08 }); },

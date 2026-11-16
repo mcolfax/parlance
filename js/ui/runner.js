@@ -77,6 +77,7 @@ function resumeApply(rs){
   EXID = Math.max(EXID, ...rs.queue.map(ex => +ex.id || 0));   // new exercises never reuse an id from the saved queue
   Object.assign(Run, { started: true, queue: rs.queue, pos: rs.pos, taught: new Set(r.taught || []), first: new Map(r.first || []), tries: new Map(r.tries || []), xp: +r.xp || 0, skipped: +r.skipped || 0, combo: +r.combo || 0, bestCombo: +r.bestCombo || 0 });
   runHead(); nextEx();
+  if (OV.prog) OV.prog.classList.toggle('hot', Run.combo >= 5);   // a run of five or more glows again after a resume
 }
 function endRun(){ clearTimeout(Run.sayTimer); speakStop(); if (Run.finished && Run.mode === 'lesson' && Run.lesson) UI.justDone = Run.lesson.id; Run.active = false; closeOverlay(); UI.animate = true; render(); }
 function startLesson(id, resume){
@@ -138,8 +139,8 @@ function startConvo(){
   if (q.length < CONVO.min){ toast('Read a story first, then practice its conversations here.'); return; }
   beginSession('convo', lang, q);
 }
-function startCheckpoint(u, testOut){
-  const lang = S.settings.lang; if (!unitDone(lang, u) && !testOut) return;
+function startCheckpoint(u, testOut, lang0){
+  const lang = lang0 || S.settings.lang; if (!unitDone(lang, u) && !testOut) return;
   beginSession('checkpoint', lang, buildCheckpoint(u), { unit: u, testOut: !!testOut });
 }
 function startPlacement(){
@@ -661,13 +662,13 @@ function finishRun(){
   const quests = questDiff(before); touch('core');
   const nextLv = levelUp ? LEVELS[LEVELS.indexOf(levelUp) + 1] : null;
   const vocabChips = newItems.filter(Boolean).slice(0, 10);
-  const stick = newItems.filter(Boolean).map(v => ({ v, id: picFor(v, lang) })).filter(x => x.id).slice(0, STICKERS.recent);
+  const stick = newItems.filter(Boolean).map(v => ({ v, id: picFor(v, lang) })).filter(x => x.id).slice(0, 5);   // the finish screen shows at most five
   const st = streakInfo();
   let more = null, unitSub = null;
   if (Run.mode === 'lesson'){
     const l = Run.lesson, nx = nextLesson(lang), next = nx && nx.id !== l.id ? nx : null;
     if (cpOpen && !levelUp){
-      more = [{ id: 'checkpoint', label: 'Take the unit checkpoint', run: () => { endRun(); startCheckpoint(unit); } }];
+      more = [{ id: 'checkpoint', label: 'Take the unit checkpoint', run: () => { endRun(); startCheckpoint(unit, false, lang); } }];
       unitSub = 'Unit ' + (l.unit + 1) + ' done: “' + unit.title + '”. Its checkpoint is open: ' + CHECKPOINT.questions + ' questions to lock it in.';
     } else if (next && !levelUp){
       more = [{ id: 'next', label: 'Next: ' + next.title, run: () => { endRun(); startLesson(next.id); } }];

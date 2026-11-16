@@ -41,7 +41,7 @@ function greetBlock(){
     h('div', { class: 'stats' },
       h('div', { class: 'stat streak' + (st.todayMet ? ' hot' : ' cold') }, h('span', { class: 'num' }, ic('flame', 'flame'), st.count), h('span', { class: 'lbl' }, 'day streak', h('br'), h('span', { class: 'sub' }, st.freezeUsed ? 'Freeze used this week' : 'Freeze ready'))),
       h('div', { class: 'stat xp' }, h('span', { class: 'num' }, ring(xp / goal, 30, 5), xp), h('span', { class: 'lbl' }, 'of ' + goal + ' XP', h('br'), h('span', { class: 'sub' }, 'today'))),
-      h('button', { class: 'stat due', type: 'button', onclick: () => { UI.tab = 'review'; if (UI.scroll) UI.scroll.review = 0; UI.animate = true; render(); window.scrollTo(0, 0); } }, h('span', { class: 'num' }, dueCount(lang)), h('span', { class: 'lbl' }, plural(dueCount(lang), 'review', 'reviews'), h('br'), h('span', { class: 'sub' }, 'due now')))));
+      h('button', { class: 'stat due', type: 'button', onclick: () => { if (UI.scroll) UI.scroll[UI.tab] = window.scrollY || 0; UI.tab = 'review'; if (UI.scroll) UI.scroll.review = 0; UI.animate = true; render(); window.scrollTo(0, 0); } }, h('span', { class: 'num' }, dueCount(lang)), h('span', { class: 'lbl' }, plural(dueCount(lang), 'review', 'reviews'), h('br'), h('span', { class: 'sub' }, 'due now')))));
 }
 function minutesFor(l){ return Math.max(4, Math.round((l.vocab.length + l.sentences.length + l.blanks.length) * 0.4)); }
 function pipMoodNow(){
@@ -187,8 +187,9 @@ function levelSection(lang, lv){
     const done = u.lessons.filter(l => isDone(lang, l.id)).length, full = unitDone(lang, u), out = !!(S.langs[lang].outs || {})[u.title];
     const key = lang + '|' + u.title, foldable = (full || out) && !u.lessons.some(l => l.id === UI.justDone);
     const unfolded = !foldable || UI.units.has(key), rec = S.langs[lang].cp[u.title];
+    const flip = () => { if (unfolded) UI.units.delete(key); else UI.units.add(key); UI.animate = false; render(); };
     const head = foldable
-      ? h('button', { class: 'unit-head unit-toggle', type: 'button', 'aria-expanded': String(unfolded), onclick: () => { if (unfolded) UI.units.delete(key); else UI.units.add(key); UI.animate = false; render(); } },
+      ? h('div', { class: 'unit-head unit-toggle', role: 'button', tabindex: '0', 'aria-expanded': String(unfolded), onclick: flip, onkeydown: e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); flip(); } } },
           unitSign(u.title, unfolded ? 46 : 36), h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Unit ' + (ui + 1) + ' · ' + (full ? 'done' : 'tested out')), h('h2', null, u.title)),
           unfolded ? null : h('span', { class: 'unit-done', 'aria-hidden': 'true' }, ic('check')), ic('chev', 'chev'))
       : h('div', { class: 'unit-head' }, unitSign(u.title, 46), h('div', { class: 'grow' }, h('span', { class: 'eyebrow' }, 'Unit ' + (ui + 1) + ' · ' + done + '/' + u.lessons.length), h('h2', null, u.title)));
@@ -202,7 +203,7 @@ function levelSection(lang, lv){
 const FW_KEY = 'parlance.firstweek';
 function fwGet(k){ try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
 function fwSet(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
-function goTab(t){ UI.tab = t; if (UI.scroll) UI.scroll[t] = 0; UI.animate = true; render(); window.scrollTo(0, 0); }
+function goTab(t){ if (UI.scroll) UI.scroll[UI.tab] = window.scrollY || 0; UI.tab = t; if (UI.scroll) UI.scroll[t] = 0; UI.animate = true; render(); window.scrollTo(0, 0); }
 function firstWeekSteps(){
   const lang = S.settings.lang, days = Object.values(S.days).filter(d => d && d.xp > 0);
   const toNext = () => { const nx = nextLesson(lang); if (nx) startLesson(nx.id); };

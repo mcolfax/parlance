@@ -44,7 +44,7 @@ p{margin:0}
 .btn-quiet{background:var(--surface);color:var(--ink);border:2px solid var(--hair);box-shadow:0 4px 0 var(--hair)}
 .btn-quiet:active:not([disabled]){box-shadow:0 1px 0 var(--hair)}
 .btn-wide{width:100%}
-.btn-sm{min-height:42px;padding:8px 14px;font-size:15px;border-radius:var(--r-sm)}
+.btn-sm{min-height:44px;padding:8px 14px;font-size:15px;border-radius:var(--r-sm)}
 .btn.busy{overflow:hidden}
 .btn.busy::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 20%,rgb(255 255 255 / .28) 50%,transparent 80%);animation:sheen 1.2s linear infinite}
 @keyframes sheen{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
@@ -56,7 +56,7 @@ p{margin:0}
 .icon-btn.plain{background:transparent;color:var(--muted);box-shadow:none}
 .icon-btn.big{width:88px;height:88px;box-shadow:0 0 0 0 var(--line-glow)}
 .icon-btn.big svg{width:38px;height:38px}
-.icon-btn.pulse{animation:pulse .6s var(--ease)}
+.icon-btn.pulse{animation:pulse var(--dur-slow) var(--ease)}
 @keyframes pulse{0%{box-shadow:0 0 0 0 var(--line-glow)}100%{box-shadow:0 0 0 18px transparent}}
 .icon-spacer{width:44px;height:44px;flex:none}
 .chip{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--hair);background:var(--surface);border-radius:var(--r-pill);padding:7px 14px;font:var(--type-label);color:var(--ink);transition:background-color var(--dur-quick),border-color var(--dur-quick),color var(--dur-quick),transform var(--dur-press)}
@@ -136,12 +136,12 @@ p{margin:0}
 .tab svg{width:24px;height:24px}
 .tab[aria-current="page"]{color:var(--line-text);font-weight:800}
 .tab[aria-current="page"] .tab-ic{background:var(--line-soft);transform:scale(1.04)}
-.tab .badge{position:absolute;top:2px;left:calc(50% + 9px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--line);color:var(--line-ink);font:800 11px/18px var(--body);font-variant-numeric:tabular-nums;animation:pop .4s var(--spring)}
+.tab .badge{position:absolute;top:2px;left:calc(50% + 9px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--line);color:var(--line-ink);font:800 11px/18px var(--body);font-variant-numeric:tabular-nums;animation:pop var(--dur-enter) var(--spring)}
 @keyframes pop{from{transform:scale(.4)}}
 
 /* Overlay */
-.overlay{position:fixed;left:0;right:0;top:0;height:100%;z-index:var(--z-overlay);background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);animation:ovin .32s var(--ease) both}
-.overlay.out{animation:ovout .22s var(--ease) both}
+.overlay{position:fixed;left:0;right:0;top:0;height:100%;z-index:var(--z-overlay);background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);animation:ovin var(--dur-enter) var(--ease) both}
+.overlay.out{animation:ovout var(--dur-quick) var(--ease) both}
 .overlay.still{animation:none}
 @keyframes ovin{from{opacity:0;transform:translateY(18px)}}
 @keyframes ovout{to{opacity:0;transform:translateY(12px)}}
@@ -156,8 +156,8 @@ p{margin:0}
 @keyframes combo{0%{opacity:0;transform:translateY(-6px) scale(.7)}15%{opacity:1;transform:translateY(0) scale(1.08)}25%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}
 .ov-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .ov-body-in{width:100%;max-width:640px;margin:0 auto;padding:6px 16px 64px;display:flex;flex-direction:column;gap:18px}
-.ov-body-in.slide{animation:slidein .38s var(--ease) both}
-.ov-body-in.shake{animation:shake .38s ease both}
+.ov-body-in.slide{animation:slidein var(--dur-enter) var(--ease) both}
+.ov-body-in.shake{animation:shake var(--dur-enter) ease both}
 @keyframes slidein{from{opacity:0;transform:translateX(26px)}}
 @keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
 .ov-foot{position:relative;border-top:1px solid var(--hair);background:var(--bg);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));transition:background-color var(--dur-quick)}
@@ -168,11 +168,11 @@ p{margin:0}
 .ov-foot.bad .fb-title{color:var(--bad)}
 .ov-foot.ok .btn-primary{background:var(--ok);color:var(--surface);box-shadow:0 5px 0 color-mix(in srgb, var(--ok) 70%, #000)}
 .ov-foot.bad .btn-primary{background:var(--bad);color:var(--surface);box-shadow:0 5px 0 color-mix(in srgb, var(--bad) 70%, #000)}
-.fb{display:flex;flex-direction:column;gap:4px;animation:rise .3s var(--ease) both}
+.fb{display:flex;flex-direction:column;gap:4px;animation:rise var(--dur) var(--ease) both}
 .fb-title{font:780 22px/1.2 var(--display);display:flex;align-items:center;gap:8px}
-.fb-ic{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--ok);color:var(--surface);animation:pop .45s var(--spring)}
+.fb-ic{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--ok);color:var(--surface);animation:pop var(--dur-settle) var(--spring)}
 .fb-ic svg{width:18px;height:18px}
-.fb-ic .draw{stroke-dasharray:24;stroke-dashoffset:24;animation:draw .4s .1s var(--ease) forwards}
+.fb-ic .draw{stroke-dasharray:24;stroke-dashoffset:24;animation:draw var(--dur-enter) .1s var(--ease) forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 .fb-note{font-size:15px}
 .fb-label{font:800 12px var(--body);letter-spacing:.08em;text-transform:uppercase;margin-top:4px;opacity:.8}
@@ -187,9 +187,9 @@ mark.miss,.w.miss{background:color-mix(in srgb, var(--bad) 18%, transparent);col
 @keyframes rise{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
 
 /* Sheet + toast */
-.sheet-back{position:fixed;inset:0;z-index:var(--z-sheet);background:rgb(6 16 18 / .5);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s ease both}
-.sheet-back.out{animation:fade .16s ease reverse both}
-.sheet{width:100%;max-width:560px;background:var(--surface);border-radius:24px 24px 0 0;padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;max-height:88%;overflow-y:auto;animation:sheetin .32s var(--ease) both;box-shadow:var(--shadow-lg)}
+.sheet-back{position:fixed;inset:0;z-index:var(--z-sheet);background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;animation:fade var(--dur-quick) ease both}
+.sheet-back.out{animation:fade var(--dur-fast) ease reverse both}
+.sheet{width:100%;max-width:560px;background:var(--surface);border-radius:24px 24px 0 0;padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;max-height:88%;overflow-y:auto;animation:sheetin var(--dur-enter) var(--ease) both;box-shadow:var(--shadow-lg)}
 .grip{width:40px;height:5px;border-radius:5px;background:var(--hair);align-self:center;margin-bottom:6px;position:relative;touch-action:none;cursor:grab}
 .grip::before{content:"";position:absolute;inset:-20px -60px}
 .sheet.drag{transition:none}
@@ -198,11 +198,11 @@ mark.miss,.w.miss{background:color-mix(in srgb, var(--bad) 18%, transparent);col
 .sheet-actions{display:flex;gap:10px;flex-wrap:wrap}
 .sheet-actions .btn{flex:1}
 @keyframes sheetin{from{transform:translateY(40px);opacity:.4}}
-.sheet-back.out .sheet{animation:sheetout .16s var(--ease-in) both}
+.sheet-back.out .sheet{animation:sheetout var(--dur-fast) var(--ease-in) both}
 @keyframes sheetout{to{transform:translateY(40px);opacity:0}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:var(--z-toast);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:var(--r-md);font:700 15px var(--body);max-width:calc(100% - 32px);box-shadow:var(--shadow-lg)}
-.toast.in{animation:toastin .35s var(--spring) both}
+.toast.in{animation:toastin var(--dur-enter) var(--spring) both}
 @keyframes toastin{from{opacity:0;transform:translate(-50%,12px) scale(.95)}}
 .toast.out{animation:toastout var(--dur-exit) var(--ease-in) both}
 @keyframes toastout{to{opacity:0;transform:translate(-50%,8px) scale(.97)}}

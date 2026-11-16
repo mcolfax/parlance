@@ -67,6 +67,6 @@ function openRecap(mon){
       li(r.lessons ? r.lessons + ' ' + plural(r.lessons, 'lesson') + ' finished' : ''),
       li(r.stories ? r.stories + ' ' + plural(r.stories, 'story', 'stories') + ' read' : ''),
       li(r.bestDay ? 'Best day: ' + parseDay(r.bestDay).toLocaleDateString(undefined, { weekday: 'long' }) + ', ' + r.bestXp + ' XP' : ''),
-      li(r.upcoming ? r.upcoming + ' ' + plural(r.upcoming, 'review', 'reviews') + ' coming up this week' : ''))),
+      li(r.upcoming ? r.upcoming + ' ' + plural(r.upcoming, 'review', 'reviews') + ' due now or this week' : ''))),
     [{ label: 'Share my week', run: () => { shareRecap(r); return true; } }, { label: 'Done', primary: true, run: () => { UI.animate = false; render(); } }]);
 }
