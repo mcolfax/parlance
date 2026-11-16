@@ -568,3 +568,10 @@ Object.assign(LESSON_GLOSS.it, {
   'applica': 'applies · charges (from applicare)', 'somma': 'sum · amount', 'piaccia': 'likes · pleases (subjunctive of piacere)',
   'indebitarci': 'to get ourselves into debt (from indebitarsi)', 'torto': 'wrong · fault (avere torto: to be wrong)', 'permetterci': 'to afford · to allow ourselves (from permettersi)',
   'pensare': 'to think' });
+/* units 45–46 (4.51.0) */
+Object.assign(LESSON_GLOSS.de, { "soviel": "as far as (soviel ich weiß: as far as I know)", "geschienen": "shone · was shining (from scheinen)", "entsinne": "remember (from sich entsinnen)", "vergisst": "forgets (from vergessen)",
+  "grüble": "brood · ponder (from grübeln)", "hilft": "helps (from helfen)", "gespräche": "conversations · talks (plural of das Gespräch)", "stört": "bothers · disturbs (from stören)",
+  "traum": "dream (der Traum)", "schreckt": "startles · starts (schreckt auf: starts up, from aufschrecken)", "geräusch": "sound · noise (das Geräusch)", "therapeutin": "therapist (woman)",
+  "botschaft": "message (die Botschaft)", "aufgeschoben": "put off · postponed (from aufschieben)", "höchste": "highest · utmost (höchste Zeit: high time)", "senken": "to lower · to reduce",
+  "klima": "climate (das Klima)", "belastet": "burdens · strains (from belasten)", "länder": "countries (plural of das Land)", "begann": "began (from beginnen)", "küste": "coast (die Küste)",
+  "möge": "may (a solemn wish; Konjunktiv I of mögen)", "generation": "generation (die Generation)", "klüger": "wiser · smarter (from klug)", "wälder": "forests (plural of der Wald)", "natur": "nature (die Natur)" });
