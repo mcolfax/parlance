@@ -309,6 +309,7 @@ async function main(){
     for (const it of st.items){ if (it.q){ ok(it.o.length === 3 && new Set(it.o).size === 3, 'story q opts ' + st.id + ' ' + it.q); } else { ok(P.CAST[it.who] && P.CAST[it.who].lang === st.lang, 'speaker ' + st.id + ' ' + it.who); ok(it.t && it.e, 'line text ' + st.id); } }
   }
   ok(P.STORIES.length === 36, 'stories ' + P.STORIES.length);
+  { const b = P.COURSE.de.units[0].lessons[0].blanks[0]; ok(P.blankSaid(b, 0) === P.blankSaid(b) && P.blankSaid(b, 1) === P.blankSaid(b) && [b].map(P.blankSaid)[0] === P.blankSaid(b), 'blankSaid: an index from .map still gives the right answer (recorded blank lines keep matching)'); }
   /* cast figures and story scenes (made in Recraft): a portrait is cropped from each character's figure, a scene shows its cast, a story without a scene keeps its drawn one */
   { const CF = A.E('CAST_FIG'), SA = A.E('STORY_ART');
     for (const [id, c] of Object.entries(P.CAST)) if (c.look){

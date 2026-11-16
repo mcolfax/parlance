@@ -234,7 +234,8 @@ function makeEx(type, lesson, kind, i){
   return ex;
 }
 /* the whole sentence a blank makes once it is filled in, as it is shown and spoken */
-function blankSaid(b, o){ return b.t.replace('___', o === undefined ? b.a : o).replace(/\s*\([^)]*\)\s*$/, '').replace(/^.*→\s*/, ''); }
+function blankSaid(b, o){ return b.t.replace('___', typeof o === 'string' ? o : b.a)   /* o: a wrong option for Spot the mistake; anything else (an index from .map) means the right answer */
+    .replace(/\s*\([^)]*\)\s*$/, '').replace(/^.*→\s*/, ''); }
 function blankEx(lesson, i){ const b = lesson.blanks[i]; return { id: ++EXID, type: 'blank', lang: lesson.lang, lesson, blank: b, correct: b.a, options: shuffle(b.o) }; }
 /* Spot the mistake (B2 and up): three lines the lesson has shown, one with a blank's wrong form put in; `met` holds the shown phrases ('s' + i, 'b' + i) */
 function spotEx(lesson, met){
