@@ -494,3 +494,20 @@ Object.assign(LESSON_GLOSS.it, {
   "utile": "useful", "misura": "measure · extent (nella misura in cui: insofar as)", "applicata": "applied · enforced (from applicare)", "vigore": "force (in vigore: in force)",
   "eccezione": "exception", "un’eccezione": "an exception", "eccezioni": "exceptions (plural of l’eccezione)", "cercano": "look for · seek (from cercare)",
   "prove": "evidence · proof (plural of la prova)", "silenziosa": "quiet · silent" });
+
+/* stories s10–s12 (4.47.0) */
+Object.assign(STORY_GLOSS.es, {
+  "noticia": "news · piece of news", "viejo": "old", "alegría": "joy · gladness", "dígame": "tell me (polite command from decir)", "costarnos": "to cost us (from costar)",
+  "temo": "I fear (from temer; me temo que sí: I’m afraid so)", "cuota": "fee · dues", "mantenimiento": "maintenance", "subiría": "would go up (from subir)", "quince": "fifteen",
+  "ciento": "hundred (por ciento: percent)", "repartir": "to share out · to split", "decidir": "to decide", "podrían": "could · would be able to (from poder)", "agosto": "August",
+  "hacerlo": "to do it (from hacer)", "funcione": "works (subjunctive, from funcionar)", "pagáramos": "we paid (subjunctive, from pagar)", "pagaríamos": "we would pay (from pagar)",
+  "mmm": "hmm", "único": "only · unique", "falla": "fails (from fallar)", "bienvenidos": "welcome (plural)", "sobrevivir": "to survive", "frente": "in front of · against (frente a: facing)",
+  "cadenas": "chains (plural of la cadena)", "fijan": "set · fix (from fijar)", "igualar": "to match · to equal", "cuestión": "question · matter", "quiere": "wants (from querer)",
+  "oyente": "listener", "fonda": "small eatery · family restaurant", "verdadero": "real · true", "duplicado": "doubled (from duplicar)", "permítame": "allow me (polite command from permitir)",
+  "abogado": "lawyer", "diablo": "devil", "simplemente": "simply", "llena": "full (feminine)", "pobre": "poor", "ayudaría": "would help (from ayudar)", "vuelvan": "come back (subjunctive, from volver)",
+  "confieso": "I confess (from confesar)", "entrevistaría": "I would interview (from entrevistar)", "incluyera": "included (subjunctive, from incluir)", "escuchó": "heard · listened to (from escuchar)",
+  "olla": "pot (café de olla: coffee spiced with cinnamon, brewed in a clay pot)", "pidieron": "they asked for (from pedir)", "flexible": "flexible", "duraría": "would last (from durar)",
+  "sido": "been (from ser)", "comisión": "commission · fee", "bateristas": "drummers (plural of el baterista)", "aguanta": "puts up with · tolerates (from aguantar)", "paciencia": "patience",
+  "protesto": "I protest (from protestar)", "lograrlo": "to achieve it (from lograr)", "añadir": "to add", "abrió": "opened (from abrir)", "llevarles": "to take them · to bring them (from llevar)",
+  "enfermeras": "nurses (plural of la enfermera)", "turno": "shift · turn", "sino": "but rather · but", "seguí": "I kept on · I continued (from seguir)", "siguieron": "they kept on (from seguir)",
+  "regresando": "coming back (from regresar)", "suspiro": "sigh", "tocaré": "I will play · touch (from tocar)" });
