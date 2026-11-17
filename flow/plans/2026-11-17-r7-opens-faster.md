@@ -1,9 +1,9 @@
 # Opens faster: your language first, the others a moment later
 
 - **Cycle:** queued 2026-11-16 (program 2, release R7; `flow/PROGRAM-2.md`)
-- **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r7-opens-faster.md`, set Base, check it still matches `main`)
-- **Release:** 4.53.0 (minor)
-- **Base:** `main` at the commit that ships 4.52.0 (`r6-tables-in-the-right-place.md`). It goes last so that `LANG_FILES` lists every content file the earlier releases add (`<lang>-8-more.js`, `<lang>-9-more.js`); if a release after this one adds a content file, it goes in `LANG_FILES`, not `index.html`.
+- **Status:** building
+- **Release:** 4.53.0
+- **Base:** `main` at 9dacbf4 (4.52.0)
 - **Proposals built:** none
 - **Roadmap items:** R-36 (from R-14's measurement)
 
