@@ -215,6 +215,9 @@ a 1 a-weather hot | blazing sun with wavy heat lines over a figure fanning itsel
 = it-is-hot hot
 - it-is-raining | same picture as the rain in its lesson
 = it-is-snowing snow
+= it-s-raining rain
+= it-s-snowing snow
+- march | month
 = it-is-sunny sun
 = it-is-windy wind
 n 1 a-weather rain | gray cloud with slanting blue raindrops falling and a puddle below

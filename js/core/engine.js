@@ -41,17 +41,25 @@ function srsUpdate(card, q){
   card.due = addDays(today(), card.iv); card.last = today(); card.ts = Date.now();
 }
 function cardsFor(lang){ return S.langs[lang].cards; }
-function dueEntries(lang){
-  const t = today(); const out = [];
-  for (const [key, card] of Object.entries(cardsFor(lang))){ if (card.due <= t){ const r = resolveKey(key); if (r) out.push({ ...r, card }); } }
-  return out.sort((a, b) => a.card.due < b.card.due ? -1 : a.card.due > b.card.due ? 1 : a.card.ef - b.card.ef);
-}
-function dueCount(lang){ const t = today(); let n = 0; for (const [k, c] of Object.entries(cardsFor(lang))) if (c.due <= t && resolveKey(k)) n++; return n; }
-function learnedEntries(lang, kind){
-  const out = [];
-  for (const [key, card] of Object.entries(cardsFor(lang))){ const r = resolveKey(key); if (r && (!kind || r.kind === kind)) out.push({ ...r, card }); }
+/* The saved cards that stand for an item, as { lesson, kind, i, item, key, card }; `keep` filters by card. A card reached
+   through an alias steps aside when the learner also has the target item's own card, or another alias got there first,
+   so each item is reviewed once. */
+function liveEntries(lang, keep){
+  const cards = cardsFor(lang), seen = new Set(), out = [];
+  for (const [key, card] of Object.entries(cards)){
+    if (keep && !keep(card)) continue;
+    const r = resolveKey(key); if (!r) continue;
+    if (r.via){ if (cards[r.via] || seen.has(r.via)) continue; seen.add(r.via); }
+    out.push({ ...r, card });
+  }
   return out;
 }
+function dueEntries(lang){
+  const t = today();
+  return liveEntries(lang, c => c.due <= t).sort((a, b) => a.card.due < b.card.due ? -1 : a.card.due > b.card.due ? 1 : a.card.ef - b.card.ef);
+}
+function dueCount(lang){ const t = today(); return liveEntries(lang, c => c.due <= t).length; }
+function learnedEntries(lang, kind){ return liveEntries(lang).filter(e => !kind || e.kind === kind); }
 function wordCount(lang){ let n = 0; for (const k of Object.keys(cardsFor(lang))) if (k.split('|')[1] === 'v') n++; return n; }
 
 /* ===================== DAILY QUESTS & CHEST ===================== */

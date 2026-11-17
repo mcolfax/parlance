@@ -178,7 +178,10 @@ function resolveKey(key, depth){
     if (ref[0] === '~') { const m = lessonKeys(lesson)[kind === 'v' ? 'v' : 's'].get(ref.slice(1)); if (m != null) i = m; }
     else if (/^\d+$/.test(ref)) i = +ref;
   }
-  if (i == null){ const a = Packs.aliases.get(key); return a && !depth ? resolveKey(a, 1) : null; }
+  /* An alias (a live "Corrections" pack) points a retired key at the item that replaced it. The entry keeps the saved
+     card's own key, so a review updates that card, and names the target in `via` so a learner who also has the target's
+     own card sees the item once (liveEntries in engine.js). */
+  if (i == null){ const a = Packs.aliases.get(key); if (!a || depth) return null; const r = resolveKey(a, 1); return r ? { ...r, key, via: a } : null; }
   const item = kind === 'v' ? lesson.vocab[i] : lesson.sentences[i];
   return item ? { lesson, kind, i, item, key } : null;
 }

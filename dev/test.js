@@ -759,6 +759,24 @@ async function main(){
       G.E('endRun()');
       G.dom.window.close();
     }
+    { /* a live Corrections alias carries a retired card over: it is due as the new item, a review updates the saved card, and the item is asked once */
+      const A = await makeDom(); A.P.S.settings.onboarded = true;
+      const target = A.E('itemKey(getLesson("de-20-1"), "v", 0)'), old = 'de-16-1|v|~zz-retired-word';
+      A.E('S.langs.de.cards = { ' + JSON.stringify(old) + ': { ef: 2.5, n: 2, iv: 3, due: "2000-01-01", last: "2000-01-01", ts: 1 } }; Packs.aliases = new Map([[' + JSON.stringify(old) + ', ' + JSON.stringify(target) + ']])');
+      const due = A.E('dueEntries("de").map(e => ({ key: e.key, via: e.via, t: e.item.t }))');
+      ok(due.length === 1 && due[0].key === old && due[0].via === target && due[0].t === A.E('getLesson("de-20-1").vocab[0].t') && A.E('dueCount("de")') === 1, 'aliases: a retired card is due as the item that replaced it, under its own key');
+      ok(A.E('reviewEx(dueEntries("de")[0]).srs') === old, 'aliases: a review of it moves the saved card');
+      A.E('srsUpdate(cardsFor("de")[reviewEx(dueEntries("de")[0]).srs], 5)');
+      ok(A.E('dueCount("de")') === 0, 'aliases: once answered it is no longer due (it does not come back every review)');
+      const old2 = 'de-16-1|s|~zz-retired-line';
+      A.E('S.langs.de.cards[' + JSON.stringify(old) + '].due = "2000-01-01"; S.langs.de.cards[' + JSON.stringify(old2) + '] = { ef: 2.5, n: 1, iv: 1, due: "2000-01-01", last: "2000-01-01", ts: 1 }; Packs.aliases.set(' + JSON.stringify(old2) + ', ' + JSON.stringify(target) + ')');
+      ok(A.E('dueEntries("de").length') === 1 && A.E('learnedEntries("de").length') === 1, 'aliases: two retired cards pointing at one item ask it once');
+      A.E('delete S.langs.de.cards[' + JSON.stringify(old2) + ']; Packs.aliases.delete(' + JSON.stringify(old2) + ')');
+      A.E('S.langs.de.cards[' + JSON.stringify(target) + '] = { ef: 2.5, n: 1, iv: 1, due: "2000-01-01", last: "2000-01-01", ts: 2 }; S.langs.de.cards[' + JSON.stringify(old) + '].due = "2000-01-01"');
+      ok(A.E('dueEntries("de").length') === 1 && A.E('dueEntries("de")[0].key') === target && A.E('learnedEntries("de").length') === 1 && A.E('dueCount("de")') === 1, 'aliases: with the new item\'s own card too, the item is asked once');
+      A.E('Packs.aliases = new Map()');
+      A.dom.window.close();
+    }
     Q.E('startMistakes()');
     let guard = 0;
     while (Q.E('Run.active && !Run.finished') && guard++ < 60){
