@@ -75,6 +75,30 @@ function allStories(){ return STORIES.concat(PACK_STORIES); }
 function storyById(id){ return STORY_MAP.get(id) || null; }
 function unitArt(u){ return u.art && UNIT_ART[u.art] ? u.art : u.title; }
 
+/* ----- languages load on demand: the learner's first, the others after the first screen ----- */
+const Langs = { ready: new Set(), loads: {}, all: null };
+function langReady(lang){ return Langs.ready.has(lang); }
+function langsAllReady(){ return LANG_IDS.every(langReady); }
+/* a language's files run one after another, in LANG_FILES order (the preload links have already downloaded them, so this adds no
+   waiting); a file that fails stops that language until the page reloads, because the files before it have already added their units */
+function langLoad(lang){
+  if (langReady(lang)) return Promise.resolve();
+  if (Langs.loads[lang]) return Langs.loads[lang];
+  if (typeof document === 'undefined' || !LANG_FILES[lang]) return Promise.reject(new Error('No language ' + lang));
+  const one = src => new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = () => rej(new Error('Couldn’t load ' + src)); document.head.append(el); });
+  return Langs.loads[lang] = LANG_FILES[lang].reduce((p, src) => p.then(() => one(src)), Promise.resolve()).then(() => { Langs.ready.add(lang); langArrived(lang); });
+}
+function langsAll(){ return Langs.all || (Langs.all = Promise.all(LANG_IDS.map(langLoad))); }
+/* a language arrived after the state loaded: rebuild the course and the glossary, and let old card keys of that language migrate */
+function langArrived(lang){
+  assembleCourse(); Packs.version++; reindex();
+  if (typeof S !== 'undefined' && S.langs && S.langs[lang]){
+    const before = Object.keys(S.langs[lang].cards).join('\n');
+    S.langs[lang] = cleanLang(S.langs[lang]);
+    if (Object.keys(S.langs[lang].cards).join('\n') !== before) touch(lang);
+  }
+}
+
 function coreOrder(lang){ return COURSE[lang].units.flatMap(u => u.lessons); }
 function genLessons(lang){ return (S.gen[lang] || []).map(l => { l.lang = lang; l.core = false; return l; }); }
 /* the words a lesson's sentences and blanks use that nothing earlier in the route has shown yet (forms of verbs, endings, extra words),

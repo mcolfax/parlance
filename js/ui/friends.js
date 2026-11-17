@@ -29,6 +29,7 @@ function langLine(langs, mine){
   const parts = [];
   for (const l of LANG_IDS){
     const x = langs[l]; if (!x) continue;
+    if (mine && !langReady(l)) continue;
     const level = mine ? currentLevel(l) : x.level;
     if (mine ? (Object.keys(x.done).length || x.xp) : true) parts.push(LANGS[l].name + ' ' + level);
   }

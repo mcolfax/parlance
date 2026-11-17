@@ -368,6 +368,9 @@ const LANGS = {
     hello: 'Ciao!', test: 'Ciao! Piacere di conoscerti.',
     dialect: 'Use standard Italian. Use tu unless the setting is formal (hotel, doctor, office, interview, official business), then use Lei. Write elisions with a typographic apostrophe (l’acqua, un’amica).' }
 };
+/* each language's lesson and story files, in the order they must run (unit order within a level follows it);
+   only the learner's language loads before the first screen (langLoad(), js/core/content.js) */
+const LANG_FILES = Object.fromEntries(LANG_IDS.map(l => [l, ['1-basics', '1b-more', '2-advanced', '3-more', '4-a1', '4-a2', '4-b1', '4-b2', '4-c1', '4-c2', '5-more', '6-more', '7-more', '8-more', '9-more'].map(f => 'content/' + l + '-' + f + '.js').concat('content/stories-' + l + '.js')]));
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 /* Word hints: how much meaning a question shows, by the level of the lesson (Me → Practice → Word hints can override this).
    full: tap any word of a sentence for its meaning, a nudge says so, and the lesson's words are one tap away

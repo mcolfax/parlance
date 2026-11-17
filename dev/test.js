@@ -48,12 +48,14 @@ async function makeDom(opts = {}){
       if (opts.ua) Object.defineProperty(w.navigator, 'userAgent', { configurable: true, get: () => opts.ua });
       if (opts.standalone) Object.defineProperty(w.navigator, 'standalone', { configurable: true, get: () => true });
       if (opts.claude) w.claude = opts.claude;
+      if (opts.hold) w.PARLANCE_HOLD_LANGS = true;   // keep the other languages unloaded until a test asks (main.js)
       if (opts.audio !== false) fakeAudio(w);
       if (opts.node){ w.Blob = Blob; w.Response = Response; w.CompressionStream = CompressionStream; w.DecompressionStream = DecompressionStream; }
     }
   });
   await new Promise(r => { if (dom.window.document.readyState === 'complete') r(); else dom.window.addEventListener('load', r); });
-  for (let i = 0; i < 50 && !dom.window.__parlance; i++) await sleep(20);
+  // __parlance appears once every language has loaded; a held page stops after the learner's own language
+  for (let i = 0; i < 500 && !(opts.hold ? dom.window.eval('typeof Langs !== "undefined" && Langs.ready.size > 0') : dom.window.__parlance); i++) await sleep(20);
   return { dom, w: dom.window, errors, P: dom.window.__parlance, E: s => dom.window.eval(s) };
 }
 /* fake shared database with the same surface the app uses (doc/collection/get/set/update/onSnapshot) */
@@ -3458,6 +3460,102 @@ async function main(){
       ok(!!c && E('PIP_SAYS.it.oops').includes(say) && !E('PIP_SAYS.it.cheer').includes(say), 'tidy: a failed checkpoint in Italian gets a kind word: ' + say); }
     ok(R.errors.length === 0, 'tidy: no page errors ' + R.errors.slice(0, 2).join(' | '));
     R.w.close();
+  }
+  /* ---------- 15. languages load on demand: the learner's first, the others after the first screen (4.53.0) ---------- */
+  {
+    const seedOf = (lang, extra = {}) => ({ 'parlance.v2': { settings: { onboarded: true, lang, seenVersion: '9.0.0', filmSeen: true }, ...extra } });
+    const doneOf = id => ({ done: { [id]: { at: '2026-10-01', acc: 1, times: 1 } }, cards: {}, xp: 30 });
+    const appText = X => X.w.document.querySelector('#app').textContent;
+    const waitFor = async (X, expr) => { for (let i = 0; i < 300 && !X.E(expr); i++) await sleep(20); return !!X.E(expr); };
+    const full = A.P;   // the page the tests started with has every language
+    // 1. the files
+    {
+      const files = fs.readdirSync(path.join(ROOT, 'content')).filter(f => /^(de|es|it)-.*\.js$/.test(f) || /^stories-(de|es|it)\.js$/.test(f)).map(f => 'content/' + f);
+      const all = JSON.parse(A.E('JSON.stringify(Object.values(LANG_FILES).flat())'));
+      const per = LANG_IDS.map(l => A.E('LANG_FILES.' + l + '.length'));
+      const prob = [];
+      if (new Set(all).size !== all.length) prob.push('a file is listed twice');
+      for (const f of files){ if (!all.includes(f)) prob.push(f + ' is not in LANG_FILES'); if (page.includes('<script src="' + f + '"')) prob.push(f + ' has a script tag'); if (!page.includes('<link rel="preload" as="script" href="' + f + '">')) prob.push(f + ' has no preload link'); }
+      for (const f of all) if (!files.includes(f)) prob.push(f + ' is listed but missing');
+      if (new Set(per).size !== 1) prob.push('the languages list different numbers of files: ' + per.join());
+      // within each language the preload links come in the order the loader runs the files
+      const pre = [...page.matchAll(/<link rel="preload" as="script" href="([^"]+)">/g)].map(m => m[1]);
+      for (const l of LANG_IDS){ const mine = pre.filter(f => f.startsWith('content/' + l + '-') || f === 'content/stories-' + l + '.js'); if (mine.join() !== A.E('LANG_FILES.' + l).join()) prob.push('the ' + l + ' preload links are not in LANG_FILES order'); }
+      ok(!prob.length && files.length === all.length && files.length >= 48, 'languages: index.html runs no lesson or story file, and LANG_FILES lists each exactly once ' + prob.slice(0, 3).join('; '));
+    }
+    // 2. the first screen needs only the learner's language
+    {
+      const R = await makeDom({ hold: true, seed: seedOf('it', { langs: { it: doneOf('it-1-1') } }) });
+      const deUnits = full.COURSE.de.units.length, itTitle = R.E('COURSE.it.units[0].title');
+      const early = R.E('[...Langs.ready].join()') === 'it' && R.E('COURSE.de.units.length') === 0 && R.E('COURSE.es.units.length') === 0 && R.E('typeof window.__parlance') === 'undefined' && R.E('S.settings.lang') === 'it';
+      const shown = appText(R).includes(itTitle) && !!R.w.document.querySelector('#app .view');
+      await R.E('langsAll()');
+      const late = R.E('[...Langs.ready].sort().join()') === 'de,es,it' && R.E('COURSE.de.units.length') === deUnits && deUnits > 0 && R.E('STORIES.length') === full.STORIES.length && R.E('langsAllReady()');
+      ok(early && shown && late && !R.errors.length, 'languages: the first screen needs only the learner’s language (early ' + early + ', shown ' + shown + ', late ' + late + ') ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
+    // 3. switching to a language that isn't loaded
+    {
+      const R = await makeDom({ hold: true, seed: seedOf('it') });
+      R.E('setLang("de")');
+      const toasted = R.w.document.querySelector('#toast').textContent === 'Getting German ready…' && R.E('S.settings.lang') === 'it';
+      const switched = await waitFor(R, 'S.settings.lang === "de"');
+      await sleep(30);
+      const deTitle = R.E('COURSE.de.units[0].title');
+      ok(toasted && switched && R.E('langReady("de")') && appText(R).includes(deTitle) && R.E('document.documentElement.getAttribute("data-lang")') === 'de' && !R.errors.length, 'languages: switching to a language that isn’t loaded loads it first (toast ' + toasted + ', switched ' + switched + ') ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
+    // 4. badges wait for the course
+    {
+      const R = await makeDom({ hold: true, seed: seedOf('it', { langs: { de: doneOf('de-1-1'), es: doneOf('es-1-1') } }) });
+      const kinds = ['stories8', 'levelA1', 'stickers50', 'shiny25'];
+      const before = R.E('JSON.stringify(checkBadges())');
+      const bad = kinds.filter(b => R.E('!!S.badges.' + b));
+      await R.E('langsAll()');
+      const after = R.E('JSON.stringify(checkBadges())');
+      const bad2 = kinds.filter(b => R.E('!!S.badges.' + b));
+      ok(R.E('Langs.ready.size') === 3 && !bad.length && !JSON.parse(before).includes('stories8') && !bad2.length && !JSON.parse(after).includes('stories8') && R.E('!!S.badges.first'), 'languages: badges wait for the course (' + before + ' / ' + bad.join() + ' / ' + after + ' / ' + bad2.join() + ')');
+      R.w.close();
+    }
+    // 5. the Friends card waits for every language
+    {
+      const store = new Map(), secret = 'abcdefghijklmnopqrstuvwx';
+      const R = await makeDom({ hold: true, seed: seedOf('it', { langs: { de: doneOf('de-1-1'), it: doneOf('it-1-1') }, social: { on: true, secret, name: 'Matt', bird: 'pip' } }) });
+      R.w.__db = fakeDB(store);
+      R.E('Remote.db = window.__db; Remote.uid = "u_ana"');
+      const held = R.E('Langs.ready.size') === 1;
+      const first = await R.E('socialPublish(true)');
+      const none = ![...store.keys()].some(k => k.startsWith('cards/'));
+      const waited = await waitFor(R, 'langsAllReady()');
+      const second = await R.E('socialPublish(true)');
+      const key = [...store.keys()].find(k => k.startsWith('cards/u_ana/'));
+      const card = key ? store.get(key) : null;
+      const levels = card ? JSON.stringify(card.langs) : '';
+      const match = !!card && LANG_IDS.every(l => (R.E('!!(S.langs.' + l + '.xp || Object.keys(S.langs.' + l + '.done).length)') ? !!card.langs[l] && card.langs[l].level === R.E('currentLevel("' + l + '")') : !card.langs[l]));
+      ok(held && first === false && none && waited && second === true && match && !!card.langs.de && !!card.langs.it && !R.errors.length, 'languages: the Friends card waits for every language (held ' + held + ', first ' + first + ', none ' + none + ', second ' + second + ', ' + levels + ') ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
+    // 6. cards of a language that isn't loaded are kept
+    {
+      const stable = A.E('itemKey(getLesson("de-1-1"), "v", 1)'), migrated = A.E('itemKey(getLesson("de-1-1"), "v", 0)');
+      const R = await makeDom({ hold: true, seed: seedOf('it', { langs: { de: { done: {}, xp: 0, cards: { [stable]: { n: 2, ef: 2.5, iv: 3, due: '2026-10-11', ts: 500 }, 'de-1-1|v|0': { n: 1, ef: 2.5, iv: 1, due: '2026-10-02', ts: 400 } } } } }) });
+      const early = Object.keys(R.E('S.langs.de.cards')).sort().join('|'), want = [stable, 'de-1-1|v|0'].sort().join('|');
+      await R.E('langsAll()');
+      const late = Object.keys(R.E('S.langs.de.cards')).sort();
+      ok(early === want && late.length === 2 && late.includes(stable) && late.includes(migrated) && !late.includes('de-1-1|v|0') && R.E('S.langs.de.cards[' + JSON.stringify(migrated) + '].ts') === 400 && !R.errors.length, 'languages: cards of a language that isn’t loaded are kept (' + early + ' -> ' + late.join('|') + ') ' + R.errors.slice(0, 2).join(' | '));
+      R.w.close();
+    }
+    // 7. a language that fails to load says so
+    {
+      const R = await makeDom({ hold: true, seed: seedOf('it') });
+      R.E("langLoad = () => Promise.reject(new Error('test'))");
+      R.E('setLang("es")');
+      let label = '';
+      for (let i = 0; i < 100 && !label; i++){ await sleep(20); const b = R.w.document.querySelector('.sheet-back'); if (b) label = b.getAttribute('aria-label'); }
+      const btns = [...R.w.document.querySelectorAll('.sheet-back button')].map(b => b.textContent.trim());
+      ok(label === 'Couldn’t load Spanish' && R.E('S.settings.lang') === 'it' && btns.includes('Try again') && btns.includes('Not now'), 'languages: a language that fails to load says so (' + label + ', ' + btns.join() + ')');
+      R.w.close();
+    }
   }
   console.log('PASS', passes, 'FAIL', fails);
   process.exit(fails ? 1 : 0);

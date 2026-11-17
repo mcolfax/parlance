@@ -105,6 +105,7 @@ function cleanCard(d){
 async function socialPublish(force){
   clearTimeout(Social.timer);
   if (!socialOn() || !S.social.on) return false;
+  if (!langsAllReady()){ langsAll().then(() => socialTouch(), () => {}); return false; }   // the card reads every language's course (buildCard)
   const secret = mySecret(), card = buildCard(), sig = JSON.stringify(card) + secret;
   if (!force && sig === Social.lastCard && Date.now() - Social.lastPut < 6 * 3600000) return true;
   try {

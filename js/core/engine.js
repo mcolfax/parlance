@@ -83,7 +83,7 @@ function bumpQuest(key, n, max){ const d = dayRec(); d.q = d.q || {}; d.q[key] =
 /* ===================== BADGES ===================== */
 const BADGE_MAP = new Map(BADGES.map(b => [b.id, b]));
 function checkBadges(ctx = {}){
-  const got = []; const both = LANG_IDS;
+  const got = []; const both = LANG_IDS; const ready = LANG_IDS.filter(langReady);   // the course is read only for languages that have loaded
   const award = id => { if (!S.badges[id]){ S.badges[id] = today(); got.push(id); } };
   const lessons = both.map(l => Object.keys(S.langs[l].done).length);
   if (lessons.some(n => n > 0)) award('first');
@@ -96,18 +96,18 @@ function checkBadges(ctx = {}){
   const passed = both.flatMap(l => Object.values(S.langs[l].cp || {})).filter(c => c && c.pass);
   if (passed.length >= 1) award('checkpoint1'); if (passed.length >= 5) award('checkpoint5'); if (passed.some(c => c.acc >= 1)) award('checkpoint100');
   if ((S.stats.fixed || 0) >= 25) award('fixer'); if ((S.stats.formsRight || 0) >= 50) award('forms50');
-  if (typeof stickerBook === 'function'){ const sb = both.map(l => stickerBook(l)); if (sb.some(b => b.got >= 50)) award('stickers50'); if (sb.some(b => b.shiny >= 25)) award('shiny25'); }
+  if (typeof stickerBook === 'function'){ const sb = ready.map(l => stickerBook(l)); if (sb.some(b => b.got >= 50)) award('stickers50'); if (sb.some(b => b.shiny >= 25)) award('shiny25'); }
   if (both.some(l => (S.stats['speed-' + l] || 0) >= 20)) award('speed20');
   if (ctx.flawless) award('flawless');
   if ((S.stats.bestCombo || 0) >= 10) award('combo10');
   if ((S.stats.reviewsRight || 0) >= 100) award('review100');
   if (both.some(l => Object.keys(S.langs[l].stories).length)) award('story1');
-  if (both.some(l => STORIES.filter(s => s.lang === l).every(s => S.langs[l].stories[s.id]))) award('stories8');
+  if (ready.some(l => STORIES.filter(s => s.lang === l).every(s => S.langs[l].stories[s.id]))) award('stories8');
   if ((S.stats.talkBest || 0) >= 5) award('talk');
   if ((S.stats.chests || 0) >= 7) award('chest7');
   if (Object.values(S.social.friends).some(f => f && f.code && (!f.gone || (+f.at || 0) > f.gone))) award('friend');
   if (Object.values(S.social.past).some(p => p && p.me > p.them)) award('rival');
-  for (const [lv, id] of [['A1', 'levelA1'], ['B1', 'levelB1'], ['C2', 'levelC2']]) if (both.some(l => levelComplete(l, lv))) award(id);
+  for (const [lv, id] of [['A1', 'levelA1'], ['B1', 'levelB1'], ['C2', 'levelC2']]) if (ready.some(l => levelComplete(l, lv))) award(id);
   if (ctx.practiced){ const hr = new Date().getHours(); if (hr >= 4 && hr < 8) award('early'); if (hr >= 22 || hr < 4) award('night'); }
   if (got.length) touch('core');
   return got;
