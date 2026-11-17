@@ -228,7 +228,28 @@ async function main(){
     ok(bs.length === 3 && bs[0].body === 'One **alpha** idea.' && bs[1].body === 'Two **bravo** idea.' && bs[2].body === 'Three **charlie** idea. Four.', 'tipBites: blank lines make one bite per paragraph: ' + JSON.stringify(bs.map(b => b.body)));
     ok(bs[0].examples.length === 1 && bs[0].examples[0].t === 'alpha one' && bs[2].examples.length === 1 && bs[2].examples[0].t === 'charlie two' && bs[1].tables.length === 1 && bs[1].tables[0].cap === 'Plain caption' && bs[0].tables.length === 0 && bs[2].tables.length === 0, 'tipBites: blank lines make one bite per paragraph, each example and table with the paragraph that names it');
     const es91 = A.E('tipBites(getLesson("es-9-1").tip)');
-    ok(es91.length === 2 && es91[0].body.startsWith('The **present perfect** is') && es91[1].body.startsWith('Regular endings') && es91[0].tables.map(t => t.cap).join('|') === 'haber (the helper)' && es91[1].tables.map(t => t.cap).join('|') === 'Participles' && es91[0].examples.length === 2 && es91[1].examples.length === 1, 'tipBites: a tip without blank lines is cut as before'); }
+    ok(es91.length === 2 && es91[0].body.startsWith('The **present perfect** is') && es91[1].body.startsWith('Regular endings') && es91[0].tables.map(t => t.cap).join('|') === 'haber (the helper)' && es91[1].tables.map(t => t.cap).join('|') === 'Participles' && es91[0].examples.length === 2 && es91[1].examples.length === 1, 'tipBites: a tip without blank lines is cut as before');
+    /* without blank lines a table goes to the card whose bold words its caption (three points each) and cells (one each) show most */
+    const pad = ' and then some more plain words follow here so that this sentence runs on for a good while and a card is long enough to stand alone';
+    const body3 = 'The words **alpha**, **apple** and **ant** start us off.' + pad + '. Next comes **bravo** on its own.' + pad + '. Last comes **charlie** at the end.' + pad + '.';
+    const where = (cap, head, rows) => A.E('tipBites(T("t", ' + JSON.stringify(body3) + ', [], [' + JSON.stringify([cap, head, rows]) + ']))').map(b => b.tables.length);
+    ok(A.E('tipBites(T("t", ' + JSON.stringify(body3) + ')).length') === 3, 'tipBites: the synthetic tip has three bites');
+    { const a = where('Plain caption', null, [['bravo form', 'x']]), b = where('Charlie forms', null, [['alpha apple', 'x']]);
+      ok(JSON.stringify(a) === '[0,1,0]' && JSON.stringify(b) === '[0,0,1]', 'tipBites: without blank lines, a table goes to the card its caption and cells name most: ' + JSON.stringify([a, b])); }
+    { const a = where('Bravo forms', null, [['alpha apple ant', 'x']]), b = where('Plain caption', ['alpha', 'bravo'], [['x', 'y']]);
+      ok(JSON.stringify(a) === '[0,1,0]' && JSON.stringify(b) === '[0,1,0]', 'tipBites: a tie keeps the caption\'s card, or else the later card: ' + JSON.stringify([a, b])); }
+    const perCard = id => A.E('tipBites(getLesson(' + JSON.stringify(id) + ').tip)').map(b => b.tables.map(t => t.cap));
+    const PINNED = { 'de-4-1': [['Possessives as the subject'], ['Plurals']], 'de-4-2': [[], ['Adjective ending after **ein** / **eine**']], 'it-12-1': [['Order your points'], ['Two sides']],
+      'es-36-1': [['quisiera: querer, imperfect subjunctive', 'Signposts'], ['Other forms in this lesson'], []] };
+    ok(Object.keys(PINNED).every(id => JSON.stringify(perCard(id)) === JSON.stringify(PINNED[id])), 'tipBites: tables per card in four pinned lessons: ' + JSON.stringify(Object.keys(PINNED).map(perCard)));
+    { const plainB = s => String(s).replace(/\*\*/g, '').toLowerCase(), bad = []; let n = 0;
+      for (const lang of LANG_IDS) for (const u of P.COURSE[lang].units) for (const l of u.lessons){
+        if (!l.tip || !l.tip.body || /\n\s*\n/.test(l.tip.body)) continue;
+        const bs = A.E('tipBites(getLesson(' + JSON.stringify(l.id) + ').tip)');
+        const names = (b, t) => [...b.body.matchAll(/\*\*(.+?)\*\*/g)].map(m => plainB(m[1])).filter(w => w.length > 2).some(w => plainB([t.cap, ...(t.head || []), ...t.rows.flat()].join(' ')).includes(w));
+        for (const [i, b] of bs.entries()) for (const t of b.tables){ n++; if (!names(b, t) && bs.some(c => names(c, t))) bad.push(l.id + ' ' + t.cap + ' on card ' + (i + 1)); }
+      }
+      ok(n > 800 && !bad.length, 'tipBites: every table sits with a card that names it, unless no card does (' + n + ' tables): ' + bad.slice(0, 5).join('; ')); } }
   { const TIP_PLACES = {
       'es-1-1': [['Buenas noches y gracias.', 'Greeting and when to use it'], ['¡Hola! ¿Cómo estás?', 'Muy bien, gracias.', 'Asking “How are you?”'], ['Buenos días, señora López.']],
       'de-1-1': [['Guten Morgen, Anna!', 'Greetings through the day'], ['Hallo, wie geht’s?'], ['Danke, gut.', 'Auf Wiedersehen, Herr Braun.']],

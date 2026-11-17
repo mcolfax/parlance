@@ -1,0 +1,349 @@
+de-4-1  Possessives as the subject: card 2 → card 1
+de-4-2  Adjective ending after **ein** / **eine**: card 1 → card 2
+de-4-4  What you have: card 2 → card 1
+de-5-3  Vowel changes: card 2 → card 1
+de-5-4  Vowel changes: card 2 → card 1
+de-6-2  Dative of the article: card 2 → card 1
+de-6-2  Short forms: card 2 → card 1
+de-6-3  Forming participles: card 2 → card 1
+de-22-1  Plural: card 2 → card 1
+de-22-3  Fits whom? (dative): card 2 → card 1
+de-22-4  Present of **möchten** and **bezahlen**: card 2 → card 1
+de-23-1  Regular verbs in the present: card 3 → card 2
+de-23-3  zu + dative: “my”: card 2 → card 1
+de-23-3  Present of **kommen** and **können**: card 2 → card 1
+de-17-1  in (and neben …): motion or position?: card 2 → card 1
+de-17-2  The verb follows the thing, not the person: card 3 → card 1
+de-17-3  Three modal verbs (singular forms have no ending for ich and er/sie/es): card 3 → card 2
+de-17-4  Which pattern?: card 2 → card 1
+de-31-1  Singular and plural: card 3 → card 2
+de-31-3  What you ask for (accusative): card 3 → card 2
+de-25-4  Do it yourself (**selbst**) or have it done (**lassen**): card 1 → card 2
+de-26-1  Call **dich**, write **dir**: card 1 → card 2
+de-7-1  haben in the present: card 1 → card 3
+de-7-4  Verb position: card 3 → card 1
+de-7-4  Perfekt participles here: card 3 → card 2
+de-8-2  Reflexive pronouns: card 3 → card 1
+de-8-2  Patterns in this lesson: card 3 → card 1
+de-8-4  Linking words and the verb: card 2 → card 1
+de-8-4  Verb forms to expect: card 2 → card 1
+de-9-2  haben and sein in the present: card 3 → card 1
+de-9-2  Opinion phrases and the verb: card 3 → card 1
+de-9-3  Comparing adjectives: card 2 → card 1
+de-9-3  Three patterns: card 2 → card 1
+de-9-4  Talking about plans: card 3 → card 2
+de-18-4  Present tense: card 3 → card 1
+de-32-2  Four ways to give an order: card 3 → card 2
+de-32-3  Verb forms here: card 3 → card 1
+de-32-4  Comparing: card 3 → card 1
+de-33-2  Verb position: card 3 → card 2
+de-33-3  Indirect questions: card 3 → card 2
+de-33-4  Time words open the sentence: card 3 → card 1
+de-10-2  werden in the Präteritum: card 2 → card 1
+de-10-2  The passive in three tenses: card 2 → card 1
+de-10-4  Relative pronouns: card 3 → card 1
+de-10-4  Participles in this lesson: card 3 → card 1
+de-11-2  Word order: card 2 → card 1
+de-11-3  Polite forms: card 3 → card 1
+de-11-3  Politeness ladder: card 3 → card 2
+de-11-4  Participles in this lesson: card 3 → card 1
+de-11-4  Patterns: card 3 → card 2
+de-12-1  Two-part connectors and the verb: card 3 → card 1
+de-12-1  Present forms to expect: card 3 → card 2
+de-12-2  Verbs with prepositions: card 3 → card 1
+de-12-4  The five pairs: card 3 → card 2
+de-12-4  Present forms to expect: card 3 → card 2
+de-34-1  Relative pronouns: card 3 → card 2
+de-34-1  Verb forms in this lesson: card 3 → card 1
+de-34-2  Participles used as adjectives: card 3 → card 1
+de-34-2  Adjective endings: card 3 → card 1
+de-34-2  Plain and formal: card 3 → card 2
+de-34-3  Preposition and Perfekt: card 3 → card 1
+de-34-4  Passive with a modal: card 3 → card 2
+de-35-2  The genitive: card 3 → card 1
+de-35-2  Verb into noun: card 3 → card 2
+de-35-3  Process or state?: card 3 → card 1
+de-35-4  Relative pronouns by case: card 3 → card 1
+de-35-4  Prepositions in this lesson: card 3 → card 1
+de-29-1  **das** or **was**?: card 2 → card 1
+de-13-1  Greeting endings: card 3 → card 1
+de-13-1  Also in the sentences: card 3 → card 2
+de-13-2  The pairs in sentences: card 3 → card 1
+de-13-3  From direct to reported speech: card 3 → card 2
+de-13-4  Adjective endings here: card 3 → card 2
+de-13-4  Participles used as adjectives: card 3 → card 2
+de-14-1  Idioms in sentences: card 3 → card 2
+de-14-2  Past forms in this lesson: card 3 → card 2
+de-14-3  Modals that express certainty: card 3 → card 2
+de-14-3  Modals in the present: card 3 → card 2
+de-14-4  What each particle does: card 3 → card 2
+de-36-1  Signposts that start a sentence: card 3 → card 1
+de-36-2  Conceding: card 3 → card 2
+de-36-3  Two alternatives to the passive: card 3 → card 2
+de-36-3  Present tense with a stem change: card 3 → card 1
+de-36-4  Participles before nouns: card 3 → card 1
+de-37-1  The verbs in the Perfekt and Präteritum: card 3 → card 1
+de-37-1  Prepositions with numbers: card 3 → card 1
+de-37-2  Connectors by step: card 3 → card 1
+de-37-2  Also in the sentences: card 3 → card 1
+de-37-3  From direct to indirect: card 3 → card 1
+de-37-4  müssen and können: card 3 → card 2
+de-40-1  The two clauses: card 2 → card 1
+de-42-1  Two formal words: card 2 → card 1
+de-42-2  The pattern: card 2 → card 1
+de-42-3  Two ways to set a condition: card 2 → card 1
+de-42-4  The two parts: card 2 → card 1
+de-43-1  Headline → sentence: card 2 → card 1
+de-43-4  Question and clause: card 2 → card 1
+de-15-1  Casual and formal: card 3 → card 1
+de-15-1  Participles in this lesson: card 3 → card 2
+de-15-2  Conditions without wenn: card 3 → card 2
+de-15-3  Word endings: card 3 → card 2
+de-15-4  Argument phrases: card 3 → card 1
+de-38-2  Where the double meaning comes from: card 3 → card 1
+de-38-3  Proverb patterns: card 2 → card 1
+de-38-4  Blunt and tactful: card 3 → card 2
+de-39-1  Regional greetings: card 3 → card 1
+de-39-1  Same thing, different word: card 3 → card 2
+de-39-2  Ways to refer to a group: card 3 → card 2
+de-39-2  Verbs in the lesson: card 3 → card 1
+de-39-4  Rhetorical devices: card 3 → card 2
+de-39-4  Commands, including wir: card 3 → card 2
+de-41-2  Whether … or: card 2 → card 1
+de-44-1  Looking ahead from the past: card 2 → card 1
+de-44-4  Not that … but …: card 2 → card 1
+de-45-4  Saying what you prefer: card 2 → card 1
+de-46-1  Two ways to say “it’s time”: card 2 → card 1
+de-46-2  must have and probably: card 2 → card 1
+de-46-4  Two ways to wish: card 2 → card 1
+de: 152 lessons, 320 tables, 90 lessons change, unnamed before 100, after 23
+es-4-1  “My” and “your”: card 3 → card 1
+es-4-3  Two regular verbs: card 3 → card 2
+es-4-4  Adjectives: card 3 → card 2
+es-5-1  ir (irregular): to go: card 3 → card 2
+es-5-1  Regular -ar verbs: card 3 → card 2
+es-5-2  Regular present endings: card 3 → card 1
+es-5-4  Regular -ar verbs: card 3 → card 2
+es-6-2  Commands: card 3 → card 2
+es-6-2  Place words: card 3 → card 1
+es-6-3  Possessives: card 3 → card 1
+es-6-3  Agreement: card 3 → card 2
+es-6-3  How many?: card 3 → card 2
+es-23-1  Regular -ar verbs: card 2 → card 1
+es-23-3  tener que + infinitive: card 2 → card 1
+es-23-4  tener ganas de and gustar: card 2 → card 1
+es-17-2  Adjectives of fit: card 3 → card 2
+es-17-4  Dates: card 2 → card 1
+es-31-1  One and several: card 3 → card 2
+es-31-3  Polite requests: card 3 → card 1
+es-31-4  Four verbs, present: card 3 → card 2
+es-31-4  How often: card 3 → card 2
+es-25-4  se + person + verb: **se me rompió**: card 1 → card 2
+es-26-1  Who you call: **me**, **te**, **lo**, **la**: card 2 → card 1
+es-7-2  Three key verbs: card 2 → card 1
+es-7-2  More irregular stems: card 2 → card 1
+es-7-4  Which tense?: card 2 → card 1
+es-8-3  deber: should: card 2 → card 1
+es-9-2  Affirmative or negative?: card 2 → card 1
+es-9-2  ser and tener, subjunctive: card 2 → card 1
+es-9-3  Comparing: card 2 → card 1
+es-9-3  Irregular comparatives: card 2 → card 1
+es-9-4  Regular future endings: card 2 → card 1
+es-9-4  Irregular stems (same endings): card 2 → card 1
+es-18-3  When it takes the subjunctive: card 3 → card 1
+es-18-4  Indirect object pronouns: card 3 → card 1
+es-32-1  Containers and amounts: card 3 → card 1
+es-32-1  How much? How many?: card 3 → card 2
+es-32-2  Commands: card 3 → card 1
+es-32-3  Plain and polite: card 3 → card 1
+es-32-4  Comparing: card 3 → card 1
+es-32-4  preparar: habit or one time?: card 3 → card 2
+es-33-1  The future: card 2 → card 1
+es-33-1  si + present, then future: card 2 → card 1
+es-33-2  Which tense?: card 2 → card 1
+es-33-2  Forms to know: card 2 → card 1
+es-33-3  Question inside a sentence: card 3 → card 1
+es-33-4  Reflexive verbs in the preterite: card 3 → card 2
+es-33-4  Story words: card 3 → card 1
+es-27-1  Commands: **llama**, **llame**, **llamen**: card 2 → card 1
+es-28-2  **sin** and **en vez de** + infinitive: card 2 → card 1
+es-28-4  Fact or guess: **estará**, **serán**, **tendrán**: card 2 → card 1
+es-28-4  Future of **estar**: card 2 → card 1
+es-10-1  se + verb agrees with the thing: card 2 → card 1
+es-10-1  fue + participle agrees: card 2 → card 1
+es-10-3  Relative words: card 2 → card 1
+es-11-1  Irregular stems (same endings): card 2 → card 1
+es-11-3  usted or tú: card 2 → card 1
+es-11-4  Participles: card 3 → card 2
+es-12-1  Linking phrases: card 2 → card 1
+es-12-3  Linking words: card 2 → card 1
+es-12-4  Fixed phrases: card 3 → card 2
+es-19-1  Passive with se: card 3 → card 1
+es-19-2  Verb + preposition: card 2 → card 1
+es-34-1  Which mood?: card 2 → card 1
+es-34-2  Participles: card 2 → card 1
+es-34-3  Reflexive verbs: card 2 → card 1
+es-34-3  Preposition + relative: card 2 → card 1
+es-34-3  Other forms: card 2 → card 1
+es-34-4  Forms in this lesson: card 2 → card 1
+es-34-4  por or para: card 1 → card 2
+es-35-1  Two passives: card 2 → card 1
+es-35-3  One subject or two: card 2 → card 1
+es-35-3  Present subjunctive: card 2 → card 1
+es-13-1  Formal greeting: card 2 → card 1
+es-13-4  Subjunctive forms here: card 3 → card 1
+es-14-1  Same idiom, different verb forms: card 3 → card 2
+es-14-2  Where the pronoun goes: card 3 → card 2
+es-14-3  estar, future: card 2 → card 1
+es-14-4  Local words: card 3 → card 2
+es-36-1  Signposts: card 3 → card 1
+es-36-1  Other forms in this lesson: card 3 → card 2
+es-36-2  Imperfect subjunctive: ellos preterite, -ron to -ra: card 2 → card 1
+es-36-2  More forms in this lesson: card 2 → card 1
+es-36-3  Impersonal and passive se: card 3 → card 1
+es-37-1  Preterite of change verbs (él/ella): card 2 → card 1
+es-37-2  Parts of the essay: card 3 → card 1
+es-37-3  Direct speech to reported speech: card 3 → card 1
+es-37-4  Hedges and the verb after them: card 2 → card 1
+es-37-4  Present subjunctive and perfect: card 2 → card 1
+es-15-1  Casual and formal: card 3 → card 1
+es-15-1  Gerund (-ando / -iendo): card 3 → card 1
+es-15-2  Past tenses in the story: card 3 → card 1
+es-15-3  Word pieces: card 2 → card 1
+es-15-4  Set phrases: card 3 → card 1
+es-38-1  Understatement: card 3 → card 1
+es-38-2  Same sound (seseo, b = v): card 3 → card 2
+es-38-2  Two meanings: card 3 → card 1
+es-38-3  Verb forms in the sayings: card 3 → card 2
+es-38-3  Pronouns and se: card 3 → card 2
+es-38-4  Other forms in this lesson: card 3 → card 1
+es-39-1  Regular -ar verbs: card 3 → card 2
+es-39-1  Local words: card 3 → card 2
+es-39-2  Verb forms: card 3 → card 2
+es-39-3  Tenses in a narrative: card 3 → card 1
+es-39-3  Imperfect subjunctive (-ra): card 1 → card 2
+es-39-4  Rhetorical devices: card 3 → card 1
+es-41-1  Which subjunctive?: card 2 → card 1
+es-45-1  Fixed phrases: card 2 → card 1
+es-45-4  Preferir que: card 2 → card 1
+es-46-1  Two ways to say it: card 2 → card 1
+es-46-2  Guess or duty: card 2 → card 1
+es: 152 lessons, 324 tables, 83 lessons change, unnamed before 108, after 27
+it-4-1  mio, tuo, suo: card 2 → card 1
+it-4-2  Adjectives in -e: card 3 → card 1
+it-4-3  Colors agree with the noun: card 3 → card 2
+it-5-2  Where to?: card 3 → card 1
+it-5-3  The three endings: card 3 → card 1
+it-5-4  Free-time phrases: card 2 → card 1
+it-6-1  By what?: card 3 → card 1
+it-6-3  Rooms: card 3 → card 1
+it-6-4  Useful phrases: card 3 → card 1
+it-22-1  Plural-only clothes: card 3 → card 1
+it-22-3  How it fits: card 3 → card 2
+it-22-4  Ways to pay: card 3 → card 1
+it-23-1  When?: card 2 → card 1
+it-23-3  Yes or no: card 3 → card 2
+it-17-1  in or a + article?: card 3 → card 1
+it-17-2  Shops: card 3 → card 1
+it-17-3  dovere (irregular): must: card 3 → card 1
+it-17-4  The 24-hour clock: card 3 → card 1
+it-31-1  Plurals: card 3 → card 1
+it-31-2  Symptoms: card 3 → card 1
+it-31-3  Medicines: card 3 → card 1
+it-25-1  **ho** + participle: card 2 → card 1
+it-25-2  **stare** + gerund: card 1 → card 2
+it-26-1  Who you call: **mi**, **ti**, **lo**, **la**: card 2 → card 1
+it-7-2  Irregular participles: card 3 → card 2
+it-7-4  Which tense?: card 2 → card 1
+it-8-2  avere + noun: card 3 → card 2
+it-9-1  Verb + preposition + infinitive: card 3 → card 1
+it-9-2  Which mood?: card 3 → card 1
+it-9-3  Comparing: card 3 → card 1
+it-9-4  Irregular stems: card 3 → card 2
+it-18-1  Irregular participles: card 3 → card 2
+it-18-3  Booking vocabulary: card 3 → card 2
+it-18-4  Festivals: card 3 → card 1
+it-32-1  The partitive (some): card 3 → card 1
+it-32-1  Kitchen tools: card 3 → card 2
+it-32-2  Heat and time: card 3 → card 1
+it-32-3  Diets (m / f): card 2 → card 1
+it-32-4  Meals: card 3 → card 1
+it-33-1  a or in?: card 3 → card 1
+it-33-1  Plans: card 3 → card 1
+it-33-2  The passive with essere: card 3 → card 1
+it-33-3  From check-in to boarding: card 2 → card 1
+it-27-4  Don’t, to a friend: card 2 → card 1
+it-28-2  **senza** and **invece di** + infinitive: card 2 → card 1
+it-28-4  Future of **essere**: card 2 → card 1
+it-10-1  Active and passive: card 3 → card 2
+it-10-2  Impersonal expressions: card 2 → card 1
+it-10-4  Same subject or not?: card 3 → card 2
+it-10-4  Subjunctive after the conjunction: card 3 → card 1
+it-11-1  Imperfect subjunctive endings: card 3 → card 2
+it-11-1  Stems from the imperfetto: card 3 → card 2
+it-11-3  potere (condizionale): card 3 → card 1
+it-11-3  More or less polite: card 3 → card 2
+it-11-4  Auxiliary + participle: card 3 → card 1
+it-12-1  Order your points: card 2 → card 1
+it-12-3  Reason or result?: card 3 → card 1
+it-12-3  Because of or thanks to?: card 3 → card 2
+it-19-1  Types of flat: card 3 → card 1
+it-19-2  Combined pronouns: card 2 → card 1
+it-19-3  Relationship words: card 3 → card 1
+it-19-4  Indefinite pronouns: card 3 → card 1
+it-19-4  Verb + preposition: card 3 → card 2
+it-34-2  Little words in a CV: card 3 → card 2
+it-34-3  Blunt or diplomatic?: card 3 → card 2
+it-34-4  Contract types: card 3 → card 2
+it-34-4  Time off and extras: card 3 → card 2
+it-35-1  The election words: card 3 → card 1
+it-35-1  Fact or report?: card 3 → card 1
+it-35-2  Words on school and gaps: card 3 → card 2
+it-35-3  Health system words: card 3 → card 2
+it-13-1  Openings and closings: card 3 → card 1
+it-13-1  Polite pronouns in writing: card 3 → card 1
+it-13-2  Official phrases: card 3 → card 1
+it-13-2  Instructions on signs: card 3 → card 2
+it-14-1  Idioms and what they mean: card 3 → card 2
+it-14-3  From sure to unsure: card 3 → card 1
+it-14-3  Which mood?: card 3 → card 2
+it-14-4  Watermelon by region: card 3 → card 1
+it-36-1  Running the meeting: card 3 → card 1
+it-36-2  Conditions: card 3 → card 1
+it-36-3  Contract formulas: card 3 → card 1
+it-36-4  Persuasive structures: card 3 → card 2
+it-37-1  Saying how much: card 3 → card 2
+it-37-2  The shape of an essay: card 3 → card 1
+it-37-2  Ordering points: card 3 → card 1
+it-37-3  Restating: card 3 → card 2
+it-37-4  Hedging phrases: card 3 → card 1
+it-37-4  Unconfirmed news: card 3 → card 2
+it-40-2  Same time or earlier: card 2 → card 1
+it-42-2  Two clauses: card 2 → card 1
+it-42-4  Close in meaning: card 2 → card 1
+it-43-1  Headline → sentence: card 2 → card 1
+it-43-4  Question or doubt: card 2 → card 1
+it-15-2  Irregular forms (lui/lei): card 3 → card 2
+it-15-3  Suffixes: card 3 → card 1
+it-15-3  Prefixes: card 3 → card 2
+it-15-4  Debate moves: card 3 → card 1
+it-15-4  Counter an argument: card 3 → card 1
+it-38-1  Saying less: card 3 → card 1
+it-38-2  Same spelling, different stress: card 3 → card 2
+it-38-2  Kinds of wordplay: card 3 → card 1
+it-38-3  Proverbs and what they mean: card 3 → card 1
+it-38-4  Softer words: card 3 → card 1
+it-38-4  Tactful phrases: card 3 → card 2
+it-39-1  Languages and where: card 3 → card 1
+it-39-1  parlare + language: card 3 → card 2
+it-39-2  New -are verbs: card 3 → card 2
+it-39-4  Rhetorical devices: card 3 → card 2
+it-39-4  Opening and asking: card 3 → card 2
+it-41-1  Ways to suppose: card 2 → card 1
+it-41-3  Not even …, let alone …: card 2 → card 1
+it-41-3  Three ways to say “not even”: card 2 → card 1
+it-46-1  Which tense?: card 2 → card 1
+it-46-2  Which helping verb?: card 2 → card 1
+it-46-3  Two ways to say it: card 2 → card 1
+it: 152 lessons, 286 tables, 95 lessons change, unnamed before 131, after 37
+total: 456 lessons, 930 tables, 268 lessons change, unnamed before 339, after 87
