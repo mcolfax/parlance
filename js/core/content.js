@@ -108,7 +108,7 @@ function lessonForms(l){
 /* A tip is taught in one to three bites (the concept cards between word groups).
    An author can cut it by hand with blank lines: one bite per paragraph, at most three (later paragraphs join the third),
    and each table goes to the paragraph whose bold words its caption or cells show. Without blank lines it is cut at
-   sentence ends by length, and a table follows its caption. Examples always go to the bite whose bold words they use. */
+   sentence ends by length, and a table goes to the card whose bold words its caption (counted three times) and cells show most. Examples always go to the bite whose bold words they use. */
 function tipBites(tip){
   if (!tip || !tip.body) return [];
   const plain = s => String(s).replace(/\*\*/g, '').toLowerCase();
@@ -133,9 +133,18 @@ function tipBites(tip){
     bites.forEach((b, i) => { const hit = bolds(b).filter(w => w.length > 2 && key.includes(w)).length; if (hit > best && hit > 0){ best = hit; at = i; } });
     return bites[at];
   };
-  const tableKey = t => plain(byPara ? [t.cap, ...(t.head || []), ...t.rows.flat()].join(' ') : t.cap);
+  const hits = (b, key) => bolds(b).filter(w => w.length > 2 && key.includes(w)).length;
   for (const e of tip.examples || []) home(plain(e.t)).examples.push(e);
-  for (const t of tip.tables || []) home(tableKey(t)).tables.push(t);
+  for (const t of tip.tables || []){
+    if (byPara){ home(plain([t.cap, ...(t.head || []), ...t.rows.flat()].join(' '))).tables.push(t); continue; }
+    // a table goes to the card that names it most: a bold word in its caption counts three times, one in its cells once;
+    // a tie keeps the card its caption alone would pick, or else the later card
+    const cap = plain(t.cap), cells = plain([...(t.head || []), ...t.rows.flat()].join(' '));
+    const sc = bites.map(b => 3 * hits(b, cap) + hits(b, cells)), mx = Math.max(...sc);
+    let at = bites.indexOf(home(cap));
+    if (mx > 0 && sc[at] !== mx) at = sc.lastIndexOf(mx);
+    bites[at].tables.push(t);
+  }
   return bites.map((b, i) => ({ ...b, title: tip.title, i, of: bites.length }));
 }
 function allLessons(lang){ return coreOrder(lang).concat(genLessons(lang)); }
