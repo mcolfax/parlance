@@ -1,7 +1,7 @@
 # Each table on the card that explains it, and a check of every Spanish A1 lesson
 
 - **Cycle:** queued 2026-11-16 (program 2, release R6; `flow/PROGRAM-2.md`)
-- **Status:** building
+- **Status:** shipped (4.52.0)
 - **Release:** 4.52.0
 - **Base:** `main` at 5f19252 (4.51.0)
 - **Proposals built:** pmvxw6o4w0 (web, approved; the "tables on the wrong card" half of its note)
@@ -111,5 +111,5 @@ A table moving to an earlier card shows its forms before a later card explains t
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.52.0, `607765a` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**
