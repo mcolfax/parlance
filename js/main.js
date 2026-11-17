@@ -46,4 +46,5 @@ function afterAllLangs(){
   window.__parlance = { APP_VERSION, picFor, picQuiz, PIC_EX, lexToks, ARTICLES, articlesFor, blankSaid, COURSE, STORIES, CAST, BADGES, QUESTS, Packs, Live, buildLesson, glossLookup, checkBadges, questIds, mergeDays, mergeBadges, evaluate, check, answerDiff, closestAnswer, norm, fold, englishVariants, tileTokens, reviewEx, streakInfo, srsUpdate, sanitizeLesson, speechScore, mergeLang, mergeCore, mergeGen, mergeWhole, makeBackupCode, readBackup, defaultState, mergeState, itemKey, resolveKey, migrateCardKeys, validatePack, applyContentDocs, allStories, filmActors, voiceLines, recKey, get S(){ return S; }, set S(v){ S = v; } };
 }
 loadCachedContent();
+S = loadLocal();   // the learner's own state first: pagehide/visibilitychange (state.js) and Try again save S while the language loads, so it must never be the blank default
 langLoad(bootLang()).then(start, bootFail);

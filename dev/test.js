@@ -37,6 +37,7 @@ async function makeDom(opts = {}){
   const dom = new JSDOM('<!doctype html><html><head><meta charset="utf-8"></head><body>' + page + '</body></html>', {
     url: BASE + 'index.html' + (opts.hash || ''), runScripts: 'dangerously', resources: new LocalOnly(), pretendToBeVisual: true, virtualConsole: vc,
     beforeParse(w){
+      if (opts.early) opts.early(w);
       w.matchMedia = () => ({ matches: false, addEventListener(){}, removeEventListener(){} });
       w.scrollTo = () => {}; w.Element.prototype.scrollIntoView = function(){}; w.Element.prototype.scrollTo = function(){};
       w.HTMLCanvasElement.prototype.getContext = () => null;
@@ -3554,6 +3555,13 @@ async function main(){
       for (let i = 0; i < 100 && !label; i++){ await sleep(20); const b = R.w.document.querySelector('.sheet-back'); if (b) label = b.getAttribute('aria-label'); }
       const btns = [...R.w.document.querySelectorAll('.sheet-back button')].map(b => b.textContent.trim());
       ok(label === 'Couldn’t load Spanish' && R.E('S.settings.lang') === 'it' && btns.includes('Try again') && btns.includes('Not now'), 'languages: a language that fails to load says so (' + label + ', ' + btns.join() + ')');
+      R.w.close();
+    }
+    // 8. a save while the learner's language loads (the phone hides the page, or Try again reloads) keeps their progress
+    {
+      const R = await makeDom({ hold: true, seed: seedOf('it', { langs: { it: doneOf('it-1-1') } }), early: w => w.document.addEventListener('DOMContentLoaded', () => w.dispatchEvent(new w.Event('pagehide'))) });
+      const s = JSON.parse(R.w.localStorage.getItem('parlance.v2'));
+      ok(!!s.langs.it.done['it-1-1'] && s.langs.it.xp === 30 && s.settings.lang === 'it' && s.settings.onboarded === true, 'languages: a save while the learner’s language loads keeps their progress');
       R.w.close();
     }
   }
