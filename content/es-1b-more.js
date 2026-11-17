@@ -57,7 +57,7 @@ U('Weather & seasons', 'A1', [
       [['Hoy hace mucho calor.', 'It’s very hot today.'], ['Está nublado y llueve.', 'It’s cloudy and it’s raining.'], ['Hace sol, vamos al parque.', 'It’s sunny, let’s go to the park.']],
       [['Which verb for the weather?', ['Use', 'Examples'], [['**hace** + noun', 'hace frío, calor, sol, viento'], ['**está** + adjective', 'está nublado'], ['one verb', '**llueve**, **nieva**']]], ['Present of ir (to go, irregular)', null, [['yo', 'voy'], ['tú', 'vas'], ['él/ella/usted', 'va'], ['nosotros', '**vamos**'], ['ellos/ustedes', 'van']]]]),
     [['hace frío', 'cold|it is cold'], ['hace calor', 'hot|warm|it is hot'], ['hace sol', 'sunny|it is sunny'], ['hace viento', 'windy|it is windy'],
-     ['llueve', 'it is raining|it rains|raining|to rain'], ['nieva', 'it is snowing|it snows|snowing|to snow'], ['está nublado', 'cloudy|overcast'], ['el clima', 'weather|climate', 'm']],
+     ['llueve', 'it is raining|it rains|raining'], ['nieva', 'it is snowing|it snows|snowing'], ['está nublado', 'cloudy|overcast'], ['el clima', 'weather|climate', 'm']],
     [['¿Qué tiempo hace hoy?|¿Cómo está el clima hoy?', 'What’s the weather like today?|What is the weather like today?|How is the weather today?|What is the weather today?'],
      ['Hoy hace mucho calor.|Hace mucho calor hoy.', 'It is very hot today.|It’s very hot today.|Today it is very hot.|Today it’s very hot.|It is really hot today.|It’s really hot today.'],
      ['Hoy hace frío y hace viento.|Hoy hace frío y viento.', 'It is cold and windy today.|It’s cold and windy today.|Today it is cold and windy.|Today it’s cold and windy.|It is cold and it is windy today.'],

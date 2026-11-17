@@ -14,7 +14,7 @@ U('Greetings & introductions', 'A1', [
     [['¡Hola! ¿Cómo estás?', 'Hello! How are you?|Hi! How are you?|Hello! How are you doing?|Hi! How are you doing?'],
      ['Muy bien, gracias.', 'Very well, thank you.|Very well, thanks.|Very good, thanks.|Very good, thank you.|Really good, thanks.'],
      ['Buenos días, señora López.', 'Good morning, Mrs. López.|Good morning, Ms. López.'],
-     ['Hasta luego, Carlos.', 'See you later, Carlos.|See you, Carlos.|Until later, Carlos.'],
+     ['Hasta luego, Carlos.', 'See you later, Carlos.|See you, Carlos.'],
      ['Buenas noches y gracias.', 'Good night and thank you.|Good night and thanks.|Good evening and thank you.|Good evening and thanks.']],
     [['Buenos ___.', 'días|tardes|noches', 'Good morning.'], ['Buenas ___. (good afternoon)', 'tardes|días|luego', 'Good afternoon.'], ['Muy bien, ___.', 'gracias|por favor|hola', 'Very well, thank you.']]),
   L('es-1-2', 'What’s your name?',
