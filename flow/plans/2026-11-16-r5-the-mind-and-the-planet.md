@@ -1,9 +1,9 @@
 # C2 "The mind" and "Climate & the planet", and a check of every German A1 lesson
 
 - **Cycle:** queued 2026-11-16 (program 2, release R5; `flow/PROGRAM-2.md`)
-- **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r5-the-mind-and-the-planet.md`, set Base, check it still matches `main`)
+- **Status:** shipped (4.51.0)
 - **Release:** 4.51.0
-- **Base:** `main` at 9f65e69 (4.50.0)
+- **Base:** `main` at ec86b56 (4.50.0)
 - **Proposals built:** none
 - **Roadmap items:** R-2 (second of two releases), R-9 (first audit: German A1)
 
@@ -134,5 +134,5 @@ New lessons, added accepted answers and replaced wrong options; no key changes. 
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.51.0, `9b81e84` | **Dropped:** none | **Escalated:** none
 - **Notes for the next cycle:**

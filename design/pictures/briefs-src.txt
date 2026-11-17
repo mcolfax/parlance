@@ -1940,7 +1940,7 @@ n 0 a-phones answering-machine | answering machine with a red handset on top, tw
 - urgent | abstract
 = voicemail answering-machine
 n 1 b-emergencies ambulance | white ambulance van with a red cross, a red stripe and a blue light on the roof
-a 0 b-emergencies calm {"es":["tranquilo"],"it":["calmo"]} | figure sitting cross-legged with eyes closed and a gentle smile, hands on knees (de-27-1 names it: ruhig is also feel free)
+a 0 b-emergencies calm {"de":["gelassen"],"es":["tranquilo","sereno"],"it":["calmo","pacato"]} | figure sitting cross-legged with eyes closed and a gentle smile, hands on knees (de-27-1 names it: ruhig is also feel free)
 n 0 b-emergencies emergency | red emergency beacon light flashing, with bright rays
 n 1 b-emergencies fire | house with orange and yellow flames pouring from the roof and window, smoke above
 = fire-department firefighters
@@ -2222,3 +2222,80 @@ n 0 c-media-money bill-utility {"it":["la bolletta"]} | utility bill sheet with 
 - to-afford-something | abstract
 - to-get-into-debt | abstract
 - wasteful | abstract
+# ---- units 45–46 (release 4.51.0) ----
+- as-far-as | a phrase, nothing to draw
+- as-far-as-i-know | a phrase, nothing to draw
+- blurry | abstract in this sense (a blurry memory)
+- patchy | abstract (a patchy memory)
+- short-term-memory | abstract
+- to-evoke | abstract, a thought
+- to-recall | abstract, a thought
+- to-repress | abstract, a thought
+- anxiety | a feeling
+- coping | abstract
+- insecurity | a feeling
+- panic-attack | a feeling, nothing to draw
+- to-brood | abstract, a thought
+- to-overthink-something | abstract, a thought
+- to-paralyze | abstract
+- uncertainty | abstract
+- worry | a feeling
+- insomnia | abstract, would look like to-sleep
+- lack-of-sleep | abstract
+n 0 c-mind-planet nightmare | a crescent moon over a bed, a sleeper with wide eyes and an open mouth, a dark purple cloud with angry eyes above the head
+- perception | abstract
+- sleepless | abstract, would look like to-sleep
+n 0 c-mind-planet sleepwalking | the neutral figure in blue pajamas walking with both arms out in front and eyes closed, a crescent moon top right
+- subconscious | abstract
+- the-unconscious | abstract
+- to-be-startled | abstract, a quick reaction
+- to-interpret | abstract
+- to-start-up | abstract, a quick reaction
+- resolution | abstract
+- self-discipline | abstract
+- temptation | abstract
+- to-hold-out | abstract
+- to-persevere | abstract
+- to-put-off | abstract
+- to-resist | abstract
+- willpower | abstract
+- carbon-neutrality | abstract
+- climate-neutrality | abstract
+- emissions | abstract, would look like pollution
+- energy-transition | abstract
+- fossil | adjective in this sense (fossil), abstract
+- fossil-fuel | abstract
+- global-warming | abstract
+- point-of-no-return | abstract
+- tipping-point | abstract
+- aquifer | underground, nothing to see
+- cause | abstract
+n 1 c-mind-planet drought | a cracked, dry lake bed with a dead tree and a hot sun
+n 0 c-mind-planet forest-fire | a green tree with flames and smoke rising from its crown
+- harvest | would need a field scene that looks like a farm picture
+- to-cause | abstract
+v 0 c-mind-planet to-deforest | a tree stump with an axe in it beside a felled tree lying on the ground
+- to-dry-up | abstract, would look like drought
+- water-table | underground, nothing to see
+- downpour | would look like rain
+n 1 c-mind-planet flood | two houses with water up to their windows
+n 0 c-mind-planet heat-wave | a big sun beside a thermometer with the red column at the top, two wavy heat lines
+n 1 c-mind-planet hurricane | a spiral storm seen from above: swirling white arms around a small eye over a blue sea
+- severe-weather-warning | abstract, a notice
+- storm-surge | would look like flood
+- to-devastate | abstract
+- to-ease | abstract
+- to-ease-off | abstract
+- to-evacuate | a crowd leaving, nothing clear to draw
+- weather-alert | abstract, a notice
+- weather-warning | abstract, a notice
+- awareness | abstract
+- confident | abstract
+- future-generations | abstract
+- hope | abstract
+- hopeful | abstract
+- legacy | abstract
+- optimistic | abstract
+- posterity | abstract
+- sustainable | abstract
+- to-preserve | abstract

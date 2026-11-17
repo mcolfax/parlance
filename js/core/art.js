@@ -266,6 +266,8 @@ const UNIT_ART = {
   'Law & justice': '<path d="M5.5 8.5 10 4l3.5 3.5L9 12z"/><path d="M6.4 7.6l3.5 3.5M9.1 4.9l3.5 3.5M11.3 9.8l7.2 7.2"/><rect x="3" y="18" width="9.5" height="2.8" rx=".8"/>',
   'News & media': '<rect x="3.5" y="5" width="14" height="14" rx="1.5"/><path d="M17.5 9H20v8.5a1.5 1.5 0 0 1-3 0M6.5 8.5h8M6.5 12h3.5M6.5 15.5h3.5M12 12h2.5v3.5H12z"/>',
   'Money & the economy': '<ellipse cx="12" cy="6.5" rx="6.5" ry="2.5"/><path d="M5.5 6.5v4c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5v-4M5.5 10.5v4c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5v-4M5.5 14.5v3c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5v-3"/>',
+  'The mind': '<path d="M14.5 20.5V17h2a2 2 0 0 0 2-2v-2.5l1.6-.6-1.7-3A7.3 7.3 0 1 0 7.5 15.2v5.3"/><path d="M11.5 7.5v3M10 9h3"/>',
+  'Climate & the planet': '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.5 5.4 3.5 8.5s-1.1 6.1-3.5 8.5c-2.4-2.4-3.5-5.4-3.5-8.5s1.1-6.1 3.5-8.5z"/>',
 };
 function unitSign(title, size){
   const p = UNIT_ART[title] || UNIT_ART['Telling stories'];
