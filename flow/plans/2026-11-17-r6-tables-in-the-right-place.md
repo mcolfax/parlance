@@ -2,8 +2,8 @@
 
 - **Cycle:** queued 2026-11-16 (program 2, release R6; `flow/PROGRAM-2.md`)
 - **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r6-tables-in-the-right-place.md`, set Base, check it still matches `main`)
-- **Release:** 4.52.0 (minor)
-- **Base:** `main` at the commit that ships 4.51.0 (`r5-the-mind-and-the-planet.md`); R2 and R4 must have shipped (every A1 tip is hand-cut, so this release doesn't touch them)
+- **Release:** 4.52.0
+- **Base:** `main` at 9b81e84 (4.51.0)
 - **Proposals built:** pmvxw6o4w0 (web, approved; the "tables on the wrong card" half of its note)
 - **Roadmap items:** R-18, R-9 (second audit: Spanish A1)
 
