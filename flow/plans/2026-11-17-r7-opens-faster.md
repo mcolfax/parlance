@@ -1,9 +1,9 @@
 # Opens faster: your language first, the others a moment later
 
 - **Cycle:** queued 2026-11-16 (program 2, release R7; `flow/PROGRAM-2.md`)
-- **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r7-opens-faster.md`, set Base, check it still matches `main`)
+- **Status:** building
 - **Release:** 4.53.0
-- **Base:** `main` at 607765a (4.52.0)
+- **Base:** `main` at 9dacbf4 (4.52.0)
 - **Proposals built:** none
 - **Roadmap items:** R-36 (from R-14's measurement)
 
