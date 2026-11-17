@@ -1,9 +1,9 @@
 # Each table on the card that explains it, and a check of every Spanish A1 lesson
 
 - **Cycle:** queued 2026-11-16 (program 2, release R6; `flow/PROGRAM-2.md`)
-- **Status:** draft (the orchestrator promotes it: move to `flow/plans/<cycle>-r6-tables-in-the-right-place.md`, set Base, check it still matches `main`)
+- **Status:** building
 - **Release:** 4.52.0
-- **Base:** `main` at 9b81e84 (4.51.0)
+- **Base:** `main` at 5f19252 (4.51.0)
 - **Proposals built:** pmvxw6o4w0 (web, approved; the "tables on the wrong card" half of its note)
 - **Roadmap items:** R-18, R-9 (second audit: Spanish A1)
 
