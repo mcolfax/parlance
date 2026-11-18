@@ -1,7 +1,7 @@
 # Opens faster: your language first, the others a moment later
 
 - **Cycle:** queued 2026-11-16 (program 2, release R7; `flow/PROGRAM-2.md`)
-- **Status:** building
+- **Status:** shipped (4.53.0)
 - **Release:** 4.53.0
 - **Base:** `main` at 9dacbf4 (4.52.0)
 - **Proposals built:** none
@@ -146,5 +146,5 @@ If a guard is missing somewhere, a learner could briefly see another language's 
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
-- **Notes for the next cycle:**
+- **Shipped:** 4.53.0, `f439081` | **Dropped:** none | **Escalated:** none
+- **Notes for the next cycle:** the reviewer caught a progress-loss path (a save while the first language loaded wrote the blank default); boot now loads saved state before the language, with a test. Follow-ups in R-71.
