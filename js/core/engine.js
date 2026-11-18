@@ -421,6 +421,8 @@ const GENMISS = { key: 'parlance.genmiss', max: 20 };
 function genMissAll(){
   try { const o = JSON.parse(localStorage.getItem(GENMISS.key)); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; } catch (e){ return {}; }
 }
+/* signing out forgets the missed articles too: they are this device's, and the next person on it starts clean */
+function genMissClear(){ try { localStorage.removeItem(GENMISS.key); } catch (e){} }
 function genMissList(lang){ const a = genMissAll()[lang]; return Array.isArray(a) ? a.filter(x => typeof x === 'string') : []; }
 /* a wrong answer puts the noun at the front of the list; a right one takes it off */
 function genMissNote(lang, noun, wrong){

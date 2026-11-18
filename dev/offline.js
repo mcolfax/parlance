@@ -70,8 +70,12 @@ async function main(){
   const crypto = require('crypto'), problems = [];
   if (/__MANIFEST__|__VERSION__/.test(swSrc)) problems.push('sw.js still has a placeholder');
   const pageScripts = [...fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').matchAll(/<script src="([^"]+)"/g)].map(m => m[1]);
-  const need = ['index.html', 'media/voice/es.json', ...pageScripts];
+  /* the language files aren't <script> tags (js/core/content.js loads them from LANG_FILES), so check them against the list too */
+  const langFiles = Object.values(require('vm').runInNewContext(fs.readFileSync(path.join(ROOT, 'js', 'config.js'), 'utf8') + ';LANG_FILES', { window: {}, console })).flat();
+  if (langFiles.length < 45) problems.push('LANG_FILES gave only ' + langFiles.length + ' files');
+  const need = ['index.html', 'media/voice/es.json', ...pageScripts, ...langFiles];
   for (const f of need) if (!man.files[f]) problems.push(f + ' is not listed');
+  for (const f of langFiles) if (!swSrc.includes(JSON.stringify(f))) problems.push(f + ' is not in the worker’s list');
   if (man.files['media/voice/es.json'] && man.files['media/voice/es.json'][2]) problems.push('media/voice/es.json is lazy');
   if (!Object.keys(man.files).some(f => /^media\/voice\/.*\.mp3$/.test(f) && man.files[f][2] === 1)) problems.push('no lazy voice pack is listed');
   for (const [f, [hash, bytes]] of Object.entries(man.files)){
@@ -83,7 +87,7 @@ async function main(){
   const eager = Object.values(man.files).filter(v => !v[2]).reduce((n, v) => n + v[1], 0);
   if (Object.keys(man.files).some(f => /^media\/film\/.*\.(mp4|webm)$/.test(f))) problems.push('an intro film is listed (videos are fetched with Range requests, so the cache can’t serve them)');
   if (eager >= 10 * 1024 * 1024) problems.push('the files cached at install total ' + (eager / 1048576).toFixed(1) + ' MB (10 MB or more)');
-  report('1 build', !problems.length, problems.slice(0, 5).join('; ') || Object.keys(man.files).length + ' files listed, ' + (eager / 1048576).toFixed(1) + ' MB cached at install (not lazy)');
+  report('1 build', !problems.length, problems.slice(0, 5).join('; ') || Object.keys(man.files).length + ' files listed (' + langFiles.length + ' language files), ' + (eager / 1048576).toFixed(1) + ' MB cached at install (not lazy)');
 
   const { chromium } = playwright();
   const srv = await serve(), base = 'http://127.0.0.1:' + srv.port + '/', tmps = [];

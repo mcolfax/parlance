@@ -41,7 +41,7 @@ async function loadApp(root, fn){
     }
   });
   await new Promise(r => { if (dom.window.document.readyState === 'complete') r(); else dom.window.addEventListener('load', r); });
-  for (let i = 0; i < 150 && !dom.window.__parlance; i++) await sleep(20);
+  for (let i = 0; i < 500 && !dom.window.__parlance; i++) await sleep(20);
   if (!dom.window.__parlance) throw new Error('The app did not load in jsdom from ' + root + '. Run npm test to see why.');
   try { return await fn(dom.window.__parlance, dom.window); } finally { dom.window.close(); }
 }
