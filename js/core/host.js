@@ -90,7 +90,7 @@ async function webUpdateUser(change){   // { password } or { data: { name } }
   return u;
 }
 function webGoogle(){ location.assign(WEB.url + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(location.origin + location.pathname)); }
-async function webSignOut(){ try { await webFetch('/auth/v1/logout', { method: 'POST' }); } catch (e) {} webKeep(null); genMissClear(); }
+async function webSignOut(){ try { await webFetch('/auth/v1/logout', { method: 'POST' }); } catch (e) {} webKeep(null); }
 function webReload(){ location.reload(); }
 
 /* ----- the window.claude.use() surface: 'db' and 'user' ----- */
