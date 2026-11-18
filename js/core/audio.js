@@ -257,7 +257,7 @@ function silentWav(n = 400){
   return new Blob([d.buffer], { type: 'audio/wav' });
 }
 /* Android Chrome freezes a page with the screen off as soon as nothing is playing, so Listen hands-free stopped in the
-   pause after the first word. While it plays, a second element loops two seconds of silence: the page counts as playing
+   pause after the first word (Matt's phone, 4.53.0; fixed and checked in 4.53.1). Stories' Listen first uses it too. While either plays, a second element loops two seconds of silence: the page counts as playing
    audio, its timers keep running and the next word starts on time. Started from the tap that opens or plays Listen. */
 const Keep = { el: null };
 function keepAlive(on){
