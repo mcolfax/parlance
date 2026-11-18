@@ -1,7 +1,7 @@
 # Birds v2: premium 2D animation for Pip and the flock
 
-- **Status:** approved by Matt 2026-11-18 (proposal `pfmwm305wk`, web home: (a), (b), (d); (c) not yet, decide after
-  the Pip pilot). Stages 1–3 done and reviewed (FIX list applied separately); Stage 4 under way.
+- **Status:** superseded on 2026-11-18 by `design/rig/v3/PLAN.md` (new designs from Recraft, rigged in Rive). Its motion
+  rules and specs (section 8), budgets (section 9) and baseline captures are reused there.
 - **Written:** 2026-11-18, against `main` as of this date
 - **Zone:** Red (flow/POLICY.md, "Identity: Pip or the other birds' art or rig"). Nothing here is built by the flow until
   Matt approves the Stage 0 proposals himself. After that, each stage ships as an ordinary release.
