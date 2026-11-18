@@ -4,7 +4,7 @@ COURSE_SRC.it.push(
 U('Colors, clothes & weather', 'A1', [
   L('it-16-1', 'More colors',
     T('Shades and patterns',
-      'Add **chiaro** (light) or **scuro** (dark) after a color to name a shade: **verde chiaro**, **blu scuro**. The shade word does not change, and neither do **arancione**, **marrone**, **viola**, **rosa** and **blu**. **Mi piace** means “I like”.\n\n**azzurro** is a bright light blue (the color of the sky and of the Italian national team). Colors that end in -o still agree: **una camicia azzurra**, **occhi azzurri**.\n\nDescribe patterns with **a righe** (striped), **a quadri** (checked), **a pois** (polka dot) and **tinta unita** (plain): **Questa sciarpa è a righe**.',
+      'Add **chiaro** (light) or **scuro** (dark) after a color to name a shade: **verde chiaro**, **blu scuro**. The shade word does not change. Colors that end in -e, like **arancione** and **marrone**, take -i in the plural: **arancioni**, **marroni**. Only **blu**, **rosa** and **viola** never change. **Mi piace** means “I like”.\n\n**azzurro** is a bright light blue (the color of the sky and of the Italian national team). Colors that end in -o still agree: **una camicia azzurra**, **occhi azzurri**.\n\nDescribe patterns with **a righe** (striped), **a quadri** (checked), **a pois** (polka dot) and **tinta unita** (plain): **Questa sciarpa è a righe**.',
       [['Mi piace il verde chiaro.', 'I like light green.'], ['Il mare è blu scuro.', 'The sea is dark blue.'], ['Questa sciarpa è a righe.', 'This scarf is striped.']],
       [
         ['Shades do not change', ['say it', 'meaning'], [['verde **chiaro**', 'light green'], ['blu **scuro**', 'dark blue'], ['rosso **vivo**', 'bright red']]],
