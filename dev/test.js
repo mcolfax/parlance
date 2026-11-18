@@ -411,6 +411,7 @@ async function main(){
     Q.E('resumeSave()'); const rs = Q.E('resumeFind(' + JSON.stringify(lid) + ')'), back = rs && rs.queue.find(e => e.type === 'gender');
     ok(!!back && back.item.t === noun && rs.lesson.vocab.includes(back.item) && rs.queue.length === Q.E('Run.queue.length') && rs.queue.indexOf(back) === at, 'lesson articles: a lesson with one resumes');
     Q.dom.window.close(); }
+  { const f = path.join(ROOT, 'media', 'birds', 'pip.json'); ok(fs.existsSync(f), 'rig2: media/birds/pip.json is missing: make it as design/rig/v2/tools/README.md says'); if (fs.existsSync(f)){ const r = require('child_process').spawnSync(process.execPath, [path.join(ROOT, 'design', 'rig', 'v2', 'test', 'rig2.test.js')], { encoding: 'utf8' }); ok(r.status === 0 && /\nok\s*$/.test(r.stdout), 'rig2: node design/rig/v2/test/rig2.test.js must end with ok: ' + (r.stdout + r.stderr).split('\n').filter(l => /FAIL|Error/.test(l)).slice(0, 3).join(' | ')); } }   // birds v2: the new runtime's own checks
   /* word pictures: the mapping and the files follow the rules, and enough lessons ask about them (floors: the shipped numbers, rounded down) */
   { const T = require(path.join(ROOT, 'design', 'pictures', 'tools.js')), log = console.log; console.log = () => {};
     let fails; try { fails = await T.check(); } finally { console.log = log; }

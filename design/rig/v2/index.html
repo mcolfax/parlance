@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rig2 review</title>
+<link rel="stylesheet" href="../../../styles/tokens.css">
+<style>
+/* the review page for the new bird runtime (js/core/rig2.js): the old rig and the new one, live, at the same size */
+:root{--ground:#F3F7EC;--paper:#FFFFFF;--ink2:#15301F;--muted2:#56705F;--rule:#D7E3CB;--stage:#E8F0DD;--chip:#E2ECD5;--on:#1F8A4C;--on-ink:#FFFFFF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ground:#0F1913;--paper:#16231B;--ink2:#E4EEE5;--muted2:#9BB3A1;--rule:#2B3E31;--stage:#1B2B21;--chip:#22352A;--on:#4CC27E;--on-ink:#06210F;color-scheme:dark}}
+:root[data-theme="dark"]{--ground:#0F1913;--paper:#16231B;--ink2:#E4EEE5;--muted2:#9BB3A1;--rule:#2B3E31;--stage:#1B2B21;--chip:#22352A;--on:#4CC27E;--on-ink:#06210F;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ground);color:var(--ink2);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+.page{max-width:900px;margin:0 auto;padding:16px 16px 56px;display:flex;flex-direction:column;gap:16px}
+h1{font-size:24px;line-height:1.15;margin:0}
+h2{font-size:15px;margin:0;letter-spacing:.02em}
+.sub{color:var(--muted2);font-size:14px;margin:4px 0 0}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.lab{font:600 12px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2);margin-right:4px}
+.chip{appearance:none;border:1.5px solid transparent;background:var(--chip);color:var(--ink2);font:600 14px/1 inherit;padding:9px 12px;border-radius:999px;cursor:pointer;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--on);color:var(--on-ink)}
+.chip:disabled{opacity:.4;cursor:default}
+.chip:focus-visible,input:focus-visible{outline:2px solid var(--on);outline-offset:2px}
+.stages{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.stage{background:var(--stage);border-radius:18px;padding:14px 10px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;position:relative}
+.stage figcaption{font:600 12px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted2)}
+.stage .box{position:relative;display:flex;align-items:flex-end;justify-content:center;padding-top:18%}
+.stage .onion{position:absolute;pointer-events:none}
+.meter{font:12px/1.3 ui-monospace,Menlo,monospace;color:var(--muted2);text-align:center;min-height:16px}
+.stills{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.still{background:var(--stage);border-radius:12px;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font:12px/1.2 ui-monospace,Menlo,monospace;color:var(--muted2)}
+.still .pair{display:flex;gap:2px;align-items:flex-end}
+label.sl{display:flex;align-items:center;gap:8px;font-size:14px}
+input[type=range]{width:min(220px,50vw);accent-color:var(--on)}
+.rig{overflow:visible}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Rig2 review</h1>
+    <p class="sub">The old SVG rig (left) and the new deforming canvas rig (right), live at the same size, from the same moods and moves. This stage changes the player, not the look.</p>
+  </header>
+  <div class="row" id="birds"><span class="lab">Bird</span></div>
+  <div class="stages" id="stages">
+    <figure class="stage" style="margin:0"><figcaption>Old rig</figcaption><div class="box" id="boxOld"></div><div class="meter" id="mOld"></div></figure>
+    <figure class="stage" style="margin:0"><figcaption>Rig2</figcaption><div class="box" id="boxNew"></div><div class="meter" id="mNew"></div></figure>
+  </div>
+  <div class="row" id="moods"><span class="lab">Mood</span></div>
+  <div class="row" id="moves"><span class="lab">Move</span></div>
+  <div class="row">
+    <span class="lab">Size</span><span id="sizes" class="row"></span>
+  </div>
+  <div class="row">
+    <label class="sl"><span class="lab">Speed</span><input id="speed" type="range" min="0.1" max="1" step="0.05" value="1"><span id="speedV">1</span></label>
+  </div>
+  <div class="row">
+    <span class="lab">View</span>
+    <button class="chip" id="theme" aria-pressed="false">Dark</button>
+    <button class="chip" id="onion" aria-pressed="false">Onion skin</button>
+    <button class="chip" id="bones" aria-pressed="false">Bones</button>
+    <button class="chip" id="curl" aria-pressed="true" title="The wing feathers and tail bend in the baked poses (the data from the Blender build). Off keeps them straight, as the old rig's rigid wings were.">Wing curl</button>
+    <button class="chip" id="follow" aria-pressed="false">Look at pointer</button>
+    <button class="chip" id="talk">Say hello</button>
+    <button class="chip" id="freeze" aria-pressed="false">Pause</button>
+  </div>
+  <section>
+    <h2>Stills (the avatar path: old Rig.svg, then Rig2.svg)</h2>
+    <div class="stills" id="stills"></div>
+  </section>
+</div>
+<script src="../../../js/core/rig.js"></script>
+<script src="../../../js/core/bird.js"></script>
+<script src="../../../js/core/pip.js"></script>
+<script src="../../../js/core/kiwi.js"></script>
+<script src="../../../js/core/mango.js"></script>
+<script src="../../../js/core/kakadu.js"></script>
+<script src="../../../js/core/rojo.js"></script>
+<script src="../../../js/core/rig2.js"></script>
+<script>
+"use strict";
+const OLD = { pip: PIP, kiwi: KIWI, mango: MANGO, kakadu: KAKADU, rojo: ROJO };
+const EXPORTED = ['pip'];   // the birds that have a media/birds/<id>.json: add one here when its data lands
+const VIEW = [-8, 14, 256, 244];   // the frame the app puts a bird in (PIP_VIEW in js/core/art.js)
+Rig2.base = '../../../';
+const $ = id => document.getElementById(id);
+const el = (tag, attrs, kids) => { const e = document.createElement(tag); for (const k in attrs || {}) { if (k === 'text') e.textContent = attrs[k]; else e.setAttribute(k, attrs[k]); } for (const c of kids || []) e.append(c); return e; };
+const st = { curl: true, bird: 'pip', size: 120, mood: 'happy', old: null, nw: null, def: null, onion: false, bones: false, follow: false, paused: false, speed: 1 };
+const hash = new URLSearchParams(location.hash.slice(1));
+if (OLD[hash.get('bird')]) st.bird = hash.get('bird');
+if (+hash.get('size') >= 30 && +hash.get('size') <= 480) st.size = +hash.get('size');
+if (hash.get('mood')) st.mood = hash.get('mood');
+if (hash.get('theme')) document.documentElement.setAttribute('data-theme', hash.get('theme'));
+if (hash.get('theme') === 'dark') { $('theme').setAttribute('aria-pressed', 'true'); $('theme').textContent = 'Light'; }
+const fitSize = () => Math.max(60, Math.floor((Math.min(innerWidth, 900) - 32 - 2 * 20 - 12) / 2));
+
+function sizeButtons(){
+  const box = $('sizes'); box.textContent = '';
+  for (const s of [40, 72, 120, 240]) { const b = el('button', { class: 'chip', 'aria-pressed': String(st.size === s), text: s + ' px' }); b.onclick = () => { st.size = s; build(); sizeButtons(); }; box.append(b); }
+  const fit = fitSize(), f = el('button', { class: 'chip', 'aria-pressed': String(st.size === fit), text: 'Fit ' + fit }); f.title = 'the biggest size that puts both birds side by side'; f.onclick = () => { st.size = fit; build(); sizeButtons(); }; box.append(f);
+}
+function birdButtons(){
+  const box = $('birds'); box.querySelectorAll('button').forEach(b => b.remove());
+  for (const id of Object.keys(OLD)) {
+    const b = el('button', { class: 'chip', 'aria-pressed': String(st.bird === id), text: OLD[id].name });
+    if (!st.have || !st.have[id]) { b.disabled = true; b.title = 'no media/birds/' + id + '.json yet'; }
+    b.onclick = () => { st.bird = id; st.mood = OLD[id].restMood; load().then(() => { birdButtons(); moodButtons(); build(); }); };
+    box.append(b);
+  }
+}
+function moodButtons(){
+  const mb = $('moods'); mb.querySelectorAll('button').forEach(b => b.remove());
+  for (const m of Object.keys(OLD[st.bird].moods)) {
+    const ok = st.def && st.def.actions['mood:' + m];
+    const b = el('button', { class: 'chip', 'aria-pressed': String(st.mood === m), text: m });
+    if (!ok) { b.disabled = true; b.title = 'no action in the data'; }
+    b.onclick = () => { st.mood = m; st.old && st.old.set(m); st.nw && st.nw.set(m); moodButtons(); };
+    mb.append(b);
+  }
+  const vb = $('moves'); vb.querySelectorAll('button').forEach(b => b.remove());
+  for (const k of Object.keys(st.def ? st.def.actions : {}).filter(k => k.startsWith('move:')).map(k => k.slice(5))) {
+    const b = el('button', { class: 'chip', text: k });
+    b.onclick = () => { st.old && st.old.play(k); st.nw && st.nw.play(k); };
+    vb.append(b);
+  }
+}
+async function load(){
+  st.def = null;
+  try { st.def = await Rig2.load(st.bird); } catch (e) { console.warn(e); }
+}
+function build(){
+  if (st.old) st.old.destroy(); if (st.nw) st.nw.destroy();
+  $('boxOld').textContent = ''; $('boxNew').textContent = '';
+  const o = Rig.create(OLD[st.bird], { size: st.size, view: VIEW, mood: st.mood, autoplay: !st.paused, speed: st.speed, debug: st.bones });
+  $('boxOld').append(o.el); st.old = o;
+  if (st.def) {
+    const n = Rig2.create(st.def, { size: st.size, view: VIEW, mood: st.mood, autoplay: !st.paused, speed: st.speed, debug: st.bones, bend: st.curl ? 1 : 0, phase: 0 });   // phase 0: breathes in step with the old rig, so the pair compare
+    $('boxNew').append(n.el); st.nw = n;
+    onionSetup();
+  } else { st.nw = null; $('boxNew').append(el('p', { class: 'sub', text: 'No data for this bird yet.' })); }
+  applyFollow();
+}
+/* onion skin: the last 6 drawn frames of the new rig at 15% opacity, on a layer over it */
+let onionCv = null, onionHist = [], onionN = 0;
+function onionSetup(){
+  onionHist = []; onionCv = null;
+  if (!st.onion || !st.nw) return;
+  const c = st.nw.canvas; onionCv = el('canvas', { class: 'onion' });
+  onionCv.style.cssText = c.style.cssText; st.nw.el.append(onionCv);
+}
+function onionTick(){
+  requestAnimationFrame(onionTick);
+  if (!onionCv || !st.nw) return;
+  const c = st.nw.canvas;
+  if (onionCv.width !== c.width || onionCv.height !== c.height) { onionCv.width = c.width; onionCv.height = c.height; onionHist = []; }
+  if (++onionN % 3 === 0) { const h = document.createElement('canvas'); h.width = c.width; h.height = c.height; h.getContext('2d').drawImage(c, 0, 0); onionHist.push(h); if (onionHist.length > 6) onionHist.shift(); }
+  const x = onionCv.getContext('2d'); x.clearRect(0, 0, onionCv.width, onionCv.height); x.globalAlpha = 0.15;
+  for (const h of onionHist) x.drawImage(h, 0, 0);
+}
+requestAnimationFrame(onionTick);
+function applyFollow(){ for (const r of [st.old, st.nw]) if (r && !st.follow) r.look(null); }
+addEventListener('pointermove', e => { if (!st.follow) return; for (const r of [st.old, st.nw]) if (r) r.lookAtPoint(e.clientX, e.clientY); });
+function toggle(id, key, fn){ $(id).onclick = () => { st[key] = !st[key]; $(id).setAttribute('aria-pressed', String(st[key])); fn && fn(); }; }
+toggle('onion', 'onion', onionSetup);
+toggle('bones', 'bones', () => { st.old && st.old.setDebug(st.bones); st.nw && st.nw.setDebug(st.bones); });
+toggle('follow', 'follow', applyFollow);
+toggle('curl', 'curl', () => { if (st.nw) { st.nw.bend = st.curl ? 1 : 0; st.nw.render(0); } });
+toggle('freeze', 'paused', () => { $('freeze').textContent = st.paused ? 'Play' : 'Pause'; for (const r of [st.old, st.nw]) if (r) st.paused ? r.pause() : r.resume(); });
+$('theme').onclick = () => {
+  const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); $('theme').setAttribute('aria-pressed', String(dark)); $('theme').textContent = dark ? 'Light' : 'Dark';
+};
+$('talk').onclick = () => { const line = 'Hallo, ich bin Pip. Alles klar?'; for (const r of [st.old, st.nw]) if (r) r.say(line); };
+$('speed').oninput = e => { st.speed = +e.target.value; $('speedV').textContent = st.speed; for (const r of [st.old, st.nw]) if (r) r.speed = st.speed; };
+
+/* stills: the same mood as old SVG and as Rig2.svg, at the avatar size */
+function stills(){
+  const box = $('stills'); box.textContent = '';
+  if (!st.def) return;
+  const css = document.getElementById('rig-css-' + st.bird) || el('style', { id: 'rig-css-' + st.bird });
+  css.textContent = Rig.css(OLD[st.bird]) + Rig2.css(st.def).replace(/^\.rig-[a-z]+\{overflow:visible\}/, ''); if (!css.parentNode) document.head.append(css);
+  for (const m of Object.keys(OLD[st.bird].moods)) {
+    if (!st.def.actions['mood:' + m]) continue;
+    const pair = el('div', { class: 'pair' });
+    pair.innerHTML = Rig.svg(OLD[st.bird], m, { size: 48, view: VIEW, style: false, cls: 'pip-svg' }) + Rig2.svg(st.def, m, { size: 48, view: VIEW, style: false, cls: 'pip-svg' });
+    box.append(el('div', { class: 'still' }, [pair, el('span', { text: m })]));
+  }
+}
+/* a number for the eye: how many frames Rig2 drew in the last second */
+setInterval(() => { if (st.nw) { const d = st.nw.draws; $('mNew').textContent = (d - (st.lastDraws || 0)) + ' draws/s'; st.lastDraws = d; } $('mOld').textContent = 'SVG'; }, 1000);
+
+(async () => {
+  st.have = {}; for (const id of EXPORTED) st.have[id] = true;
+  await load(); sizeButtons(); birdButtons(); moodButtons(); build(); stills();
+  window.__review = st;
+})();
+</script>
+</body>
+</html>
