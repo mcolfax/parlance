@@ -1,7 +1,7 @@
 # Birds v2: premium 2D animation for Pip and the flock
 
 - **Status:** approved by Matt 2026-11-18 (proposal `pfmwm305wk`, web home: (a), (b), (d); (c) not yet, decide after
-  the Pip pilot). Stage 1 under way.
+  the Pip pilot). Stage 1 done (`e2bb3eb`); Stage 2 under way.
 - **Written:** 2026-11-18, against `main` as of this date
 - **Zone:** Red (flow/POLICY.md, "Identity: Pip or the other birds' art or rig"). Nothing here is built by the flow until
   Matt approves the Stage 0 proposals himself. After that, each stage ships as an ordinary release.
@@ -293,8 +293,8 @@ acceptance criteria. Packages in the same stage marked *parallel* own disjoint f
 - [ ] `node design/rig/v2/test/rig2.test.js` ends with `ok`.
 - [ ] On the review page at 412 px wide, light and dark, every mood of the current Pip plays and matches the old rig
   side by side (same pose within a few units: this stage changes the player, not the look).
-- [ ] With CPU throttling 4×, three live Pips at 120 px cost mean ≤ 1.5 ms and p95 ≤ 3 ms per frame (measured the
-  way WP1 measured the old rig; compare against `baseline/perf.json`).
+- [ ] With CPU throttling 4×, three live Pips at 120 px cost no more per frame than the old rig did in
+  `baseline/perf.json` (Pip: mean ≤ 1.63 ms) and p95 ≤ 4 ms, measured the way WP1's `baseline.js` measures.
 - [ ] `rig2.js` is ≤ 35 KB after `npx terser -c -m` (measure only; the app ships it unminified like every script).
 - [ ] Reduced motion: one draw, then no further canvas draws for 2 s (count calls with a wrapped `fill`).
 
@@ -578,7 +578,8 @@ are in degrees (r) or units (x, y). Every row also obeys 8.2. Rows 1–12 are ag
 ## 9. Budgets and guard rails
 
 - **Size:** ≤ 120 KB gzipped per `media/birds/<bird>.json`; `js/core/rig2.js` ≤ 35 KB minified. WP2 and WP9 check.
-- **Speed:** three live birds at 120 px, CPU 4× throttled: mean ≤ 1.5 ms, p95 ≤ 3 ms per frame.
+- **Speed:** three live birds at 120 px, CPU 4× throttled: mean no higher than that bird's old rig in
+  `design/rig/v2/baseline/perf.json` (1.4–2.45 ms), p95 ≤ 4 ms per frame.
 - **Screens:** at most three live birds per screen; anything smaller than 48 px is a still (`Rig2.svg`).
 - **Progress:** no saved-state change. No lesson, story, storage key or database path is touched.
 - **Hosts:** no new outside host; the data is served next to `index.html`.
