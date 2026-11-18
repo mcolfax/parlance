@@ -1122,7 +1122,7 @@ async function main(){
       ok(lastEl && lastEl.tagName === 'BUTTON' && lastEl.textContent.startsWith('Show more ('), 'review: Show more still appears on a long list');
       const tk = fs.readFileSync(path.join(ROOT, 'styles', 'tokens.css'), 'utf8'), cc = fs.readFileSync(path.join(ROOT, 'styles', 'components.css'), 'utf8');
       const streakRule = (cc.match(/\.stat\.streak\{[^}]*\}/) || [''])[0];
-      ok((tk.match(/--streak-bg:/g) || []).length === 3 && (tk.match(/--streak-text:/g) || []).length === 3 && streakRule.includes('var(--surface)') && !streakRule.includes('--bad') && !streakRule.includes('--streak-bg'), 'learn: the streak tile is a plain card like Me’s (the --streak-* tokens stay, unused by the tile)');
+      ok(streakRule.includes('var(--surface)') && !streakRule.includes('--bad') && !streakRule.includes('--streak-'), 'learn: the streak tile is a plain card like Me’s'); ok(!/--streak-/.test(tk) && !/--streak-/.test(cc), 'the unused --streak-* tokens are gone');
       // a failed retake of a passed unit
       const units = R.P.COURSE.es.units, u2 = units[1];
       rl().cp[u2.title] = { at: '2026-10-01', acc: 0.9, pass: true }; rl().outs = rl().outs || {}; rl().outs[u2.title] = '2026-10-01';
@@ -2574,7 +2574,8 @@ async function main(){
     G.E('filmSeek(48)'); ok(G.w.document.querySelector('#f-end0').style.visibility === 'visible' && G.w.document.querySelectorAll('#f-bs-pip, #f-bs-kiwi').length === 2, 'the end card');
     G.E('filmPlay()'); await sleep(120); G.E('filmPause()');
     ok(G.E('Film.t') > 19, 'film plays forward ' + G.E('Film.t'));
-    G.E('filmSeek(26)'); G.E('filmSeek(12)'); ok(G.w.document.querySelector('.film-cap').textContent.includes('Berlin'), 'scrubbing back brings the caption back');
+    G.E('filmSeek(26)'); G.E('filmSeek(12)'); for (let i = 0; i < 20 && !((G.w.document.querySelector('.film-cap') || {}).textContent || '').includes('Berlin'); i++) await sleep(50);
+    ok(((G.w.document.querySelector('.film-cap') || {}).textContent || '').includes('Berlin'), 'scrubbing back brings the caption back');
     G.E('filmSeek(35.5)'); [...G.w.document.querySelectorAll('.overlay.film .ov-foot button')].find(b => b.textContent === 'Close').click();
     ok(G.P.S.settings.filmSeen && !G.E('Film.open'), 'film closes and is remembered');
     ok(!G.w.document.querySelector('.overlay') && !G.w.document.body.classList.contains('locked'), 'closing the film goes straight back to the app');
@@ -3066,7 +3067,9 @@ async function main(){
     ok(store.get('content/config').latest === '4.9.9', 'the owner writes live content');
     W3.E('UI.tab="me"; render()');
     let outs = 0; W3.w.webReload = () => { outs++; };
+    W3.w.localStorage.setItem('parlance.genmiss', '{"de":["Haus"]}');
     [...W3.w.document.querySelectorAll('.web-acct button')].find(b => b.textContent === 'Sign out').click(); await sleep(60);
+    ok(W3.w.localStorage.getItem('parlance.genmiss') === null, 'signing out clears the missed-articles list too');
     ok(outs === 1 && !W3.E('Web.session') && !W3.w.localStorage.getItem('parlance.web.session'), 'signing out forgets the session');
     ok(!W3.errors.length, 'no page errors W3 ' + JSON.stringify(W3.errors.slice(0, 3)));
     W3.dom.window.close();

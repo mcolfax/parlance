@@ -267,7 +267,7 @@ function webAccountRow(){
   const u = Web.session && Web.session.user;
   if (u) return h('div', { class: 'web-acct' }, h('span', { class: 'small grow' }, 'Signed in as ', h('b', null, u.email || u.name || 'you')),
     h('button', { class: 'linkish small', type: 'button', onclick: openWebName }, 'Change your name'),
-    h('button', { class: 'linkish small', type: 'button', onclick: async () => { await webSignOut(); saveLocal(); webReload(); } }, 'Sign out'));
+    h('button', { class: 'linkish small', type: 'button', onclick: async () => { await webSignOut(); genMissClear(); saveLocal(); webReload(); } }, 'Sign out'));
   return h('div', { class: 'web-acct' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: () => openWebSignIn('in') }, 'Sign in or create an account'),
     h('span', { class: 'small muted' }, h('a', { class: 'linkish small', href: 'privacy.html', target: '_blank', rel: 'noopener' }, 'Privacy'), ' · ', h('a', { class: 'linkish small', href: 'terms.html', target: '_blank', rel: 'noopener' }, 'Terms')));
 }

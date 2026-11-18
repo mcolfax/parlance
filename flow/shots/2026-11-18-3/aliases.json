@@ -1,0 +1,18 @@
+{
+ "de": {
+  "de-16-3|v|~das_grad": "de-16-3|v|~der_grad"
+ },
+ "es": {
+  "es-1-2|s|~cómo_se_llama_usted": "es-1-2|s|~cómo_te_llamas",
+  "es-43-2|v|~la_rueda_de_prensa": "es-43-2|v|~la_conferencia_de_prensa",
+  "es-43-2|v|~la_portavoz": "es-43-2|v|~la_vocera",
+  "es-43-2|s|~terminada_la_rueda_de_prensa_el_ministro_se_fue": "es-43-2|s|~terminada_la_conferencia_de_prensa_el_ministro_se_fue",
+  "es-43-2|s|~hechas_las_preguntas_la_portavoz_anunció_su_postura": "es-43-2|s|~hechas_las_preguntas_la_vocera_anunció_su_postura",
+  "es-43-2|s|~una_vez_publicado_el_comunicado_el_periodista_llamó_a_la_portavoz": "es-43-2|s|~una_vez_publicado_el_comunicado_el_periodista_llamó_a_la_vocera",
+  "es-43-2|s|~dicho_esto_la_portavoz_desmintió_la_noticia": "es-43-2|s|~dicho_esto_la_vocera_desmintió_la_noticia",
+  "es-43-3|s|~fue_la_portavoz_quien_aclaró_la_cita": "es-43-3|s|~fue_la_vocera_quien_aclaró_la_cita"
+ },
+ "it": {
+  "it-45-2|s|~prova_a_restare_pacato_la_preoccupazione_non_aiuta_nessuno": "it-45-2|s|~prova_a_restare_calmo_la_preoccupazione_non_aiuta_nessuno"
+ }
+}
