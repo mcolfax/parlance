@@ -15,9 +15,10 @@ const SCHEMA_VERSION = 12;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
-  { v: '4.53.1', date: '2026-11-18', title: 'Warmer gold', notes: [
+  { v: '4.53.1', date: '2026-11-18', title: 'Warmer gold, and Listen with the screen off', notes: [
     'Gold lettering, like your first place in the league and the stamp on a perfect lesson, is a warmer gold.',
     'Relaxed speed sounds more like the normal voice on phones that can’t slow a recording down on their own.',
+    'Listen hands-free keeps going when your screen turns off.',
   ] },
   { v: '4.53.0', date: '2026-11-17', title: 'Opens faster', notes: [
     'Parlance now loads the language you’re learning first, so it opens faster on phones. The other languages follow a moment later.',

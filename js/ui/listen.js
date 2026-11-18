@@ -32,9 +32,9 @@ function startListen(){
   const lang = S.settings.lang, items = listenItems(lang); if (items.length < LISTEN.min) return;
   Object.assign(Listen, { open: true, playing: true, items, pos: 0, reveal: false, lang, drawn: -1 });
   openOverlay('listen'); sfx('open'); recWarm(lang, items.map(i => i.t));
-  listenHead(); listenSession(true); listenLoop(); wakeHold(true);   // listenLoop speaks inside this tap (iPhone)
+  listenHead(); listenSession(true); keepAlive(true); listenLoop(); wakeHold(true);   // listenLoop speaks inside this tap (iPhone)
 }
-function endListen(){ Listen.open = false; Listen.playing = false; Listen.gen++; listenSession(false); wakeHold(false); closeOverlay(); UI.animate = true; render(); }
+function endListen(){ Listen.open = false; Listen.playing = false; Listen.gen++; listenSession(false); keepAlive(false); wakeHold(false); closeOverlay(); UI.animate = true; render(); }
 async function listenLoop(){
   const my = ++Listen.gen, stale = () => my !== Listen.gen;
   while (Listen.open && Listen.playing && Listen.pos < Listen.items.length){
@@ -49,8 +49,8 @@ async function listenLoop(){
   }
   if (!stale() && Listen.open && Listen.pos >= Listen.items.length) listenEnd();
 }
-function listenPlay(){ if (!Listen.open || Listen.playing) return; Listen.playing = true; wakeHold(true); listenLoop(); }
-function listenPause(){ if (!Listen.open) return; Listen.playing = false; Listen.gen++; speakStop(); wakeHold(false); listenDraw(); listenState(); }
+function listenPlay(){ if (!Listen.open || Listen.playing) return; Listen.playing = true; keepAlive(true); wakeHold(true); listenLoop(); }
+function listenPause(){ if (!Listen.open) return; Listen.playing = false; Listen.gen++; speakStop(); keepAlive(false); wakeHold(false); listenDraw(); listenState(); }
 function listenStep(d){
   if (!Listen.open) return;
   Listen.gen++; speakStop(); Listen.pos = Math.max(0, Math.min(Listen.items.length, Listen.pos + d)); Listen.reveal = false;
@@ -107,13 +107,13 @@ function listenSession(on){
   if (!on) try { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = 'none'; } catch (e) {}
 }
 function listenEnd(){
-  Listen.playing = false; Listen.gen++; wakeHold(false); listenSession(false); sfx('done');
+  Listen.playing = false; Listen.gen++; keepAlive(false); wakeHold(false); listenSession(false); sfx('done');
   const n = Listen.items.length;
   if (OV.prog) OV.prog.style.width = '100%';
   swapBody(h('div', { class: 'listen done' }, pip('cheer', 78, { tap: false }), h('h1', null, 'All ' + n + ' heard.'),
     h('p', { class: 'muted' }, dueCount(Listen.lang) ? 'Listening doesn’t move your review schedule, so your reviews are still waiting in Review.' : 'Come back any time for another round.')));
   OV.foot.className = 'ov-foot';
   OV.footIn.replaceChildren(h('div', { class: 'ls-controls' },
-    h('button', { class: 'btn btn-quiet', type: 'button', onclick: () => { Listen.pos = 0; Listen.playing = true; listenSession(true); wakeHold(true); listenLoop(); } }, 'Again'),
+    h('button', { class: 'btn btn-quiet', type: 'button', onclick: () => { Listen.pos = 0; Listen.playing = true; listenSession(true); keepAlive(true); wakeHold(true); listenLoop(); } }, 'Again'),
     h('button', { class: 'btn btn-primary', type: 'button', onclick: endListen }, 'Done')));
 }

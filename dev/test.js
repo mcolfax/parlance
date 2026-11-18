@@ -1647,6 +1647,8 @@ async function main(){
       // pause, next and previous
       Q.E('listenPause()');
       ok(Q.E('Listen.playing') === false && /Play/.test(qd.querySelector('.overlay.listen .ls-controls .btn').textContent), 'listen: pause, next and previous (paused, the button says Play)');
+      ok(Q.E('!!Keep.el && Keep.el.loop && Keep.el.paused'), 'listen: the silent keep-alive loop stops when you pause');
+      Q.E('listenPlay()'); ok(Q.E('!Keep.el.paused') && Q.E('Keep.el.src').startsWith('blob:'), 'listen: a silent loop plays while it runs, so a phone with the screen off keeps it going'); Q.E('listenPause()');
       Q.E('listenStep(1)'); const p1 = Q.E('Listen.pos');
       Q.E('listenStep(-1)'); const p0 = Q.E('Listen.pos');
       Q.E('listenStep(-1)');
@@ -1683,6 +1685,7 @@ async function main(){
       g = 0; while (!/heard\./.test(qd.querySelector('.overlay.listen').textContent) && g++ < 200) await sleep(50);
       ok(/heard\./.test(qd.querySelector('.overlay.listen').textContent), 'listen: without Media Session, Wake Lock or a voice it still runs to the end');
       Q.E('endListen()'); await sleep(300);
+      ok(Q.E('!Keep.el || Keep.el.paused'), 'listen: closing it stops the silent loop');
       // the ten-minute worry: a long list stops at 20
       seed(40); ok(Q.E('listenItems("es").length') <= 20 && Q.E('listenItems("es").length') > 6, 'listen: a long list stops at ' + Q.E('listenItems("es").length'));
       ok(Q.errors.length === 0, 'listen: no page errors ' + Q.errors.slice(0, 2).join(' | '));

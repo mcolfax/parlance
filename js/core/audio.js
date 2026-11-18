@@ -250,11 +250,23 @@ function recUnlock(){
     if (p && p.then) p.then(done, () => { a.muted = false; if (a.src === u) Rec.unlocked = false; }); else done();
   } catch (e) { Rec.unlocked = false; }
 }
-function silentWav(){
-  const n = 400, d = new DataView(new ArrayBuffer(44 + n * 2)); let o = 0;
+function silentWav(n = 400){
+  const d = new DataView(new ArrayBuffer(44 + n * 2)); let o = 0;
   const s = t => { for (const ch of t) d.setUint8(o++, ch.charCodeAt(0)); }, u32 = v => { d.setUint32(o, v, true); o += 4; }, u16 = v => { d.setUint16(o, v, true); o += 2; };
   s('RIFF'); u32(36 + n * 2); s('WAVEfmt '); u32(16); u16(1); u16(1); u32(8000); u32(16000); u16(2); u16(16); s('data'); u32(n * 2);
   return new Blob([d.buffer], { type: 'audio/wav' });
+}
+/* Android Chrome freezes a page with the screen off as soon as nothing is playing, so Listen hands-free stopped in the
+   pause after the first word. While it plays, a second element loops two seconds of silence: the page counts as playing
+   audio, its timers keep running and the next word starts on time. Started from the tap that opens or plays Listen. */
+const Keep = { el: null };
+function keepAlive(on){
+  try {
+    if (on){
+      if (!Keep.el){ if (!window.URL || !URL.createObjectURL) return; const a = new Audio(); a.preload = 'auto'; a.loop = true; a.setAttribute('playsinline', ''); a.src = URL.createObjectURL(silentWav(16000)); Keep.el = a; }
+      if (Keep.el.paused){ const p = Keep.el.play(); if (p && p.catch) p.catch(() => {}); }
+    } else if (Keep.el && !Keep.el.paused) Keep.el.pause();
+  } catch (e) {}
 }
 /* what a lesson can say: its tip examples, words and sentences with every accepted form, and its filled-in blanks */
 function lessonSaid(l){
