@@ -28,7 +28,7 @@ U('Greetings & introductions', 'A1', [
      ['mucho gusto', 'nice to meet you|pleased to meet you|good to meet you'], ['sí', 'yes'], ['no', 'no']],
     [['¿Cómo te llamas?|¿Cómo se llama usted?|¿Cómo se llama?', 'What’s your name?|What are you called?'],
      ['Me llamo Matt.|Mi nombre es Matt.', 'My name is Matt.|I am called Matt.'],
-     ['¿Y tú, cómo te llamas?|¿Y cómo te llamas?', |What about you, what’s your name?|What about you, what are you called?'And you, what’s your name?|And what’s your name?|And you, what are you called?|And what are you called?'],
+     ['¿Y tú, cómo te llamas?|¿Y cómo te llamas?', 'And you, what’s your name?|And what’s your name?|And you, what are you called?|And what are you called?|What about you, what’s your name?|What about you, what are you called?'],
      ['Mi nombre es Lucía.|Me llamo Lucía.', 'My name is Lucía.|I am called Lucía.'],
      ['Mucho gusto, Lucía.', 'Nice to meet you, Lucía.|Pleased to meet you, Lucía.|Good to meet you, Lucía.']],
     [['Yo ___ llamo Matt.', 'me|te|se', 'My name is Matt.'], ['¿Cómo ___ llamas?', 'te|me|se', 'What’s your name?'], ['¿Cómo se llama ___? (formal)', 'usted|tú|yo', 'What’s your name?']]),
