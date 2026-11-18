@@ -1635,6 +1635,7 @@ async function main(){
       Q.E('window.__ms = { metadata: null, playbackState: "none", h: {}, setActionHandler(a, f){ this.h[a] = f; } }; Object.defineProperty(navigator, "mediaSession", { configurable: true, value: window.__ms }); window.MediaMetadata = function(o){ Object.assign(this, o); }; window.__wl = { n: 0, released: 0 }; Object.defineProperty(navigator, "wakeLock", { configurable: true, value: { request: async () => { window.__wl.n++; return { release: async () => { window.__wl.released++; }, addEventListener(){} }; } } })');
       // the song is held while it's open
       const song0 = Q.E('busy()');
+      Q.w.URL.createObjectURL = Q.w.URL.createObjectURL || (() => 'blob:keep');   // jsdom has no blob URLs; the silent loop needs one
       Q.E('startListen()');
       ok(song0 === false && Q.E('busy()') === true && !!qd.querySelector('.overlay.listen'), 'listen: the song is held while it\'s open');
       ok(Q.E('Listen.playing') === true && qd.querySelector('.overlay.listen .ls-t').textContent === Q.E('Listen.items[0].t') && Q.E('window.__said[0]') === Q.E('Listen.items[0].t'), 'listen: it starts at once with the first line');
