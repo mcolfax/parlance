@@ -1,7 +1,7 @@
 # Remaining fixes: wording corrections with their cards carried over, test tools, two unused colours
 
 - **Cycle:** 2026-11-18-3
-- **Status:** building
+- **Status:** shipped (4.54.0)
 - **Release:** 4.54.0
 - **Base:** `main` at b1f03a4 (4.53.2)
 - **Proposals built:** Matt approved the whole list in chat on 2026-11-18 ("Proceed with remaining fixes"), including retiring `--streak-bg`/`--streak-text` (Red: removing tokens), recorded as a web proposal at ship.
@@ -38,4 +38,4 @@
 
 ## Outcome
 
-- **Shipped:** | **Dropped:** | **Escalated:**
+- **Shipped:** 4.54.0, `5779976` | **Dropped:** none | **Escalated:** none (token removal approved by Matt, web proposals/pstreak540)
