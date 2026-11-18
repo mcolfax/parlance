@@ -52,7 +52,7 @@ function openStory(id){
   storyFoot('Start reading', () => storyNext());
   setStoryProgress();
 }
-function endStory(){ Story.lgen = (Story.lgen || 0) + 1; Story.listen = false; Story.paused = false; wakeHold(false); Story.open = false; closeOverlay(); UI.animate = true; render(); }
+function endStory(){ Story.lgen = (Story.lgen || 0) + 1; Story.listen = false; Story.paused = false; wakeHold(false); keepAlive(false); Story.open = false; closeOverlay(); UI.animate = true; render(); }
 function setStoryProgress(){ if (OV.prog && Story.st) OV.prog.style.width = (Story.pos / Story.st.items.length * 100).toFixed(1) + '%'; }
 function storyFoot(label, run, disabled, cls){
   OV.foot.className = 'ov-foot' + (cls ? ' ' + cls : '');
@@ -75,7 +75,7 @@ function storyNext(){
 /* Listen first: each line is spoken in its speaker's voice and, LISTEN.storyGap ms after it ends, the next one follows on its own.
    A question stops the chain (its Check and Continue work as in reading, and Continue goes on listening). lgen is the
    generation every timer checks, so nothing plays after Pause, a finished story or leaving. */
-function storyListenStart(){ Story.listen = true; Story.paused = false; wakeHold(true); storyNext(); }
+function storyListenStart(){ Story.listen = true; Story.paused = false; wakeHold(true); keepAlive(true); storyNext(); }
 function storyChain(it, st){
   const my = ++Story.lgen;
   speak(it.t, st.lang, false, CAST[it.who]).then(() => {
@@ -83,8 +83,8 @@ function storyChain(it, st){
     setTimeout(() => { if (my === Story.lgen && Story.open && Story.listen && !Story.paused) storyNext(); }, LISTEN.storyGap);
   });
 }
-function storyListenPause(){ Story.paused = true; Story.lgen++; speakStop(); wakeHold(false); storyListenFoot(); }
-function storyListenPlay(){ Story.paused = false; wakeHold(true); const it = Story.st.items[Story.pos - 1]; storyListenFoot(); if (it && it.who) storyChain(it, Story.st); else storyNext(); }
+function storyListenPause(){ Story.paused = true; Story.lgen++; speakStop(); wakeHold(false); keepAlive(false); storyListenFoot(); }
+function storyListenPlay(){ Story.paused = false; wakeHold(true); keepAlive(true); const it = Story.st.items[Story.pos - 1]; storyListenFoot(); if (it && it.who) storyChain(it, Story.st); else storyNext(); }
 function storyListenFoot(){ storyFoot(Story.paused ? 'Play' : 'Pause', () => Story.paused ? storyListenPlay() : storyListenPause()); }
 function storyLine(it, st){
   const side = st.cast.indexOf(it.who) % 2 === 0 ? 'l' : 'r';
@@ -139,7 +139,7 @@ function storyQuestion(it){
   checkBtn = storyFoot('Check', check, true);
 }
 function finishStory(){
-  Story.lgen++; wakeHold(false);
+  Story.lgen++; wakeHold(false); keepAlive(false);
   const st = Story.st, lang = st.lang; Story.finished = true;
   const L = S.langs[lang]; const prev = L.stories[st.id];
   const score = Story.qs ? Story.firstTry / Story.qs : 1;

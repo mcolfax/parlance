@@ -1709,6 +1709,7 @@ async function main(){
       ok(!!qd.querySelector('.overlay .story-head .story-listen') && /Listen first/.test(qd.querySelector('.story-listen').textContent) && sfoot().textContent === 'Start reading', 'story listening: Listen first sits under the cast tags beside Start reading');
       qd.querySelector('.story-listen').click();
       ok(!qd.querySelector('.story-listen') && Q.E('Story.listen') === true, 'story listening: tapping it hides the button and starts listening');
+      ok(Q.E('typeof URL.createObjectURL !== "function" || (!!Keep.el && !Keep.el.paused)'), 'story listening: the silent loop plays while it listens, so the screen can go off');
       ok(await until(() => Q.E('Story.st.items[Story.pos - 1].q')) && lines().length === firstQ && firstQ > 0, 'story listening: Listen first plays lines on its own up to the first question: ' + lines().length + ' of ' + firstQ);
       const spoken = Q.E('window.__said.slice()');
       ok(spoken.length === firstQ && [...items].slice(0, firstQ).every((it, i) => spoken[i] === it.t), 'story listening: every line is spoken, in order: ' + spoken.length);
@@ -1756,6 +1757,7 @@ async function main(){
       ok(said() === items.filter(i => i.who).length, 'story listening: every line was spoken once: ' + said());
       { const n1 = said(); await sleep(150); ok(said() === n1 && Q.E('__wl.released') === Q.E('__wl.n'), 'story listening: nothing plays after the end and the screen is let go'); }
       Q.E('endStory()'); await sleep(300);
+      ok(Q.E('!Keep.el || Keep.el.paused'), 'story listening: leaving the story stops the silent loop');
       // reading mode is unchanged
       Q.E('openStory("es-s1")'); sfoot().click();
       ok(lines().length === 1 && !qd.querySelector('.sl-reveal') && !!lines()[0].querySelector('.t') && sfoot().textContent === 'Continue' && !qd.querySelector('.story-listen') && Q.E('Story.listen') === false, 'story listening: reading mode is unchanged');
