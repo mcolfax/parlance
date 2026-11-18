@@ -2904,7 +2904,7 @@ async function main(){
     { const run = async rate => E('(async () => { const old = SFX.ctx, src = { connect(){}, start(){}, stop(){}, playbackRate: { value: 1 }, detune: { value: 0 } }; window.__bsrc = src;'
         + ' SFX.ctx = { state: "running", destination: {}, decodeAudioData: (b, yes) => { yes({ duration: 1 }); }, createBufferSource: () => src };'
         + ' const pr = recBuffer(new ArrayBuffer(4), ' + rate + ', Rec.gen); await new Promise(r => setTimeout(r, 20)); if (src.onended) src.onended(); const out = await pr; SFX.ctx = old; return out; })()');
-      ok(await run(0.78) === true && E('__bsrc.playbackRate.value') === 0.78 && E('__bsrc.detune.value') === 0, 'follow-ups: the Web Audio fallback plays Relaxed at 0.78 (detune stays 0: it would cancel the slowdown)');
+      ok(await run(0.78) === true && Math.abs(E('__bsrc.playbackRate.value') - 0.9) < 1e-6 && E('__bsrc.detune.value') === 0, 'follow-ups: the Web Audio fallback plays Relaxed at a milder 0.9 (detune stays 0: it would cancel the slowdown)');
       ok(await run(0.7) === null && await run(1) === true && E('__bsrc.playbackRate.value') === 1, 'follow-ups: the Web Audio fallback leaves slow to the device voice and normal at full speed'); }
     E('S.settings.speed = "normal"');
     let n = blobs.length;

@@ -219,8 +219,8 @@ function recElement(bytes, rate){
   });
 }
 /* through Web Audio, when the element can't play a local copy. It can't slow a voice down without lowering it (detune
-   would only cancel the slowdown: the spec multiplies it into the playback rate), so Relaxed is a little lower here and a
-   slow request goes to the device's voice */
+   would only cancel the slowdown: the spec multiplies it into the playback rate), so Relaxed plays at 0.9 here (a touch
+   slower and under two semitones lower, still the same voice; 0.78 sounded noticeably deeper) and a slow request goes to the device's voice */
 function recBuffer(bytes, rate, my){
   const c = sfxCtx(); if (!c || !c.decodeAudioData || rate < 0.75) return Promise.resolve(null);
   return new Promise((ok, no) => { const p = c.decodeAudioData(bytes, ok, no); if (p && p.then) p.then(ok, no); }).then(buf => new Promise(res => {
@@ -228,8 +228,9 @@ function recBuffer(bytes, rate, my){
     const s = c.createBufferSource(); s.buffer = buf; s.connect(c.destination);
     const fin = r => { if (Rec.done !== fin) return; Rec.done = null; if (Rec.src === s) Rec.src = null; clearTimeout(Rec.t); res(r); };
     Rec.done = fin; Rec.src = s; s.onended = () => fin(true);
-    if (rate < 1) s.playbackRate.value = rate;
-    s.start(); Rec.t = setTimeout(() => fin(true), (buf.duration || 0) * 1000 / (rate < 1 ? rate : 1) + 2000);
+    const r = rate < 1 ? Math.max(rate, 0.9) : 1;
+    if (r < 1) s.playbackRate.value = r;
+    s.start(); Rec.t = setTimeout(() => fin(true), (buf.duration || 0) * 1000 / r + 2000);
   }), () => null);
 }
 function recStop(){
