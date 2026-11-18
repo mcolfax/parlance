@@ -173,6 +173,22 @@ const def = Rig2.prep(raw);
   ok(rb.length === 2 && area(rb[0]) > 0 && area(rb[1]) > 0 && Math.abs(area(rb[0]) - area(rb[1])) > 1, 'ribbon: a closed outline gives an outer and an inner loop');
   const op = m.ribbon([0, 0, 10, 0, 20, 0], 0, 3, [0, 4, 0], 1, false);
   ok(op.length === 1 && op[0].length === 12 && Math.abs(Math.abs(op[0][3] - op[0][9]) - 4) < 1e-9, 'ribbon: a tapered open stroke is one polygon, 4 wide where w is 4 and pointed at the ends');
+  /* an open ink layer (`open: 1`): one closed outline, nothing joins the last point to the first, a round cap at each end */
+  const line = [0, 0, 10, 0, 20, 0], bbox = lp => { let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; for (let i = 0; i < lp.length; i += 2) { x0 = Math.min(x0, lp[i]); x1 = Math.max(x1, lp[i]); y0 = Math.min(y0, lp[i + 1]); y1 = Math.max(y1, lp[i + 1]); } return [x0, x1, y0, y1]; };
+  const open3 = m.ribbon(line, 0, 3, [4, 4, 4], 1, false, true), ring3 = m.ribbon(line, 0, 3, [4, 4, 4], 1, true), bo = bbox(open3[0]);
+  ok(open3.length === 1 && open3[0].length > 12, 'ribbon: an open 3-point ink layer gives a single outline with its cap points (' + open3[0].length / 2 + ' points)');
+  ok(Math.abs(bo[0] + 2) < 1e-9 && Math.abs(bo[1] - 22) < 1e-9 && Math.abs(bo[2] + 2) < 1e-9 && Math.abs(bo[3] - 2) < 1e-9, 'ribbon: an open line spans its extent plus w/2 at each end (' + bo.map(v => v.toFixed(2)).join(', ') + ')');
+  const bc = bbox(ring3[0].concat(ring3[1]));
+  ok(ring3.length === 2 && bc[1] - bc[0] < bo[1] - bo[0] - 1, 'ribbon: a closed ring of the same points has two loops and no caps beyond the line (' + bc.map(v => v.toFixed(2)).join(', ') + ')');
+  const pts = open3[0];
+  { let a = 0; for (let i = 0; i < pts.length; i += 2) { const j = (i + 2) % pts.length; a += pts[i] * pts[j + 1] - pts[j] * pts[i + 1]; } a = Math.abs(a / 2);
+    ok(Math.abs(a - (80 + Math.PI * 4)) < 2, 'ribbon: an open 20 x 4 line with round caps fills a stadium of about ' + (80 + Math.PI * 4).toFixed(1) + ' (' + a.toFixed(1) + ')'); }
+  const rad = []; for (let i = 0; i < pts.length; i += 2) if (pts[i] > 20.01) rad.push(Math.hypot(pts[i] - 20, pts[i + 1]));
+  ok(rad.length >= 3 && rad.every(r => Math.abs(r - 2) < 1e-9), 'ribbon: the end cap is a half circle of radius w/2 (' + rad.length + ' points)');
+  ok(m.ribbon(line, 0, 3, [0, 0, 0], 1, false, true)[0].length === 12, 'ribbon: a zero-width open line makes no cap points');
+  const N = 20, od = { key: 'x', n: N, pts: Float64Array.from({ length: 2 * N }, (_, i) => i % 2 ? 0 : i / 2 * 3), sb: new Uint8Array(3 * N), sw: new Float32Array(3 * N).fill(1), corner: new Uint8Array(N), loops: [[0, N]], shapes: {}, rigid: -1, p2d: null, th: null, layers: [{ role: 0, a: 1, loops: [0], ribbon: new Float64Array(N).fill(2), ink: true, open: true }] };
+  const tho = m.thinned(od, 4);
+  ok(tho.loops[0][1] < N && tho.pts[2 * (tho.n - 1)] === od.pts[2 * (N - 1)], 'thinned: an open line keeps its last point (' + tho.loops[0][1] + ' of ' + N + ' points)');
 }
 
 /* ---- thinning, bend and rest frames ---- */
@@ -217,6 +233,54 @@ const def = Rig2.prep(raw);
   ok(cheerEnd !== cheerMid, 'Rig2.svg: opts.t picks another frame of the action');
   ok(Rig2.svg(def, 'nothing-like-this', { style: false }) === Rig2.svg(def, def.restMood, { style: false }), 'Rig2.svg: an unknown mood falls back to the rest mood');
   console.log('  svg size: happy at 72 px ' + (s72.length / 1024).toFixed(0) + ' KB');
+}
+
+/* ---- stills at the live renderer's thinning stay small ---- */
+{
+  const kb = (mood, size) => Rig2.svg(def, mood, { size, style: false }).length / 1024;
+  ok(kb('happy', 72) <= 40 && kb('cheer', 72) <= 40, 'Rig2.svg: a 72 px still is at most 40 KB (happy ' + kb('happy', 72).toFixed(1) + ', cheer ' + kb('cheer', 72).toFixed(1) + ')');
+  ok(kb('happy', 40) <= 40, 'Rig2.svg: a 40 px still is at most 40 KB (' + kb('happy', 40).toFixed(1) + ')');
+  console.log('  svg sizes (happy): 40 px ' + kb('happy', 40).toFixed(1) + ' KB, 72 px ' + kb('happy', 72).toFixed(1) + ' KB, 130 px ' + kb('happy', 130).toFixed(1) + ' KB');
+}
+
+/* ---- a live bird where the canvas gives no 2d context (jsdom always; iOS Safari when canvas memory runs out) ---- */
+{
+  const { JSDOM, VirtualConsole } = require('jsdom');
+  const dom = new JSDOM('<!doctype html><body></body>', { virtualConsole: new VirtualConsole() }), win = dom.window;   // the quiet console: jsdom reports getContext as not implemented, which is the point here
+  const had = ['document', 'HTMLElement'].map(k => [k, Object.getOwnPropertyDescriptor(global, k)]);
+  global.document = win.document; global.HTMLElement = win.HTMLElement;
+  const od = Object.getOwnPropertyDescriptor(win.HTMLElement.prototype, 'offsetWidth');
+  Object.defineProperty(win.HTMLElement.prototype, 'offsetWidth', { configurable: true, get() { return 120; } });
+  try {
+    let R = null, threw = '';
+    const run = (name, fn) => { try { fn(); } catch (e) { threw += name + ': ' + e.message + '; '; } };
+    run('create', () => { R = Rig2.create(def, { size: 120 }); win.document.body.append(R.el); });
+    ok(R && !threw, 'live bird: create works when the canvas gives no 2d context' + (threw ? ' (' + threw + ')' : ''));
+    if (R) {
+      ok(R.failed === true, 'live bird: R.failed is set when getContext returns null');
+      run('set', () => R.set('cheer')); run('play', () => R.play('hop')); run('say', () => R.say('hallo')); run('stop', () => R.stop());
+      run('hold on', () => Rig2.hold(true)); run('hold off', () => Rig2.hold(false));
+      run('render', () => R.render(1 / 60)); run('paint', () => R._paint());
+      ok(!threw, 'live bird: set, play, say, stop, hold, render and _paint never throw without a context' + (threw ? ' (' + threw + ')' : ''));
+      ok(R.draws === 0, 'live bird: nothing is drawn without a context');
+      /* a bird that left the page gives its canvas memory back; one that comes back is backed again */
+      const B = Rig2.create(def, { size: 120 });
+      win.document.body.append(B.el);
+      ok(B.canvas.width > 0, 'live bird: a new canvas has a backing store (' + B.canvas.width + ')');
+      B.el.remove();
+      Rig2.create(def, { size: 40 }).destroy();   // create() sweeps the birds that left the page: the first sweep only notes it
+      ok(B.canvas.width > 0, 'live bird: a bird seen off the page once keeps its canvas (it may only be moving between parents)');
+      Rig2.create(def, { size: 40 }).destroy();
+      ok(B.canvas.width === 0 && B.canvas.height === 0 && B._sized === true, 'live bird: a bird that left the page frees its canvas (width ' + B.canvas.width + ')');
+      B.destroy();
+      run('destroy', () => R.destroy());
+      ok(!threw, 'live bird: destroy does not throw');
+      ok(R.canvas.width === 0 && R.canvas.height === 0, 'live bird: the canvas is 0 wide after destroy (' + R.canvas.width + ')');
+    }
+  } finally {
+    if (od) Object.defineProperty(win.HTMLElement.prototype, 'offsetWidth', od);
+    for (const [k, d] of had) { if (d) Object.defineProperty(global, k, d); else delete global[k]; }
+  }
 }
 
 if (fails) { console.log('FAIL ' + fails + ' (passed ' + passes + ')'); process.exit(1); }

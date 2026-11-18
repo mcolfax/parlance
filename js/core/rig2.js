@@ -116,10 +116,11 @@ const Rig2 = (() => {
     const s = { d: '', moveTo(x, y) { s.d += 'M' + f2(x) + ' ' + f2(y); }, bezierCurveTo(a, b, c, d, e, f) { s.d += 'C' + f2(a) + ' ' + f2(b) + ' ' + f2(c) + ' ' + f2(d) + ' ' + f2(e) + ' ' + f2(f); }, closePath() { s.d += 'Z'; } };
     return s;
   }
+  const CAP_N = 6;   // segments in the half circle that rounds the end of an open line
   /* a tapered ink line as a ribbon: each point of a loop is offset by +-w/2 along its averaged normal. A closed loop
      gives two closed loops (outer and inner, fill them even-odd); an open stroke gives one closed polygon. Returns
-     [[xy...], ...] flat per loop. */
-  function ribbon(xy, st, n, w, scale, closed) {
+     [[xy...], ...] flat per loop. `caps` (an open line) adds a round cap at each end. */
+  function ribbon(xy, st, n, w, scale, closed, caps) {
     const A = [], B = [];
     for (let i = 0; i < n; i++) {
       const p = closed ? (i + n - 1) % n : Math.max(i - 1, 0), q = closed ? (i + 1) % n : Math.min(i + 1, n - 1);
@@ -130,7 +131,17 @@ const Rig2 = (() => {
     }
     if (closed) return [A, B];
     const rev = []; for (let i = n - 1; i >= 0; i--) rev.push(B[2 * i], B[2 * i + 1]);
-    return [A.concat(rev)];
+    if (!caps || n < 2) return [A.concat(rev)];
+    /* an open line (a layer with `open`): no wrap-around between its last point and its first, and a round cap at each end,
+       a half circle of radius w/2 swung from one side's offset point to the other's past the end point */
+    const cap = (i, sgn) => {
+      const o = 2 * i, ax = A[o] - xy[2 * (st + i)], ay = A[o + 1] - xy[2 * (st + i) + 1], h = Math.hypot(ax, ay), out = [];
+      if (h < 0.01) return out;
+      const tx = sgn * ay / h, ty = -sgn * ax / h;   // the unit tangent pointing out of the end (A is the tangent turned a quarter, (-ty, tx))
+      for (let k = 1; k < CAP_N; k++) { const a = Math.PI * k / CAP_N, c = Math.cos(a), sn = Math.sin(a); out.push(xy[2 * (st + i)] + c * ax * sgn + sn * h * tx, xy[2 * (st + i) + 1] + c * ay * sgn + sn * h * ty); }
+      return out;
+    };
+    return [A.concat(cap(n - 1, 1), rev, cap(0, -1))];
   }
   /* A drawing with every `step`th point of each loop, and every corner: at a small size a point every 2.5 units is
      finer than a pixel, and each point is a call to the canvas. Built once per step and kept on the drawing. */
@@ -140,8 +151,8 @@ const Rig2 = (() => {
     if (c[step]) return c[step];
     const keep = [], loops = [];
     for (const lp of D.loops) {
-      const st = lp[0], n = lp[1], pick = [];
-      for (let j = 0; j < n; j++) if (D.corner[st + j] || j % step === 0) pick.push(st + j);
+      const st = lp[0], n = lp[1], pick = [], open = D.layers.some(La => La.open && D.loops[La.loops[0]] === lp);
+      for (let j = 0; j < n; j++) if (D.corner[st + j] || j % step === 0 || (open && j === n - 1)) pick.push(st + j);   // an open line keeps its last point
       if (pick.length < 6) { pick.length = 0; for (let j = 0; j < n; j++) pick.push(st + j); }
       loops.push([keep.length, pick.length]); for (const q of pick) keep.push(q);
     }
@@ -239,7 +250,7 @@ const Rig2 = (() => {
          layer's `a`: applying both would make the shadow vanish, so a shadow layer is drawn at the token's own alpha */
       const alpha = (L, role) => (role === 'shadow' || L.a == null ? 1 : L.a);
       for (const L of d.layers) {
-        if (L.ink != null && L.w) D.layers.push({ role: roleIdx[L.ink], a: alpha(L, L.ink), loops: [L.loop || 0], ribbon: Float64Array.from(L.w), ink: true });
+        if (L.ink != null && L.w) D.layers.push({ role: roleIdx[L.ink], a: alpha(L, L.ink), loops: [L.loop || 0], ribbon: Float64Array.from(L.w), ink: true, open: !!L.open });
         else D.layers.push({ role: roleIdx[L.fill], a: alpha(L, L.fill), loops: L.loops.slice(), ribbon: null, ink: L.fill === 'ink' });
       }
       for (const nm in d.shapes || {}) D.shapes[nm] = Float64Array.from([].concat(...d.shapes[nm]));   // sparse [index, dx, dy] triples
@@ -471,7 +482,7 @@ const Rig2 = (() => {
     for (const r of def.roles) s += '.rig-' + id + ' .k-' + r + '{fill:var(--' + id + '-' + r + ')}';
     return s;
   }
-  /* Rig2.svg(def, mood, {size, view, cls, style, t, debug, detail}) -> SVG markup (detail 2 thins the outline points to half, the default up to 130 px): the mood's rest frame as filled paths with
+  /* Rig2.svg(def, mood, {size, view, cls, style, t, debug, detail}) -> SVG markup (detail thins the outline points: n keeps every nth; by default a point about every 4 css pixels, as the live bird does): the mood's rest frame as filled paths with
      class k-<role> (the bird's --<id>-<role> tokens color them, as for Rig.svg). Ink layers carry the weight an outline
      gets at this size. */
   function svg(def, mood, opts = {}) {
@@ -479,7 +490,7 @@ const Rig2 = (() => {
     const lw = lineWidth(def, opts.size, vb), L = def.lines || {}, extra = Math.max(0, lw - (L.min || 1.7));
     let s = '<svg xmlns="' + NS + '" class="rig rig-' + def.id + (opts.cls ? ' ' + opts.cls : '') + '" viewBox="' + vb.join(' ') + '" style="--rig-lw:' + f3(lw) + '"' + (opts.size ? ' width="' + opts.size + '" height="' + Math.round(opts.size * vb[3] / vb[2]) + '"' : '') + ' aria-hidden="true">';
     if (opts.style !== false) s += '<style>' + css(def) + '</style>';
-    const step = opts.detail || (opts.size && opts.size <= 130 ? 2 : 1);
+    const step = opts.detail || (opts.size ? clamp(Math.floor(4 / (2.5 * opts.size / vb[2])), 1, 4) : 1);   // the live renderer's thinning: a point about every 4 css pixels
     let buf = new Float64Array(0);
     for (const i of drawOrder(def.slots.length, ps.z)) {
       const sl = def.slots[i], nm = ps.S[i], D0 = nm == null ? null : sl.D[nm];
@@ -490,7 +501,7 @@ const Rig2 = (() => {
       s += '<g data-s="' + sl.id + '">';
       for (const La of D.layers) {
         const sink = svgSink();
-        if (La.ribbon) { const rb = ribbon(buf, D.loops[La.loops[0]][0], D.loops[La.loops[0]][1], La.ribbon, lw / (L.min || 1.7), true); for (const lp of rb) trace(sink, lp, 0, lp.length / 2, new Uint8Array(lp.length / 2)); }
+        if (La.ribbon) { const rb = ribbon(buf, D.loops[La.loops[0]][0], D.loops[La.loops[0]][1], La.ribbon, lw / (L.min || 1.7), !La.open, !!La.open); for (const lp of rb) trace(sink, lp, 0, lp.length / 2, new Uint8Array(lp.length / 2)); }
         else for (const li of La.loops) trace(sink, buf, D.loops[li][0], D.loops[li][1], D.corner);
         const role = def.roles[La.role];
         s += '<path class="k-' + role + '" fill-rule="evenodd" d="' + sink.d + '"' + (La.a < 0.999 ? ' opacity="' + f3(La.a) + '"' : '') + (La.ink && extra > 0.02 ? ' style="stroke:var(--' + def.id + '-' + role + ');stroke-width:' + f3(extra) + 'px;stroke-linejoin:round"' : '') + '/>';
@@ -531,15 +542,22 @@ const Rig2 = (() => {
     if (t - swept > 4) { swept = t; sweep(); }
     if (live.size) raf = requestAnimationFrame(tick); else lastT = 0;
   }
-  /* an instance whose element left the page lets go of its observer; it picks up again if its element comes back */
+  /* an instance whose element left the page lets go of its observer and gives its canvas memory back (Safari keeps it until the
+     canvas is shrunk). It picks up again if its element comes back: its ResizeObserver or the next set() runs _sync, and resize()
+     backs the canvas again. A bird is seen off the page once before it is let go, so one moved between parents survives. */
   function sweep() {
-    for (const r of made) if (!r.el.isConnected) { made.delete(r); live.delete(r); if (io) io.unobserve(r.el); r._gone = true; }
+    for (const r of made) {
+      if (r.el.isConnected) { r._away = false; continue; }
+      if (!r._away) { r._away = true; continue; }
+      made.delete(r); live.delete(r); if (io) io.unobserve(r.el); r._gone = true;
+      r.canvas.width = r.canvas.height = 0; r._sized = true; r._dirty = true;
+    }
   }
   const wake = () => { if (!held && !raf && live.size && typeof requestAnimationFrame === 'function') raf = requestAnimationFrame(tick); };
   const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(es => { for (const e of es) { const r = e.target._rig2; if (r) { r._visible = e.isIntersecting; r._sync(); } } }) : null;
   /* colors are read from the element's custom properties; a change of theme (system or <html data-theme>) rereads them */
   const recolor = () => { for (const r of made) { r._dirty = true; r._sync(); if (!live.has(r) && r.el.isConnected) r.render(0); } };
-  if (RMQ && RMQ.addEventListener) RMQ.addEventListener('change', e => { RM = e.matches; for (const r of made) r._sync(); });
+  if (RMQ && RMQ.addEventListener) RMQ.addEventListener('change', e => { RM = e.matches; for (const r of made) { r._dirty = true; r._sync(); if (!live.has(r) && r.el.isConnected) r.render(0); } });   // a bird lands on its rest frame instead of freezing mid-move
   if (typeof matchMedia === 'function') { const dq = matchMedia('(prefers-color-scheme: dark)'); if (dq.addEventListener) dq.addEventListener('change', recolor); }
   if (typeof MutationObserver === 'function' && typeof document !== 'undefined') new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
   if (typeof addEventListener === 'function') addEventListener('resize', () => { for (const r of made) { r._sized = true; if (r.el.isConnected && !live.has(r)) r.render(0); } });   // the pixel ratio changes with page zoom
@@ -554,14 +572,16 @@ const Rig2 = (() => {
     el.setAttribute('aria-hidden', 'true');
     const canvas = document.createElement('canvas');
     /* the canvas reaches past the bird's box (a hop, a spread wing, the zzz), as an SVG with visible overflow does. The sides
-       stay inside a screen's usual 16px gutter (a canvas, unlike an SVG's overflow, would make the page scroll sideways). */
+       bleed 12% each: that stays inside a screen's usual 16px gutter only for a bird up to about 130px wide (12% is 16px at
+       133px). A canvas, unlike an SVG's overflow, would make the page scroll sideways, so a wider bird near a screen edge needs
+       opts.bleed (smaller side bleed) or a container that clips sideways. */
     const BL = Array.isArray(opts.bleed) ? opts.bleed : [0.12, 0.45, 0.08];
     canvas.style.cssText = 'position:absolute;pointer-events:none;display:block;left:' + -BL[0] * 100 + '%;top:' + -BL[1] * 100 + '%;width:' + (1 + 2 * BL[0]) * 100 + '%;height:' + (1 + BL[1] + BL[2]) * 100 + '%';
     /* the box keeps the view's proportions whatever its container does to its width (as an SVG's viewBox does) */
     el.style.cssText = 'position:relative;display:inline-block;flex:none;line-height:0;aspect-ratio:' + vb[2] + '/' + vb[3] + ';' + (opts.size ? 'width:' + opts.size + 'px;max-width:100%' : 'width:100%');
     el.append(canvas);
-    const ctx = canvas.getContext('2d');
-    const R = { el, canvas, def, bend: opts.bend == null ? 1 : opts.bend, _visible: true, _running: opts.autoplay !== false, time: 0, mood: null, debug: !!opts.debug, speed: opts.speed || 1, override: { bones: {}, params: {}, slots: {} }, onEvent: null, draws: 0 };
+    const ctx = canvas.getContext('2d');   // null when the browser is out of canvas memory (iOS Safari does this)
+    const R = { el, canvas, def, bend: opts.bend == null ? 1 : opts.bend, _visible: true, _running: opts.autoplay !== false, time: 0, mood: null, debug: !!opts.debug, speed: opts.speed || 1, override: { bones: {}, params: {}, slots: {} }, onEvent: null, draws: 0, failed: !ctx };
     let cssW = opts.size || 0, step = 1, scale = 1, inkExtra = 0, colors = null, last = null, blendingNow = false;
     const lastS = new Array(ns).fill(null), lastZ = new Float64Array(ns), psSnap = newPS(def);
     R._dirty = true; R._sized = true;
@@ -662,7 +682,7 @@ const Rig2 = (() => {
     };
     R.pause = () => { R._running = false; R._sync(); return R; };
     R.resume = () => { R._running = true; R._sync(); return R; };
-    R.destroy = () => { live.delete(R); made.delete(R); if (io) io.unobserve(el); if (ro) ro.disconnect(); };
+    R.destroy = () => { live.delete(R); made.delete(R); if (io) io.unobserve(el); if (ro) ro.disconnect(); canvas.width = canvas.height = 0; R._sized = true; };
     R.setDebug = on => { R.debug = !!on; R.render(0); return R; };
     R.snapshot = function () {
       const out = { bones: {}, params: {}, slots: {} };
@@ -822,7 +842,7 @@ const Rig2 = (() => {
       const c = D.p2d || (D.p2d = []);
       if (c[li]) return c[li];
       const La = D.layers[li], p = new Path2D();
-      if (La.ribbon) { for (const lp of ribbon(D.pts, D.loops[La.loops[0]][0], D.loops[La.loops[0]][1], La.ribbon, 1, true)) trace(p, lp, 0, lp.length / 2, new Uint8Array(lp.length / 2)); }
+      if (La.ribbon) { for (const lp of ribbon(D.pts, D.loops[La.loops[0]][0], D.loops[La.loops[0]][1], La.ribbon, 1, !La.open, !!La.open)) trace(p, lp, 0, lp.length / 2, new Uint8Array(lp.length / 2)); }
       else for (const l of La.loops) trace(p, D.pts, D.loops[l][0], D.loops[l][1], D.corner);
       return (c[li] = p);
     }
@@ -836,7 +856,7 @@ const Rig2 = (() => {
           if (La.ink && inkExtra > 0.02) { ctx.strokeStyle = col; ctx.lineWidth = inkExtra; ctx.lineJoin = 'round'; ctx.stroke(p); }
         } else {
           ctx.beginPath();
-          if (La.ribbon) { for (const lp of ribbon(skin, D.loops[La.loops[0]][0], D.loops[La.loops[0]][1], La.ribbon, 1, true)) trace(ctx, lp, 0, lp.length / 2, new Uint8Array(lp.length / 2)); }
+          if (La.ribbon) { for (const lp of ribbon(skin, D.loops[La.loops[0]][0], D.loops[La.loops[0]][1], La.ribbon, 1, !La.open, !!La.open)) trace(ctx, lp, 0, lp.length / 2, new Uint8Array(lp.length / 2)); }
           else for (const l of La.loops) trace(ctx, skin, D.loops[l][0], D.loops[l][1], D.corner);
           ctx.fillStyle = col; if (La.a !== 1) ctx.globalAlpha = La.a;
           ctx.fill('evenodd');
@@ -857,7 +877,7 @@ const Rig2 = (() => {
       return false;
     }
     R._paint = function () {
-      if (!el.isConnected) return;
+      if (R.failed || !el.isConnected) return;
       if (R._sized) { if (!resize()) return; R._sized = false; }   // the layout is read when the box has changed size, not every frame
       if (R._dirty || !colors) { const c = readColors(); if (!c) return; colors = c; R._dirty = false; last = null; }
       const S = ps.S;
@@ -917,7 +937,7 @@ const Rig2 = (() => {
     if (io) io.observe(el);
     let ro = null;
     /* sized by CSS: keep the canvas right for whatever size it lands at */
-    if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(() => { R._sized = true; if (el.isConnected && !live.has(R)) R.render(0); }); ro.observe(el); }
+    if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(() => { R._sized = true; R._sync(); if (el.isConnected && !live.has(R)) R.render(0); }); ro.observe(el); }
     R.set(opts.mood || def.restMood, { dur: 0, clip: opts.intro !== false });
     if (opts.look) R.look(opts.look[0], opts.look[1]);
     R.render(0);
