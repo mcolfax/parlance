@@ -1,6 +1,7 @@
 # Birds v2: premium 2D animation for Pip and the flock
 
-- **Status:** draft, waiting for Matt (Stage 0 below)
+- **Status:** approved by Matt 2026-11-18 (proposal `pfmwm305wk`, web home: (a), (b), (d); (c) not yet, decide after
+  the Pip pilot). Stage 1 under way.
 - **Written:** 2026-11-18, against `main` as of this date
 - **Zone:** Red (flow/POLICY.md, "Identity: Pip or the other birds' art or rig"). Nothing here is built by the flow until
   Matt approves the Stage 0 proposals himself. After that, each stage ships as an ordinary release.
