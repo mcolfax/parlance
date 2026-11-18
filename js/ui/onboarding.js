@@ -33,8 +33,8 @@ function drawOnb(){
         h('span', { class: 'fc-thumb', 'aria-hidden': 'true' }, pip('cheer', 54, { tap: false }), h('span', { class: 'fc-play', html: IC.play })),
         h('span', { class: 'fc-text' }, h('b', null, 'Watch the intro film'), h('span', { class: 'small muted' }, '50 seconds, with sound. Meet ' + mascot().name + ' and see what’s inside.'))),
       h('ul', { class: 'perks' },
-        h('li', null, h('b', null, LANG_IDS.reduce((n, l) => n + coreOrder(l).length, 0) + ' lessons'), ' from A1 to C2, written for native-level accuracy'),
-        h('li', null, h('b', null, STORIES.length + ' illustrated stories'), ' with a recurring cast in Berlin, Mexico City and Rome'),
+        h('li', null, h('b', null, LANG_IDS.length * coreOrder(S.settings.lang).length + ' lessons'), ' from A1 to C2, written for native-level accuracy'),
+        h('li', null, h('b', null, LANG_IDS.length * STORIES.filter(s => s.lang === S.settings.lang).length + ' illustrated stories'), ' with a recurring cast in Berlin, Mexico City and Rome'),
         h('li', null, h('b', null, 'Spaced review'), ' that brings words back right before you’d forget them'),
         h('li', null, h('b', null, 'Conversations'), ' with a Claude tutor who corrects every message'))));
     onbFoot('Get started', next);

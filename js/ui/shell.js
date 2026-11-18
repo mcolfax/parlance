@@ -2,7 +2,10 @@
 /* ===================== UI SHELL ===================== */
 const UI = { tab: 'learn', justDone: null, wordFilter: 'v', wordQuery: '', talkLevel: null, genLevel: null, genTopic: '', genBusy: false, genStatus: '', genCtl: null, open: new Set(), openLang: null, animate: true, helloAt: 0, scroll: {} };
 function applyLang(){ document.documentElement.setAttribute('data-lang', S.settings.lang); }
-function setLang(lang){ if (S.settings.lang === lang) return; S.settings.lang = lang; UI.talkLevel = null; UI.genLevel = null; UI.openLang = null; UI.scroll = {}; touchSettings(); applyLang(); if (recOn()) recIndex(lang); UI.animate = true; render(); window.scrollTo(0, 0); }
+function setLang(lang){ if (S.settings.lang === lang) return; if (!langReady(lang)){ toast('Getting ' + LANGS[lang].name + ' ready…'); langLoad(lang).then(() => setLang(lang), () => langFailed(lang)); return; } S.settings.lang = lang; UI.talkLevel = null; UI.genLevel = null; UI.openLang = null; UI.scroll = {}; touchSettings(); applyLang(); if (recOn()) recIndex(lang); UI.animate = true; render(); window.scrollTo(0, 0); }
+function langFailed(lang){
+  sheet('Couldn’t load ' + LANGS[lang].name, h('p', null, 'Check your connection, then try again.'), [{ label: 'Try again', primary: true, run: () => location.reload() }, { label: 'Not now' }]);
+}
 function toast(msg){
   const t = $('#toast'); clearTimeout(toast.t); clearTimeout(toast.h);
   t.textContent = msg; t.hidden = false; t.classList.remove('in', 'out'); void t.offsetWidth; t.classList.add('in');
@@ -59,6 +62,7 @@ function renderTabs(){
       id === 'friends' && socialAlerts() ? h('span', { class: 'badge dot', 'aria-label': 'New from friends' }) : null))));
 }
 function render(){
+  if (!langReady(S.settings.lang)){ langLoad(S.settings.lang).then(() => render(), () => langFailed(S.settings.lang)); return; }   // the screen stays as it is meanwhile
   ensureMascot();
   applyLang();
   closeGloss();

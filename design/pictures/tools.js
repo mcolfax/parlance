@@ -30,7 +30,7 @@ async function loadApp(fn){
     beforeParse(w){ w.matchMedia = () => ({ matches: false, addEventListener(){}, removeEventListener(){} }); w.scrollTo = () => {}; w.Element.prototype.scrollIntoView = function(){}; w.HTMLCanvasElement.prototype.getContext = () => null; }
   });
   await new Promise(r => { if (dom.window.document.readyState === 'complete') r(); else dom.window.addEventListener('load', r); });
-  for (let i = 0; i < 100 && !dom.window.__parlance; i++) await sleep(20);
+  for (let i = 0; i < 500 && !dom.window.__parlance; i++) await sleep(20);
   if (!dom.window.__parlance) throw new Error('The app did not load in jsdom. Run npm test to see why.');
   try { return await fn(dom.window.__parlance, dom.window); } finally { dom.window.close(); }
 }

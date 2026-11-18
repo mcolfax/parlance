@@ -3,7 +3,7 @@
    One place for version, release notes, languages, levels, the XP economy, quests, badges and
    Talk scenarios. Change a value here and it applies everywhere.
    ====================================================== */
-const APP_VERSION = '4.52.0';
+const APP_VERSION = '4.53.0';
 /* The languages Parlance teaches, in the order Learn and Me list them. Every per-language loop, saved slice and database
    path is built from this list, so a new language starts here (then LANGS, MEDIA.voice, SCENARIOS and CAST below). */
 const LANG_IDS = ['de', 'es', 'it'];
@@ -15,6 +15,9 @@ const SCHEMA_VERSION = 12;         // bump when the saved-state shape changes; a
    password-reset links, so it's Google only. The email code is all still there; set it to true to bring it back. */
 const WEB = { url: 'https://ibrweunxigetiazzuwiz.supabase.co', key: 'sb_publishable_bdrqx8iqQtN2iZqi5t_K2A_RKP7Mvg7', poll: 60000, email: false };
 const RELEASES = [
+  { v: '4.53.0', date: '2026-11-17', title: 'Opens faster', notes: [
+    'Parlance now loads the language you’re learning first, so it opens faster on phones. The other languages follow a moment later.',
+  ] },
   { v: '4.52.0', date: '2026-11-17', title: 'Tables where they belong', notes: [
     'In lessons from A2 up, each table now shows up on the card that explains it, not at the end.',
     'The Spanish A1 lessons accept more good English answers.',
@@ -368,6 +371,9 @@ const LANGS = {
     hello: 'Ciao!', test: 'Ciao! Piacere di conoscerti.',
     dialect: 'Use standard Italian. Use tu unless the setting is formal (hotel, doctor, office, interview, official business), then use Lei. Write elisions with a typographic apostrophe (l’acqua, un’amica).' }
 };
+/* each language's lesson and story files, in the order they must run (unit order within a level follows it);
+   only the learner's language loads before the first screen (langLoad(), js/core/content.js) */
+const LANG_FILES = Object.fromEntries(LANG_IDS.map(l => [l, ['1-basics', '1b-more', '2-advanced', '3-more', '4-a1', '4-a2', '4-b1', '4-b2', '4-c1', '4-c2', '5-more', '6-more', '7-more', '8-more', '9-more'].map(f => 'content/' + l + '-' + f + '.js').concat('content/stories-' + l + '.js')]));
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 /* Word hints: how much meaning a question shows, by the level of the lesson (Me → Practice → Word hints can override this).
    full: tap any word of a sentence for its meaning, a nudge says so, and the lesson's words are one tap away
