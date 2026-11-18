@@ -17,7 +17,7 @@
   --streak-bg:#FFE8D6; --streak-text:#8A3A0C;
   --der:#2360C6; --die:#C22E29; --das:#00737D; --pl:#7847B3;
   --gold:#B8860B;
-  --gold-text:#7A5A00; --hair-strong:#7F9685;   /* gold lettering and a field's edge: checked in dev/contrast.js */
+  --gold-text:#935C00; --hair-strong:#7F9685;   /* gold lettering and a field's edge: checked in dev/contrast.js */
   --ice:#CFE6F7;
   --sc-warm:#E9A23B; --sc-red:#D9604C; --sc-sage:#7FB5A0; --sc-night:#1C2D3B; --sc-house:#C9D6D4; --sc-glow:rgb(255 214 120 / .38); --sc-glowbox:#FFE9B8; --sc-crate:#B98A5A; --sc-moon:#F5E7B5;
   --edge:0 2px 0 var(--hair);   /* the soft ledge under cards */

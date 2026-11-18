@@ -1635,6 +1635,7 @@ async function main(){
       Q.E('window.__ms = { metadata: null, playbackState: "none", h: {}, setActionHandler(a, f){ this.h[a] = f; } }; Object.defineProperty(navigator, "mediaSession", { configurable: true, value: window.__ms }); window.MediaMetadata = function(o){ Object.assign(this, o); }; window.__wl = { n: 0, released: 0 }; Object.defineProperty(navigator, "wakeLock", { configurable: true, value: { request: async () => { window.__wl.n++; return { release: async () => { window.__wl.released++; }, addEventListener(){} }; } } })');
       // the song is held while it's open
       const song0 = Q.E('busy()');
+      Q.w.URL.createObjectURL = Q.w.URL.createObjectURL || (() => 'blob:keep');   // jsdom has no blob URLs; the silent loop needs one
       Q.E('startListen()');
       ok(song0 === false && Q.E('busy()') === true && !!qd.querySelector('.overlay.listen'), 'listen: the song is held while it\'s open');
       ok(Q.E('Listen.playing') === true && qd.querySelector('.overlay.listen .ls-t').textContent === Q.E('Listen.items[0].t') && Q.E('window.__said[0]') === Q.E('Listen.items[0].t'), 'listen: it starts at once with the first line');
@@ -1647,6 +1648,8 @@ async function main(){
       // pause, next and previous
       Q.E('listenPause()');
       ok(Q.E('Listen.playing') === false && /Play/.test(qd.querySelector('.overlay.listen .ls-controls .btn').textContent), 'listen: pause, next and previous (paused, the button says Play)');
+      ok(Q.E('!!Keep.el && Keep.el.loop && Keep.el.paused'), 'listen: the silent keep-alive loop stops when you pause');
+      Q.E('listenPlay()'); ok(Q.E('!Keep.el.paused') && Q.E('Keep.el.src').startsWith('blob:'), 'listen: a silent loop plays while it runs, so a phone with the screen off keeps it going'); Q.E('listenPause()');
       Q.E('listenStep(1)'); const p1 = Q.E('Listen.pos');
       Q.E('listenStep(-1)'); const p0 = Q.E('Listen.pos');
       Q.E('listenStep(-1)');
@@ -1683,6 +1686,7 @@ async function main(){
       g = 0; while (!/heard\./.test(qd.querySelector('.overlay.listen').textContent) && g++ < 200) await sleep(50);
       ok(/heard\./.test(qd.querySelector('.overlay.listen').textContent), 'listen: without Media Session, Wake Lock or a voice it still runs to the end');
       Q.E('endListen()'); await sleep(300);
+      ok(Q.E('!Keep.el || Keep.el.paused'), 'listen: closing it stops the silent loop');
       // the ten-minute worry: a long list stops at 20
       seed(40); ok(Q.E('listenItems("es").length') <= 20 && Q.E('listenItems("es").length') > 6, 'listen: a long list stops at ' + Q.E('listenItems("es").length'));
       ok(Q.errors.length === 0, 'listen: no page errors ' + Q.errors.slice(0, 2).join(' | '));
@@ -2904,7 +2908,7 @@ async function main(){
     { const run = async rate => E('(async () => { const old = SFX.ctx, src = { connect(){}, start(){}, stop(){}, playbackRate: { value: 1 }, detune: { value: 0 } }; window.__bsrc = src;'
         + ' SFX.ctx = { state: "running", destination: {}, decodeAudioData: (b, yes) => { yes({ duration: 1 }); }, createBufferSource: () => src };'
         + ' const pr = recBuffer(new ArrayBuffer(4), ' + rate + ', Rec.gen); await new Promise(r => setTimeout(r, 20)); if (src.onended) src.onended(); const out = await pr; SFX.ctx = old; return out; })()');
-      ok(await run(0.78) === true && E('__bsrc.playbackRate.value') === 0.78 && E('__bsrc.detune.value') === 0, 'follow-ups: the Web Audio fallback plays Relaxed at 0.78 (detune stays 0: it would cancel the slowdown)');
+      ok(await run(0.78) === true && Math.abs(E('__bsrc.playbackRate.value') - 0.9) < 1e-6 && E('__bsrc.detune.value') === 0, 'follow-ups: the Web Audio fallback plays Relaxed at a milder 0.9 (detune stays 0: it would cancel the slowdown)');
       ok(await run(0.7) === null && await run(1) === true && E('__bsrc.playbackRate.value') === 1, 'follow-ups: the Web Audio fallback leaves slow to the device voice and normal at full speed'); }
     E('S.settings.speed = "normal"');
     let n = blobs.length;

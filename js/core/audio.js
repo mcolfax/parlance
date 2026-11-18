@@ -219,8 +219,8 @@ function recElement(bytes, rate){
   });
 }
 /* through Web Audio, when the element can't play a local copy. It can't slow a voice down without lowering it (detune
-   would only cancel the slowdown: the spec multiplies it into the playback rate), so Relaxed is a little lower here and a
-   slow request goes to the device's voice */
+   would only cancel the slowdown: the spec multiplies it into the playback rate), so Relaxed plays at 0.9 here (a touch
+   slower and under two semitones lower, still the same voice; 0.78 sounded noticeably deeper) and a slow request goes to the device's voice */
 function recBuffer(bytes, rate, my){
   const c = sfxCtx(); if (!c || !c.decodeAudioData || rate < 0.75) return Promise.resolve(null);
   return new Promise((ok, no) => { const p = c.decodeAudioData(bytes, ok, no); if (p && p.then) p.then(ok, no); }).then(buf => new Promise(res => {
@@ -228,8 +228,9 @@ function recBuffer(bytes, rate, my){
     const s = c.createBufferSource(); s.buffer = buf; s.connect(c.destination);
     const fin = r => { if (Rec.done !== fin) return; Rec.done = null; if (Rec.src === s) Rec.src = null; clearTimeout(Rec.t); res(r); };
     Rec.done = fin; Rec.src = s; s.onended = () => fin(true);
-    if (rate < 1) s.playbackRate.value = rate;
-    s.start(); Rec.t = setTimeout(() => fin(true), (buf.duration || 0) * 1000 / (rate < 1 ? rate : 1) + 2000);
+    const r = rate < 1 ? Math.max(rate, 0.9) : 1;
+    if (r < 1) s.playbackRate.value = r;
+    s.start(); Rec.t = setTimeout(() => fin(true), (buf.duration || 0) * 1000 / r + 2000);
   }), () => null);
 }
 function recStop(){
@@ -249,11 +250,23 @@ function recUnlock(){
     if (p && p.then) p.then(done, () => { a.muted = false; if (a.src === u) Rec.unlocked = false; }); else done();
   } catch (e) { Rec.unlocked = false; }
 }
-function silentWav(){
-  const n = 400, d = new DataView(new ArrayBuffer(44 + n * 2)); let o = 0;
+function silentWav(n = 400){
+  const d = new DataView(new ArrayBuffer(44 + n * 2)); let o = 0;
   const s = t => { for (const ch of t) d.setUint8(o++, ch.charCodeAt(0)); }, u32 = v => { d.setUint32(o, v, true); o += 4; }, u16 = v => { d.setUint16(o, v, true); o += 2; };
   s('RIFF'); u32(36 + n * 2); s('WAVEfmt '); u32(16); u16(1); u16(1); u32(8000); u32(16000); u16(2); u16(16); s('data'); u32(n * 2);
   return new Blob([d.buffer], { type: 'audio/wav' });
+}
+/* Android Chrome freezes a page with the screen off as soon as nothing is playing, so Listen hands-free stopped in the
+   pause after the first word. While it plays, a second element loops two seconds of silence: the page counts as playing
+   audio, its timers keep running and the next word starts on time. Started from the tap that opens or plays Listen. */
+const Keep = { el: null };
+function keepAlive(on){
+  try {
+    if (on){
+      if (!Keep.el){ if (!window.URL || !URL.createObjectURL) return; const a = new Audio(); a.preload = 'auto'; a.loop = true; a.setAttribute('playsinline', ''); a.src = URL.createObjectURL(silentWav(16000)); Keep.el = a; }
+      if (Keep.el.paused){ const p = Keep.el.play(); if (p && p.catch) p.catch(() => {}); }
+    } else if (Keep.el && !Keep.el.paused) Keep.el.pause();
+  } catch (e) {}
 }
 /* what a lesson can say: its tip examples, words and sentences with every accepted form, and its filled-in blanks */
 function lessonSaid(l){
