@@ -57,6 +57,14 @@
   --pip-crest:#EE5F35; --pip-crest2:#F7B440; --pip-tail:#F06137; --pip-tail2:#CD5229; --pip-feet:#808783;
   --pip-glint:#FDFDF9; --pip-gloss:#6CC3C2; --pip-gloss2:#FDE59A; --pip-shadow:rgb(20 48 31 / .14);
   --pip-blush:#FF8C8C; --pip-sweat:#A4DBF6; --pip-sweat2:#4CA3D6; --pip-spark:#F6B33F; --pip-heart:#F0565A;
+  /* the refined look of the rig2 Pip (design/rig/v2/look.md): the cel shade and rim light of each feather and body color, and
+     the eye speculars. design/rig/v2/tools/refine.py computes them from the base color in OKLCH (shade: L - 0.10, C x 1.05, hue
+     8 deg toward blue; light: L + 0.08, C x 0.9) and checks them here. Pip's colors have no dark-mode variants (only the shadow
+     does), so these hold in both modes; if a dark base is ever added, run refine.py again and add the dark values below. */
+  --pip-body-shade:#005761; --pip-body-light:#3D8E92; --pip-belly-shade:#D5CFB5; --pip-belly-light:#FFFFFF;
+  --pip-beak-shade:#DF8D01; --pip-beak-light:#FFD392; --pip-crest-shade:#CF3228; --pip-crest-light:#FF8360;
+  --pip-crest2-shade:#E08E00; --pip-crest2-light:#FFD495; --pip-tail-shade:#D1352A; --pip-tail-light:#FF8764;
+  --pip-feet-shade:#626A67; --pip-feet-light:#999F9B; --pip-eye-spec:#FFFFFF;
   /* the other birds a learner can pick (MASCOTS in js/config.js): the colors of their model sheets. Their effects (the
      shadow, blush, sweat drop, sparkles and hearts) are Pip's, so they change with the theme the same way. */
   /* Kiwi the budgie */
