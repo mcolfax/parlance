@@ -610,3 +610,4 @@ Object.assign(LESSON_GLOSS.it, {
   'ondata': 'wave', 'calore': 'heat', 'ordinato': 'ordered (from ordinare)', 'fiume': 'river', 'ricominciò': 'began again · started again (from ricominciare)', 'tutte': 'all · everyone (feminine plural of tutto)',
   'generazioni': 'generations (plural of la generazione)', 'future': 'future (plural feminine of futuro)', 'lasciamo': 'we leave (from lasciare)', 'eredità': 'legacy · inheritance',
   'vivano': 'live (subjunctive of vivere)', 'capissero': 'understood (imperfect subjunctive of capire)', 'natura': 'nature', 'calda': 'hot · warm (feminine of caldo)' });
+Object.assign(LESSON_GLOSS.es, { conferencia: 'conference · lecture (la conferencia de prensa: the press conference)', vocera: 'spokeswoman (el vocero: spokesman)', vocero: 'spokesman (la vocera: spokeswoman)' });

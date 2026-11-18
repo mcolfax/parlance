@@ -24,11 +24,11 @@ U('Greetings & introductions', 'A1', [
       [
         ['llamarse (reflexive): to be called', null, [['yo', '**me** llam**o**'], ['tú', '**te** llam**as**'], ['él/ella/usted', '**se** llam**a**'], ['nosotros', '**nos** llam**amos**'], ['ellos/ustedes', '**se** llam**an**']]],
         ['tú or usted?', ['you', 'use with'], [['**tú**', 'friends, family, peers: ¿Cómo te llamas?'], ['**usted**', 'strangers, elders, formal: ¿Cómo se llama usted?']]]]),
-    [['yo', 'I'], ['tú|usted', 'you'], ['usted|tú', 'you'], ['llamarse', 'to be called|to be named'], ['el nombre', 'name|first name', 'm'],
+    [['yo', 'I'], ['tú|usted', 'you'], ['usted', 'you (formal)|formal you|you'], ['llamarse', 'to be called|to be named'], ['el nombre', 'name|first name', 'm'],
      ['mucho gusto', 'nice to meet you|pleased to meet you|good to meet you'], ['sí', 'yes'], ['no', 'no']],
     [['¿Cómo te llamas?|¿Cómo se llama usted?|¿Cómo se llama?', 'What’s your name?|What are you called?'],
      ['Me llamo Matt.|Mi nombre es Matt.', 'My name is Matt.|I am called Matt.'],
-     ['¿Cómo se llama usted?|¿Cómo se llama?|¿Cómo te llamas?', 'What’s your name?|What are you called?'],
+     ['¿Y tú, cómo te llamas?|¿Y cómo te llamas?', 'And you, what’s your name?|And what’s your name?|And you, what are you called?|And what are you called?'],
      ['Mi nombre es Lucía.|Me llamo Lucía.', 'My name is Lucía.|I am called Lucía.'],
      ['Mucho gusto, Lucía.', 'Nice to meet you, Lucía.|Pleased to meet you, Lucía.|Good to meet you, Lucía.']],
     [['Yo ___ llamo Matt.', 'me|te|se', 'My name is Matt.'], ['¿Cómo ___ llamas?', 'te|me|se', 'What’s your name?'], ['¿Cómo se llama ___? (formal)', 'usted|tú|yo', 'What’s your name?']]),
