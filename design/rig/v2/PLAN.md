@@ -1,7 +1,7 @@
 # Birds v2: premium 2D animation for Pip and the flock
 
 - **Status:** approved by Matt 2026-11-18 (proposal `pfmwm305wk`, web home: (a), (b), (d); (c) not yet, decide after
-  the Pip pilot). Stage 1 done (`e2bb3eb`); Stage 2 under way.
+  the Pip pilot). Stages 1–3 done and reviewed (FIX list applied separately); Stage 4 under way.
 - **Written:** 2026-11-18, against `main` as of this date
 - **Zone:** Red (flow/POLICY.md, "Identity: Pip or the other birds' art or rig"). Nothing here is built by the flow until
   Matt approves the Stage 0 proposals himself. After that, each stage ships as an ordinary release.
@@ -254,7 +254,7 @@ acceptance criteria. Packages in the same stage marked *parallel* own disjoint f
 - `Rig2.create(def, opts)` returns an object with the same members as `Rig.create` (list in section 5). `el` is a
   `<span>` holding one `<canvas>` sized by CSS to `opts.size` and backed at `devicePixelRatio` (cap 3).
 - Per frame:
-  1. Evaluate the current mood action (blending from the previous one over 0.25 s with ease-in-out, as `rig.js`
+  1. Evaluate the current mood action (blending from the previous one over 0.32 s with a back ease, as `rig.js`
      does), then additive moves on top, then `override`.
   2. Procedural layers in the order `rig.js` applies them: idle breathe and head drift, blink, glance, look-at,
      talk (jaw and mouth swaps from the viseme script, reusing `rig.js`'s text → viseme function by copying it), turn.
@@ -456,6 +456,14 @@ Same as the Stage 4 gate, for all five birds. Stop until Matt answers.
   - Film: `node dev/film.js` re-renders every bird that is in `RIG2.birds` (its fingerprint will have changed); commit
     `media/film/`. Icons: `NODE_PATH="$(npm root -g)" node dev/icons.js`; only if Matt said yes to the new Pip on the
     Home Screen icon (it's a separate Red line: ask in the Stage 4 proposal).
+  - Other old-rig calls (from the Stage 1–3 review): `js/ui/film.js` calls `Rig.hold` and `Rig.create` directly and
+    `art.js` calls `Rig.setHorizon`. Forward `hold` and `setHorizon` to `Rig2` as well (add `js/ui/film.js` to this
+    package's files), or birds animate behind the film and don't level their heads. The film's birds pass
+    `phase: 0` so film renders repeat exactly.
+  - If `rig.failed` is true after `Rig2.create` (no canvas context, e.g. Safari out of canvas memory), use `Rig`.
+  - Sideways scroll: a live canvas bleeds 12% past its box at the sides. Screenshot every screen with a bird wider
+    than about 130 px at 412 px and confirm no sideways scroll; clip with the container if needed.
+  - Check `.pip-svg` sizing on the real screens (on the review page the 40 px canvas bird sits ~3 px higher).
   - Tests in `dev/test.js`: with `RIG2` on, every screen that draws a bird renders one (count canvases or `.pip-svg`);
     a failed `media/birds/pip.json` fetch falls back to the old rig; `pipSVG()` returns SVG with every role class for
     every mood; reduced motion holds.
