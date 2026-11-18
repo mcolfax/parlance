@@ -9,3 +9,5 @@ design/rig/tools/trace/work/
 design/pictures/recraft/candidates/
 flow/shots/
 .claude/worktrees/
+design/rig/v2/baseline/*.mp4
+design/rig/v2/baseline/**/*.mp4

@@ -1,0 +1,52 @@
+{
+  "kakadu": {
+    "instances": 3,
+    "size": 120,
+    "rate": 4,
+    "seconds": 5,
+    "frames": 292,
+    "mean": 2.449,
+    "p95": 4.3,
+    "max": 9.5
+  },
+  "kiwi": {
+    "instances": 3,
+    "size": 120,
+    "rate": 4,
+    "seconds": 5,
+    "frames": 300,
+    "mean": 1.399,
+    "p95": 2.4,
+    "max": 7.1
+  },
+  "mango": {
+    "instances": 3,
+    "size": 120,
+    "rate": 4,
+    "seconds": 5,
+    "frames": 298,
+    "mean": 1.816,
+    "p95": 3.1,
+    "max": 5.4
+  },
+  "pip": {
+    "instances": 3,
+    "size": 120,
+    "rate": 4,
+    "seconds": 5,
+    "frames": 299,
+    "mean": 1.63,
+    "p95": 2.8,
+    "max": 4.5
+  },
+  "rojo": {
+    "instances": 3,
+    "size": 120,
+    "rate": 4,
+    "seconds": 5,
+    "frames": 297,
+    "mean": 1.775,
+    "p95": 2.9,
+    "max": 6.7
+  }
+}
